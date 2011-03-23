@@ -1,1 +1,20 @@
 * text=auto !eol
+/.classpath -text svneol=unset#text/plain
+/.project -text svneol=unset#text/plain
+.settings/org.eclipse.core.resources.prefs -text svneol=unset#text/plain
+.settings/org.eclipse.jdt.core.prefs -text svneol=unset#text/plain
+.settings/org.eclipse.pde.core.prefs -text svneol=unset#text/plain
+.settings/org.maven.ide.eclipse.prefs -text svneol=unset#text/plain
+/.umlproject -text
+/LICENSE -text
+/NOTICE -text
+/build.properties -text svneol=unset#text/plain
+/pom.xml -text svneol=unset#text/plain
+src/assemble/assemblies.xml -text svneol=unset#text/plain
+src/etc/NOTICE_template.txt -text svneol=unset#text/plain
+src/etc/header.txt -text svneol=unset#text/plain
+src/main/java/de/hub/corpling/pepper/modules/relannis/RelANNIS2SaltMapper.java -text svneol=unset#text/plain
+src/main/java/de/hub/corpling/pepper/modules/relannis/RelANNISExporter.java -text svneol=unset#text/plain
+src/main/java/de/hub/corpling/pepper/modules/relannis/RelANNISImporter.java -text svneol=unset#text/plain
+src/main/java/de/hub/corpling/pepper/modules/relannis/Salt2RelANNISMapper.java -text svneol=unset#text/plain
+src/main/java/de/hub/corpling/pepper/modules/relannis/exceptions/RelANNISModuleException.java -text svneol=unset#text/plain
