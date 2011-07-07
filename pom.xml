@@ -10,6 +10,12 @@
       <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
     </license>
   </licenses>
+ <repositories>
+	    <repository>
+	      <id>SaltNPepper Repository</id>
+	      <url>https://korpling.german.hu-berlin.de/~annis/maven2/saltnpepper/</url>
+	    </repository>
+	  </repositories>
 	<properties>
 	    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	    <bundle.file>${project.groupId}.${project.artifactId}_${project.version}.jar</bundle.file>

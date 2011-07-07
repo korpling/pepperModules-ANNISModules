@@ -1361,7 +1361,6 @@ public class Salt2RelANNISMapper implements TraversalObject
 					(this.currTraversionType== TRAVERSION_TYPE.DOCUMENT_STRUCTURE_CR) ||
 					(this.currTraversionType== TRAVERSION_TYPE.DOCUMENT_STRUCTURE_DR) ||
 					(this.currTraversionType== TRAVERSION_TYPE.DOCUMENT_STRUCTURE_DR_SUB) ||
-//					(this.currTraversionType== TRAVERSION_TYPE.DOCUMENT_STRUCTURE_PR) ||
 					(this.currTraversionType== TRAVERSION_TYPE.DOCUMENT_STRUCTURE_PR_SUB))
 		{//traversing document structure
 			if (currNode instanceof SNode)
@@ -1385,23 +1384,6 @@ public class Salt2RelANNISMapper implements TraversalObject
 						if (currNode instanceof SToken)
 						{//current node is token
 							raNode= relANNISFactory.eINSTANCE.createRANode();
-//							if (this.getsDocGraph().getSTextualDSs().size()<= 1)
-//							{
-//								STextualRelation textRel= null;
-//								if (this.currRaText== null)
-//								{//find STexualDS to current token
-//									{//find STextualRelation to current Token
-//										for (Edge outEdge: this.getsDocGraph().getOutEdges(currSNode.getSId()))
-//											if (outEdge instanceof STextualRelation)
-//												textRel= (STextualRelation) outEdge;
-//									}//find STextualRelation to current Token		
-//								}//find STexualDS to current token
-//								if (textRel== null) System.out.println("textRel: "+ textRel);
-//								if (textRel.getSTarget()== null) System.out.println("textRel.target: "+ textRel.getTarget());
-//								this.currRaText= this.sElementId2RAText.get(textRel.getSTarget().getSElementId());
-//								this.mapSToken2RANode((SToken)currSNode, this.currRaText, raNode);
-//							}	
-//							else 
 							{//if there are more than just one text sources in document-graph
 								EList<Edge> outEdges= this.getsDocGraph().getOutEdges(currSNode.getId());
 								STextualDS currSTextDS= null;
@@ -1413,6 +1395,10 @@ public class Salt2RelANNISMapper implements TraversalObject
 										break;
 									}
 								}
+								if (this.sElementId2RAText== null)
+									throw new RelANNISModuleException("No RAText object is given to corresponding to the STExtualDS '"+currSTextDS.getSElementId()+"'.");
+								if (currSTextDS== null)
+									throw new RelANNISModuleException("An exception occurs while traversing RAGraph, because the currSTextDS object is null for node '"+currSNode.getSElementId()+"'.");
 								this.mapSToken2RANode((SToken)currSNode, this.sElementId2RAText.get(currSTextDS.getSElementId()) , raNode);
 							}//if there are more than just one text sources in document-graph
 							
