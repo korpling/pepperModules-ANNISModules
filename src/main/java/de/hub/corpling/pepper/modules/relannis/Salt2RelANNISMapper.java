@@ -748,8 +748,13 @@ public class Salt2RelANNISMapper implements TraversalObject
 			}//a namespace can be taken from layers name
 			raStructuredNode.setRaNamespace(namespace);
 		}//namespace
+		if (textualPOT.getStartPot()== null)
+			throw new RelANNISModuleException("Cannot map the given SStructuredNode-object, because it doesn't have a left (start-value) border, pointing to the primary data.");
+		if (textualPOT.getEndPot()== null)
+			throw new RelANNISModuleException("Cannot map the given SStructuredNode-object, because it doesn't have a right (end-value) border, pointing to the primary data.");
+		
 		Long left= new Long(textualPOT.getStartPot());
-		Long right= new Long(textualPOT.getEndPot());
+		Long right= new Long(textualPOT.getEndPot()); 
 		
 		if (left < 0)
 			throw new RelANNISModuleException("Cannot map the given SStructuredNode-object '"+sStructuredNode.getSId()+"' to RAStructuredNode, because its left-value '"+left+"' is smaller than 0.");
