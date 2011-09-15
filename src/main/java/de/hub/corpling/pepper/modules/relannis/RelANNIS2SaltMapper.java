@@ -188,7 +188,7 @@ public class RelANNIS2SaltMapper implements TraversalObject
 		this.getSCorpusGraph().addSNode(corpDoc);
 		{//if there is a version put it to SMetaAnnotation
 			if (	(raCorpus.getRaVersion()!= null)&&
-					(!raCorpus.getRaVersion().equalsIgnoreCase("")))
+					(!raCorpus.getRaVersion().equals("")))
 			{
 				SMetaAnnotation sMetaAnno= SaltCommonFactory.eINSTANCE.createSMetaAnnotation();
 				sMetaAnno.setSName("version");
@@ -289,7 +289,7 @@ public class RelANNIS2SaltMapper implements TraversalObject
 	private Map<Long, STextualDS> raId2STextualDS= null;
 	
 	/**
-	 * Stores all raId�s of RANode objects and their corresponding SNode objects.
+	 * Stores all raId's of RANode objects and their corresponding SNode objects.
 	 */
 	private Map<Long, SNode> raId2SNode= null;
 	/**
@@ -602,7 +602,7 @@ public class RelANNIS2SaltMapper implements TraversalObject
 					{//map nodes
 						if (this.getRaDocumentGraph().isTerminalRaNode(currRaNode))
 						{//node is terminal token
-							//only map, if Token doesn�t still exists
+							//only map, if Token doesn't still exists
 							//create token and map
 							SToken sToken= SaltCommonFactory.eINSTANCE.createSToken();
 							this.mapRANode2SToken(currRaNode, sToken);
@@ -658,7 +658,7 @@ public class RelANNIS2SaltMapper implements TraversalObject
 						Edge existingEdge= null;
 						for (Edge outEdge : this.getSDocGraph().getOutEdges(sStructure.getSId()))
 						{//check if a dominance relation between given nodes already exists	
-							if(outEdge.getTarget().getId().equalsIgnoreCase(sTarget.getId()))
+							if(outEdge.getTarget().getId().equals(sTarget.getId()))
 							{
 								SRelation sRelation= (SRelation) outEdge;
 								if (sRelation.getSTypes()== null)
