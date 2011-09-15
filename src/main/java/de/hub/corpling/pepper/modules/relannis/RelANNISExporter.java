@@ -156,10 +156,10 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 		if (this.getCorpusDefinition().getCorpusPath()== null)
 			throw new RelANNISModuleException("Cannot export an the element '"+sElementId.getId()+"', because of no corpus path is set.");
 		
-		{//pre start corpus structure, if it wasn�t
+		{//pre start corpus structure, if it wasn't
 			if (!isPreStarted)
 				this.preStartCorpusStructure();
-		}//pre start corpus structure, if it wasn�t
+		}//pre start corpus structure, if it wasn't
 		if (sElementId.getSIdentifiableElement() instanceof SCorpus)
 		{//export corpusStructure
 			Long timeToExportSCorpusStructure= System.nanoTime();
@@ -203,7 +203,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 			if (this.getLogService()!= null)
 				this.getLogService().log(LogService.LOG_DEBUG,this.getName()+" exporting document "+ sElementId.getSId());
 			if (((SDocument)sElementId.getSIdentifiableElement()).getSDocumentGraph()!= null)
-			{//only export if document graph isn�t null	
+			{//only export if document graph isn't null	
 				if (this.sElementId2RaId!= null)
 				{
 					//getting ra id
@@ -262,12 +262,12 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 						}//remove the raDocumentgraph
 					}
 				}
-			}//only export if document graph isn�t null
+			}//only export if document graph isn't null
 			this.totalTimeToExportSDocumentStructure= this.totalTimeToExportSDocumentStructure + (System.nanoTime() - timeToExportDocument);
 		}//export documentStructure
 		else 
 		{
-			throw new RelANNISModuleException("Cannot export the following elment with id '"+sElementId.getSId()+"', because it isn�t of Type SCorpus or SDocument: "+ sElementId.getSIdentifiableElement());
+			throw new RelANNISModuleException("Cannot export the following elment with id '"+sElementId.getSId()+"', because it isn't of Type SCorpus or SDocument: "+ sElementId.getSIdentifiableElement());
 		}
 	}
 	
