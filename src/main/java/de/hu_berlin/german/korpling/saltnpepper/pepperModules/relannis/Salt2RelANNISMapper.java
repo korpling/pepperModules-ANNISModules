@@ -15,7 +15,7 @@
  *
  *
  */
-package de.hub.corpling.pepper.modules.relannis;
+package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis;
 
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -41,6 +41,7 @@ import de.hu_berlin.german.korpling.saltnpepper.misc.relANNIS.RAText;
 import de.hu_berlin.german.korpling.saltnpepper.misc.relANNIS.RA_COMPONENT_TYPE;
 import de.hu_berlin.german.korpling.saltnpepper.misc.relANNIS.RA_CORPUS_TYPE;
 import de.hu_berlin.german.korpling.saltnpepper.misc.relANNIS.relANNISFactory;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.exceptions.RelANNISModuleException;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.Edge;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.Node;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.modules.GraphTraverser;
@@ -71,7 +72,6 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SProcessingAnnotat
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SaltCoreFactory;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.modules.SGraphAccessorModule;
-import de.hub.corpling.pepper.modules.relannis.exceptions.RelANNISModuleException;
 
 public class Salt2RelANNISMapper implements TraversalObject
 {

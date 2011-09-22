@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>de.hu_berlin.german.korpling.saltnpepper</groupId>
   <artifactId>pepperModules-RelANNISModules</artifactId>
-  <version>1.1.1-SNAPSHOT</version>
+  <version>1.1.0-SNAPSHOT</version>
   <packaging>bundle</packaging>
   <repositories>
     <repository>
@@ -12,12 +12,24 @@
   </repositories>
   <parent>
     <groupId>de.hu_berlin.german.korpling.saltnpepper</groupId>
-    <artifactId>pepperModules-parentModule</artifactId>
-    <version>0.0.2</version>
+    <artifactId>pepper-parentModule</artifactId>
+    <version>1.1.2</version>
   </parent>
   <scm>
     <developerConnection>scm:svn:https://korpling.german.hu-berlin.de/svn/saltnpepper/PepperModules/RelANNISModules/trunk</developerConnection>
   </scm>
+  <properties>
+  	<component.descriptor.name>serviceComponents.xml</component.descriptor.name>
+  </properties>
+  <dependencies>
+  	<dependency>
+  		<groupId>de.hu_berlin.german.korpling.saltnpepper</groupId>
+  		<artifactId>misc-RelANNISModel</artifactId>
+		<version>1.1.0-SNAPSHOT</version>
+		<type>bundle</type>
+		<scope>compile</scope>
+  	</dependency>
+  </dependencies>
   <build>
     <plugins>
       <!-- start: Plugin for automatic releasing -->
@@ -29,7 +41,7 @@
            https://korpling.german.hu-berlin.de/svn/saltnpepper/PepperModules/RelANNISModules/tags/
           </tagBase>
           <releaseProfiles>release</releaseProfiles>
-          <goals>assembly:single deploy</goals>
+          <goals>package assembly:single deploy</goals>
         </configuration>
       </plugin>
       <!-- start: creation of bundle jar -->

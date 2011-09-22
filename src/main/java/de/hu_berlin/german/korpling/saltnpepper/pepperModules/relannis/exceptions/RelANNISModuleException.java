@@ -15,7 +15,7 @@
  *
  *
  */
-package de.hub.corpling.pepper.modules.relannis.exceptions;
+package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.exceptions;
 
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperExceptions.PepperModuleException;
 

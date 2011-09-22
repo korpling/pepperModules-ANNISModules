@@ -15,7 +15,7 @@
  *
  *
  */
-package de.hub.corpling.pepper.modules.relannis;
+package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis;
 
 import java.io.IOException;
 import java.util.Hashtable;
@@ -38,11 +38,11 @@ import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.FormatDefin
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperImporter;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperInterfaceFactory;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.impl.PepperImporterImpl;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.exceptions.RelANNISModuleException;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpus;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
-import de.hub.corpling.pepper.modules.relannis.exceptions.RelANNISModuleException;
 
 @Component(name="RelANNISImporterComponent", factory="PepperImporterComponentFactory")
 @Service(value=PepperImporter.class)
