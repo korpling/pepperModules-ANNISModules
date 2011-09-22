@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>de.hu_berlin.german.korpling.saltnpepper</groupId>
   <artifactId>pepperModules-RelANNISModules</artifactId>
-  <version>1.1.0</version>
+  <version>1.1.1-SNAPSHOT</version>
   <packaging>bundle</packaging>
   <repositories>
     <repository>
@@ -16,7 +16,7 @@
     <version>1.1.2</version>
   </parent>
   <scm>
-    <developerConnection>scm:svn:https://korpling.german.hu-berlin.de/svn/saltnpepper/PepperModules/RelANNISModules/tags/pepperModules-RelANNISModules-1.1.0</developerConnection>
+    <developerConnection>scm:svn:https://korpling.german.hu-berlin.de/svn/saltnpepper/PepperModules/RelANNISModules/trunk</developerConnection>
   </scm>
   <properties>
   	<component.descriptor.name>serviceComponents.xml</component.descriptor.name>
