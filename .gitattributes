@@ -13,8 +13,8 @@
 src/assemble/assemblies.xml -text svneol=unset#text/plain
 src/etc/NOTICE_template.txt -text svneol=unset#text/plain
 src/etc/header.txt -text svneol=unset#text/plain
-src/main/java/de/hub/corpling/pepper/modules/relannis/RelANNIS2SaltMapper.java -text svneol=unset#text/plain
-src/main/java/de/hub/corpling/pepper/modules/relannis/RelANNISExporter.java -text svneol=unset#text/plain
-src/main/java/de/hub/corpling/pepper/modules/relannis/RelANNISImporter.java -text svneol=unset#text/plain
-src/main/java/de/hub/corpling/pepper/modules/relannis/Salt2RelANNISMapper.java -text svneol=unset#text/plain
-src/main/java/de/hub/corpling/pepper/modules/relannis/exceptions/RelANNISModuleException.java -text svneol=unset#text/plain
+src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/RelANNIS2SaltMapper.java -text svneol=unset#text/plain
+src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/RelANNISExporter.java -text svneol=unset#text/plain
+src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/RelANNISImporter.java -text svneol=unset#text/plain
+src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/Salt2RelANNISMapper.java -text svneol=unset#text/plain
+src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/exceptions/RelANNISModuleException.java -text svneol=unset#text/plain
