@@ -43,11 +43,7 @@ import de.hu_berlin.german.korpling.saltnpepper.misc.relANNIS.RA_CORPUS_TYPE;
 import de.hu_berlin.german.korpling.saltnpepper.misc.relANNIS.relANNISFactory;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.exceptions.RelANNISModuleException;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.Edge;
-import de.hu_berlin.german.korpling.saltnpepper.salt.graph.Node;
-import de.hu_berlin.german.korpling.saltnpepper.salt.graph.modules.GraphTraverser;
-import de.hu_berlin.german.korpling.saltnpepper.salt.graph.modules.GraphTraverser.GRAPH_TRAVERSE_MODE;
-import de.hu_berlin.german.korpling.saltnpepper.salt.graph.modules.GraphTraverserObject;
-import de.hu_berlin.german.korpling.saltnpepper.salt.graph.modules.TraversalObject;
+import de.hu_berlin.german.korpling.saltnpepper.salt.graph.GRAPH_TRAVERSE_TYPE;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.modules.SDocumentStructureAccessor;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.modules.SDocumentStructureAccessor.POTPair;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpus;
@@ -71,9 +67,8 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SProcessingAnnotation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SaltCoreFactory;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.modules.SGraphAccessorModule;
 
-public class Salt2RelANNISMapper implements TraversalObject
+public class Salt2RelANNISMapper implements SGraphTraverseHandler
 {
 	public Salt2RelANNISMapper()
 	{
@@ -174,7 +169,6 @@ public class Salt2RelANNISMapper implements TraversalObject
 	 * @param raCorpusGraph corpus graph to map from
 	 * @param sCorpusGraph corpus graph to map to
 	 */
-	@SuppressWarnings("unchecked")
 	public void mapSCorpusGraph2RACorpusGraph(SCorpusGraph sCorpusGraph, RACorpusGraph raCorpusGraph)
 	{
 		this.setRaCorpusGraph(raCorpusGraph);
@@ -188,25 +182,42 @@ public class Salt2RelANNISMapper implements TraversalObject
 			this.sElementId2RaId= new Hashtable<SElementId, Long>();
 		
 		{//start traversion of corpus structure
-			GraphTraverser graphTraverser= new GraphTraverser();
-			graphTraverser.setLogService(this.getLogService());
-			graphTraverser.setGraph(this.getSCorpusGraph());
-			GraphTraverserObject travObj= graphTraverser.getTraverserObject(GRAPH_TRAVERSE_MODE.DEPTH_FIRST, this);
-			SGraphAccessorModule sGraphAccessor= new SGraphAccessorModule();
-			sGraphAccessor.setSGraph(this.getSCorpusGraph());
-			EList<SNode> roots= sGraphAccessor.getSRoots();
-			if (	(roots== null) ||
-					(roots.size()== 0))
-				throw new RelANNISModuleException("Cannot traverse through corpus structure, because there is no raCOrpus-object as root.");
-			//set traversion type to corpus structure
-			this.currTraversionType= TRAVERSION_TYPE.CORPUS_STRUCTURE;
-			this.lastRACorpus= new Stack<RACorpus>();
-			travObj.start((EList<Node>) (EList<? extends Node>) roots);
-			travObj.waitUntilFinished();
-			for (Exception e: travObj.getExceptions())
+//			start: old since 2011-10-24
+//			GraphTraverser graphTraverser= new GraphTraverser();
+//			graphTraverser.setLogService(this.getLogService());
+//			graphTraverser.setGraph(this.getSCorpusGraph());
+//			GraphTraverserObject travObj= graphTraverser.getTraverserObject(GRAPH_TRAVERSE_MODE.DEPTH_FIRST, this);
+//			SGraphAccessorModule sGraphAccessor= new SGraphAccessorModule();
+//			sGraphAccessor.setSGraph(this.getSCorpusGraph());
+//			EList<SNode> roots= sGraphAccessor.getSRoots();
+//			if (	(roots== null) ||
+//					(roots.size()== 0))
+//				throw new RelANNISModuleException("Cannot traverse through corpus structure, because there is no raCOrpus-object as root.");
+//			//set traversion type to corpus structure
+//			this.currTraversionType= TRAVERSION_TYPE.CORPUS_STRUCTURE;
+//			this.lastRACorpus= new Stack<RACorpus>();
+//			travObj.start((EList<Node>) (EList<? extends Node>) roots);
+//			travObj.waitUntilFinished();
+//			for (Exception e: travObj.getExceptions())
+//			{
+//				if (this.getLogService()!= null)
+//					this.getLogService().log(LogService.LOG_ERROR, e.getMessage());
+//				throw new RelANNISModuleException("Some error occurs while traversing corpus structure graph.", e);
+//			}
+//			end: old since 2011-10-24
+			try
 			{
-				if (this.getLogService()!= null)
-					this.getLogService().log(LogService.LOG_ERROR, e.getMessage());
+				EList<SNode> roots= this.getSCorpusGraph().getSRoots();
+				if (	(roots== null) ||
+						(roots.size()== 0))
+				{
+					throw new RelANNISModuleException("Cannot traverse through corpus structure, because there is no raCOrpus-object as root.");
+				}
+				//set traversion type to corpus structure
+				this.currTraversionType= TRAVERSION_TYPE.CORPUS_STRUCTURE;
+				this.lastRACorpus= new Stack<RACorpus>();
+				this.getSCorpusGraph().traverse(roots, GRAPH_TRAVERSE_TYPE.TOP_DOWN_DEPTH_FIRST, "compute_corpus_structure", this);
+			}catch (Exception e) {
 				throw new RelANNISModuleException("Some error occurs while traversing corpus structure graph.", e);
 			}
 		}//start traversion of corpus structure
@@ -423,29 +434,53 @@ public class Salt2RelANNISMapper implements TraversalObject
 			EList<SToken> sTokens= this.getsDocGraph().getSTokens();
 			if (sTokens!= null)
 			{
+				int alreadyProcessedTokens= 0;
+				int percentage= 0;
 				for (SToken sToken: sTokens)
 				{
+					alreadyProcessedTokens++;
+					if (((alreadyProcessedTokens *100/ sTokens.size()) - percentage)>=2)
+					{
+						percentage= alreadyProcessedTokens *100/ sTokens.size();
+						if (this.getLogService()!= null)
+							this.getLogService().log(LogService.LOG_DEBUG, "already processed tokens:  "+ percentage +"%...("+alreadyProcessedTokens+"/"+sTokens.size()+")");
+					}
+
 					//if element does not already have been stored
 					if (this.sElementId2RANode.get(sToken.getSElementId())== null)
 					{//token found, which has not already been visited
 						this.currRaComponent= relANNISFactory.eINSTANCE.createRAComponent();
-						GraphTraverser graphTraverser= new GraphTraverser();
-						graphTraverser.setGraph(this.getsDocGraph());
-						GraphTraverserObject travObj= graphTraverser.getTraverserObject(GRAPH_TRAVERSE_MODE.DEPTH_FIRST, this);
-						SGraphAccessorModule sGraphAccessor= new SGraphAccessorModule();
-						sGraphAccessor.setSGraph(this.getsDocGraph());
+//						start: old since 2011-10-24
+//						GraphTraverser graphTraverser= new GraphTraverser();
+//						graphTraverser.setGraph(this.getsDocGraph());
+//						GraphTraverserObject travObj= graphTraverser.getTraverserObject(GRAPH_TRAVERSE_MODE.DEPTH_FIRST, this);
+//						SGraphAccessorModule sGraphAccessor= new SGraphAccessorModule();
+//						sGraphAccessor.setSGraph(this.getsDocGraph());
+//						
+//						this.currTravInfo= null;
+//						this.currTraversionType= TRAVERSION_TYPE.DOCUMENT_STRUCTURE_TOKEN;
+//						this.currNodeIsRoot= true;
+//						//sets traversion to be not cycle safe
+//						travObj.setCycleSafe(false);
+//						travObj.start(sToken);
+//						travObj.waitUntilFinished();
+//						for (Exception e:  travObj.getExceptions())
+//						{
+//							throw new RelANNISModuleException("Some error occurs while traversing corpus structure graph.", e);
+//						}						
+//						end: old since 2011-10-24
 						
 						this.currTravInfo= null;
 						this.currTraversionType= TRAVERSION_TYPE.DOCUMENT_STRUCTURE_TOKEN;
 						this.currNodeIsRoot= true;
+						EList<SNode> startNodes= new BasicEList<SNode>();
+						startNodes.add(sToken);
 						//sets traversion to be not cycle safe
-						travObj.setCycleSafe(false);
-						travObj.start(sToken);
-						travObj.waitUntilFinished();
-						for (Exception e:  travObj.getExceptions())
-						{
+						try{
+							this.getsDocGraph().traverse(startNodes, GRAPH_TRAVERSE_TYPE.TOP_DOWN_DEPTH_FIRST, "export_tokens", this, false);
+						}catch (Exception e) {
 							throw new RelANNISModuleException("Some error occurs while traversing corpus structure graph.", e);
-						}						
+						}
 					}//token found, which has not already been visited
 				}
 			}
@@ -480,22 +515,37 @@ public class Salt2RelANNISMapper implements TraversalObject
 				}
 				
 				this.currRaComponent= relANNISFactory.eINSTANCE.createRAComponent();
-				GraphTraverser graphTraverser= new GraphTraverser();
-				graphTraverser.setGraph(this.getsDocGraph());
-				GraphTraverserObject travObj= graphTraverser.getTraverserObject(GRAPH_TRAVERSE_MODE.DEPTH_FIRST, this);
-				SGraphAccessorModule sGraphAccessor= new SGraphAccessorModule();
-				sGraphAccessor.setSGraph(this.getsDocGraph());
 				
+//				start: old since 2011-10-24
+//				GraphTraverser graphTraverser= new GraphTraverser();
+//				graphTraverser.setGraph(this.getsDocGraph());
+//				GraphTraverserObject travObj= graphTraverser.getTraverserObject(GRAPH_TRAVERSE_MODE.DEPTH_FIRST, this);
+//				SGraphAccessorModule sGraphAccessor= new SGraphAccessorModule();
+//				sGraphAccessor.setSGraph(this.getsDocGraph());
+//				
+//				if (	(roots== null) ||
+//						(roots.size()== 0))
+//					throw new RelANNISModuleException("Cannot traverse through document structure, because there is no SNode -object as root.");
+//				this.currNodeIsRoot= true;
+//				//sets traversion to be not cycle safe
+//				travObj.setCycleSafe(false);
+//				travObj.start(subRoot);
+//				travObj.waitUntilFinished();
+//				for (Exception e:  travObj.getExceptions())
+//				{
+//					throw new RelANNISModuleException("Some error occurs while traversing corpus structure graph.", e);
+//				}
+//				end: old since 2011-10-24
 				if (	(roots== null) ||
 						(roots.size()== 0))
 					throw new RelANNISModuleException("Cannot traverse through document structure, because there is no SNode -object as root.");
 				this.currNodeIsRoot= true;
+				EList<SNode> startNodes= new BasicEList<SNode>();
+				startNodes.add(subRoot);
 				//sets traversion to be not cycle safe
-				travObj.setCycleSafe(false);
-				travObj.start(subRoot);
-				travObj.waitUntilFinished();
-				for (Exception e:  travObj.getExceptions())
-				{
+				try{
+					this.getsDocGraph().traverse(startNodes, GRAPH_TRAVERSE_TYPE.TOP_DOWN_DEPTH_FIRST, "export_tokens", this, false);
+				}catch (Exception e) {
 					throw new RelANNISModuleException("Some error occurs while traversing corpus structure graph.", e);
 				}
 			}
@@ -717,6 +767,7 @@ public class Salt2RelANNISMapper implements TraversalObject
 		
 		for (SAnnotation sAnno: sToken.getSAnnotations())
 		{//map annotations
+//			RANodeAnnotation raTokenAnno= this.mapSAnnotation2RANodeAnnotation(sAnno, raToken);
 			RANodeAnnotation raTokenAnno= relANNISFactory.eINSTANCE.createRANodeAnnotation();
 			this.mapSAnnotation2RANodeAnnotation(sAnno, raTokenAnno, raToken);
 			raToken.addSAnnotation(raTokenAnno);
@@ -810,11 +861,44 @@ public class Salt2RelANNISMapper implements TraversalObject
 		raStructuredNode.setRaText(raText);
 		for (SAnnotation sAnno: sStructuredNode.getSAnnotations())
 		{//map annotations
+//			RANodeAnnotation raStructuredNodeAnno= this.mapSAnnotation2RANodeAnnotation(sAnno, raStructuredNode);
+			
 			RANodeAnnotation raStructuredNodeAnno= relANNISFactory.eINSTANCE.createRANodeAnnotation();
 			this.mapSAnnotation2RANodeAnnotation(sAnno, raStructuredNodeAnno, raStructuredNode);
 			raStructuredNode.addSAnnotation(raStructuredNodeAnno);
 		}//map annotations
 	}
+	
+//	/**
+//	 * Maps a {@link SAnnotation} object to a {@link RANodeAnnotation} object and returns the created {@link RANodeAnnotation} object.
+//	 * The created object will have the {@link SAnnotation} object as reference. 
+//	 * @param sAnno
+//	 * @param raNodeAnnotation
+//	 */
+//	protected RANodeAnnotation mapSAnnotation2RANodeAnnotation(	SAnnotation sAnno, 
+//													RANode raNode)
+//	{
+//		if (sAnno== null)
+//			throw new RelANNISModuleException("Cannot map the SAnnotation-object to the given RANodeAnnotation-object, because sAnnotation is empty.");
+//		RANodeAnnotation raNodeAnno= relANNISFactory.eINSTANCE.createRANodeAnnotation(sAnno);
+//		
+//		{//compute namespace from layer
+//			String namespace= null;
+//			if (	(sAnno.getSAnnotatableElement() instanceof SNode) &&
+//					(((SNode)sAnno.getSAnnotatableElement()).getSLayers()!= null) &&
+//					(((SNode)sAnno.getSAnnotatableElement()).getSLayers().size()!= 0))
+//			{//a namespace can be taken from layers name
+//				if (((SNode)sAnno.getSAnnotatableElement()).getSLayers().get(0)!= null)
+//				{	
+//					namespace= ((SNode)sAnno.getSAnnotatableElement()).getSLayers().get(0).getSName();
+//				}
+//			}//a namespace can be taken from layers name
+//			else namespace= DEFAULT_NS;
+//			raNodeAnno.setRaNamespace(namespace);
+//		}//compute namespace from layer
+//		
+//		return(raNodeAnno);
+//	}
 	
 	/**
 	 * Maps a SAnnotation-object to a RANodeAnnotation-object. 
@@ -829,6 +913,8 @@ public class Salt2RelANNISMapper implements TraversalObject
 			throw new RelANNISModuleException("Cannot map the SAnnotation-object to the given RANodeAnnotation-object, because sAnnotation is empty.");
 		if (raNodeAnno== null)
 			throw new RelANNISModuleException("Cannot map the SAnnotation-object to the given RANodeAnnotation-object, because raNodeAnnotation is empty.");
+		
+		
 		
 		{//namespace
 			String namespace= null;
@@ -1127,10 +1213,17 @@ public class Salt2RelANNISMapper implements TraversalObject
 	 * Stores the current component id for current sub component
 	 */
 	private String currComponentId= null;
+		
+//	@Override
+//	public boolean checkConstraint(GRAPH_TRAVERSE_MODE traversalMode,
+//			Long traversalId, Edge edge, Node currNode, long order) 
 	
 	@Override
-	public boolean checkConstraint(GRAPH_TRAVERSE_MODE traversalMode,
-			Long traversalId, Edge edge, Node currNode, long order) 
+	public boolean checkConstraint(	GRAPH_TRAVERSE_TYPE traversalType,
+									String traversalId, 
+									SRelation edge, 
+									SNode currNode, 
+									long order)	
 	{
 		{//just for debug
 //			if (this.getLogService()!= null)
@@ -1323,9 +1416,16 @@ public class Salt2RelANNISMapper implements TraversalObject
 	private HashSet<RAComponent> containedRAComponent= new HashSet<RAComponent>();
 	
 	
+//	@Override
+//	public void nodeLeft(GRAPH_TRAVERSE_MODE traversalMode, Long traversalId,
+//			Node currNode, Edge edge, Node fromNode, long order) 
 	@Override
-	public void nodeLeft(GRAPH_TRAVERSE_MODE traversalMode, Long traversalId,
-			Node currNode, Edge edge, Node fromNode, long order) 
+	public void nodeLeft(	GRAPH_TRAVERSE_TYPE traversalType, 
+							String traversalId,
+							SNode currNode, 
+							SRelation edge, 
+							SNode fromNode, 
+							long order)
 	{
 //		{//just for debug
 //			System.out.print("node left: "+ currNode.getId());
@@ -1520,10 +1620,17 @@ public class Salt2RelANNISMapper implements TraversalObject
 
 	private String KW_NS= "s2ra";
 	private String KW_NAME_PRE= "pre";
+//	@Override
+//	public void nodeReached(GRAPH_TRAVERSE_MODE traversalMode,
+//			Long traversalId, Node currNode, Edge edge, Node fromNode,
+//			long order) 
 	@Override
-	public void nodeReached(GRAPH_TRAVERSE_MODE traversalMode,
-			Long traversalId, Node currNode, Edge edge, Node fromNode,
-			long order) 
+	public void nodeReached(	GRAPH_TRAVERSE_TYPE traversalType,
+								String traversalId, 
+								SNode currNode, 
+								SRelation edge, 
+								SNode fromNode,
+								long order)
 	{
 //		{//just for debug
 //			System.out.print("node reached: "+ currNode.getId());
