@@ -183,29 +183,6 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 			this.sElementId2RaId= new Hashtable<SElementId, Long>();
 		
 		{//start traversion of corpus structure
-//			start: old since 2011-10-24
-//			GraphTraverser graphTraverser= new GraphTraverser();
-//			graphTraverser.setLogService(this.getLogService());
-//			graphTraverser.setGraph(this.getSCorpusGraph());
-//			GraphTraverserObject travObj= graphTraverser.getTraverserObject(GRAPH_TRAVERSE_MODE.DEPTH_FIRST, this);
-//			SGraphAccessorModule sGraphAccessor= new SGraphAccessorModule();
-//			sGraphAccessor.setSGraph(this.getSCorpusGraph());
-//			EList<SNode> roots= sGraphAccessor.getSRoots();
-//			if (	(roots== null) ||
-//					(roots.size()== 0))
-//				throw new RelANNISModuleException("Cannot traverse through corpus structure, because there is no raCOrpus-object as root.");
-//			//set traversion type to corpus structure
-//			this.currTraversionType= TRAVERSION_TYPE.CORPUS_STRUCTURE;
-//			this.lastRACorpus= new Stack<RACorpus>();
-//			travObj.start((EList<Node>) (EList<? extends Node>) roots);
-//			travObj.waitUntilFinished();
-//			for (Exception e: travObj.getExceptions())
-//			{
-//				if (this.getLogService()!= null)
-//					this.getLogService().log(LogService.LOG_ERROR, e.getMessage());
-//				throw new RelANNISModuleException("Some error occurs while traversing corpus structure graph.", e);
-//			}
-//			end: old since 2011-10-24
 			try
 			{
 				EList<SNode> roots= this.getSCorpusGraph().getSRoots();
@@ -318,20 +295,26 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 		RACorpusAnnotation raCorpusAnnotation= null;
 		for (SAnnotation sAnno: sNode.getSAnnotations())
 		{
-			raCorpusAnnotation= relANNISFactory.eINSTANCE.createRACorpusAnnotation();
-			raCorpusAnnotation.setRaNamespace(sAnno.getSNS());
-			raCorpusAnnotation.setRaName(sAnno.getSName());
-			if (sAnno.getSValue()!= null)
-				raCorpusAnnotation.setRaValue(sAnno.getSValue().toString());
+//			raCorpusAnnotation= relANNISFactory.eINSTANCE.createRACorpusAnnotation();
+//			raCorpusAnnotation.setRaNamespace(sAnno.getSNS());
+//			raCorpusAnnotation.setRaName(sAnno.getSName());
+//			if (sAnno.getSValue()!= null)
+//				raCorpusAnnotation.setRaValue(sAnno.getSValue().toString());
+//			raCorpus.addRACorpusAnnotation(raCorpusAnnotation);
+			
+			raCorpusAnnotation= relANNISFactory.eINSTANCE.createRACorpusAnnotation(sAnno);
 			raCorpus.addRACorpusAnnotation(raCorpusAnnotation);
 		}
 		for (SMetaAnnotation sAnno: sNode.getSMetaAnnotations())
 		{
-			raCorpusAnnotation= relANNISFactory.eINSTANCE.createRACorpusAnnotation();
-			raCorpusAnnotation.setRaNamespace(sAnno.getSNS());
-			raCorpusAnnotation.setRaName(sAnno.getSName());
-			if (sAnno.getSValue()!= null)
-				raCorpusAnnotation.setRaValue(sAnno.getSValue().toString());
+//			raCorpusAnnotation= relANNISFactory.eINSTANCE.createRACorpusAnnotation();
+//			raCorpusAnnotation.setRaNamespace(sAnno.getSNS());
+//			raCorpusAnnotation.setRaName(sAnno.getSName());
+//			if (sAnno.getSValue()!= null)
+//				raCorpusAnnotation.setRaValue(sAnno.getSValue().toString());
+//			raCorpus.addRACorpusAnnotation(raCorpusAnnotation);
+			
+			raCorpusAnnotation= relANNISFactory.eINSTANCE.createRACorpusAnnotation(sAnno);
 			raCorpus.addRACorpusAnnotation(raCorpusAnnotation);
 		}
 	}
@@ -451,25 +434,6 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 					if (this.sElementId2RANode.get(sToken.getSElementId())== null)
 					{//token found, which has not already been visited
 						this.currRaComponent= relANNISFactory.eINSTANCE.createRAComponent();
-//						start: old since 2011-10-24
-//						GraphTraverser graphTraverser= new GraphTraverser();
-//						graphTraverser.setGraph(this.getsDocGraph());
-//						GraphTraverserObject travObj= graphTraverser.getTraverserObject(GRAPH_TRAVERSE_MODE.DEPTH_FIRST, this);
-//						SGraphAccessorModule sGraphAccessor= new SGraphAccessorModule();
-//						sGraphAccessor.setSGraph(this.getsDocGraph());
-//						
-//						this.currTravInfo= null;
-//						this.currTraversionType= TRAVERSION_TYPE.DOCUMENT_STRUCTURE_TOKEN;
-//						this.currNodeIsRoot= true;
-//						//sets traversion to be not cycle safe
-//						travObj.setCycleSafe(false);
-//						travObj.start(sToken);
-//						travObj.waitUntilFinished();
-//						for (Exception e:  travObj.getExceptions())
-//						{
-//							throw new RelANNISModuleException("Some error occurs while traversing corpus structure graph.", e);
-//						}						
-//						end: old since 2011-10-24
 						
 						this.currTravInfo= null;
 						this.currTraversionType= TRAVERSION_TYPE.DOCUMENT_STRUCTURE_TOKEN;
@@ -516,27 +480,6 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 				}
 				
 				this.currRaComponent= relANNISFactory.eINSTANCE.createRAComponent();
-				
-//				start: old since 2011-10-24
-//				GraphTraverser graphTraverser= new GraphTraverser();
-//				graphTraverser.setGraph(this.getsDocGraph());
-//				GraphTraverserObject travObj= graphTraverser.getTraverserObject(GRAPH_TRAVERSE_MODE.DEPTH_FIRST, this);
-//				SGraphAccessorModule sGraphAccessor= new SGraphAccessorModule();
-//				sGraphAccessor.setSGraph(this.getsDocGraph());
-//				
-//				if (	(roots== null) ||
-//						(roots.size()== 0))
-//					throw new RelANNISModuleException("Cannot traverse through document structure, because there is no SNode -object as root.");
-//				this.currNodeIsRoot= true;
-//				//sets traversion to be not cycle safe
-//				travObj.setCycleSafe(false);
-//				travObj.start(subRoot);
-//				travObj.waitUntilFinished();
-//				for (Exception e:  travObj.getExceptions())
-//				{
-//					throw new RelANNISModuleException("Some error occurs while traversing corpus structure graph.", e);
-//				}
-//				end: old since 2011-10-24
 				if (	(roots== null) ||
 						(roots.size()== 0))
 					throw new RelANNISModuleException("Cannot traverse through document structure, because there is no SNode -object as root.");
@@ -768,9 +711,7 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 		
 		for (SAnnotation sAnno: sToken.getSAnnotations())
 		{//map annotations
-//			RANodeAnnotation raTokenAnno= this.mapSAnnotation2RANodeAnnotation(sAnno, raToken);
-			RANodeAnnotation raTokenAnno= relANNISFactory.eINSTANCE.createRANodeAnnotation();
-			this.mapSAnnotation2RANodeAnnotation(sAnno, raTokenAnno, raToken);
+			RANodeAnnotation raTokenAnno= this.mapSAnnotation2RANodeAnnotation(sAnno, raToken);
 			raToken.addSAnnotation(raTokenAnno);
 		}//map annotations
 	}
@@ -862,62 +803,25 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 		raStructuredNode.setRaText(raText);
 		for (SAnnotation sAnno: sStructuredNode.getSAnnotations())
 		{//map annotations
-//			RANodeAnnotation raStructuredNodeAnno= this.mapSAnnotation2RANodeAnnotation(sAnno, raStructuredNode);
-			
-			RANodeAnnotation raStructuredNodeAnno= relANNISFactory.eINSTANCE.createRANodeAnnotation();
-			this.mapSAnnotation2RANodeAnnotation(sAnno, raStructuredNodeAnno, raStructuredNode);
+			RANodeAnnotation raStructuredNodeAnno= this.mapSAnnotation2RANodeAnnotation(sAnno, raStructuredNode);
 			raStructuredNode.addSAnnotation(raStructuredNodeAnno);
 		}//map annotations
 	}
 	
-//	/**
-//	 * Maps a {@link SAnnotation} object to a {@link RANodeAnnotation} object and returns the created {@link RANodeAnnotation} object.
-//	 * The created object will have the {@link SAnnotation} object as reference. 
-//	 * @param sAnno
-//	 * @param raNodeAnnotation
-//	 */
-//	protected RANodeAnnotation mapSAnnotation2RANodeAnnotation(	SAnnotation sAnno, 
-//													RANode raNode)
-//	{
-//		if (sAnno== null)
-//			throw new RelANNISModuleException("Cannot map the SAnnotation-object to the given RANodeAnnotation-object, because sAnnotation is empty.");
-//		RANodeAnnotation raNodeAnno= relANNISFactory.eINSTANCE.createRANodeAnnotation(sAnno);
-//		
-//		{//compute namespace from layer
-//			String namespace= null;
-//			if (	(sAnno.getSAnnotatableElement() instanceof SNode) &&
-//					(((SNode)sAnno.getSAnnotatableElement()).getSLayers()!= null) &&
-//					(((SNode)sAnno.getSAnnotatableElement()).getSLayers().size()!= 0))
-//			{//a namespace can be taken from layers name
-//				if (((SNode)sAnno.getSAnnotatableElement()).getSLayers().get(0)!= null)
-//				{	
-//					namespace= ((SNode)sAnno.getSAnnotatableElement()).getSLayers().get(0).getSName();
-//				}
-//			}//a namespace can be taken from layers name
-//			else namespace= DEFAULT_NS;
-//			raNodeAnno.setRaNamespace(namespace);
-//		}//compute namespace from layer
-//		
-//		return(raNodeAnno);
-//	}
-	
 	/**
-	 * Maps a SAnnotation-object to a RANodeAnnotation-object. 
+	 * Maps a {@link SAnnotation} object to a {@link RANodeAnnotation} object and returns the created {@link RANodeAnnotation} object.
+	 * The created object will have the {@link SAnnotation} object as reference. 
 	 * @param sAnno
 	 * @param raNodeAnnotation
 	 */
-	protected void mapSAnnotation2RANodeAnnotation(	SAnnotation sAnno, 
-													RANodeAnnotation raNodeAnno,
+	protected RANodeAnnotation mapSAnnotation2RANodeAnnotation(	SAnnotation sAnno, 
 													RANode raNode)
 	{
 		if (sAnno== null)
 			throw new RelANNISModuleException("Cannot map the SAnnotation-object to the given RANodeAnnotation-object, because sAnnotation is empty.");
-		if (raNodeAnno== null)
-			throw new RelANNISModuleException("Cannot map the SAnnotation-object to the given RANodeAnnotation-object, because raNodeAnnotation is empty.");
+		RANodeAnnotation raNodeAnno= relANNISFactory.eINSTANCE.createRANodeAnnotation(sAnno);
 		
-		
-		
-		{//namespace
+		{//compute namespace from layer
 			String namespace= null;
 			if (	(sAnno.getSAnnotatableElement() instanceof SNode) &&
 					(((SNode)sAnno.getSAnnotatableElement()).getSLayers()!= null) &&
@@ -930,17 +834,51 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 			}//a namespace can be taken from layers name
 			else namespace= DEFAULT_NS;
 			raNodeAnno.setRaNamespace(namespace);
-		}//namespace
-		raNodeAnno.setSName(sAnno.getSName());
-		if (sAnno.getSValue()!= null)
-		{
-			if (	(sAnno.getSValueType()!=null)&&
-					(sAnno.getSValueType().equals(SDATATYPE.SURI)))
-				raNodeAnno.setSValue(sAnno.getSValueSURI());
-			else
-				raNodeAnno.setRaValue(sAnno.getSValueSTEXT());
-		}
+		}//compute namespace from layer
+		
+		return(raNodeAnno);
 	}
+	
+//	/**
+//	 * Maps a SAnnotation-object to a RANodeAnnotation-object. 
+//	 * @param sAnno
+//	 * @param raNodeAnnotation
+//	 */
+//	protected void mapSAnnotation2RANodeAnnotation(	SAnnotation sAnno, 
+//													RANodeAnnotation raNodeAnno,
+//													RANode raNode)
+//	{
+//		if (sAnno== null)
+//			throw new RelANNISModuleException("Cannot map the SAnnotation-object to the given RANodeAnnotation-object, because sAnnotation is empty.");
+//		if (raNodeAnno== null)
+//			throw new RelANNISModuleException("Cannot map the SAnnotation-object to the given RANodeAnnotation-object, because raNodeAnnotation is empty.");
+//		
+//		
+//		
+//		{//namespace
+//			String namespace= null;
+//			if (	(sAnno.getSAnnotatableElement() instanceof SNode) &&
+//					(((SNode)sAnno.getSAnnotatableElement()).getSLayers()!= null) &&
+//					(((SNode)sAnno.getSAnnotatableElement()).getSLayers().size()!= 0))
+//			{//a namespace can be taken from layers name
+//				if (((SNode)sAnno.getSAnnotatableElement()).getSLayers().get(0)!= null)
+//				{	
+//					namespace= ((SNode)sAnno.getSAnnotatableElement()).getSLayers().get(0).getSName();
+//				}
+//			}//a namespace can be taken from layers name
+//			else namespace= DEFAULT_NS;
+//			raNodeAnno.setRaNamespace(namespace);
+//		}//namespace
+//		raNodeAnno.setSName(sAnno.getSName());
+//		if (sAnno.getSValue()!= null)
+//		{
+//			if (	(sAnno.getSValueType()!=null)&&
+//					(sAnno.getSValueType().equals(SDATATYPE.SURI)))
+//				raNodeAnno.setSValue(sAnno.getSValueSURI());
+//			else
+//				raNodeAnno.setRaValue(sAnno.getSValueSTEXT());
+//		}
+//	}
 	
 	/**
 	 * Maps a SAnnotation-object to a RAEdgeAnnotation-object.
@@ -949,13 +887,12 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 	 * @param sAnno
 	 * @param raNodeAnnotation
 	 */
-	protected void mapSAnnotation2RAEdgeAnnotation(	SAnnotation sAnno, 
-													RAEdgeAnnotation raEdgeAnno)
+	protected RAEdgeAnnotation mapSAnnotation2RAEdgeAnnotation(	SAnnotation sAnno)
 	{
 		if (sAnno== null)
 			throw new RelANNISModuleException("Cannot map the SAnnotation-object to the given RANodeAnnotation-object, because sAnnotation is empty.");
-		if (raEdgeAnno== null)
-			throw new RelANNISModuleException("Cannot map the SAnnotation-object to the given RANodeAnnotation-object, because raNodeAnnotation is empty.");
+		
+		RAEdgeAnnotation raEdgeAnno= relANNISFactory.eINSTANCE.createRAEdgeAnnotation(sAnno);
 		
 		{//namespace
 			String namespace= null;
@@ -972,10 +909,43 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 			raEdgeAnno.setRaNamespace(namespace);
 		}//namespace
 		
-		raEdgeAnno.setSName(sAnno.getSName());
-		if (sAnno.getSValue()!= null)
-			raEdgeAnno.setRaValue(sAnno.getSValue().toString());
+		return(raEdgeAnno);
 	}
+	
+//	/**
+//	 * Maps a SAnnotation-object to a RAEdgeAnnotation-object.
+//	 * If no namespace is given by the layer of the corresponding SRelation object, it will be
+//	 * set to the default namespace.  
+//	 * @param sAnno
+//	 * @param raNodeAnnotation
+//	 */
+//	protected void mapSAnnotation2RAEdgeAnnotation(	SAnnotation sAnno, 
+//													RAEdgeAnnotation raEdgeAnno)
+//	{
+//		if (sAnno== null)
+//			throw new RelANNISModuleException("Cannot map the SAnnotation-object to the given RANodeAnnotation-object, because sAnnotation is empty.");
+//		if (raEdgeAnno== null)
+//			throw new RelANNISModuleException("Cannot map the SAnnotation-object to the given RANodeAnnotation-object, because raNodeAnnotation is empty.");
+//		
+//		{//namespace
+//			String namespace= null;
+//			if (	(sAnno.getSAnnotatableElement() instanceof SRelation) &&
+//					(((SRelation)sAnno.getSAnnotatableElement()).getSLayers()!= null) &&
+//					(((SRelation)sAnno.getSAnnotatableElement()).getSLayers().size()!= 0))
+//			{//a namespace can be taken from layers name
+//				if (((SRelation)sAnno.getSAnnotatableElement()).getSLayers().get(0)!= null)
+//				{	
+//					namespace= ((SRelation)sAnno.getSAnnotatableElement()).getSLayers().get(0).getSName();
+//				}
+//			}//a namespace can be taken from layers name
+//			else namespace= DEFAULT_NS;
+//			raEdgeAnno.setRaNamespace(namespace);
+//		}//namespace
+//		
+//		raEdgeAnno.setSName(sAnno.getSName());
+//		if (sAnno.getSValue()!= null)
+//			raEdgeAnno.setRaValue(sAnno.getSValue().toString());
+//	}
 	
 	/**
 	 * Namespace for visualization type for grid viewable data.
@@ -1133,8 +1103,7 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 		{	
 			for (SAnnotation sAnno: sRel.getSAnnotations())
 			{//map all annotations
-				RAEdgeAnnotation raEdgeAnno= relANNISFactory.eINSTANCE.createRAEdgeAnnotation();
-				this.mapSAnnotation2RAEdgeAnnotation(sAnno, raEdgeAnno);
+				RAEdgeAnnotation raEdgeAnno= this.mapSAnnotation2RAEdgeAnnotation(sAnno);
 				raRank.addSAnnotation(raEdgeAnno);
 			}//map all annotations
 		}
