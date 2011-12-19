@@ -139,8 +139,6 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 		if (this.getCorpusDefinition().getCorpusPath()== null)
 			throw new RelANNISModuleException("Cannot export an the element '"+sElementId.getId()+"', because of no corpus path is set.");
 		
-		System.out.println("---------------------------> start "+ sElementId);
-		
 		//start: pre start corpus structure, if it wasn't
 			if (!isPreStarted)
 				this.preStartCorpusStructure();
@@ -185,7 +183,6 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 		}//export corpusStructure
 		else if (sElementId.getSIdentifiableElement() instanceof SDocument)
 		{//export documentStructure
-			System.out.println("---------------------------> is Document "+ sElementId);
 			Long timeToExportDocument= System.nanoTime();
 			if (this.getLogService()!= null)
 				this.getLogService().log(LogService.LOG_DEBUG,this.getName()+" exporting document "+ sElementId.getSId());
@@ -210,9 +207,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 								sDocument2Mapper= Collections.synchronizedMap(new HashMap<SElementId, Salt2RelANNISMapper>());
 							sDocument2Mapper.put(sElementId, mapper);
 							mapper.setLogService(this.getLogService());
-							System.out.println("---------------------------> start map graph 2"+ sElementId);
 							mapper.mapSDocumentGraph2RADocumentGraph(sDocGraph, raDocGraph);
-							System.out.println("---------------------------> end map graph 2"+ sElementId);
 							//start: adding documentgraph to document
 								RACorpus raDocument= null;
 								for (RACorpus raCorpus: this.raCorpusGraph.getRaCorpora())
@@ -228,7 +223,6 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 							//end: cleaning up	
 							this.totalTimeToMapSDocument= this.totalTimeToMapSDocument + (System.nanoTime() - timeToMapSDocument);
 						//end: map the graphs
-						System.out.println("---------------------------> ended map graph "+ sElementId);
 						//start: save document graph to resource
 							Long timeToSaveSDocument= System.nanoTime();
 							// create resource set and resource
@@ -252,7 +246,6 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 								this.totalTimeToSaveSDocument= this.totalTimeToSaveSDocument + (System.nanoTime() - timeToSaveSDocument); 
 							}
 						//end: save document graph to resource
-						System.out.println("---------------------------> ended save graph "+ sElementId);
 						//start: remove the raDocumentgraph
 							raDocGraph.getRaCorpus().setRaDocumentGraph(null);
 						//end: remove the raDocumentgraph
@@ -265,8 +258,6 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 		{
 			throw new RelANNISModuleException("Cannot export the following elment with id '"+sElementId.getSId()+"', because it isn't of Type SCorpus or SDocument: "+ sElementId.getSIdentifiableElement());
 		}
-		
-		System.out.println("---------------------------> end entire document"+ sElementId);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
