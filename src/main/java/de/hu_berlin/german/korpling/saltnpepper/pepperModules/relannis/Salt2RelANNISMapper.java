@@ -41,6 +41,8 @@ import de.hu_berlin.german.korpling.saltnpepper.misc.relANNIS.RAText;
 import de.hu_berlin.german.korpling.saltnpepper.misc.relANNIS.RA_COMPONENT_TYPE;
 import de.hu_berlin.german.korpling.saltnpepper.misc.relANNIS.RA_CORPUS_TYPE;
 import de.hu_berlin.german.korpling.saltnpepper.misc.relANNIS.relANNISFactory;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperModule;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperModuleController;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.exceptions.RelANNISModuleException;
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.Edge;
@@ -82,6 +84,21 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 		alreadyExistingRANames= new Hashtable<String, String>();
 	}
 
+// -------------------------start: PepperModuleController	
+	/**
+	 * The controller handling the {@link PepperModule} object.
+	 */
+	private PepperModuleController pModuleController= null;
+	
+	public void setpModuleController(PepperModuleController pModuleController) {
+		this.pModuleController = pModuleController;
+	}
+
+	public PepperModuleController getpModuleController() {
+		return pModuleController;
+	}
+// -------------------------end: PepperModuleController
+	
 // -------------------------start: RACorpusGraph
 	private RACorpusGraph raCorpusGraph= null;
 
@@ -288,32 +305,18 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 	 * Maps all annotations (SAnnotation objects and SMetaAnnotation-objects) of sNodeto RACorpusAnnotation-objects.
 	 * All RACorpusAnnotation-objects will be added to the given raCorpus object.
 	 * @param sNode object which possibly contains annotations
-	 * @param raCorpus object wehre the annotations have to be mapped to
+	 * @param raCorpus object where the annotations have to be mapped to
 	 */
 	protected void mapAnnotation2SRACorpusAnnotation(SNode sNode, RACorpus raCorpus)
 	{
 		RACorpusAnnotation raCorpusAnnotation= null;
 		for (SAnnotation sAnno: sNode.getSAnnotations())
 		{
-//			raCorpusAnnotation= relANNISFactory.eINSTANCE.createRACorpusAnnotation();
-//			raCorpusAnnotation.setRaNamespace(sAnno.getSNS());
-//			raCorpusAnnotation.setRaName(sAnno.getSName());
-//			if (sAnno.getSValue()!= null)
-//				raCorpusAnnotation.setRaValue(sAnno.getSValue().toString());
-//			raCorpus.addRACorpusAnnotation(raCorpusAnnotation);
-			
 			raCorpusAnnotation= relANNISFactory.eINSTANCE.createRACorpusAnnotation(sAnno);
 			raCorpus.addRACorpusAnnotation(raCorpusAnnotation);
 		}
 		for (SMetaAnnotation sAnno: sNode.getSMetaAnnotations())
-		{
-//			raCorpusAnnotation= relANNISFactory.eINSTANCE.createRACorpusAnnotation();
-//			raCorpusAnnotation.setRaNamespace(sAnno.getSNS());
-//			raCorpusAnnotation.setRaName(sAnno.getSName());
-//			if (sAnno.getSValue()!= null)
-//				raCorpusAnnotation.setRaValue(sAnno.getSValue().toString());
-//			raCorpus.addRACorpusAnnotation(raCorpusAnnotation);
-			
+		{			
 			raCorpusAnnotation= relANNISFactory.eINSTANCE.createRACorpusAnnotation(sAnno);
 			raCorpus.addRACorpusAnnotation(raCorpusAnnotation);
 		}
@@ -352,6 +355,19 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 	}
 	
 	/**
+	 * The progress in percent of the current mapping.
+	 */
+	private double currentProgress= 0;
+	
+	/**
+	 * returns the current progress.
+	 * @return
+	 */
+	public double getProgress() {
+		return currentProgress;
+	}
+
+	/**
 	 * Maps the given SDocumentGraph-object to the given RADocumentGraph-object.
 	 * @param sDocGraph
 	 * @param raDocGraph
@@ -368,53 +384,53 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 			
 		this.getRaDocGraph().setSId(this.getsDocGraph().getSId());
 		
-		{//some inits
+		//start: some inits
 			this.sElementId2RANode= new Hashtable<SElementId, RANode>();
-		}//some inits
+		//end: some inits
 		
-		{//map all STextualDS-objects
+		//start: map all STextualDS-objects
 			for (STextualDS sText: this.getsDocGraph().getSTextualDSs())
 			{
 				RAText raText= relANNISFactory.eINSTANCE.createRAText();
 				this.mapSTextualDS2RAText(sText, raText);
 				this.getRaDocGraph().addSNode(raText);
 			}
-		}//map all STextualDS-objects
+		//end: map all STextualDS-objects
 		
 		Long timeToMapSRComponents= 0l;
 		Long timeToMapDRComponents= 0l;
 		Long timeToMapPRComponents= 0l;
 		Long timeToMapLonlyComponents= 0l;
-		{//exporting all SStructure, SSpan and SToken elements connected with SSpanningRelation
+		//start: exporting all SStructure, SSpan and SToken elements connected with SSpanningRelation
 			if (this.getLogService()!= null)
 			{
-				this.getLogService().log(LogService.LOG_DEBUG, "relANNISExporter computing components for SSPanningRelation...");
+				this.getLogService().log(LogService.LOG_DEBUG, getsDocGraph().getSElementId().getSId()+ ": relANNISExporter computing components for SSPanningRelation...");
 			}
 			timeToMapSRComponents= System.nanoTime();
 			this.traverseBySRelation(SSpanningRelation.class);
 			timeToMapSRComponents= System.nanoTime() - timeToMapSRComponents;
-		}//exporting all SStructure, SSpan and SToken elements connected with SSpanningRelation
+		//end: exporting all SStructure, SSpan and SToken elements connected with SSpanningRelation
 		
-		{//exporting all SStructure, SSpan and SToken elements connected with SDominanceRelation
+		//start: exporting all SStructure, SSpan and SToken elements connected with SDominanceRelation
 			if (this.getLogService()!= null)
-				this.getLogService().log(LogService.LOG_DEBUG, "relANNISExporter computing components for SDominanceRelation...");
+				this.getLogService().log(LogService.LOG_DEBUG, getsDocGraph().getSElementId().getSId()+ ": relANNISExporter computing components for SDominanceRelation...");
 			timeToMapDRComponents= System.nanoTime();
 			this.traverseBySRelation(SDominanceRelation.class);
 			timeToMapDRComponents= System.nanoTime() - timeToMapDRComponents;
-		}//exporting all SStructure, SSpan and SToken elements connected with SDominanceRelation
+		//end: exporting all SStructure, SSpan and SToken elements connected with SDominanceRelation
 		
-		{//exporting all SStructuredNodes connected with SPointingRelation
+		//start: exporting all SStructuredNodes connected with SPointingRelation
 			if (this.getLogService()!= null)
-				this.getLogService().log(LogService.LOG_DEBUG, "relANNISExporter computing components for SPointingRelation...");
+				this.getLogService().log(LogService.LOG_DEBUG, getsDocGraph().getSElementId().getSId()+ ": relANNISExporter computing components for SPointingRelation...");
 			timeToMapPRComponents= System.nanoTime();
 			this.traverseBySRelation(SPointingRelation.class);
 			timeToMapPRComponents= System.nanoTime() - timeToMapPRComponents;
-		}//exporting all SStructuredNodes connected with SPointingRelation
+		//end: exporting all SStructuredNodes connected with SPointingRelation
 		
-		{//Export all tokens who aren't connected by (SSPANNING_RELATION, SPOINTING_RELATION or SDOMINANCE_RELATION)
+		//start: Export all tokens who aren't connected by (SSPANNING_RELATION, SPOINTING_RELATION or SDOMINANCE_RELATION)
 			timeToMapLonlyComponents= System.nanoTime();
 			if (this.getLogService()!= null)
-				this.getLogService().log(LogService.LOG_DEBUG, "relANNISExporter computing components for SToken without relation.");
+				this.getLogService().log(LogService.LOG_DEBUG, getsDocGraph().getSElementId().getSId()+ ": relANNISExporter computing components for SToken without relation.");
 			EList<SToken> sTokens= this.getsDocGraph().getSTokens();
 			if (sTokens!= null)
 			{
@@ -426,8 +442,12 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 					if (((alreadyProcessedTokens *100/ sTokens.size()) - percentage)>=2)
 					{
 						percentage= alreadyProcessedTokens *100/ sTokens.size();
+						currentProgress= currentProgress+ percentage* 0.25;
+//						if (this.getpModuleController()== null)	
+//							this.getpModuleController().notifyProgress(this.getsDocGraph().getSDocument().getSElementId(), currentProgress);
+						
 						if (this.getLogService()!= null)
-							this.getLogService().log(LogService.LOG_DEBUG, "already processed tokens:  "+ percentage +"%...("+alreadyProcessedTokens+"/"+sTokens.size()+")");
+							this.getLogService().log(LogService.LOG_DEBUG, getsDocGraph().getSElementId()+ ": already processed tokens:  "+ percentage +"%...("+alreadyProcessedTokens+"/"+sTokens.size()+")");
 					}
 
 					//if element does not already have been stored
@@ -460,10 +480,15 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 				logStr.append("\ttime to map lonely-components:\t\t"+(timeToMapLonlyComponents/ 1000000)+"\n");
 				this.getLogService().log(LogService.LOG_DEBUG, logStr.toString());
 			}
-		}//Export all tokens who aren't connected by (SSPANNING_RELATION, SPOINTING_RELATION or SDOMINANCE_RELATION)
+		//end: Export all tokens who aren't connected by (SSPANNING_RELATION, SPOINTING_RELATION or SDOMINANCE_RELATION)
 	}
 	
-	private void traverseBySRelation2(EList<SNode> roots)
+	/**
+	 * 
+	 * @param roots
+	 * @param factor for computing the progress, factor means percentage of the current run of this method.
+	 */
+	private void traverseBySRelation2(EList<SNode> roots, double factor)
 	{
 		if (roots!= null)
 		{
@@ -472,12 +497,16 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 			for (SNode subRoot: roots)
 			{//walk through every root
 				alreadyProcessedRoots++;
-				if (((alreadyProcessedRoots *100/ roots.size()) - percentage)>=2)
-				{
-					percentage= alreadyProcessedRoots *100/ roots.size();
+				if (((alreadyProcessedRoots *100/ roots.size()) - percentage)>=5)
+				{//notify the pepper-framework about progress
+					percentage= alreadyProcessedRoots/ roots.size();
+					currentProgress= currentProgress+ percentage* factor;
+//					if (this.getpModuleController()== null)
+//						this.getpModuleController().notifyProgress(this.getsDocGraph().getSDocument().getSElementId(), currentProgress);
+					
 					if (this.getLogService()!= null)
-						this.getLogService().log(LogService.LOG_DEBUG, "already processed subtrees:  "+ percentage +"%...("+alreadyProcessedRoots+"/"+roots.size()+")");
-				}
+						this.getLogService().log(LogService.LOG_DEBUG, getsDocGraph().getSElementId().getSId()+"already processed subtrees:  "+ percentage +"%...("+alreadyProcessedRoots+"/"+roots.size()+")");
+				}//notify the pepper-framework about progress
 				
 				this.currRaComponent= relANNISFactory.eINSTANCE.createRAComponent();
 				if (	(roots== null) ||
@@ -512,18 +541,13 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 		if (clazz.equals(SSpanningRelation.class))
 		{//exporting all SStructure, SSpan and SToken elements connected with SSpanningRelation
 			EList<SNode> superRoots= null;
-			{//computing roots
+			//start: computing roots
 				superRoots= this.getsDocGraph().getRootsBySRelation(sType);
-				
-//				old since 2011-11-28
-//				SDocumentStructureAccessor sDocAccessor= new SDocumentStructureAccessor();
-//				sDocAccessor.setSDocumentGraph(this.getsDocGraph());
-//				superRoots= sDocAccessor.getRootsBySRelation(clazz);				
-			}//computing roots
-			{//traverse for every super connected components root
+			//end: computing roots
+			//start: traverse for every super connected components root
 				this.currTraversionType= TRAVERSION_TYPE.DOCUMENT_STRUCTURE_CR;
-				this.traverseBySRelation2(superRoots);
-			}//traverse for every super connected components root
+				this.traverseBySRelation2(superRoots, 0.25);
+			//end: traverse for every super connected components root
 		}//exporting all SStructure, SSpan and SToken elements connected with SSpanningRelation
 		else if (clazz.equals(SDominanceRelation.class))
 		{//exporting all SStructure, SSpan and SToken elements connected with SDominanceRelation
@@ -531,57 +555,35 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 				EList<SNode> superRoots= null;
 				//computing roots
 					superRoots= this.getsDocGraph().getRootsBySRelation(sType);
-					
-//					old since 2011-11-28
-//					SDocumentStructureAccessor sDocAccessor= new SDocumentStructureAccessor();
-//					sDocAccessor.setSDocumentGraph(this.getsDocGraph());
-//					superRoots= sDocAccessor.getRootsBySRelation(clazz);				
 				//computing roots
 				//start:traverse for every super connected components root
 					this.currTraversionType= TRAVERSION_TYPE.DOCUMENT_STRUCTURE_DR;
-					this.traverseBySRelation2(superRoots);
+					this.traverseBySRelation2(superRoots, 0.125);
 				//end:traverse for every super connected components root
 			//end:/traversing super components
 			
-			{//traverse for every sub connected components root
+			//start: traverse for every sub connected components root
 				Map<String, EList<SNode>> rootsOfSubConnectedComponents= null;
-				//old since 2011-11-28
-//				Hashtable<String, EList<SNode>> rootsOfSubConnectedComponents= null;
 				//computing roots
 					rootsOfSubConnectedComponents= this.getsDocGraph().getRootsBySRelationSType(sType);
-					
-//					old since 2011-11-28
-//					SDocumentStructureAccessor sDocAccessor= new SDocumentStructureAccessor();
-//					sDocAccessor.setSDocumentGraph(this.getsDocGraph());
-//					rootsOfSubConnectedComponents= sDocAccessor.getRootsBySRelationSType(clazz);				
 				//computing roots
 				if (	(rootsOfSubConnectedComponents!= null) &&
 						(rootsOfSubConnectedComponents.size() > 0))
 				{	
-//					String subComponentSlot= null;
-//					Enumeration<String> slots= rootsOfSubConnectedComponents.keys();
 					Set<String> slots= rootsOfSubConnectedComponents.keySet();
-//					while (slots.hasMoreElements())
 					for (String subComponentSlot: slots)
 					{//walk through every slot
-//						subComponentSlot= slots.nextElement();
-						
 						this.currComponentId= subComponentSlot;
 						this.currTraversionType= TRAVERSION_TYPE.DOCUMENT_STRUCTURE_DR_SUB;
-						this.traverseBySRelation2(rootsOfSubConnectedComponents.get(subComponentSlot));
+						this.traverseBySRelation2(rootsOfSubConnectedComponents.get(subComponentSlot), 0.125);
 					}//walk through every slot
 				}
-			}//traverse for every sub connected components root
+			//end: traverse for every sub connected components root
 		}//exporting all SStructure, SSpan and SToken elements connected with SDominanceRelation
 		else if (clazz.equals(SPointingRelation.class))
 		{//exporting all SStructuredNodes connected with SPointingRelation
 			this.currTraversionType= TRAVERSION_TYPE.DOCUMENT_STRUCTURE_PR;
 			Map<String, EList<SNode>> roots= this.getsDocGraph().getRootsBySRelationSType(sType);
-			
-//			old since 2011-11-28
-//			SDocumentStructureAccessor acc= new SDocumentStructureAccessor();
-//			acc.setSDocumentGraph(this.getsDocGraph());
-//			Hashtable<String, EList<SNode>> roots= acc.getRootsBySRelationSType(clazz); 
 			if (roots!= null)
 			{
 				Set<String> slots= roots.keySet();
@@ -590,109 +592,11 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 					
 					this.currComponentId= subComponentSlot;
 					this.currTraversionType= TRAVERSION_TYPE.DOCUMENT_STRUCTURE_PR_SUB;
-					this.traverseBySRelation2(roots.get(subComponentSlot));
+					this.traverseBySRelation2(roots.get(subComponentSlot), 0.25);
 				}
-//				old since 2011-11-28
-//				String subComponentSlot= null;
-//				Enumeration<String> slots= roots.keys();
-//				while (slots.hasMoreElements())
-//				{//walk through every slot
-//					subComponentSlot= slots.nextElement();
-//					
-//					this.currComponentId= subComponentSlot;
-//					this.currTraversionType= TRAVERSION_TYPE.DOCUMENT_STRUCTURE_PR_SUB;
-//					this.traverseBySRelation2(roots.get(subComponentSlot));
-//				}
 			}			
 		}//exporting all SStructuredNodes connected with SPointingRelation
 	}
-	
-//	/**
-//	 * Traverses the graph by using the given SRelation type. For SDominanceRelation, this methode traverses
-//	 * all super components and sub components. For SSpanning relation this method traverses all super 
-//	 * components. And for SPointing relation this method traverses all sub components.
-//	 */
-//	private void traverseBySRelation(Class<? extends SRelation> clazz)
-//	{
-//		if (clazz== null)
-//			throw new RelANNISModuleException("Cannot compute roots for given SRelation subtype, becuase it is null.");
-//		
-//		//maps the given class name to a Salt sType name.
-//		STYPE_NAME sType= SaltFactory.eINSTANCE.convertClazzToSTypeName(clazz);
-//		
-//		if (clazz.equals(SSpanningRelation.class))
-//		{//exporting all SStructure, SSpan and SToken elements connected with SSpanningRelation
-//			EList<SNode> superRoots= null;
-//			{//computing roots
-//				SDocumentStructureAccessor sDocAccessor= new SDocumentStructureAccessor();
-//				sDocAccessor.setSDocumentGraph(this.getsDocGraph());
-//				superRoots= sDocAccessor.getRootsBySRelation(clazz);				
-//			}//computing roots
-//			{//traverse for every super connected components root
-//				this.currTraversionType= TRAVERSION_TYPE.DOCUMENT_STRUCTURE_CR;
-//				this.traverseBySRelation2(superRoots);
-//			}//traverse for every super connected components root
-//		}//exporting all SStructure, SSpan and SToken elements connected with SSpanningRelation
-//		else if (clazz.equals(SDominanceRelation.class))
-//		{//exporting all SStructure, SSpan and SToken elements connected with SDominanceRelation
-//			//start: traversing super components 
-//				EList<SNode> superRoots= null;
-//				SDocumentStructureAccessor sDocAccessor;
-//				//computing roots
-//					sDocAccessor= new SDocumentStructureAccessor();
-//					sDocAccessor.setSDocumentGraph(this.getsDocGraph());
-//					superRoots= sDocAccessor.getRootsBySRelation(clazz);				
-//				//computing roots
-//				//start:traverse for every super connected components root
-//					this.currTraversionType= TRAVERSION_TYPE.DOCUMENT_STRUCTURE_DR;
-//					this.traverseBySRelation2(superRoots);
-//				//end:traverse for every super connected components root
-//			//end:/traversing super components
-//			
-//			{//traverse for every sub connected components root
-//				Hashtable<String, EList<SNode>> rootsOfSubConnectedComponents= null;
-//				//computing roots
-//					sDocAccessor= new SDocumentStructureAccessor();
-//					sDocAccessor.setSDocumentGraph(this.getsDocGraph());
-//					rootsOfSubConnectedComponents= sDocAccessor.getRootsBySRelationSType(clazz);				
-//				//computing roots
-//				if (	(rootsOfSubConnectedComponents!= null) &&
-//						(rootsOfSubConnectedComponents.size() > 0))
-//				{	
-//					String subComponentSlot= null;
-//					Enumeration<String> slots= rootsOfSubConnectedComponents.keys();
-//					while (slots.hasMoreElements())
-//					{//walk through every slot
-//						subComponentSlot= slots.nextElement();
-//						
-//						this.currComponentId= subComponentSlot;
-//						this.currTraversionType= TRAVERSION_TYPE.DOCUMENT_STRUCTURE_DR_SUB;
-//						this.traverseBySRelation2(rootsOfSubConnectedComponents.get(subComponentSlot));
-//					}//walk through every slot
-//				}
-//			}//traverse for every sub connected components root
-//		}//exporting all SStructure, SSpan and SToken elements connected with SDominanceRelation
-//		else if (clazz.equals(SPointingRelation.class))
-//		{//exporting all SStructuredNodes connected with SPointingRelation
-//			this.currTraversionType= TRAVERSION_TYPE.DOCUMENT_STRUCTURE_PR;
-//			SDocumentStructureAccessor acc= new SDocumentStructureAccessor();
-//			acc.setSDocumentGraph(this.getsDocGraph());
-//			Hashtable<String, EList<SNode>> roots= acc.getRootsBySRelationSType(clazz); 
-//			String subComponentSlot= null;
-//			if (roots!= null)
-//			{	
-//				Enumeration<String> slots= roots.keys();
-//				while (slots.hasMoreElements())
-//				{//walk through every slot
-//					subComponentSlot= slots.nextElement();
-//					
-//					this.currComponentId= subComponentSlot;
-//					this.currTraversionType= TRAVERSION_TYPE.DOCUMENT_STRUCTURE_PR_SUB;
-//					this.traverseBySRelation2(roots.get(subComponentSlot));
-//				}
-//			}			
-//		}//exporting all SStructuredNodes connected with SPointingRelation
-//	}
 	
 	/**
 	 * stores sElementIds and corresponding RAText-objects.
@@ -763,20 +667,7 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 		if (this.sTokenSortByLeft== null)
 		{
 			this.sTokenSortByLeft= this.getsDocGraph().getSortedSTokenByText();
-			
-//			old since 2011-11-28
-//			SDocumentStructureAccessor acc= new SDocumentStructureAccessor();
-//			acc.setSDocumentGraph(this.getsDocGraph());
-//			this.sTokenSortByLeft= acc.getSTokensSortedByText();
-		}	
-		
-//		POTPair textualPOT= null;
-//		{//getting start and end pos in text
-//			SDocumentStructureAccessor acc= new SDocumentStructureAccessor();
-//			acc.setSDocumentGraph(this.getsDocGraph());
-//			textualPOT= acc.getSTextPOT(sToken);
-//		}//getting start and end pos in text
-		
+		}
 		{//namespace (because of syntax visualisationin ANNIS, token and corresponding syntactic nodes shall not have the same namespace)
 			StringBuffer namespace= new StringBuffer();
 			namespace.append(TOKEN_NS_PREFIXNS);
@@ -800,8 +691,6 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 		
 		Long left= new Long(sequence.getSStart());
 		Long right= new Long(sequence.getSEnd());
-//		Long left= new Long(textualPOT.getStartPot());
-//		Long right= new Long(textualPOT.getEndPot());
 		
 		if (left < 0)
 			throw new RelANNISModuleException("Cannot map the given SToken-object '"+sToken.getSId()+"' to RAToken, because its left-value '"+left+"' is smaller than 0.");
@@ -857,20 +746,6 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 			throw new RelANNISModuleException("Cannot map the SStructuredNode-object to the given RANode-object, because sStructuredNode is empty.");
 		if (raStructuredNode== null)
 			throw new RelANNISModuleException("Cannot map the SStructuredNode-object to the given RANode-object, because raStructuredNode is empty.");
-		//old since 2011-11-28
-//		POTPair textualPOT= null;
-//		{//getting start and end pos in text
-//			SDocumentStructureAccessor acc= new SDocumentStructureAccessor();
-//			acc.setSDocumentGraph(this.getsDocGraph());
-//			textualPOT= acc.getSTextPOT(sStructuredNode);
-//		}//getting start and end pos in text
-//		
-//		if (textualPOT.getStartPot()== null)
-//			throw new RelANNISModuleException("Cannot map the given SStructuredNode-object '"+sStructuredNode.getSId()+"', because it doesn't have a left (start-value) border, pointing to the primary data.");
-//		if (textualPOT.getEndPot()== null)
-//			throw new RelANNISModuleException("Cannot map the given SStructuredNode-object '"+sStructuredNode.getSId()+"', because it doesn't have a right (end-value) border, pointing to the primary data.");
-//		Long left= Long.valueOf(textualPOT.getStartPot());
-//		Long right= Long.valueOf(textualPOT.getEndPot()); 
 		
 		EList<STYPE_NAME> sTypes= new BasicEList<STYPE_NAME>();
 		sTypes.add(STYPE_NAME.STEXT_OVERLAPPING_RELATION);
@@ -925,21 +800,10 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 		if (this.sTokenSortByLeft== null)
 		{//compute correct order of tokens and store it, because of performance do it also here 
 			this.sTokenSortByLeft= this.getsDocGraph().getSortedSTokenByText();
-			
-			//old since 2011-11-28
-//			SDocumentStructureAccessor acc= new SDocumentStructureAccessor();
-//			acc.setSDocumentGraph(this.getsDocGraph());
-//			this.sTokenSortByLeft= acc.getSTokensSortedByText();
 		}//compute correct order of tokens and store it, because of performance do it also here	
 		
 		EList<SToken> sTokens= this.getsDocGraph().getSTokensBySequence(overlapedSequence);
 		raStructuredNode.setRaContinuous(this.getsDocGraph().isContinuousByText((EList<SNode>) (EList<? extends SNode>)sTokens, (EList<SNode>) (EList<? extends SNode>)this.sTokenSortByLeft));
-		
-		//old since 2011-11-28
-//		SDocumentStructureAccessor acc= new SDocumentStructureAccessor();
-//		acc.setSDocumentGraph(this.getsDocGraph());
-//		EList<SToken> sTokens= acc.getSTextualOverlappedTokens(sStructuredNode);
-//		raStructuredNode.setRaContinuous(acc.getContinuously(sTokens, this.sTokenSortByLeft));
 		
 		//map text 
 		raStructuredNode.setRaText(raText);
@@ -980,48 +844,7 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 		
 		return(raNodeAnno);
 	}
-	
-//	/**
-//	 * Maps a SAnnotation-object to a RANodeAnnotation-object. 
-//	 * @param sAnno
-//	 * @param raNodeAnnotation
-//	 */
-//	protected void mapSAnnotation2RANodeAnnotation(	SAnnotation sAnno, 
-//													RANodeAnnotation raNodeAnno,
-//													RANode raNode)
-//	{
-//		if (sAnno== null)
-//			throw new RelANNISModuleException("Cannot map the SAnnotation-object to the given RANodeAnnotation-object, because sAnnotation is empty.");
-//		if (raNodeAnno== null)
-//			throw new RelANNISModuleException("Cannot map the SAnnotation-object to the given RANodeAnnotation-object, because raNodeAnnotation is empty.");
-//		
-//		
-//		
-//		{//namespace
-//			String namespace= null;
-//			if (	(sAnno.getSAnnotatableElement() instanceof SNode) &&
-//					(((SNode)sAnno.getSAnnotatableElement()).getSLayers()!= null) &&
-//					(((SNode)sAnno.getSAnnotatableElement()).getSLayers().size()!= 0))
-//			{//a namespace can be taken from layers name
-//				if (((SNode)sAnno.getSAnnotatableElement()).getSLayers().get(0)!= null)
-//				{	
-//					namespace= ((SNode)sAnno.getSAnnotatableElement()).getSLayers().get(0).getSName();
-//				}
-//			}//a namespace can be taken from layers name
-//			else namespace= DEFAULT_NS;
-//			raNodeAnno.setRaNamespace(namespace);
-//		}//namespace
-//		raNodeAnno.setSName(sAnno.getSName());
-//		if (sAnno.getSValue()!= null)
-//		{
-//			if (	(sAnno.getSValueType()!=null)&&
-//					(sAnno.getSValueType().equals(SDATATYPE.SURI)))
-//				raNodeAnno.setSValue(sAnno.getSValueSURI());
-//			else
-//				raNodeAnno.setRaValue(sAnno.getSValueSTEXT());
-//		}
-//	}
-	
+		
 	/**
 	 * Maps a SAnnotation-object to a RAEdgeAnnotation-object.
 	 * If no namespace is given by the layer of the corresponding SRelation object, it will be
@@ -1053,42 +876,7 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 		
 		return(raEdgeAnno);
 	}
-	
-//	/**
-//	 * Maps a SAnnotation-object to a RAEdgeAnnotation-object.
-//	 * If no namespace is given by the layer of the corresponding SRelation object, it will be
-//	 * set to the default namespace.  
-//	 * @param sAnno
-//	 * @param raNodeAnnotation
-//	 */
-//	protected void mapSAnnotation2RAEdgeAnnotation(	SAnnotation sAnno, 
-//													RAEdgeAnnotation raEdgeAnno)
-//	{
-//		if (sAnno== null)
-//			throw new RelANNISModuleException("Cannot map the SAnnotation-object to the given RANodeAnnotation-object, because sAnnotation is empty.");
-//		if (raEdgeAnno== null)
-//			throw new RelANNISModuleException("Cannot map the SAnnotation-object to the given RANodeAnnotation-object, because raNodeAnnotation is empty.");
-//		
-//		{//namespace
-//			String namespace= null;
-//			if (	(sAnno.getSAnnotatableElement() instanceof SRelation) &&
-//					(((SRelation)sAnno.getSAnnotatableElement()).getSLayers()!= null) &&
-//					(((SRelation)sAnno.getSAnnotatableElement()).getSLayers().size()!= 0))
-//			{//a namespace can be taken from layers name
-//				if (((SRelation)sAnno.getSAnnotatableElement()).getSLayers().get(0)!= null)
-//				{	
-//					namespace= ((SRelation)sAnno.getSAnnotatableElement()).getSLayers().get(0).getSName();
-//				}
-//			}//a namespace can be taken from layers name
-//			else namespace= DEFAULT_NS;
-//			raEdgeAnno.setRaNamespace(namespace);
-//		}//namespace
-//		
-//		raEdgeAnno.setSName(sAnno.getSName());
-//		if (sAnno.getSValue()!= null)
-//			raEdgeAnno.setRaValue(sAnno.getSValue().toString());
-//	}
-	
+		
 	/**
 	 * Namespace for visualization type for grid viewable data.
 	 */
@@ -1325,10 +1113,6 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 	 * Stores the current component id for current sub component
 	 */
 	private String currComponentId= null;
-		
-//	@Override
-//	public boolean checkConstraint(GRAPH_TRAVERSE_MODE traversalMode,
-//			Long traversalId, Edge edge, Node currNode, long order) 
 	
 	@Override
 	public boolean checkConstraint(	GRAPH_TRAVERSE_TYPE traversalType,
@@ -1528,9 +1312,6 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 	private HashSet<RAComponent> containedRAComponent= new HashSet<RAComponent>();
 	
 	
-//	@Override
-//	public void nodeLeft(GRAPH_TRAVERSE_MODE traversalMode, Long traversalId,
-//			Node currNode, Edge edge, Node fromNode, long order) 
 	@Override
 	public void nodeLeft(	GRAPH_TRAVERSE_TYPE traversalType, 
 							String traversalId,
@@ -1732,10 +1513,7 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 
 	private String KW_NS= "s2ra";
 	private String KW_NAME_PRE= "pre";
-//	@Override
-//	public void nodeReached(GRAPH_TRAVERSE_MODE traversalMode,
-//			Long traversalId, Node currNode, Edge edge, Node fromNode,
-//			long order) 
+
 	@Override
 	public void nodeReached(	GRAPH_TRAVERSE_TYPE traversalType,
 								String traversalId, 
