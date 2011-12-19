@@ -18,6 +18,8 @@
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 
@@ -27,7 +29,6 @@ import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
-import org.osgi.service.component.ComponentContext;
 import org.osgi.service.log.LogService;
 
 import de.hu_berlin.german.korpling.saltnpepper.misc.relANNIS.RACorpus;
@@ -71,26 +72,6 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 		formatDef.setFormatName("relANNIS");
 		formatDef.setFormatVersion("3.1");
 		this.supportedFormats.add(formatDef);
-	}
-
-	protected void activate(ComponentContext componentContext) 
-	{
-		this.setSymbolicName(componentContext.getBundleContext().getBundle().getSymbolicName());
-		if (this.getLogService()!= null)
-			this.getLogService().log(LogService.LOG_DEBUG,this.getName()+" is activated...");
-	}
-
-	/**
-	 * Wird von der Service Component Runtime vor der Deaktivierung der Komponente
-	 * aufgerufen und gibt noch eine Abschiedsbotschaft aus
-	 * 
-	 * @param componentContext
-	 *          Der Kontext der Komponente
-	 */
-	protected void deactivate(ComponentContext componentContext) {
-		if (this.getLogService()!= null)
-			this.getLogService().log(LogService.LOG_DEBUG,this.getName()+" is deactivated...");
-
 	}
 	
 	/**
@@ -149,6 +130,8 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 	@Override
 	public void start(SElementId sElementId) throws PepperModuleException 
 	{
+		try
+		{
 		if (sElementId== null)
 			throw new RelANNISModuleException("Cannot export an element with empty element id.");
 		if (sElementId.getSIdentifiableElement()== null)
@@ -156,17 +139,19 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 		if (this.getCorpusDefinition().getCorpusPath()== null)
 			throw new RelANNISModuleException("Cannot export an the element '"+sElementId.getId()+"', because of no corpus path is set.");
 		
-		{//pre start corpus structure, if it wasn't
+		System.out.println("---------------------------> start "+ sElementId);
+		
+		//start: pre start corpus structure, if it wasn't
 			if (!isPreStarted)
 				this.preStartCorpusStructure();
-		}//pre start corpus structure, if it wasn't
+		//end: pre start corpus structure, if it wasn't
 		if (sElementId.getSIdentifiableElement() instanceof SCorpus)
 		{//export corpusStructure
 			Long timeToExportSCorpusStructure= System.nanoTime();
 			if (this.getLogService()!= null)
 				this.getLogService().log(LogService.LOG_DEBUG,this.getName()+" exporting corpus "+ sElementId.getSId());
 			
-			{//map the graphs
+			//start: map the graphs
 				SCorpusGraph sCorpGraph= null;
 				{//emit correct sCorpus graph object
 					if (this.getSaltProject().getSCorpusGraphs().size() > 1)
@@ -174,11 +159,12 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 					sCorpGraph= (SCorpusGraph) this.getSaltProject().getSCorpusGraphs().get(0);
 				}//emit correct sCorpus graph object
 				Salt2RelANNISMapper mapper= new Salt2RelANNISMapper();
+				mapper.setpModuleController(this.getPepperModuleController());
 				mapper.setLogService(this.getLogService());
 				mapper.mapFinalSCorpusGraph2RACorpusGraph(sCorpGraph, this.raCorpusGraph, this.sElementId2RaId);
-			}//map the graphs
+			//end: map the graphs
 			
-			{//save raCorpusGraph to resource
+			//start: save raCorpusGraph to resource
 				// create resource set and resource
 				ResourceSet resourceSet = new ResourceSetImpl();
 	
@@ -194,11 +180,12 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 				{
 					throw new RelANNISModuleException("Cannot save corpus structure of element '"+sElementId.getSId()+"' to resource.", e);
 				}
-			}//save raCorpusGraph to resource
+			//end: save raCorpusGraph to resource
 			this.totalTimeToExportSCorpusStructure= this.totalTimeToExportSCorpusStructure +(System.nanoTime() - timeToExportSCorpusStructure);
 		}//export corpusStructure
 		else if (sElementId.getSIdentifiableElement() instanceof SDocument)
 		{//export documentStructure
+			System.out.println("---------------------------> is Document "+ sElementId);
 			Long timeToExportDocument= System.nanoTime();
 			if (this.getLogService()!= null)
 				this.getLogService().log(LogService.LOG_DEBUG,this.getName()+" exporting document "+ sElementId.getSId());
@@ -212,16 +199,21 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 					{	
 						RADocumentGraph raDocGraph= null;
 						SDocumentGraph sDocGraph= null;
-						{//set both graphs
+						//start: set both graphs
 							sDocGraph= ((SDocument)sElementId.getSIdentifiableElement()).getSDocumentGraph();
 							raDocGraph= relANNISFactory.eINSTANCE.createRADocumentGraph();
-						}//set both graphs
-						{//map the graphs
+						//end: set both graphs
+						//start: map the graphs
 							Long timeToMapSDocument= System.nanoTime();
 							Salt2RelANNISMapper mapper= new Salt2RelANNISMapper();
+							if (sDocument2Mapper== null)
+								sDocument2Mapper= Collections.synchronizedMap(new HashMap<SElementId, Salt2RelANNISMapper>());
+							sDocument2Mapper.put(sElementId, mapper);
 							mapper.setLogService(this.getLogService());
+							System.out.println("---------------------------> start map graph 2"+ sElementId);
 							mapper.mapSDocumentGraph2RADocumentGraph(sDocGraph, raDocGraph);
-							{//adding documentgraph to document
+							System.out.println("---------------------------> end map graph 2"+ sElementId);
+							//start: adding documentgraph to document
 								RACorpus raDocument= null;
 								for (RACorpus raCorpus: this.raCorpusGraph.getRaCorpora())
 								{
@@ -229,12 +221,15 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 										raDocument= raCorpus;
 								}
 								raDocument.setRaDocumentGraph(raDocGraph);
-							}//adding document graph to docuement
-							//cleaning up
-							mapper= null;
+							//end: adding document graph to docuement
+							//start: cleaning up
+								this.sDocument2Mapper.remove(sElementId);
+								mapper= null;
+							//end: cleaning up	
 							this.totalTimeToMapSDocument= this.totalTimeToMapSDocument + (System.nanoTime() - timeToMapSDocument);
-						}//map the graphs
-						{//save document graph to resource
+						//end: map the graphs
+						System.out.println("---------------------------> ended map graph "+ sElementId);
+						//start: save document graph to resource
 							Long timeToSaveSDocument= System.nanoTime();
 							// create resource set and resource
 							ResourceSet resourceSet = new ResourceSetImpl();
@@ -256,10 +251,11 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 							{
 								this.totalTimeToSaveSDocument= this.totalTimeToSaveSDocument + (System.nanoTime() - timeToSaveSDocument); 
 							}
-						}//save document graph to resource
-						{//remove the raDocumentgraph
+						//end: save document graph to resource
+						System.out.println("---------------------------> ended save graph "+ sElementId);
+						//start: remove the raDocumentgraph
 							raDocGraph.getRaCorpus().setRaDocumentGraph(null);
-						}//remove the raDocumentgraph
+						//end: remove the raDocumentgraph
 					}
 				}
 			}//only export if document graph isn't null
@@ -269,6 +265,34 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 		{
 			throw new RelANNISModuleException("Cannot export the following elment with id '"+sElementId.getSId()+"', because it isn't of Type SCorpus or SDocument: "+ sElementId.getSIdentifiableElement());
 		}
+		
+		System.out.println("---------------------------> end entire document"+ sElementId);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			throw new RelANNISModuleException("",e);
+		}
+	}
+	
+	/**
+	 * A Hashmap representing the correspondence between a {@link SDocument} object given by its {@link SElementId} object and 
+	 * the {@link Salt2RelANNISMapper} object processing the {@link SDocument} object.
+	 */
+	private Map<SElementId, Salt2RelANNISMapper> sDocument2Mapper= null;
+	
+	/**
+	 * Returns the progress of the {@link Salt2RelANNISMapper} processing the {@link SDocument} represented by the given 
+	 * {@link SElementId} object.
+	 * @param sDocumentId identifier for the {@link SDocument}. 
+	 */
+	@Override
+	public Double getProgress(SElementId sDocumentId)
+	{
+		Double retVal= null;
+		Salt2RelANNISMapper mapper= this.sDocument2Mapper.get(sDocumentId);
+		if (mapper!= null)
+			retVal= mapper.getProgress();
+		return(retVal);
 	}
 	
 	@Override
