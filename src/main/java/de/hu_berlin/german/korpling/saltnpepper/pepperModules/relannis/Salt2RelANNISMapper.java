@@ -749,69 +749,79 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 		
 		EList<STYPE_NAME> sTypes= new BasicEList<STYPE_NAME>();
 		sTypes.add(STYPE_NAME.STEXT_OVERLAPPING_RELATION);
-		SDataSourceSequence overlapedSequence= this.getsDocGraph().getOverlappedDSSequences(sStructuredNode, sTypes).get(0);
-		
-		if (overlapedSequence.getSStart()== null)
-			throw new RelANNISModuleException("Cannot map the given SStructuredNode-object '"+sStructuredNode.getSId()+"', because it doesn't have a left (start-value) border, pointing to the primary data.");
-		if (overlapedSequence.getSEnd()== null)
-			throw new RelANNISModuleException("Cannot map the given SStructuredNode-object '"+sStructuredNode.getSId()+"', because it doesn't have a right (end-value) border, pointing to the primary data.");
-		Long left= new Long(overlapedSequence.getSStart());
-		Long right= new Long(overlapedSequence.getSEnd());
-		
-		
-		{//namespace
-			String namespace= DEFAULT_NS;
-			if (	(sStructuredNode.getSLayers()!= null) &&
-					(sStructuredNode.getSLayers().size()!= 0))
-			{//a namespace can be taken from layers name
-				if (sStructuredNode.getSLayers().get(0)!= null)
-				{	
-					namespace= sStructuredNode.getSLayers().get(0).getSName();
+		EList<SDataSourceSequence> overlappedDSSequences= this.getsDocGraph().getOverlappedDSSequences(sStructuredNode, sTypes);
+		if (	(overlappedDSSequences== null)||
+				(overlappedDSSequences.size()==0))
+		{
+			if (this.getLogService()!= null)
+				this.getLogService().log(LogService.LOG_WARNING, "Cannot map SStructuredNode object '"+sStructuredNode.getSId()+"' to ra-node, because it does not overlap a text.");
+		}
+		else
+		{
+			SDataSourceSequence overlapedSequence= overlappedDSSequences.get(0);
+			
+			if (overlapedSequence.getSStart()== null)
+				throw new RelANNISModuleException("Cannot map the given SStructuredNode-object '"+sStructuredNode.getSId()+"', because it doesn't have a left (start-value) border, pointing to the primary data.");
+			if (overlapedSequence.getSEnd()== null)
+				throw new RelANNISModuleException("Cannot map the given SStructuredNode-object '"+sStructuredNode.getSId()+"', because it doesn't have a right (end-value) border, pointing to the primary data.");
+			Long left= new Long(overlapedSequence.getSStart());
+			Long right= new Long(overlapedSequence.getSEnd());
+			
+			
+			{//namespace
+				String namespace= DEFAULT_NS;
+				if (	(sStructuredNode.getSLayers()!= null) &&
+						(sStructuredNode.getSLayers().size()!= 0))
+				{//a namespace can be taken from layers name
+					if (sStructuredNode.getSLayers().get(0)!= null)
+					{	
+						namespace= sStructuredNode.getSLayers().get(0).getSName();
+					}
+				}//a namespace can be taken from layers name
+				raStructuredNode.setRaNamespace(namespace);
+			}//namespace
+			
+			if (left < 0)
+				throw new RelANNISModuleException("Cannot map the given SStructuredNode-object '"+sStructuredNode.getSId()+"' to RAStructuredNode, because its left-value '"+left+"' is smaller than 0.");
+			if (right > raText.getRaText().length())
+				throw new RelANNISModuleException("Cannot map the given SStructuredNode-object '"+sStructuredNode.getSId()+"' to RAStructuredNode, because its right-value '"+right+"' is bigger than the size of the text '"+raText.getRaText().length()+"'.");
+			
+			//start: map name, name must be unique
+				StringBuffer name= new StringBuffer();
+				name.append(sStructuredNode.getSName());
+				int i= 1;
+				while(this.alreadyExistingRANames.containsKey(name.toString()))
+				{
+					name.delete(0, name.length());
+					name.append(sStructuredNode.getSName()+"_"+i);
+					i++;
 				}
-			}//a namespace can be taken from layers name
-			raStructuredNode.setRaNamespace(namespace);
-		}//namespace
+				raStructuredNode.setRaName(name.toString());
+				this.alreadyExistingRANames.put(raStructuredNode.getRaName(), "");
+			//end: map name, name must be unique
 		
-		if (left < 0)
-			throw new RelANNISModuleException("Cannot map the given SStructuredNode-object '"+sStructuredNode.getSId()+"' to RAStructuredNode, because its left-value '"+left+"' is smaller than 0.");
-		if (right > raText.getRaText().length())
-			throw new RelANNISModuleException("Cannot map the given SStructuredNode-object '"+sStructuredNode.getSId()+"' to RAStructuredNode, because its right-value '"+right+"' is bigger than the size of the text '"+raText.getRaText().length()+"'.");
-		
-		{//map name, name must be unique
-			StringBuffer name= new StringBuffer();
-			name.append(sStructuredNode.getSName());
-			int i= 1;
-			while(this.alreadyExistingRANames.containsKey(name.toString()))
-			{
-				name.delete(0, name.length());
-				name.append(sStructuredNode.getSName()+"_"+i);
-				i++;
-			}
-			raStructuredNode.setRaName(name.toString());
-			this.alreadyExistingRANames.put(raStructuredNode.getRaName(), "");
-		}//map name, name must be unique
-	
-		
-		//map left
-		raStructuredNode.setRaLeft(left);
-		//map right
-		raStructuredNode.setRaRight(right);
-		
-		if (this.sTokenSortByLeft== null)
-		{//compute correct order of tokens and store it, because of performance do it also here 
-			this.sTokenSortByLeft= this.getsDocGraph().getSortedSTokenByText();
-		}//compute correct order of tokens and store it, because of performance do it also here	
-		
-		EList<SToken> sTokens= this.getsDocGraph().getSTokensBySequence(overlapedSequence);
-		raStructuredNode.setRaContinuous(this.getsDocGraph().isContinuousByText((EList<SNode>) (EList<? extends SNode>)sTokens, (EList<SNode>) (EList<? extends SNode>)this.sTokenSortByLeft));
-		
-		//map text 
-		raStructuredNode.setRaText(raText);
-		for (SAnnotation sAnno: sStructuredNode.getSAnnotations())
-		{//map annotations
-			RANodeAnnotation raStructuredNodeAnno= this.mapSAnnotation2RANodeAnnotation(sAnno, raStructuredNode);
-			raStructuredNode.addSAnnotation(raStructuredNodeAnno);
-		}//map annotations
+			
+			//map left
+			raStructuredNode.setRaLeft(left);
+			//map right
+			raStructuredNode.setRaRight(right);
+			
+			if (this.sTokenSortByLeft== null)
+			{//compute correct order of tokens and store it, because of performance do it also here 
+				this.sTokenSortByLeft= this.getsDocGraph().getSortedSTokenByText();
+			}//compute correct order of tokens and store it, because of performance do it also here	
+			
+			EList<SToken> sTokens= this.getsDocGraph().getSTokensBySequence(overlapedSequence);
+			raStructuredNode.setRaContinuous(this.getsDocGraph().isContinuousByText((EList<SNode>) (EList<? extends SNode>)sTokens, (EList<SNode>) (EList<? extends SNode>)this.sTokenSortByLeft));
+			
+			//map text 
+			raStructuredNode.setRaText(raText);
+			for (SAnnotation sAnno: sStructuredNode.getSAnnotations())
+			{//map annotations
+				RANodeAnnotation raStructuredNodeAnno= this.mapSAnnotation2RANodeAnnotation(sAnno, raStructuredNode);
+				raStructuredNode.addSAnnotation(raStructuredNodeAnno);
+			}//map annotations
+		}
 	}
 	
 	/**
