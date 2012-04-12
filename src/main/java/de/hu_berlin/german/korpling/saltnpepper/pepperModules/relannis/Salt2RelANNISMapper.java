@@ -50,6 +50,7 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.graph.GRAPH_TRAVERSE_TYPE;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpus;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SAudioDSRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDataSourceSequence;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDominanceRelation;
@@ -443,8 +444,6 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 					{
 						percentage= alreadyProcessedTokens *100/ sTokens.size();
 						currentProgress= currentProgress+ percentage* 0.25;
-//						if (this.getpModuleController()== null)	
-//							this.getpModuleController().notifyProgress(this.getsDocGraph().getSDocument().getSElementId(), currentProgress);
 						
 						if (this.getLogService()!= null)
 							this.getLogService().log(LogService.LOG_DEBUG, getsDocGraph().getSElementId()+ ": already processed tokens:  "+ percentage +"%...("+alreadyProcessedTokens+"/"+sTokens.size()+")");
@@ -470,6 +469,28 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 				}
 			}
 			timeToMapLonlyComponents= System.nanoTime() - timeToMapLonlyComponents;
+			if (	(sDocGraph.getSAudioDSRelations()!= null)&&
+					(sDocGraph.getSAudioDSRelations().size()>0))
+			{//start: map SAudioDataSource
+				for (SAudioDSRelation audioRel: sDocGraph.getSAudioDSRelations())
+				{
+					if (audioRel.getSToken()!= null)
+					{//create artificial annotation for audiosequence of SAudioDSRelation
+						RANode raToken= sElementId2RANode.get(audioRel.getSToken().getSElementId());
+						RANodeAnnotation raTokenAnno= relANNISFactory.eINSTANCE.createRANodeAnnotation();
+						raTokenAnno.setRaNamespace(relANNISFactory.ATT_NS_ANNIS);
+						raTokenAnno.setRaName(relANNISFactory.ATT_NAME_TIME);
+						String value= "";
+						if (audioRel.getSStart()!= null)
+							value= audioRel.getSStart().toString();
+						if (audioRel.getSEnd()!= null)
+							value= value+ "-"+ audioRel.getSEnd().toString();
+						raTokenAnno.setRaValue(value);
+						raToken.addSAnnotation(raTokenAnno);
+					}//create artificial annotation for audiosequence of SAudioDSRelation
+				}
+			}//end: map SAudioDataSource
+			
 			if (this.getLogService()!= null)
 			{
 				StringBuilder logStr= new StringBuilder();
