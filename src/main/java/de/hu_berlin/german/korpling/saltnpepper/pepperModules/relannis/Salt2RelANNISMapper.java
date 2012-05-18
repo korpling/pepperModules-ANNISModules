@@ -150,7 +150,7 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 	private TRAVERSION_TYPE currTraversionType= null;
 	
 	/**
-	 * stores a table for selement ids and corresponding RAIds for RACorpus-objects.
+	 * stores a table for sElement ids and corresponding RAIds for RACorpus-objects.
 	 */
 	private Map<SElementId, Long> sElementId2RaId= null;
 	
