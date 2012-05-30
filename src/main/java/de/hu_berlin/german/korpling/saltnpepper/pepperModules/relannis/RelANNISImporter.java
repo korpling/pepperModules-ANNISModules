@@ -23,12 +23,10 @@ import java.util.Map;
 
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Service;
-import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
-import org.osgi.service.log.LogService;
 
 import de.hu_berlin.german.korpling.saltnpepper.misc.relANNIS.RACorpus;
 import de.hu_berlin.german.korpling.saltnpepper.misc.relANNIS.RACorpusGraph;
@@ -36,7 +34,6 @@ import de.hu_berlin.german.korpling.saltnpepper.misc.relANNIS.resources.RelANNIS
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperExceptions.PepperModuleException;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.FormatDefinition;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperImporter;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperInterfaceFactory;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.impl.PepperImporterImpl;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.exceptions.RelANNISModuleException;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpus;
@@ -51,23 +48,11 @@ public class RelANNISImporter extends PepperImporterImpl implements PepperImport
 	public RelANNISImporter()
 	{
 		super();
-		this.name= "RelANNISImporter";
-		//for testing the symbolic name has to be set without osgi
-		if (	(this.getSymbolicName()==  null) ||
-				(this.getSymbolicName().equalsIgnoreCase("")))
-			this.setSymbolicName("de.hu_berlin.german.korpling.saltnpepper.pepperModules.RelANNISModules");
-		this.init();
-		if (this.getLogService()!= null)
-			this.getLogService().log(LogService.LOG_DEBUG,this.getName()+" is created...");
-	}
 
-	protected void init()
-	{
-		this.supportedFormats= new BasicEList<FormatDefinition>();
-		FormatDefinition formatDef= PepperInterfaceFactory.eINSTANCE.createFormatDefinition();
-		formatDef.setFormatName("relANNIS");
-		formatDef.setFormatVersion("3.1");
-		this.supportedFormats.add(formatDef);
+		//setting name of module
+		this.name= "RelANNISImporter";
+		//set list of formats supported by this module
+		this.addSupportedFormat("relANNIS", "3.1", null);
 	}
 	
 	private EList<FormatDefinition> supportedFormats= null;
