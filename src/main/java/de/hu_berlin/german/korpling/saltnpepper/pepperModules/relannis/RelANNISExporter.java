@@ -39,7 +39,6 @@ import de.hu_berlin.german.korpling.saltnpepper.misc.relANNIS.resources.RelANNIS
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperExceptions.PepperModuleException;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.FormatDefinition;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperExporter;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperInterfaceFactory;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.impl.PepperExporterImpl;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.exceptions.RelANNISModuleException;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpus;
@@ -55,23 +54,11 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 	public RelANNISExporter()
 	{
 		super();
-		this.name= "RelANNISExporter";
-		//for testing the symbolic name has to be set without osgi
-		if (	(this.getSymbolicName()==  null) ||
-				(this.getSymbolicName().equalsIgnoreCase("")))
-			this.setSymbolicName("de.hu_berlin.german.korpling.saltnpepper.pepperModules.RelANNISModules");
-		this.init();
-		if (this.getLogService()!= null)
-			this.getLogService().log(LogService.LOG_DEBUG,this.getName()+" is created...");
-	}
 
-	protected void init()
-	{
-		this.supportedFormats= new BasicEList<FormatDefinition>();
-		FormatDefinition formatDef= PepperInterfaceFactory.eINSTANCE.createFormatDefinition();
-		formatDef.setFormatName("relANNIS");
-		formatDef.setFormatVersion("3.1");
-		this.supportedFormats.add(formatDef);
+		//setting name of module
+		this.name= "RelANNISExporter";
+		//set list of formats supported by this module
+		this.addSupportedFormat("relANNIS", "3.1", null);
 	}
 	
 	/**
