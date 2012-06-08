@@ -53,6 +53,7 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDataSourceSequence;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDominanceRelation;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SOrderRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SPointingRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpan;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpanningRelation;
@@ -143,7 +144,8 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 							DOCUMENT_STRUCTURE_DR, 
 							DOCUMENT_STRUCTURE_DR_SUB, 
 							DOCUMENT_STRUCTURE_PR,
-							DOCUMENT_STRUCTURE_PR_SUB};
+							DOCUMENT_STRUCTURE_PR_SUB,
+							DOCUMENT_STRUCTURE_OR};
 	/**
 	 * stores the current type of traversion
 	 */
@@ -419,14 +421,6 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 			timeToMapDRComponents= System.nanoTime() - timeToMapDRComponents;
 		//end: exporting all SStructure, SSpan and SToken elements connected with SDominanceRelation
 		
-		//start: exporting all SStructuredNodes connected with SPointingRelation
-			if (this.getLogService()!= null)
-				this.getLogService().log(LogService.LOG_DEBUG, getsDocGraph().getSElementId().getSId()+ ": relANNISExporter computing components for SPointingRelation...");
-			timeToMapPRComponents= System.nanoTime();
-			this.traverseBySRelation(SPointingRelation.class);
-			timeToMapPRComponents= System.nanoTime() - timeToMapPRComponents;
-		//end: exporting all SStructuredNodes connected with SPointingRelation
-		
 		//start: Export all tokens who aren't connected by (SSPANNING_RELATION, SPOINTING_RELATION or SDOMINANCE_RELATION)
 			timeToMapLonlyComponents= System.nanoTime();
 			if (this.getLogService()!= null)
@@ -442,7 +436,7 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 					if (((alreadyProcessedTokens *100/ sTokens.size()) - percentage)>=2)
 					{
 						percentage= alreadyProcessedTokens *100/ sTokens.size();
-						currentProgress= currentProgress+ percentage* 0.25;
+						currentProgress= currentProgress+ percentage* 0.20;
 //						if (this.getpModuleController()== null)	
 //							this.getpModuleController().notifyProgress(this.getsDocGraph().getSDocument().getSElementId(), currentProgress);
 						
@@ -481,6 +475,48 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 				this.getLogService().log(LogService.LOG_DEBUG, logStr.toString());
 			}
 		//end: Export all tokens who aren't connected by (SSPANNING_RELATION, SPOINTING_RELATION or SDOMINANCE_RELATION)
+			
+			//start: exporting all SStructuredNodes connected with SPointingRelation
+			if (this.getLogService()!= null)
+				this.getLogService().log(LogService.LOG_DEBUG, getsDocGraph().getSElementId().getSId()+ ": relANNISExporter computing components for SPointingRelation...");
+			timeToMapPRComponents= System.nanoTime();
+			this.traverseBySRelation(SPointingRelation.class);
+			timeToMapPRComponents= System.nanoTime() - timeToMapPRComponents;
+		//end: exporting all SStructuredNodes connected with SPointingRelation
+			
+		//start: exporting all SNodes connected with SOrderRelation
+			System.out.println(">>>>>>>>>>>>>>>>>> start computing SOrderRelation");
+			
+			if (this.getLogService()!= null)
+				this.getLogService().log(LogService.LOG_DEBUG, getsDocGraph().getSElementId().getSId()+ ": relANNISExporter computing components for SOrderRelation...");
+//			timeToMapPRComponents= System.nanoTime();
+//			timeToMapPRComponents= System.nanoTime() - timeToMapPRComponents;
+			if (sDocGraph.getSOrderRelations().size()> 0)
+			{
+				System.out.println(">>>>> start computing SOrderRelation again");
+				
+				STYPE_NAME sType= SaltFactory.eINSTANCE.convertClazzToSTypeName(SOrderRelation.class);
+				Map<String, EList<SNode>> roots= this.getsDocGraph().getRootsBySRelationSType(sType);
+				System.out.println(">>>>> computing SOrderRelation (roots): "+roots);
+				if (roots!= null)
+				{
+					System.out.println(">>>>> computing SOrderRelation (HERE 1)");
+					Set<String> segmentNames= roots.keySet();
+					for (String segmentName: segmentNames)
+					{//walk through every slot
+						System.out.println(">>>>> computing SOrderRelation (HERE 2)");
+						//sets traversion to be not cycle safe
+						try{
+							SOrderRelationTraverser traverser= new SOrderRelationTraverser();
+							traverser.sElementId2RANode= this.sElementId2RANode;
+							this.getsDocGraph().traverse(roots.get(segmentName), GRAPH_TRAVERSE_TYPE.TOP_DOWN_DEPTH_FIRST, "sOrderRelation", traverser, true);
+						}catch (Exception e) {
+							throw new RelANNISModuleException("Some error occurs while traversing corpus structure graph.", e);
+						}
+					}
+				}			
+			}
+		//end: exporting all SNodes connected with SOrderRelation
 	}
 	
 	/**
@@ -501,8 +537,6 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 				{//notify the pepper-framework about progress
 					percentage= alreadyProcessedRoots/ roots.size();
 					currentProgress= currentProgress+ percentage* factor;
-//					if (this.getpModuleController()== null)
-//						this.getpModuleController().notifyProgress(this.getsDocGraph().getSDocument().getSElementId(), currentProgress);
 					
 					if (this.getLogService()!= null)
 						this.getLogService().log(LogService.LOG_DEBUG, getsDocGraph().getSElementId().getSId()+"already processed subtrees:  "+ percentage +"%...("+alreadyProcessedRoots+"/"+roots.size()+")");
@@ -546,7 +580,7 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 			//end: computing roots
 			//start: traverse for every super connected components root
 				this.currTraversionType= TRAVERSION_TYPE.DOCUMENT_STRUCTURE_CR;
-				this.traverseBySRelation2(superRoots, 0.25);
+				this.traverseBySRelation2(superRoots, 0.20);
 			//end: traverse for every super connected components root
 		}//exporting all SStructure, SSpan and SToken elements connected with SSpanningRelation
 		else if (clazz.equals(SDominanceRelation.class))
@@ -592,7 +626,7 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 					
 					this.currComponentId= subComponentSlot;
 					this.currTraversionType= TRAVERSION_TYPE.DOCUMENT_STRUCTURE_PR_SUB;
-					this.traverseBySRelation2(roots.get(subComponentSlot), 0.25);
+					this.traverseBySRelation2(roots.get(subComponentSlot), 0.20);
 				}
 			}			
 		}//exporting all SStructuredNodes connected with SPointingRelation
@@ -1598,6 +1632,11 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 				}
 			}//add pre value
 		}//traversing document structure
+		else if (this.currTraversionType== TRAVERSION_TYPE.DOCUMENT_STRUCTURE_OR)
+		{//traversing SOrderRelation
+			SOrderRelation sOrderRel= (SOrderRelation) edge;
+			System.out.println(fromNode.getId()+"--"+sOrderRel.getSTypes()+"-->"+currNode.getId());
+		}//traversing SOrderRelation
 		{//for testing
 //			System.out.println("----------> node reached: "+currNode.getId());
 		}//for testing			
