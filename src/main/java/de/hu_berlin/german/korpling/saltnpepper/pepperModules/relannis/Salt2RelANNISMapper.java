@@ -366,6 +366,9 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 	 * @return
 	 */
 	public double getProgress() {
+		//TODO is because of an internal bug???
+		if (currentProgress> 1)
+			currentProgress= 0.999999999999999;
 		return currentProgress;
 	}
 
@@ -485,31 +488,30 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 		//end: exporting all SStructuredNodes connected with SPointingRelation
 			
 		//start: exporting all SNodes connected with SOrderRelation
-			System.out.println(">>>>>>>>>>>>>>>>>> start computing SOrderRelation");
-			
 			if (this.getLogService()!= null)
 				this.getLogService().log(LogService.LOG_DEBUG, getsDocGraph().getSElementId().getSId()+ ": relANNISExporter computing components for SOrderRelation...");
 //			timeToMapPRComponents= System.nanoTime();
 //			timeToMapPRComponents= System.nanoTime() - timeToMapPRComponents;
 			if (sDocGraph.getSOrderRelations().size()> 0)
 			{
-				System.out.println(">>>>> start computing SOrderRelation again");
 				
 				STYPE_NAME sType= SaltFactory.eINSTANCE.convertClazzToSTypeName(SOrderRelation.class);
 				Map<String, EList<SNode>> roots= this.getsDocGraph().getRootsBySRelationSType(sType);
-				System.out.println(">>>>> computing SOrderRelation (roots): "+roots);
 				if (roots!= null)
 				{
-					System.out.println(">>>>> computing SOrderRelation (HERE 1)");
 					Set<String> segmentNames= roots.keySet();
+					double percentage= 0;
+					int alreadyProcessedRoots= 0;
 					for (String segmentName: segmentNames)
 					{//walk through every slot
-						System.out.println(">>>>> computing SOrderRelation (HERE 2)");
 						//sets traversion to be not cycle safe
 						try{
 							SOrderRelationTraverser traverser= new SOrderRelationTraverser();
 							traverser.sElementId2RANode= this.sElementId2RANode;
 							this.getsDocGraph().traverse(roots.get(segmentName), GRAPH_TRAVERSE_TYPE.TOP_DOWN_DEPTH_FIRST, "sOrderRelation", traverser, true);
+							alreadyProcessedRoots++;
+							percentage= alreadyProcessedRoots/ roots.size();
+							currentProgress= currentProgress+ percentage* 0.20;
 						}catch (Exception e) {
 							throw new RelANNISModuleException("Some error occurs while traversing corpus structure graph.", e);
 						}
