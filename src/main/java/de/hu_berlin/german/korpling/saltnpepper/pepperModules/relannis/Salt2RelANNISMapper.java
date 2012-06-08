@@ -592,7 +592,7 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 				//computing roots
 				//start:traverse for every super connected components root
 					this.currTraversionType= TRAVERSION_TYPE.DOCUMENT_STRUCTURE_DR;
-					this.traverseBySRelation2(superRoots, 0.125);
+					this.traverseBySRelation2(superRoots, 0.1);
 				//end:traverse for every super connected components root
 			//end:/traversing super components
 			
@@ -609,7 +609,7 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 					{//walk through every slot
 						this.currComponentId= subComponentSlot;
 						this.currTraversionType= TRAVERSION_TYPE.DOCUMENT_STRUCTURE_DR_SUB;
-						this.traverseBySRelation2(rootsOfSubConnectedComponents.get(subComponentSlot), 0.125);
+						this.traverseBySRelation2(rootsOfSubConnectedComponents.get(subComponentSlot), 0.1);
 					}//walk through every slot
 				}
 			//end: traverse for every sub connected components root
