@@ -555,7 +555,7 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 				try{
 					this.getsDocGraph().traverse(startNodes, GRAPH_TRAVERSE_TYPE.TOP_DOWN_DEPTH_FIRST, "export_tokens", this, false);
 				}catch (Exception e) {
-					throw new RelANNISModuleException("Some error occurs while traversing corpus structure graph.", e);
+					throw new RelANNISModuleException("Some error occurs while traversing document structure.", e);
 				}
 			}
 		}
@@ -704,7 +704,7 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 		{
 			this.sTokenSortByLeft= this.getsDocGraph().getSortedSTokenByText();
 		}
-		{//namespace (because of syntax visualisationin ANNIS, token and corresponding syntactic nodes shall not have the same namespace)
+		{//namespace (because of syntax visualisation in ANNIS, token and corresponding syntactic nodes shall not have the same namespace)
 			StringBuffer namespace= new StringBuffer();
 			namespace.append(TOKEN_NS_PREFIXNS);
 			if (	(sToken.getSLayers()!= null) &&
@@ -718,7 +718,6 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 			}//a namespace can be taken from layers name
 			raToken.setRaNamespace(namespace.toString());
 			//namespace is set to token layer, because of vizualizing of tree don't work else
-//			raToken.setRaNamespace("token_layer");
 		}//namespace
 		
 		EList<STYPE_NAME> sTypes= new BasicEList<STYPE_NAME>();
@@ -731,7 +730,15 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 		if (left < 0)
 			throw new RelANNISModuleException("Cannot map the given SToken-object '"+sToken.getSId()+"' to RAToken, because its left-value '"+left+"' is smaller than 0.");
 		if (right > raText.getRaText().length())
-			throw new RelANNISModuleException("Cannot map the given SToken-object '"+sToken.getSId()+"' to RAToken, because its right-value '"+right+"' is bigger than the size of the text ("+raText.getRaText().length()+"): "+raText.getRaText().substring(0, 50)+"... .");
+		{
+			System.out.println(">>>> sText: "+ sequence.getSSequentialDS().getSData());
+			System.out.println(">>>> raText: "+ raText.getRaText());
+			System.out.println(">>>> equals: "+ raText.equals(this.sElementId2RAText.get(sequence.getSSequentialDS().getSElementId())));
+			
+			//create text for error message, out of SText, which is at maximum 50 characters long
+			String errorSText= (raText.getRaText()!= null)?((raText.getRaText().length()<50)?raText.getRaText().substring(0, raText.getRaText().length()):raText.getRaText().substring(0, 50)):"";
+			throw new RelANNISModuleException("Cannot map the given SToken-object '"+sToken.getSId()+"' to RAToken, because its right-value '"+right+"' is bigger than the size of the text ("+((raText.getRaText()!=null)?raText.getRaText().length():0)+"): "+errorSText+"... .");
+		}
 			
 		{//map name, name must be unique
 			StringBuffer name= new StringBuffer();
