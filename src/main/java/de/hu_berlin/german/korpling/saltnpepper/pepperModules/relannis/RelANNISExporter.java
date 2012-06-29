@@ -57,6 +57,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 		this.name= "RelANNISExporter";
 		//set list of formats supported by this module
 		this.addSupportedFormat("relANNIS", "3.1", null);
+		this.addSupportedFormat("relANNIS", "3.2", null);
 	}
 	
 	/**
@@ -220,6 +221,17 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 							Map<String, String> optionMap= new Hashtable<String, String>();
 							optionMap.put("SAVING_TYPE", "DOCUMENT");
 							optionMap.put("SAVING_DOCUMENT_NO", docRaId.toString());
+							
+							String relannisVersion= "3.1";
+							if (	(this.getCorpusDefinition()!= null)&&
+									(this.getCorpusDefinition().getFormatDefinition()!= null)&&
+									(this.getCorpusDefinition().getFormatDefinition().getFormatVersion()!= null)&&
+									(!this.getCorpusDefinition().getFormatDefinition().getFormatVersion().isEmpty()))
+							{
+								relannisVersion= this.getCorpusDefinition().getFormatDefinition().getFormatVersion();
+							}
+							optionMap.put(RelANNISResourceFactory.RELANNIS_VERSION, relannisVersion);
+							
 							try {
 								resource.save(optionMap);
 							} catch (IOException e) 
