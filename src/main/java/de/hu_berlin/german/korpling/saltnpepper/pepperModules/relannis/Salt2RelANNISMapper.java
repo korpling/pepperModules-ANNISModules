@@ -731,10 +731,6 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 			throw new RelANNISModuleException("Cannot map the given SToken-object '"+sToken.getSId()+"' to RAToken, because its left-value '"+left+"' is smaller than 0.");
 		if (right > raText.getRaText().length())
 		{
-			System.out.println(">>>> sText: "+ sequence.getSSequentialDS().getSData());
-			System.out.println(">>>> raText: "+ raText.getRaText());
-			System.out.println(">>>> equals: "+ raText.equals(this.sElementId2RAText.get(sequence.getSSequentialDS().getSElementId())));
-			
 			//create text for error message, out of SText, which is at maximum 50 characters long
 			String errorSText= (raText.getRaText()!= null)?((raText.getRaText().length()<50)?raText.getRaText().substring(0, raText.getRaText().length()):raText.getRaText().substring(0, 50)):"";
 			throw new RelANNISModuleException("Cannot map the given SToken-object '"+sToken.getSId()+"' to RAToken, because its right-value '"+right+"' is bigger than the size of the text ("+((raText.getRaText()!=null)?raText.getRaText().length():0)+"): "+errorSText+"... .");
@@ -1644,7 +1640,7 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 		else if (this.currTraversionType== TRAVERSION_TYPE.DOCUMENT_STRUCTURE_OR)
 		{//traversing SOrderRelation
 			SOrderRelation sOrderRel= (SOrderRelation) edge;
-			System.out.println(fromNode.getId()+"--"+sOrderRel.getSTypes()+"-->"+currNode.getId());
+//			System.out.println(fromNode.getId()+"--"+sOrderRel.getSTypes()+"-->"+currNode.getId());
 		}//traversing SOrderRelation
 		{//for testing
 //			System.out.println("----------> node reached: "+currNode.getId());
