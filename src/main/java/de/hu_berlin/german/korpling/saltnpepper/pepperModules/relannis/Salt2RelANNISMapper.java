@@ -84,7 +84,7 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 		//initialize naming table
 		alreadyExistingRANames= new Hashtable<String, String>();
 	}
-
+	
 // -------------------------start: PepperModuleController	
 	/**
 	 * The controller handling the {@link PepperModule} object.

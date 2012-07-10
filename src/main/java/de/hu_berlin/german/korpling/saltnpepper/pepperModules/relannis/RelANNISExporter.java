@@ -17,11 +17,14 @@
  */
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.Properties;
 
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Service;
@@ -48,7 +51,7 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
 @Component(name="RelANNISExporterComponent", factory="PepperExporterComponentFactory")
 @Service(value=PepperExporter.class)
 public class RelANNISExporter extends PepperExporterImpl implements PepperExporter
-{
+{	
 	public RelANNISExporter()
 	{
 		super();
@@ -109,6 +112,11 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 	}
 	
 	/**
+	 * Special params as properties.
+	 */
+	private Properties options= null;
+	
+	/**
 	 * Stores relation between SElementId and raId. 
 	 */
 	private Map<SElementId, Long> sElementId2RaId= null;
@@ -124,6 +132,18 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 			throw new RelANNISModuleException("Cannot export an element with element id, which does not have an sIdentifiableElement settet.");
 		if (this.getCorpusDefinition().getCorpusPath()== null)
 			throw new RelANNISModuleException("Cannot export an the element '"+sElementId.getId()+"', because of no corpus path is set.");
+		
+		if (this.getSpecialParams()!= null)
+		{//init options
+			File optionsFile= new File(this.getSpecialParams().toFileString());
+			if (!optionsFile.exists())
+				this.getLogService().log(LogService.LOG_WARNING, "Cannot load special param file at location '"+optionsFile.getAbsolutePath()+"', because it does not exist.");
+			else
+			{
+				this.options= new Properties();
+				this.options.load(new FileInputStream(optionsFile));
+			}
+		}//init options
 		
 		//start: pre start corpus structure, if it wasn't
 			if (!isPreStarted)
@@ -158,6 +178,13 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 				resource.getContents().add(raCorpusGraph);
 				Map<String, String> optionMap= new Hashtable<String, String>();
 				optionMap.put("SAVING_TYPE", "CORPUS_STRUCTURE");
+				if (options!= null)
+				{//copy special params to optionMap
+					for (Object key: options.keySet())
+					{
+						optionMap.put(key.toString(), options.getProperty(key.toString()));
+					}
+				}//copy special params to optionMap
 				try {
 					resource.save(optionMap);
 				} catch (IOException e) 
@@ -221,6 +248,13 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 							Map<String, String> optionMap= new Hashtable<String, String>();
 							optionMap.put("SAVING_TYPE", "DOCUMENT");
 							optionMap.put("SAVING_DOCUMENT_NO", docRaId.toString());
+							if (options!= null)
+							{//copy special params to optionMap
+								for (Object key: options.keySet())
+								{
+									optionMap.put(key.toString(), options.getProperty(key.toString()));
+								}
+							}//copy special params to optionMap
 							
 							String relannisVersion= "3.1";
 							if (	(this.getCorpusDefinition()!= null)&&
