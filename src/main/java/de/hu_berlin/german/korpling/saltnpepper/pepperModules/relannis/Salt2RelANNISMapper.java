@@ -47,6 +47,7 @@ import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.exception
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.Edge;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.GRAPH_TRAVERSE_TYPE;
+import de.hu_berlin.german.korpling.saltnpepper.salt.graph.exceptions.GraphInsertException;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpus;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
@@ -858,7 +859,13 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 			for (SAnnotation sAnno: sStructuredNode.getSAnnotations())
 			{//map annotations
 				RANodeAnnotation raStructuredNodeAnno= this.mapSAnnotation2RANodeAnnotation(sAnno, raStructuredNode);
-				raStructuredNode.addSAnnotation(raStructuredNodeAnno);
+				try
+				{
+					raStructuredNode.addSAnnotation(raStructuredNodeAnno);
+				}
+				catch (GraphInsertException e) {
+					this.getLogService().log(LogService.LOG_WARNING, "An annotation of node '"+sStructuredNode.getSId()+"' could not be mapped to relANNIS. "+e);
+				}
 			}//map annotations
 		}
 	}
@@ -876,20 +883,20 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 			throw new RelANNISModuleException("Cannot map the SAnnotation-object to the given RANodeAnnotation-object, because sAnnotation is empty.");
 		RANodeAnnotation raNodeAnno= relANNISFactory.eINSTANCE.createRANodeAnnotation(sAnno);
 		
-		{//compute namespace from layer
-			String namespace= null;
-			if (	(sAnno.getSAnnotatableElement() instanceof SNode) &&
-					(((SNode)sAnno.getSAnnotatableElement()).getSLayers()!= null) &&
-					(((SNode)sAnno.getSAnnotatableElement()).getSLayers().size()!= 0))
-			{//a namespace can be taken from layers name
-				if (((SNode)sAnno.getSAnnotatableElement()).getSLayers().get(0)!= null)
-				{	
-					namespace= ((SNode)sAnno.getSAnnotatableElement()).getSLayers().get(0).getSName();
-				}
-			}//a namespace can be taken from layers name
-			else namespace= DEFAULT_NS;
-			raNodeAnno.setRaNamespace(namespace);
-		}//compute namespace from layer
+//		{//compute namespace from layer
+//			String namespace= null;
+//			if (	(sAnno.getSAnnotatableElement() instanceof SNode) &&
+//					(((SNode)sAnno.getSAnnotatableElement()).getSLayers()!= null) &&
+//					(((SNode)sAnno.getSAnnotatableElement()).getSLayers().size()!= 0))
+//			{//a namespace can be taken from layers name
+//				if (((SNode)sAnno.getSAnnotatableElement()).getSLayers().get(0)!= null)
+//				{	
+//					namespace= ((SNode)sAnno.getSAnnotatableElement()).getSLayers().get(0).getSName();
+//				}
+//			}//a namespace can be taken from layers name
+//			else namespace= DEFAULT_NS;
+//			raNodeAnno.setRaNamespace(namespace);
+//		}//compute namespace from layer
 		
 		return(raNodeAnno);
 	}
