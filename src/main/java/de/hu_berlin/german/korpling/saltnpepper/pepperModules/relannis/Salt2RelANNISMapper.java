@@ -41,6 +41,8 @@ import de.hu_berlin.german.korpling.saltnpepper.misc.relANNIS.RAText;
 import de.hu_berlin.german.korpling.saltnpepper.misc.relANNIS.RA_COMPONENT_TYPE;
 import de.hu_berlin.german.korpling.saltnpepper.misc.relANNIS.RA_CORPUS_TYPE;
 import de.hu_berlin.german.korpling.saltnpepper.misc.relANNIS.relANNISFactory;
+import de.hu_berlin.german.korpling.saltnpepper.misc.relANNIS.resources.RelANNISResource;
+import de.hu_berlin.german.korpling.saltnpepper.misc.relANNIS.resources.RelANNISWriter;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperModule;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperModuleController;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.exceptions.RelANNISModuleException;
@@ -690,15 +692,15 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 	 */
 	private EList<SToken> sTokenSortByLeft= null;
 
-	/**
-	 * Default name for namespaces if they cannot be computed by the layers name.
-	 */
-	private final static String DEFAULT_NS= "default_ns";
-	/**
-	 * Prefix for token-namespaces, for example if token has namespace xyz, the namespace
-	 * token_xyz will be created. 
-	 */
-	private final static String TOKEN_NS_PREFIXNS= "token";
+//	/**
+//	 * Default name for namespaces if they cannot be computed by the layers name.
+//	 */
+//	private final static String DEFAULT_NS= "default_ns";
+//	/**
+//	 * Prefix for token-namespaces, for example if token has namespace xyz, the namespace
+//	 * token_xyz will be created. 
+//	 */
+//	private final static String TOKEN_NS_PREFIXNS= "token";
 	
 	/**
 	 * This table stores all names of raNodes which already has been used.
@@ -730,7 +732,7 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 		}
 		{//namespace (because of syntax visualisation in ANNIS, token and corresponding syntactic nodes shall not have the same namespace)
 			StringBuffer namespace= new StringBuffer();
-			namespace.append(TOKEN_NS_PREFIXNS);
+			namespace.append(RelANNISResource.TOKEN_NS_PREFIXNS);
 			if (	(sToken.getSLayers()!= null) &&
 					(sToken.getSLayers().size()!= 0))
 			{//a namespace can be taken from layers name
@@ -832,7 +834,7 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 			
 			
 			{//namespace
-				String namespace= DEFAULT_NS;
+				String namespace= RelANNISResource.DEFAULT_NS;
 				if (	(sStructuredNode.getSLayers()!= null) &&
 						(sStructuredNode.getSLayers().size()!= 0))
 				{//a namespace can be taken from layers name
@@ -949,7 +951,7 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 					namespace= ((SRelation)sAnno.getSAnnotatableElement()).getSLayers().get(0).getSName();
 				}
 			}//a namespace can be taken from layers name
-			else namespace= DEFAULT_NS;
+			else namespace= RelANNISResource.DEFAULT_NS;
 			raEdgeAnno.setRaNamespace(namespace);
 		}//namespace
 		
@@ -1171,7 +1173,7 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 				}//corresponding SRelation has a layer
 				else
 				{//corresponding SRelation has no layer
-					raComponent.setRaNamespace(DEFAULT_NS);
+					raComponent.setRaNamespace(RelANNISResource.DEFAULT_NS);
 				}//corresponding SRelation has no layer
 			}
 		}//map namespace
