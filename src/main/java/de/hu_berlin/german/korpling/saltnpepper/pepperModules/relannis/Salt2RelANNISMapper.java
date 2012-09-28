@@ -54,6 +54,7 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SAudioDSRelation;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SAudioDataSource;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDataSourceSequence;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDominanceRelation;
@@ -68,6 +69,7 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructu
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SDATATYPE;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SGraphTraverseHandler;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SMetaAnnotation;
@@ -474,6 +476,16 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 			if (	(sDocGraph.getSAudioDSRelations()!= null)&&
 					(sDocGraph.getSAudioDSRelations().size()>0))
 			{//start: map SAudioDataSource
+				
+				for (SAudioDataSource audio: sDocGraph.getSAudioDataSources())
+				{//create alibi annotation for audio data, so that relANNIS model can copy them
+					RANodeAnnotation raNodeAnnotation= relANNISFactory.eINSTANCE.createRANodeAnnotation();
+					raNodeAnnotation.setSName("audio");
+					raNodeAnnotation.setSValue(audio.getSAudioReference());
+					raNodeAnnotation.setSValueType(SDATATYPE.SURI);
+					this.getRaDocGraph().getRaNodes().get(0).addSAnnotation(raNodeAnnotation);
+				}//create alibi annotation for audio data, so that relANNIS model can copy them
+				
 				for (SAudioDSRelation audioRel: sDocGraph.getSAudioDSRelations())
 				{
 					if (audioRel.getSToken()!= null)
