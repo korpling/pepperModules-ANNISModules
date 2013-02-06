@@ -33,11 +33,8 @@ import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.osgi.service.log.LogService;
 
-import de.hu_berlin.german.korpling.saltnpepper.misc.relANNIS.RACorpus;
-import de.hu_berlin.german.korpling.saltnpepper.misc.relANNIS.RACorpusGraph;
-import de.hu_berlin.german.korpling.saltnpepper.misc.relANNIS.RADocumentGraph;
-import de.hu_berlin.german.korpling.saltnpepper.misc.relANNIS.relANNISFactory;
-import de.hu_berlin.german.korpling.saltnpepper.misc.relANNIS.resources.RelANNISResourceFactory;
+import de.hu_berlin.german.korpling.saltnpepper.misc.tupleconnector.TupleConnectorFactory;
+import de.hu_berlin.german.korpling.saltnpepper.misc.tupleconnector.TupleWriter;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperExceptions.PepperModuleException;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperExporter;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.impl.PepperExporterImpl;
@@ -59,8 +56,12 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 		//setting name of module
 		this.name= "RelANNISExporter";
 		//set list of formats supported by this module
-		this.addSupportedFormat("relANNIS", "3.1", null);
-		this.addSupportedFormat("relANNIS", "3.2", null);
+		this.addSupportedFormat("relANNIS", "4.0", null);
+		
+		
+		tupleWriterCorpus = TupleConnectorFactory.fINSTANCE.createTupleWriter();
+		tupleWriterNode = TupleConnectorFactory.fINSTANCE.createTupleWriter();
+		
 	}
 	
 	/**
@@ -87,8 +88,27 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 	/**
 	 * stores the raCorpusGraph-object.
 	 */
-	private RACorpusGraph raCorpusGraph= null;
+	//private RACorpusGraph raCorpusGraph= null;
 	
+	// ------------------------- TupleConector
+	private TupleWriter tupleWriterCorpus;
+	private TupleWriter tupleWriterNode;
+	
+	public TupleWriter getCorpusTabTupleWriter(){
+		return this.tupleWriterCorpus;
+	}
+
+	private IdManager idManager;
+	
+	public IdManager getIdManager(){
+		return this.idManager;
+	}
+	
+	/**
+	 * This method sets all information which is needed while exporting the 
+	 * SCorpus.
+	 * For example, the tupleWriters need to be initialized.
+	 */
 	private void preStartCorpusStructure()
 	{
 		SCorpusGraph sCorpGraph= null;
@@ -102,12 +122,16 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 			sCorpGraph= (SCorpusGraph) this.getSaltProject().getSCorpusGraphs().get(0);
 		}//emit correct sCorpus graph object
 		this.isPreStarted= true;
-		this.raCorpusGraph= relANNISFactory.eINSTANCE.createRACorpusGraph();
+		//this.raCorpusGraph= relANNISFactory.eINSTANCE.createRACorpusGraph();
 		Salt2RelANNISMapper mapper= new Salt2RelANNISMapper();
 		mapper.setLogService(this.getLogService());
-		mapper.mapSCorpusGraph2RACorpusGraph(sCorpGraph, this.raCorpusGraph);
-		//sets table for relation between SElementId and raId
-		this.sElementId2RaId= mapper.getsElementId2RaId();
+		
+		/**
+		 * set the tuple writer output files
+		 */
+		String corpusTabFileName = this.getCorpusDefinition().getCorpusPath().toFileString()+"/corpus.tab";
+		File corpusTabFile = new File(corpusTabFileName);
+		tupleWriterCorpus.setFile(corpusTabFile);
 		
 	}
 	
@@ -149,6 +173,11 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 			if (!isPreStarted)
 				this.preStartCorpusStructure();
 		//end: pre start corpus structure, if it wasn't
+			
+		/**
+		 * if the given node is a corpus,
+		 * export it with a new mapper.
+		 */
 		if (sElementId.getSIdentifiableElement() instanceof SCorpus)
 		{//export corpusStructure
 			Long timeToExportSCorpusStructure= System.nanoTime();
@@ -162,38 +191,22 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 						throw new RelANNISModuleException("Cannot work with more than one corpus structure graphs.");
 					sCorpGraph= (SCorpusGraph) this.getSaltProject().getSCorpusGraphs().get(0);
 				}//emit correct sCorpus graph object
+				/**
+				 * create a new mapper instance and start the corpus 
+				 * export.
+				 */
 				Salt2RelANNISMapper mapper= new Salt2RelANNISMapper();
 				mapper.setpModuleController(this.getPepperModuleController());
 				mapper.setLogService(this.getLogService());
-				mapper.mapFinalSCorpusGraph2RACorpusGraph(sCorpGraph, this.raCorpusGraph, this.sElementId2RaId);
+				
+				mapper.mapSCorpusGraph(sCorpGraph);
 			//end: map the graphs
-			
-			//start: save raCorpusGraph to resource
-				// create resource set and resource
-				ResourceSet resourceSet = new ResourceSetImpl();
-	
-				// Register XML resource factory
-				resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put(null, new RelANNISResourceFactory());
-				Resource resource= resourceSet.createResource(this.getCorpusDefinition().getCorpusPath());
-				resource.getContents().add(raCorpusGraph);
-				Map<String, String> optionMap= new Hashtable<String, String>();
-				optionMap.put("SAVING_TYPE", "CORPUS_STRUCTURE");
-				if (options!= null)
-				{//copy special params to optionMap
-					for (Object key: options.keySet())
-					{
-						optionMap.put(key.toString(), options.getProperty(key.toString()));
-					}
-				}//copy special params to optionMap
-				try {
-					resource.save(optionMap);
-				} catch (IOException e) 
-				{
-					throw new RelANNISModuleException("Cannot save corpus structure of element '"+sElementId.getSId()+"' to resource.", e);
-				}
-			//end: save raCorpusGraph to resource
 			this.totalTimeToExportSCorpusStructure= this.totalTimeToExportSCorpusStructure +(System.nanoTime() - timeToExportSCorpusStructure);
 		}//export corpusStructure
+		/**
+		 * The given node is a document.
+		 * Create a new mapper instance for it and export the SDocument.
+		 */
 		else if (sElementId.getSIdentifiableElement() instanceof SDocument)
 		{//export documentStructure
 			Long timeToExportDocument= System.nanoTime();
@@ -207,11 +220,9 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 					Long docRaId= this.sElementId2RaId.get(sElementId);
 					if (docRaId!= null)	
 					{	
-						RADocumentGraph raDocGraph= null;
 						SDocumentGraph sDocGraph= null;
 						//start: set both graphs
 							sDocGraph= ((SDocument)sElementId.getSIdentifiableElement()).getSDocumentGraph();
-							raDocGraph= relANNISFactory.eINSTANCE.createRADocumentGraph();
 						//end: set both graphs
 						//start: map the graphs
 							Long timeToMapSDocument= System.nanoTime();
@@ -220,66 +231,15 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 								sDocument2Mapper= Collections.synchronizedMap(new HashMap<SElementId, Salt2RelANNISMapper>());
 							sDocument2Mapper.put(sElementId, mapper);
 							mapper.setLogService(this.getLogService());
-							mapper.mapSDocumentGraph2RADocumentGraph(sDocGraph, raDocGraph);
-							//start: adding documentgraph to document
-								RACorpus raDocument= null;
-								for (RACorpus raCorpus: this.raCorpusGraph.getRaCorpora())
-								{
-									if (raCorpus.getRaId().equals(docRaId))
-										raDocument= raCorpus;
-								}
-								raDocument.setRaDocumentGraph(raDocGraph);
-							//end: adding document graph to docuement
+							
+							mapper.mapSDocumentGraph(sDocGraph);
+							//mapper.mapSDocumentGraph2RADocumentGraph(sDocGraph, raDocGraph);
 							//start: cleaning up
 								this.sDocument2Mapper.remove(sElementId);
 								mapper= null;
 							//end: cleaning up	
 							this.totalTimeToMapSDocument= this.totalTimeToMapSDocument + (System.nanoTime() - timeToMapSDocument);
 						//end: map the graphs
-						//start: save document graph to resource
-							Long timeToSaveSDocument= System.nanoTime();
-							// create resource set and resource
-							ResourceSet resourceSet = new ResourceSetImpl();
-				
-							// Register XML resource factory
-							resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put(null, new RelANNISResourceFactory());
-							Resource resource= resourceSet.createResource(this.getCorpusDefinition().getCorpusPath());
-							resource.getContents().add(raCorpusGraph);
-							Map<String, String> optionMap= new Hashtable<String, String>();
-							optionMap.put("SAVING_TYPE", "DOCUMENT");
-							optionMap.put("SAVING_DOCUMENT_NO", docRaId.toString());
-							if (options!= null)
-							{//copy special params to optionMap
-								for (Object key: options.keySet())
-								{
-									optionMap.put(key.toString(), options.getProperty(key.toString()));
-								}
-							}//copy special params to optionMap
-							
-							String relannisVersion= "3.1";
-							if (	(this.getCorpusDefinition()!= null)&&
-									(this.getCorpusDefinition().getFormatDefinition()!= null)&&
-									(this.getCorpusDefinition().getFormatDefinition().getFormatVersion()!= null)&&
-									(!this.getCorpusDefinition().getFormatDefinition().getFormatVersion().isEmpty()))
-							{
-								relannisVersion= this.getCorpusDefinition().getFormatDefinition().getFormatVersion();
-							}
-							optionMap.put(RelANNISResourceFactory.RELANNIS_VERSION, relannisVersion);
-							
-							try {
-								resource.save(optionMap);
-							} catch (IOException e) 
-							{
-								throw new RelANNISModuleException("Cannot save document structure of element '"+sElementId.getSId()+"' to resource.", e);
-							}
-							finally
-							{
-								this.totalTimeToSaveSDocument= this.totalTimeToSaveSDocument + (System.nanoTime() - timeToSaveSDocument); 
-							}
-						//end: save document graph to resource
-						//start: remove the raDocumentgraph
-							raDocGraph.getRaCorpus().setRaDocumentGraph(null);
-						//end: remove the raDocumentgraph
 					}
 				}
 			}//only export if document graph isn't null
