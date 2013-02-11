@@ -58,9 +58,9 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 		//set list of formats supported by this module
 		this.addSupportedFormat("relANNIS", "4.0", null);
 		
-		
 		tupleWriterCorpus = TupleConnectorFactory.fINSTANCE.createTupleWriter();
 		tupleWriterNode = TupleConnectorFactory.fINSTANCE.createTupleWriter();
+		tupleWriterNodeAnnotation = TupleConnectorFactory.fINSTANCE.createTupleWriter();
 		
 	}
 	
@@ -93,9 +93,18 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 	// ------------------------- TupleConector
 	private TupleWriter tupleWriterCorpus;
 	private TupleWriter tupleWriterNode;
+	private TupleWriter tupleWriterNodeAnnotation;
 	
 	public TupleWriter getCorpusTabTupleWriter(){
 		return this.tupleWriterCorpus;
+	}
+	
+	public TupleWriter getNodeTabTupleWriter(){
+		return this.tupleWriterNode;
+	}
+	
+	public TupleWriter getNodeAnnotationTabTupleWriter(){
+		return this.tupleWriterNodeAnnotation;
 	}
 
 	private IdManager idManager;
@@ -109,7 +118,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 	 * SCorpus.
 	 * For example, the tupleWriters need to be initialized.
 	 */
-	private void preStartCorpusStructure()
+	private void preStart()
 	{
 		SCorpusGraph sCorpGraph= null;
 		{//emit correct sCorpus graph object
@@ -129,9 +138,48 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 		/**
 		 * set the tuple writer output files
 		 */
-		String corpusTabFileName = this.getCorpusDefinition().getCorpusPath().toFileString()+"/corpus.tab";
+		String corpusOutputPath = this.getCorpusDefinition().getCorpusPath().toFileString();
+		// create the corpus tab file
+		String corpusTabFileName = corpusOutputPath+"/corpus.tab";
 		File corpusTabFile = new File(corpusTabFileName);
+		if (corpusTabFile.exists()){
+			
+		} else {
+			try {
+				corpusTabFile.createNewFile();
+			} catch (IOException e) {
+				throw new RelANNISModuleException("Could not create the corpus tab file "+ corpusTabFileName+ " Exception:"+e.getMessage());
+			}
+		}
 		tupleWriterCorpus.setFile(corpusTabFile);
+		
+		// create the node tab file
+		String nodeTabFileName = corpusOutputPath+"/node.tab";
+		File nodeTabFile = new File(nodeTabFileName);
+		if (nodeTabFile.exists()){
+			
+		} else {
+			try {
+				nodeTabFile.createNewFile();
+			} catch (IOException e) {
+				throw new RelANNISModuleException("Could not create the node tab file "+ nodeTabFileName+ " Exception:"+e.getMessage());
+			}
+		}
+		tupleWriterNode.setFile(nodeTabFile);
+		
+		// create the node annotation file
+		String nodeAnnotationFileName = corpusOutputPath+"node_annotation.tab";
+		File nodeAnnotationFile = new File(nodeAnnotationFileName);
+		if (nodeAnnotationFile.exists()){
+			
+		} else {
+			try {
+				nodeAnnotationFile.createNewFile();
+			} catch (IOException e) {
+				throw new RelANNISModuleException("Could not create the node_annotation tab file "+ nodeAnnotationFileName+ " Exception:"+e.getMessage());
+			}
+		}
+		tupleWriterNodeAnnotation.setFile(nodeAnnotationFile);
 		
 	}
 	
@@ -169,10 +217,10 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 			}
 		}//init options
 		
-		//start: pre start corpus structure, if it wasn't
+		//start: pre start, if it wasn't
 			if (!isPreStarted)
-				this.preStartCorpusStructure();
-		//end: pre start corpus structure, if it wasn't
+				this.preStart();
+		//end: pre start, if it wasn't
 			
 		/**
 		 * if the given node is a corpus,

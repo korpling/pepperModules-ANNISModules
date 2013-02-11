@@ -23,11 +23,13 @@ import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.Vector;
 
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 import org.osgi.service.log.LogService;
 
+import de.hu_berlin.german.korpling.saltnpepper.misc.relANNIS.RANodeAnnotation;
 import de.hu_berlin.german.korpling.saltnpepper.misc.tupleconnector.TupleConnectorFactory;
 import de.hu_berlin.german.korpling.saltnpepper.misc.tupleconnector.TupleWriter;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperModule;
@@ -185,42 +187,7 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 		}//start traversion of corpus structure
 	}
 
-	public void mapSDocumentGraph(SDocumentGraph sDocumentGraph){
-		this.setsDocGraph(sDocumentGraph);
-		if (this.getsDocGraph() == null)
-			throw new RelANNISModuleException("Cannot map sDocumentGraph, because sDocumentGraph is null.");
-		
-		{//start traversion of documentStructure
-			
-			
-			try
-			{
-				/**
-				 * traverse by 
-				 * SpanningRelations: DOCUMENT_STRUCTURE_CR
-				 * DominanceRelations: DOCUMENT_STRUCTURE_DR
-				 * PointingRelations: DOCUMENT_STRUCTURE_PR
-				 * 
-				 * DominanceRelations Subcomponents: DOCUMENT_STRUCTURE_DR_SUB
-				 * PointingRelations Subcomponents: DOCUMENT_STRUCTURE_PR_SUB
-				 * 
-				 * Dominance relations may consist of different subcomponents
-				 * since there are "edge" and "secedge" types
-				 * 
-				 * Since every root node has it's own component,
-				 * the pre and post order needs to be 0 for the root
-				 * node. You need to handle this.
-				 */
-				this.traverseSpanningRelations();
-				this.traverseDominanceRelations();
-				this.traversePointingRelations();
-				
-			}catch (Exception e) {
-				throw new RelANNISModuleException("Some error occurs while traversing document structure graph.", e);
-			}
-		}//start traversion of corpus structure
-		
-	}
+	
 	
 	private void traverseSpanningRelations(){
 		this.currTraversionType = TRAVERSION_TYPE.DOCUMENT_STRUCTURE_CR;
@@ -318,10 +285,6 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 	private Hashtable<String, String> alreadyExistingRANames= null;
 	
 	
-		
-	
-	
-	
 	/**
 	 * counter for pre and post order
 	 */
@@ -339,6 +302,44 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 		prePostOrder++;
 		return(currPrePost);
 	}
+	
+	public void mapSDocumentGraph(SDocumentGraph sDocumentGraph){
+		this.setsDocGraph(sDocumentGraph);
+		if (this.getsDocGraph() == null)
+			throw new RelANNISModuleException("Cannot map sDocumentGraph, because sDocumentGraph is null.");
+		
+		{//start traversion of documentStructure
+			
+			
+			try
+			{
+				/**
+				 * traverse by 
+				 * SpanningRelations: DOCUMENT_STRUCTURE_CR
+				 * DominanceRelations: DOCUMENT_STRUCTURE_DR
+				 * PointingRelations: DOCUMENT_STRUCTURE_PR
+				 * 
+				 * DominanceRelations Subcomponents: DOCUMENT_STRUCTURE_DR_SUB
+				 * PointingRelations Subcomponents: DOCUMENT_STRUCTURE_PR_SUB
+				 * 
+				 * Dominance relations may consist of different subcomponents
+				 * since there are "edge" and "secedge" types
+				 * 
+				 * Since every root node has it's own component,
+				 * the pre and post order needs to be 0 for the root
+				 * node. You need to handle this.
+				 */
+				this.traverseSpanningRelations();
+				this.traverseDominanceRelations();
+				this.traversePointingRelations();
+				
+			}catch (Exception e) {
+				throw new RelANNISModuleException("Some error occurs while traversing document structure graph.", e);
+			}
+		}//start traversion of corpus structure
+		
+	}
+	
 	
 	/**
 	 * Maps the given SRelation-object 
@@ -649,11 +650,116 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 			}
 		}//traversing document structure
 	}
+	
+	private void mapSStructuredNode(SStructuredNode sNode, STextualDS currSTextDS){
+		if (sNode == null)
+			throw new RelANNISModuleException("Cannot map the structured node, because sNode is NULL.");
+		if (currSTextDS == null)
+			throw new RelANNISModuleException("Cannot map the structured node, because the current STexualDS is NULL.");
+		
+		EList<STYPE_NAME> sTypes= new BasicEList<STYPE_NAME>();
+		sTypes.add(STYPE_NAME.STEXT_OVERLAPPING_RELATION);
+		EList<SDataSourceSequence> overlappedDSSequences= this.getsDocGraph().getOverlappedDSSequences(sNode, sTypes);
+		
+		if (	(overlappedDSSequences== null)||
+				(overlappedDSSequences.size()==0))
+		{ 
+			if (this.getLogService()!= null)
+				this.getLogService().log(LogService.LOG_WARNING, "Cannot map structured node object '"+sNode.getSId()+"' to, because it does not overlap a text.");
+		} else {
+			
+			SDataSourceSequence overlappedSequence= overlappedDSSequences.get(0);
+			
+			if (overlappedSequence.getSStart()== null)
+				throw new RelANNISModuleException("Cannot map the given structured node object '"+sNode.getSId()+"', because it doesn't have a left (start-value) border, pointing to the primary data.");
+			if (overlappedSequence.getSEnd()== null)
+				throw new RelANNISModuleException("Cannot map the given structured node object '"+sNode.getSId()+"', because it doesn't have a right (end-value) border, pointing to the primary data.");
+			
+			Long id = this.exporter.getIdManager().getNewRAId(sNode.getSElementId());
+			Long textId = this.exporter.getIdManager().getNewRAId(currSTextDS.getSElementId());
+			Long corpusId = this.exporter.getIdManager().getNewRAId(this.getsDocGraph().getSElementId());
+			
+			String namespace = null;
+			String name = null;
+			
+			Long left = new Long(overlappedSequence.getSStart());
+			Long right = new Long(overlappedSequence.getSEnd());
+			// token index MUST be null for SSpan/SStructure
+			Long tokenIndex = null;
+			// leftToken and rightToken will be set
+			Long leftToken = null;
+			Long rightToken = null;
+			// those two can be existent due to SOrderRelation
+			Long segmentIndex = null;
+			String segmentName = null;
+			//
+			String span = null;
+			
+			{//namespace
+				namespace= DEFAULT_NS;
+				if (	(sNode.getSLayers()!= null) &&
+						(sNode.getSLayers().size()!= 0))
+				{//a namespace can be taken from layers name
+					if (sNode.getSLayers().get(0)!= null)
+					{	
+						namespace= sNode.getSLayers().get(0).getSName();
+					}
+				}//a namespace can be taken from layers name
+			}//namespace
+			
+			String sText = currSTextDS.getSText();
+			
+			if (left < 0)
+				throw new RelANNISModuleException("Cannot map the given structured node object '"+sNode.getSId()+"' , because its left-value '"+left+"' is smaller than 0.");
+			if (right > sText.length())
+				throw new RelANNISModuleException("Cannot map the given structured node object '"+sNode.getSId()+"' , because its right-value '"+right+"' is bigger than the size of the text '"+sText.length()+"'.");
+			
+			{//start: map name, name must be unique
+				StringBuffer nameBuffer= new StringBuffer();
+				nameBuffer.append(sNode.getSName());
+				int i= 1;
+				while(this.alreadyExistingRANames.containsKey(nameBuffer.toString()))
+				{
+					nameBuffer.delete(0, nameBuffer.length());
+					nameBuffer.append(sNode.getSName()+"_"+i);
+					i++;
+				}
+				name = nameBuffer.toString();
+				this.alreadyExistingRANames.put(name, "");
+			}//end: map name, name must be unique
+			
+			
+				
+			if (this.sTokenSortByLeft== null)
+			{//compute correct order of tokens and store it, because of performance do it also here 
+				this.sTokenSortByLeft= this.getsDocGraph().getSortedSTokenByText();
+			}//compute correct order of tokens and store it, because of performance do it also here	
+			
+			{//start: calculate leftToken and rightToken
+				EList<SToken> sTokens= this.getsDocGraph().getSTokensBySequence(overlappedSequence);
+				leftToken = (long) this.sTokenSortByLeft.indexOf(sTokens.get(0));
+				rightToken = (long) this.sTokenSortByLeft.indexOf(sTokens.get(sTokens.size()-1));
+			}//end: calculate leftToken and rightToken
+			
+			{// if there is a segmentation, the overlapped text should be set
+				if (segmentIndex == null){
+					span = overlappedSequence.toString();
+				}
+			}//
+			
+			this.mapToNodeTab(sNode, id, textId, corpusId, namespace, name, left, right, tokenIndex, leftToken, rightToken, segmentIndex, segmentName, span);
+			this.mapNodeAnnotationsToNodeAnnotationTab(sNode, id);
+			
+		}
+		
+	
+	}
 
 	private void mapSToken(SToken sToken, STextualDS currSTextDS) {
 		if (sToken == null)
-			throw new RelANNISModuleException("Cannot map the SToken-object to a RA node entry, because sToken is empty.");
-		
+			throw new RelANNISModuleException("Cannot map the SToken to a RA node entry, because sToken is empty.");
+		if (currSTextDS == null)
+			throw new RelANNISModuleException("Cannot map the SToken, because the current STexualDS is NULL.");
 		/**
 		 * needed Attributes are:
 		 * Long id : unique RelANNIS id of this token
@@ -720,16 +826,16 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 		
 		left= new Long(sequence.getSStart());
 		right= new Long(sequence.getSEnd());
+		
+		leftToken = left;
+		rightToken = right;
+		
 		if (left < 0)
 			throw new RelANNISModuleException("Cannot map the given SToken-object '"+sToken.getSId()+"' to RAToken, because its left-value '"+left+"' is smaller than 0.");
 		if (right > sText.length())
 			throw new RelANNISModuleException("Cannot map the given SToken-object '"+sToken.getSId()+"' to RAToken, because its right-value '"+right+"' is bigger than the size of the text ("+sText.length()+"): "+sText.substring(0, 50)+"... .");
 		
 		span = sText.substring(left.intValue(),right.intValue());
-		
-		/**
-		 * @TODO: assert that "right " is not bigger then the overlapped texts size
-		 */
 		
 		{//map name, name must be unique
 			StringBuffer nameBuffer= new StringBuffer();
@@ -745,9 +851,168 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 			this.alreadyExistingRANames.put(name, "");
 		}//map name, name must be unique
 		
+	
+		this.mapToNodeTab(sToken,id, textId, corpusId, tokenNamespace, name, left, right, tokenIndex, leftToken, rightToken, segmentIndex, segmentName, span);
 		
 	}
 
+	/**
+	 * This method maps a node to a RelANNIS node tab entry
+	 * @param id (not NULL), the unique RelANNIS id of the node
+	 * @param textId (not NULL), the reference to the RelANNIS id of the SText
+	 * @param corpusId (not NULL), the reference to the RelANNIS id of the containing SDocument
+	 * @param tokenNamespace
+	 * @param name : the SName of the token
+	 * @param left (not NULL): the first overlapped character
+	 * @param right (not NULL): the last overlapped character
+	 * @param tokenIndex : the index of the token in the token sequence
+	 * @param leftToken (not NULL): 
+	 * @param rightToken (not NULL): 
+	 * @param segmentIndex
+	 * @param segmentName
+	 * @param span : for token, this is the substring of the covered text
+	 */
+	private void mapToNodeTab(SNode sNode,Long id, Long textId,Long corpusId,String namespace, String name,
+			Long left, Long right, Long tokenIndex, Long leftToken, Long rightToken,
+			Long segmentIndex, String segmentName, String span){
+		
+		if (id == null)
+			throw new RelANNISModuleException("Cannot map node to node.tab since the id is NULL");
+		if (textId == null)
+			throw new RelANNISModuleException("Cannot map node to node.tab since the text id is NULL");
+		if (corpusId == null)
+			throw new RelANNISModuleException("Cannot map node to node.tab since the corpus id is NULL");
+		if (left == null)
+			throw new RelANNISModuleException("Cannot map node to node.tab since left is NULL");
+		if (right == null)
+			throw new RelANNISModuleException("Cannot map node to node.tab since right is NULL");
+		if (leftToken == null)
+			throw new RelANNISModuleException("Cannot map node to node.tab since the leftToken is NULL");
+		if (rightToken == null)
+			throw new RelANNISModuleException("Cannot map node to node.tab since the rightToken is NULL");
+		String idString = id.toString();
+		String textIdString = textId.toString();
+		String corpusIdString = corpusId.toString();
+		String namespaceString = null;
+		if (namespace == null || namespace.equals("")){
+			namespaceString = DEFAULT_NS;
+		} else {
+			namespaceString = namespace;
+		}
+		String nameString = null;
+		if (name == null){
+			nameString = "";
+		} else {
+			nameString = name;
+		}
+		String leftString = left.toString();
+		String rightString = right.toString();
+		String tokenIndexString = null;
+		if (tokenIndex == null){
+			tokenIndexString = "";
+		} else {
+			tokenIndexString = tokenIndex.toString();
+		}
+		String leftTokenString = leftToken.toString();
+		String rightTokenString = rightToken.toString();
+		String segmentIndexString = null;
+		if (segmentIndex == null){
+			segmentIndexString = "";
+		} else {
+			segmentIndexString = segmentIndex.toString();
+		}
+		String segmentNameString = null;
+		if (segmentName == null){
+			segmentNameString = "";
+		} else {
+			segmentNameString = segmentName;
+		}
+		String spanString = null;
+		if (span == null){
+			spanString = "";
+		} else {
+			spanString = span;
+		}
+		TupleWriter nodeTabWriter = this.exporter.getNodeTabTupleWriter();
+		
+		Vector<String> tuple = new Vector<String>();
+		tuple.add(idString);
+		tuple.add(textIdString);
+		tuple.add(corpusIdString);
+		tuple.add(namespaceString);
+		tuple.add(nameString);
+		tuple.add(leftString);
+		tuple.add(rightString);
+		tuple.add(tokenIndexString);
+		tuple.add(leftTokenString);
+		tuple.add(rightTokenString);
+		tuple.add(segmentIndexString);
+		tuple.add(segmentNameString);
+		tuple.add(spanString);
+		
+		long transactionId = nodeTabWriter.beginTA();
+		try {
+			nodeTabWriter.addTuple(transactionId,tuple);
+			nodeTabWriter.commitTA(transactionId);
+		} catch (FileNotFoundException e) {
+			nodeTabWriter.abortTA(transactionId);
+			throw new RelANNISModuleException("Could not write to the node.tab, exception was"+e.getMessage());
+		}
+		
+		// map the annotations of this node
+		this.mapNodeAnnotationsToNodeAnnotationTab(sNode, id);
+	}
+	
+	/**
+	 * Maps the given annotation of the node with the given reference to the
+	 * RelANNIS node_annotation.tab
+	 * 
+	 * @param node The node for which the annotations should be mapped
+	 * @param nodeRef (not NULL) foreign key to _node.id 			
+	 * 
+	 */
+	private void mapNodeAnnotationsToNodeAnnotationTab(SNode sNode, Long nodeRef){
+		if (sNode == null)
+			throw new RelANNISModuleException("Cannot map node to node_annotation.tab since the sNode is NULL");
+		if (nodeRef == null)
+			throw new RelANNISModuleException("Cannot map node to node_annotation.tab since the node id is NULL");
+		/**
+		 * map node annotations:
+		 * node_ref 	bigint 	not NULL 	foreign key to _node.id
+		 * namespace 	text 			
+		 * name 	    text 	not NULL 	
+		 * value 	    text
+		 */
+		for (SAnnotation sAnno: sNode.getSAnnotations())
+		{//map annotations
+			String nodeRefString = nodeRef.toString();
+			String namespaceString = sAnno.getSNS();
+			if (namespaceString == null || namespaceString.equals("")){
+				namespaceString = DEFAULT_NS;
+			}
+			String nameString = sAnno.getSName();
+			String valueString = sAnno.getSValueSTEXT();
+			
+			TupleWriter nodeAnnoTabWriter = this.exporter.getNodeAnnotationTabTupleWriter();
+			
+			Vector<String> tuple = new Vector<String>();
+			tuple.add(nodeRefString);
+			tuple.add(namespaceString);
+			tuple.add(nameString);
+			tuple.add(valueString);
+			
+			long transactionId = nodeAnnoTabWriter.beginTA();
+			try {
+				nodeAnnoTabWriter.addTuple(transactionId,tuple);
+				nodeAnnoTabWriter.commitTA(transactionId);
+			} catch (FileNotFoundException e) {
+				nodeAnnoTabWriter.abortTA(transactionId);
+				throw new RelANNISModuleException("Could not write to the node_annotation.tab, exception was"+e.getMessage());
+			}
+			
+		}//map annotations
+	}
+	
 	private String KW_NS= "s2ra";
 	private String KW_NAME_PRE= "pre";
 
