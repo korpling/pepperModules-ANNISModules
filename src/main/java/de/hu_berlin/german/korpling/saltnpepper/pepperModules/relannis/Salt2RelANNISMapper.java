@@ -30,8 +30,6 @@ import org.osgi.service.log.LogService;
 
 import de.hu_berlin.german.korpling.saltnpepper.misc.tupleconnector.TupleWriter;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.MAPPING_RESULT;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperModule;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperModuleController;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.impl.PepperMapperImpl;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.exceptions.RelANNISModuleException;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.Edge;
@@ -75,22 +73,6 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 	public void setRelANNISExporter(RelANNISExporter exp){
 		this.exporter = exp;
 	}
-	
-// -------------------------start: PepperModuleController	
-	/**
-	 * The controller handling the {@link PepperModule} object.
-	 */
-	private PepperModuleController pModuleController= null;
-	
-	public void setpModuleController(PepperModuleController pModuleController) {
-		this.pModuleController = pModuleController;
-	}
-
-	public PepperModuleController getpModuleController() {
-		return pModuleController;
-	}
-// -------------------------end: PepperModuleController
-	
 
 // -------------------------start: SCorpusGraph 	
 	private SCorpusGraph sCorpusGraph= null;
@@ -122,25 +104,6 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 	 * stores the current type of traversion
 	 */
 	private TRAVERSION_TYPE currTraversionType= null;
-	
-	
-// ================================================ start: LogService	
-	private LogService logService;
-
-	public void setLogService(LogService logService) 
-	{
-		this.logService = logService;
-	}
-	
-	public LogService getLogService() 
-	{
-		return(this.logService);
-	}
-	
-	public void unsetLogService(LogService logService) {
-		this.logService= null;
-	}
-// ================================================ end: LogService
 	
 // ================================================ start: mapping corpus structure	
 	
@@ -336,16 +299,15 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 	}
 	
 	
-
+	/**
+	 * <pre
+	 * corpus_ref 	integer 		X 	foreign key to corpus.id
+	 * id 			integer 		X 	restart from 0 for every corpus_ref
+     * name 		text 			name of the text
+	 * text 		text 			content of the text
+	 * </pre>
+	 */
 	protected void mapSText(){
-		/**
-		 * corpus_ref 	integer 		X 	foreign key to corpus.id
-		 * id 	integer 		X 	restart from 0 for every corpus_ref
-	     * name 	text 			name of the text
-		 * text 	text 			content of the text
-		 * 
-		 */
-		
 		SDocumentGraph sDoc = this.getSDocument().getSDocumentGraph();
 		Long sDocID = null;
 		Long textId = 0l;
