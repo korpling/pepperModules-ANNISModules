@@ -21,22 +21,14 @@ import java.io.File;
 
 import org.eclipse.emf.common.util.URI;
 
+import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.FormatDefinition;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperModulesFactory;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.testSuite.moduleTests.PepperExporterTest;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.RelANNISExporter;
 
  
  
 public class RelANNISExporterTest extends PepperExporterTest{ 
-	
-	private RelANNISExporter fixture= null;
-	
-	public RelANNISExporter getFixture() {
-		return fixture;
-	}
-
-	public void setFixture(RelANNISExporter fixture) {
-		this.fixture = fixture;
-	}
 	
 	@Override
 	public void setUp()
@@ -48,6 +40,14 @@ public class RelANNISExporterTest extends PepperExporterTest{
 		File resFile= new File("./src/test/resources");
 		resFile.mkdirs();
 		setResourcesURI(URI.createFileURI(resFile.getAbsolutePath()));
+		FormatDefinition formatDef= PepperModulesFactory.eINSTANCE.createFormatDefinition();
+		formatDef.setFormatName("relANNIS");
+		formatDef.setFormatVersion("3.1");
+		supportedFormatsCheck.add(formatDef);
+		formatDef= PepperModulesFactory.eINSTANCE.createFormatDefinition();
+		formatDef.setFormatName("relANNIS");
+		formatDef.setFormatVersion("4.0");
+		supportedFormatsCheck.add(formatDef);
 //		setName("RelANNISExporter");
 	}
 }
