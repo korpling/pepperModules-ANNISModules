@@ -12,18 +12,19 @@ public class IdManager {
 	
 	public IdManager() {
 		this.rAIdCounter = 0l;
-		this.rAIdMap.clear();
+		this.rAIdMap = new ConcurrentHashMap<SElementId, Long>();
+		//this.rAIdMap.clear();
 	}
 	
 	synchronized Long getNewRAId(SElementId sElementId){
-		Long rAId = 0l;
-		if (this.rAIdMap.contains(sElementId)){
-			rAId = this.rAIdMap.get(sElementId);
-		} else {
+		Long newId = this.rAIdMap.get(sElementId);
+		if (newId == null){
+			// no Id found. Create a new one
+			newId = this.rAIdCounter;
+			this.rAIdMap.put(sElementId, rAIdCounter);
 			this.rAIdCounter += 1;
-			rAId = this.rAIdCounter;
-			this.rAIdMap.put(sElementId, rAId);
 		}
-		return rAId;
+		return newId;
+		
 	}
 }

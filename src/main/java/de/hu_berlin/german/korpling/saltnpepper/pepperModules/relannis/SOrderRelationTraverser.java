@@ -19,8 +19,6 @@ package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis;
 
 import java.util.Map;
 
-import de.hu_berlin.german.korpling.saltnpepper.misc.relANNIS.RANode;
-import de.hu_berlin.german.korpling.saltnpepper.misc.relANNIS.exceptions.RelANNISException;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.GRAPH_TRAVERSE_TYPE;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SOrderRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
@@ -38,24 +36,24 @@ public class SOrderRelationTraverser implements SGraphTraverseHandler
 	/**
 	 * stores {@link SElementId} objects and corresponding {@link RANode}-objects.
 	 */
-	public Map<SElementId, RANode> sElementId2RANode= null;
+	//public Map<SElementId, RANode> sElementId2RANode= null;
 	
 	/**
 	 * The initial {@link RANode}  object, which must be root of segment path. In this case, it can not get a name that easy,
 	 * it must get it after the first {@link SOrderRelation} object has been traversed.
 	 */
-	private RANode initialNode= null;
+	//private RANode initialNode= null;
 	
 	@Override
 	public void nodeReached(GRAPH_TRAVERSE_TYPE traversalType,
 			String traversalId, SNode currNode, SRelation sRelation,
 			SNode fromNode, long order) 
 	{
-		RANode raNode= sElementId2RANode.get(currNode.getSElementId());
-		if (raNode== null)
-		{
-			throw new RelANNISException("Cannot create order raNode corresponding to SNode '"+currNode.getSId()+"', because internal mapping table has no entry for given SNode. ");
-		}
+	//	RANode raNode= sElementId2RANode.get(currNode.getSElementId());
+		//if (raNode== null)
+		//{
+		//	throw new RelANNISException("Cannot create order raNode corresponding to SNode '"+currNode.getSId()+"', because internal mapping table has no entry for given SNode. ");
+		//}
 		if (sRelation!= null)
 		{
 			String types= null;
@@ -74,15 +72,15 @@ public class SOrderRelationTraverser implements SGraphTraverseHandler
 				}
 				
 			}
-			raNode.setSegment_name(types);
-			if (this.initialNode!= null)
-				this.initialNode.setSegment_name(types);
+			//raNode.setSegment_name(types);
+			//if (this.initialNode!= null)
+			//	this.initialNode.setSegment_name(types);
 		}
 		else
-			this.initialNode= raNode;
+		//	this.initialNode= raNode;
 		
-		raNode.setLeftSegment(orderCounter);
-		raNode.setRightSegment(orderCounter);
+		//raNode.setLeftSegment(orderCounter);
+		//raNode.setRightSegment(orderCounter);
 		orderCounter++;
 	}
 

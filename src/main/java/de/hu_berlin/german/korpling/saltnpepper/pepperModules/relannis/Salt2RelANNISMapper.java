@@ -29,11 +29,12 @@ import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 import org.osgi.service.log.LogService;
 
-import de.hu_berlin.german.korpling.saltnpepper.misc.relANNIS.RANodeAnnotation;
 import de.hu_berlin.german.korpling.saltnpepper.misc.tupleconnector.TupleConnectorFactory;
 import de.hu_berlin.german.korpling.saltnpepper.misc.tupleconnector.TupleWriter;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.MAPPING_RESULT;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperModule;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperModuleController;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.impl.PepperMapperImpl;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.exceptions.RelANNISModuleException;
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.Edge;
@@ -44,7 +45,9 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDataSourceSequence;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDominanceRelation;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SOrderRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SPointingRelation;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSequentialDS;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpan;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpanningRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SStructure;
@@ -62,7 +65,7 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SProcessingAnnotat
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SaltCoreFactory;
 
-public class Salt2RelANNISMapper implements SGraphTraverseHandler
+public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTraverseHandler
 {
 	public Salt2RelANNISMapper()
 	{
@@ -73,8 +76,6 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 	{
 		//initialize naming table
 		alreadyExistingRANames= new Hashtable<String, String>();
-		
-		
 	}
 
 	private RelANNISExporter exporter = null;
@@ -130,10 +131,7 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 	 */
 	private TRAVERSION_TYPE currTraversionType= null;
 	
-	private boolean PROCESS_DOMINANCE_RELATIONS_MULTITHREADED = true;
-	private boolean PROCESS_POINTING_RELATIONS_MULTITHREADED = true;
 	
-
 // ================================================ start: LogService	
 	private LogService logService;
 
@@ -154,14 +152,12 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 	
 // ================================================ start: mapping corpus structure	
 	
-	/**
-	 * Maps the Corpus structure to the corpus.relannis file.
-	 * @param sCorpusGraph corpus graph to map
-	 */
-	public void mapSCorpusGraph(SCorpusGraph sCorpusGraph)
+	
+	@Override
+	public MAPPING_RESULT mapSCorpus()
 	{
-		this.setSCorpusGraph(sCorpusGraph);
-		if (this.getSCorpusGraph()== null)
+		//this.setSCorpusGraph(sCorpusGraph);
+		if (this.getSCorpusGraph() == null)
 			throw new RelANNISModuleException("Cannot map sCorpusGraph, because sCorpusGraph is null.");
 		
 		{//start traversion of corpus structure
@@ -180,18 +176,39 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 				//set traversion type to corpus structure
 				this.currTraversionType= TRAVERSION_TYPE.CORPUS_STRUCTURE;
 				this.currentRelANNISCorpus= new Stack<SNode>();
-				this.getSCorpusGraph().traverse(roots, GRAPH_TRAVERSE_TYPE.TOP_DOWN_DEPTH_FIRST, "compute_corpus_structure", this);
+				sCorpusGraph.traverse(roots, GRAPH_TRAVERSE_TYPE.TOP_DOWN_DEPTH_FIRST, "compute_corpus_structure", this);
 			}catch (Exception e) {
 				throw new RelANNISModuleException("Some error occurs while traversing corpus structure graph.", e);
 			}
 		}//start traversion of corpus structure
+		return MAPPING_RESULT.FINISHED;
 	}
 
-	
+	private void traverseToken() {
+		SDocumentGraph graph = this.getSDocument().getSDocumentGraph();
+		this.currTraversionType = TRAVERSION_TYPE.DOCUMENT_STRUCTURE_TOKEN;
+		if (this.sTokenSortByLeft != null){
+			
+		} else {
+			this.sTokenSortByLeft = graph.getSortedSTokenByText();
+		}
+		this.preorderTable = new Hashtable<SNode,Long>();
+		this.postorderTable = new Hashtable<SNode, Long>();
+		prePostOrder = 0l;
+		for (SNode node : this.sTokenSortByLeft){
+			EList<SNode> singleRootList = new BasicEList<SNode>();
+			singleRootList.add(node);
+			
+			graph.traverse(singleRootList, GRAPH_TRAVERSE_TYPE.TOP_DOWN_DEPTH_FIRST,"export_tokens", this);
+		}
+		
+		
+	}
 	
 	private void traverseSpanningRelations(){
+		SDocumentGraph graph = this.getSDocument().getSDocumentGraph();
 		this.currTraversionType = TRAVERSION_TYPE.DOCUMENT_STRUCTURE_CR;
-		EList<SNode> spanningRelationRoots = this.getsDocGraph().getRootsBySRelation(STYPE_NAME.SSPANNING_RELATION);
+		EList<SNode> spanningRelationRoots = graph.getRootsBySRelation(STYPE_NAME.SSPANNING_RELATION);
 		if (spanningRelationRoots != null && spanningRelationRoots.size() != 0){
 			for (SNode node : spanningRelationRoots){
 				this.preorderTable = new Hashtable<SNode,Long>();
@@ -199,14 +216,16 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 				prePostOrder = 0l;
 				EList<SNode> singleRootList = new BasicEList<SNode>();
 				singleRootList.add(node);
-				this.getsDocGraph().traverse(singleRootList, GRAPH_TRAVERSE_TYPE.TOP_DOWN_DEPTH_FIRST,"export_tokens", this);
+				
+				graph.traverse(singleRootList, GRAPH_TRAVERSE_TYPE.TOP_DOWN_DEPTH_FIRST,"export_tokens", this);
 			}
 		}
 	}
 	
 	private void traverseDominanceRelations(){
+		SDocumentGraph graph = this.getSDocument().getSDocumentGraph();
 		this.currTraversionType = TRAVERSION_TYPE.DOCUMENT_STRUCTURE_DR;
-		EList<SNode> dominanceRelations = this.getsDocGraph().getRootsBySRelation(STYPE_NAME.SDOMINANCE_RELATION);
+		EList<SNode> dominanceRelations = graph.getRootsBySRelation(STYPE_NAME.SDOMINANCE_RELATION);
 		if (dominanceRelations != null && dominanceRelations.size() != 0){
 			for (SNode node : dominanceRelations){
 				this.preorderTable = new Hashtable<SNode,Long>();
@@ -214,14 +233,15 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 				prePostOrder = 0l;
 				EList<SNode> singleRootList = new BasicEList<SNode>();
 				singleRootList.add(node);
-				this.getsDocGraph().traverse(singleRootList, GRAPH_TRAVERSE_TYPE.TOP_DOWN_DEPTH_FIRST,"export_tokens", this);
+				graph.traverse(singleRootList, GRAPH_TRAVERSE_TYPE.TOP_DOWN_DEPTH_FIRST,"export_tokens", this);
 			}
 		}
 	}
 	
 	private void traversePointingRelations(){
+		SDocumentGraph graph = this.getSDocument().getSDocumentGraph();
 		this.currTraversionType = TRAVERSION_TYPE.DOCUMENT_STRUCTURE_PR;
-		EList<SNode> pointingRelations = this.getsDocGraph().getRootsBySRelation(STYPE_NAME.SPOINTING_RELATION);
+		EList<SNode> pointingRelations = graph.getRootsBySRelation(STYPE_NAME.SPOINTING_RELATION);
 		if (pointingRelations != null && pointingRelations.size() != 0){
 			for (SNode node : pointingRelations){
 				this.preorderTable = new Hashtable<SNode,Long>();
@@ -229,41 +249,14 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 				prePostOrder = 0l;
 				EList<SNode> singleRootList = new BasicEList<SNode>();
 				singleRootList.add(node);
-				this.getsDocGraph().traverse(singleRootList, GRAPH_TRAVERSE_TYPE.TOP_DOWN_DEPTH_FIRST,"export_tokens", this);
+				graph.traverse(singleRootList, GRAPH_TRAVERSE_TYPE.TOP_DOWN_DEPTH_FIRST,"export_tokens", this);
 			}
 		}
 	}
 	
 // ================================================ end: mapping corpus structure
 // ================================================ end: mapping document structure
-	private SDocumentGraph sDocGraph = null;
-	/**
-	 * @param sDocGraph the sDocGraph to set
-	 */
-	private void setsDocGraph(SDocumentGraph sDocGraph) {
-		this.sDocGraph = sDocGraph;
-	}
-
-	/**
-	 * @return the sDocGraph
-	 */
-	public SDocumentGraph getsDocGraph() {
-		return sDocGraph;
-	}
-
-	/**
-	 * The progress in percent of the current mapping.
-	 */
-	private double currentProgress= 0;
 	
-	/**
-	 * returns the current progress.
-	 * @return
-	 */
-	public double getProgress() {
-		return currentProgress;
-	}
-
 	/**
 	 * Stores the sToken-objects ordered by the left token position 
 	 */
@@ -303,9 +296,14 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 		return(currPrePost);
 	}
 	
-	public void mapSDocumentGraph(SDocumentGraph sDocumentGraph){
-		this.setsDocGraph(sDocumentGraph);
-		if (this.getsDocGraph() == null)
+	@Override
+	public MAPPING_RESULT mapSDocument(){
+
+		this.preorderTable = new Hashtable<SNode,Long>();
+		this.postorderTable = new Hashtable<SNode, Long>();
+		prePostOrder = 0l;
+		
+		if (this.getSDocument() == null)
 			throw new RelANNISModuleException("Cannot map sDocumentGraph, because sDocumentGraph is null.");
 		
 		{//start traversion of documentStructure
@@ -313,6 +311,7 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 			
 			try
 			{
+				this.mapSText();
 				/**
 				 * traverse by 
 				 * SpanningRelations: DOCUMENT_STRUCTURE_CR
@@ -329,17 +328,66 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 				 * the pre and post order needs to be 0 for the root
 				 * node. You need to handle this.
 				 */
-				this.traverseSpanningRelations();
-				this.traverseDominanceRelations();
-				this.traversePointingRelations();
+				//this.traverseToken();
+				//this.traverseSpanningRelations();
+				
+				
+				//this.traverseDominanceRelations();
+				//this.traversePointingRelations();
 				
 			}catch (Exception e) {
 				throw new RelANNISModuleException("Some error occurs while traversing document structure graph.", e);
 			}
 		}//start traversion of corpus structure
 		
+		return MAPPING_RESULT.FINISHED;
 	}
 	
+	
+
+	protected void mapSText(){
+		/**
+		 * corpus_ref 	integer 		X 	foreign key to corpus.id
+		 * id 	integer 		X 	restart from 0 for every corpus_ref
+	     * name 	text 			name of the text
+		 * text 	text 			content of the text
+		 * 
+		 */
+		
+		SDocumentGraph sDoc = this.getSDocument().getSDocumentGraph();
+		Long sDocID = null;
+		Long textId = 0l;
+		System.out.println("Count of textual DS: "+sDoc.getSTextualDSs().size());
+		for (STextualDS text : sDoc.getSTextualDSs()){
+			SElementId sDocumentElementId = text.getSDocumentGraph().getSDocument().getSElementId();
+			if (sDocumentElementId == null){
+				System.out.println("SElement Id of the document is NULL!");
+			}
+			IdManager manager = this.exporter.getIdManager();
+			if (manager == null){
+				System.out.println("ERROR: no IdManager was found!");
+			}
+			sDocID = manager.getNewRAId(sDocumentElementId);
+			String textName = text.getSName();
+			String textContent = text.getSText();
+			Vector<String> tuple = new Vector<String>();
+			tuple.add(sDocID.toString());
+			tuple.add(textId.toString());
+			tuple.add(textName);
+			tuple.add(textContent);
+			
+			long transactionId = this.exporter.getTextTabTupleWriter().beginTA();
+			try {
+				this.exporter.getTextTabTupleWriter().addTuple(transactionId,tuple);
+				this.exporter.getTextTabTupleWriter().commitTA(transactionId);
+				
+			} catch (FileNotFoundException e) {
+				this.exporter.getTextTabTupleWriter().abortTA(transactionId);
+				throw new RelANNISModuleException("Could not write to the node.tab, exception was"+e.getMessage());
+			}
+			textId++;
+		}
+	}
 	
 	/**
 	 * Maps the given SRelation-object 
@@ -577,6 +625,10 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 							SNode fromNode, 
 							long order)
 	{
+		
+		/**
+		 * We just left a node we had reached.
+		 */
 //		{//just for debug
 //			System.out.print("node left: "+ currNode.getId());
 //			if (edge!= null)
@@ -593,9 +645,21 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 			 * This node is a leaf.
 			 * Set the postorder for it.
 			 **/
-			if (this.preorderTable.containsKey(currNode)){
-				if (! this.postorderTable.containsKey(currNode)){
-					this.postorderTable.put(currNode, getNewPPOrder());
+			if (currNode instanceof SDocument || currNode instanceof SCorpus){
+				if (this.preorderTable.containsKey(currNode)){
+					if (! this.postorderTable.containsKey(currNode)){
+						this.postorderTable.put(currNode, getNewPPOrder());
+						Long iD = null;
+						if (currNode instanceof SDocument){
+							SDocument sd = (SDocument)currNode;
+							iD = this.exporter.getIdManager().getNewRAId(sd.getSElementId());
+						}
+						if (currNode instanceof SCorpus){
+							SCorpus sc = (SCorpus)currNode;
+							iD = this.exporter.getIdManager().getNewRAId(sc.getSElementId());
+						}
+						this.mapToCorpusTab(currNode, iD,this.preorderTable.get(currNode),this.postorderTable.get(currNode));
+					}
 				}
 			}
 		}//traversing corpus structure
@@ -605,6 +669,11 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 					(this.currTraversionType== TRAVERSION_TYPE.DOCUMENT_STRUCTURE_DR_SUB) ||
 					(this.currTraversionType== TRAVERSION_TYPE.DOCUMENT_STRUCTURE_PR_SUB))
 		{//traversing document structure
+			/**
+			 * @TODO: catch NullPointerException
+			 */
+			SDocumentGraph graph = this.getSDocument().getSDocumentGraph();
+			
 			if (currNode instanceof SNode){
 				// the current node is a token
 				if (currNode instanceof SToken){
@@ -625,7 +694,7 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 					} 
 					else 
 						if (currNode instanceof SToken){
-							EList<Edge> outEdges= this.getsDocGraph().getOutEdges(currNode.getId());
+							EList<Edge> outEdges= graph.getOutEdges(currNode.getId());
 							STextualDS currSTextDS= null;
 							for (Edge outEdge: outEdges)
 							{
@@ -642,7 +711,15 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 							 */
 							
 							this.mapSToken((SToken)currNode,currSTextDS);
-						}
+						} else 
+							if (currNode instanceof SSpan || currNode instanceof SStructure){
+								/*
+								 *  if the current node is a SSpan or SStructure, get the overlapped
+								 *  token and get the STextualDS from one of this token
+								 */
+								
+								this.mapSStructuredNode((SStructuredNode)currNode);
+							}
 					
 					this.markAsVisited(currNode);
 				}
@@ -651,15 +728,18 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 		}//traversing document structure
 	}
 	
-	private void mapSStructuredNode(SStructuredNode sNode, STextualDS currSTextDS){
+	private void mapSStructuredNode(SStructuredNode sNode){
 		if (sNode == null)
 			throw new RelANNISModuleException("Cannot map the structured node, because sNode is NULL.");
-		if (currSTextDS == null)
-			throw new RelANNISModuleException("Cannot map the structured node, because the current STexualDS is NULL.");
+		
+		STextualDS currSTextDS = null;
+		
+		SDocumentGraph graph = this.getSDocument().getSDocumentGraph();
 		
 		EList<STYPE_NAME> sTypes= new BasicEList<STYPE_NAME>();
 		sTypes.add(STYPE_NAME.STEXT_OVERLAPPING_RELATION);
-		EList<SDataSourceSequence> overlappedDSSequences= this.getsDocGraph().getOverlappedDSSequences(sNode, sTypes);
+		// get all DSSequences which are overlapped by the SSpan/SStructure
+		EList<SDataSourceSequence> overlappedDSSequences= graph.getOverlappedDSSequences(sNode, sTypes);
 		
 		if (	(overlappedDSSequences== null)||
 				(overlappedDSSequences.size()==0))
@@ -667,8 +747,37 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 			if (this.getLogService()!= null)
 				this.getLogService().log(LogService.LOG_WARNING, "Cannot map structured node object '"+sNode.getSId()+"' to, because it does not overlap a text.");
 		} else {
-			
+			// throw a warning if more than one DSSequence is overlapped
+			if (overlappedDSSequences.size() > 1){
+				if (this.getLogService()!= null)
+					this.getLogService().log(LogService.LOG_WARNING, "Node '"+sNode.getSId()+"' overlaps more than one DSSequence.");
+			}
+			// get the first overlapped DSSequence
 			SDataSourceSequence overlappedSequence= overlappedDSSequences.get(0);
+			// get the token which overlap the DSSequence
+			EList<SToken> tokenList = null;
+			tokenList = graph.getSTokensBySequence(overlappedSequence);
+			
+			EList<SToken> sortedToken = null;
+			// get the STextualDS by querying one of the token
+			if (tokenList != null && !tokenList.isEmpty()){
+				EList<Edge> outEdges= graph.getOutEdges(tokenList.get(0).getSId());
+				for (Edge outEdge: outEdges)
+				{
+					if (outEdge instanceof STextualRelation)
+					{
+						currSTextDS= ((STextualRelation)outEdge).getSTextualDS();
+						break;
+					}
+				}
+			} else {
+				throw new RelANNISModuleException("The DSSequence "+overlappedSequence.getSSequentialDS().getSId()+" is not overlapped by any SToken");
+			}
+						
+			if (currSTextDS== null)
+				throw new RelANNISModuleException("An exception occurs while traversing the document graph, because the currSTextDS object is null for node '"+sNode.getSElementId()+"'.");
+			// sort the overlapping token by SStart and SEnd
+			sortedToken = graph.getSortedSTokenByText(tokenList);
 			
 			if (overlappedSequence.getSStart()== null)
 				throw new RelANNISModuleException("Cannot map the given structured node object '"+sNode.getSId()+"', because it doesn't have a left (start-value) border, pointing to the primary data.");
@@ -677,7 +786,7 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 			
 			Long id = this.exporter.getIdManager().getNewRAId(sNode.getSElementId());
 			Long textId = this.exporter.getIdManager().getNewRAId(currSTextDS.getSElementId());
-			Long corpusId = this.exporter.getIdManager().getNewRAId(this.getsDocGraph().getSElementId());
+			Long corpusId = this.exporter.getIdManager().getNewRAId(graph.getSElementId());
 			
 			String namespace = null;
 			String name = null;
@@ -689,6 +798,22 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 			// leftToken and rightToken will be set
 			Long leftToken = null;
 			Long rightToken = null;
+			if (this.sTokenSortByLeft == null){
+				this.sTokenSortByLeft = graph.getSortedSTokenByText();
+			}
+			// set leftToken to the index of the leftmost token of the sorted sequence in the complete token list
+			leftToken = new Long(this.sTokenSortByLeft.indexOf(sortedToken.get(0)));
+			// set rightToken to the index of the rightmost token of the sorted sequence in the complete token list
+			rightToken = new Long(this.sTokenSortByLeft.indexOf(sortedToken.get(sortedToken.size()-1)));
+			/*
+			EList<SOrderRelation> sOrderRelations = this.getsDocGraph().getSOrderRelations();
+			if (sOrderRelations == null || sOrderRelations.isEmpty()){
+				
+			} else {
+				for (SOrderRelation order : sOrderRelations){
+				
+				}
+			}*/
 			// those two can be existent due to SOrderRelation
 			Long segmentIndex = null;
 			String segmentName = null;
@@ -732,11 +857,11 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 				
 			if (this.sTokenSortByLeft== null)
 			{//compute correct order of tokens and store it, because of performance do it also here 
-				this.sTokenSortByLeft= this.getsDocGraph().getSortedSTokenByText();
+				this.sTokenSortByLeft= graph.getSortedSTokenByText();
 			}//compute correct order of tokens and store it, because of performance do it also here	
 			
 			{//start: calculate leftToken and rightToken
-				EList<SToken> sTokens= this.getsDocGraph().getSTokensBySequence(overlappedSequence);
+				EList<SToken> sTokens= graph.getSTokensBySequence(overlappedSequence);
 				leftToken = (long) this.sTokenSortByLeft.indexOf(sTokens.get(0));
 				rightToken = (long) this.sTokenSortByLeft.indexOf(sTokens.get(sTokens.size()-1));
 			}//end: calculate leftToken and rightToken
@@ -760,6 +885,9 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 			throw new RelANNISModuleException("Cannot map the SToken to a RA node entry, because sToken is empty.");
 		if (currSTextDS == null)
 			throw new RelANNISModuleException("Cannot map the SToken, because the current STexualDS is NULL.");
+		
+		SDocumentGraph graph = this.getSDocument().getSDocumentGraph();
+		
 		/**
 		 * needed Attributes are:
 		 * Long id : unique RelANNIS id of this token
@@ -770,15 +898,15 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 		 * Integer left : the first overlapped character
 		 * Integer right : the last overlapped character
 		 * Integer tokenIndex : the index of the token in the token sequence
-		 * Integer leftToken : @NOTE: this value is not clear for me
-		 * Integer rightToken : @NOTE: this value is not clear for me
+		 * Integer leftToken : for SToken, this is equivalent to left
+		 * Integer rightToken : for SToken, this is equivalent to right
 		 * Integer segmentIndex
 		 * String segmentName
 		 * String span : for token, this is the substring of the covered text
 		 */
 		Long id = this.exporter.getIdManager().getNewRAId(sToken.getSElementId());
 		Long textId = this.exporter.getIdManager().getNewRAId(currSTextDS.getSElementId());
-		Long corpusId = this.exporter.getIdManager().getNewRAId(this.getsDocGraph().getSElementId());
+		Long corpusId = this.exporter.getIdManager().getNewRAId(graph.getSElementId());
 		String tokenNamespace = null;
 		String name = null;
 		Long left = null;
@@ -794,7 +922,7 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 		 */
 		if (this.sTokenSortByLeft== null)
 		{
-			this.sTokenSortByLeft= this.getsDocGraph().getSortedSTokenByText();
+			this.sTokenSortByLeft= graph.getSortedSTokenByText();
 		}
 		
 		tokenIndex = Long.valueOf(this.sTokenSortByLeft.indexOf(sToken));
@@ -820,7 +948,7 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 		 */
 		EList<STYPE_NAME> sTypes= new BasicEList<STYPE_NAME>();
 		sTypes.add(STYPE_NAME.STEXT_OVERLAPPING_RELATION);
-		SDataSourceSequence sequence= this.getsDocGraph().getOverlappedDSSequences(sToken, sTypes).get(0);
+		SDataSourceSequence sequence= graph.getOverlappedDSSequences(sToken, sTypes).get(0);
 		
 		String sText = currSTextDS.getSText();
 		
@@ -856,6 +984,52 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 		
 	}
 
+	/**
+	 * id 	integer 	X 	X 	primary key
+	 * name 	text 	X 	X 	unique name (per corpus)
+	 * type 	text 		X 	CORPUS, DOCUMENT
+	 * version 	text 			version number (not used)
+	 * pre 	integer 		X 	pre order of the corpus tree
+	 * post 	integer 		X 	post order of the corpus tree
+	 * @param sNode
+	 * @param id
+	 * @param preOrder
+	 * @param postOrder
+	 */
+	private void mapToCorpusTab(SNode sNode,Long id, Long preOrder, Long postOrder ){
+		TupleWriter corpusTabWriter = this.exporter.getCorpusTabTupleWriter();
+		String idString = id.toString();
+		String name = sNode.getSName();
+		String type = null;
+		String version = "NULL";
+		String pre = preOrder.toString();
+		String post = postOrder.toString();
+		if (sNode instanceof SDocument){
+			type = "DOCUMENT";
+		} else {
+			if (sNode instanceof SCorpus){
+				type = "CORPUS";
+				
+			}
+		}
+		Vector<String> tuple = new Vector<String>();
+		tuple.add(idString);
+		tuple.add(name);
+		tuple.add(type);
+		tuple.add(version);
+		tuple.add(pre);
+		tuple.add(post);
+		
+		long transactionId = corpusTabWriter.beginTA();
+		try {
+			corpusTabWriter.addTuple(transactionId,tuple);
+			corpusTabWriter.commitTA(transactionId);
+		} catch (FileNotFoundException e) {
+			corpusTabWriter.abortTA(transactionId);
+			throw new RelANNISModuleException("Could not write to the corpus.tab, exception was"+e.getMessage());
+		}
+	}
+	
 	/**
 	 * This method maps a node to a RelANNIS node tab entry
 	 * @param id (not NULL), the unique RelANNIS id of the node
@@ -1030,7 +1204,7 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 		 * The reached node is currNode
 		 * The prior node(source) is fromNode
 		 * The connection between the nodes is the edge.
-		 * The order is the number of the edge in fromNode
+		 * The order is the number of the edges in fromNode
 		 */
 		
 //		{//just for debug
@@ -1051,31 +1225,18 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 				/**
 				 * if this node is a document, get a RAId for it.
 				 */
-				if (currNode instanceof SDocument){
-					exporter.getIdManager().getNewRAId(currNode.getSElementId());
-				}
+				//if (currNode instanceof SDocument){
+					
+				//}
+				
+				//Long corpusRAId = exporter.getIdManager().getNewRAId(currNode.getSElementId());
 				/**
 				 * Initialize a new entry for this node in the preorder table,
 				 * if it was not reached, yet.
-				 * If the node has a preorder, set the postorder.
 				 */
 				if (!this.preorderTable.containsKey(currNode)){
 					this.preorderTable.put(currNode, getNewPPOrder());
-				} else {
-					if (!this.postorderTable.containsKey(currNode)){
-						this.postorderTable.put(currNode, getNewPPOrder());
-						EList<String> tuple = new BasicEList<String>();
-						tuple.add(currNode.getSId());
-						tuple.add(this.preorderTable.get(currNode).toString());
-						tuple.add(this.postorderTable.get(currNode).toString());
-						try {
-							this.exporter.getCorpusTabTupleWriter().addTuple(tuple);
-						} catch (FileNotFoundException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-				}
+				} 
 			}
 			
 			{//map relation
@@ -1100,6 +1261,10 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 					(this.currTraversionType== TRAVERSION_TYPE.DOCUMENT_STRUCTURE_DR_SUB)||
 					(this.currTraversionType== TRAVERSION_TYPE.DOCUMENT_STRUCTURE_PR_SUB))
 		{//traversing document structure
+			
+			//if (!this.preorderTable.containsKey(currNode)){
+			//	this.preorderTable.put(currNode, getNewPPOrder());
+			//} 
 					}//traversing document structure
 		{//for testing
 //			System.out.println("----------> node reached: "+currNode.getId());
