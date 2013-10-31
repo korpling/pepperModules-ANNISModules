@@ -17,3 +17,4 @@ src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/Re
 src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/Salt2RelANNISMapper.java -text svneol=unset#text/plain
 src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/exceptions/RelANNISModuleException.java -text svneol=unset#text/plain
 src/test/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/tests/RelANNISExporterTest.java -text
+src/test/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/tests/Salt2RelANNISMapperTest.java -text svneol=unset#text/plain
