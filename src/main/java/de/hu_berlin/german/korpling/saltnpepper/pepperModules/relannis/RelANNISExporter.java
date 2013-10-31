@@ -56,6 +56,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 			this.name= "RelANNISExporter";
 			//TODO change the version of your module, we recommend to synchronize this value with the maven version in your pom.xml
 			this.setVersion("1.0.0");
+			this.addSupportedFormat("RelANNIS", "3.1", null);
 			this.addSupportedFormat("RelANNIS", "4.0", null); 
 			tupleWriterCorpus = TupleConnectorFactory.fINSTANCE.createTupleWriter();
 			tupleWriterNode = TupleConnectorFactory.fINSTANCE.createTupleWriter();
