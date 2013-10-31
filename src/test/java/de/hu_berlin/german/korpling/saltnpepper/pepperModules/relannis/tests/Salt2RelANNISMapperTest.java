@@ -56,6 +56,7 @@ public class Salt2RelANNISMapperTest extends TestCase
 		sDocument.setSDocumentGraph(SaltFactory.eINSTANCE.createSDocumentGraph());
 		// create the primary text
 		SaltSample.createPrimaryData(sDocument);
+		getFixture().setSDocument(sDocument);
 		getFixture().setResourceURI(URI.createFileURI(resourcePath.getAbsolutePath()));
 		
 		getFixture().mapSDocument();

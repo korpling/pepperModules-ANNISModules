@@ -48,6 +48,6 @@ public class RelANNISExporterTest extends PepperExporterTest{
 		File resFile= new File("./src/test/resources");
 		resFile.mkdirs();
 		setResourcesURI(URI.createFileURI(resFile.getAbsolutePath()));
-		setName("RelANNISExporter");
+//		setName("RelANNISExporter");
 	}
 }
