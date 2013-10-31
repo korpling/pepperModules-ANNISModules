@@ -20,7 +20,6 @@ package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis;
 import java.io.File;
 import java.io.IOException;
 
-import org.eclipse.emf.common.util.URI;
 import org.osgi.service.component.annotations.Component;
 
 import de.hu_berlin.german.korpling.saltnpepper.misc.tupleconnector.TupleConnectorFactory;
@@ -33,28 +32,19 @@ import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperModul
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperModuleProperties;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.impl.PepperExporterImpl;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.exceptions.RelANNISModuleException;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpus;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 
 
 @Component(name="RelANNISExporterComponent", factory="PepperExporterComponentFactory")
 public class RelANNISExporter extends PepperExporterImpl implements PepperExporter
 {
 	// =================================================== mandatory ===================================================
-		/**
-		 * <strong>OVERRIDE THIS METHOD FOR CUSTOMIZATION</strong>
-		 * 
-		 * A constructor for your module. Set the coordinates, with which your module shall be registered. 
-		 * The coordinates (modules name, version and supported formats) are a kind of a fingerprint, 
-		 * which should make your module unique.
-		 */
 		public RelANNISExporter()
 		{
 			super();
 			this.name= "RelANNISExporter";
-			//TODO change the version of your module, we recommend to synchronize this value with the maven version in your pom.xml
 			this.setVersion("1.0.0");
 			this.addSupportedFormat("RelANNIS", "3.1", null);
 			this.addSupportedFormat("RelANNIS", "4.0", null); 
@@ -66,17 +56,8 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 		}
 		
 		/**
-		 * <strong>OVERRIDE THIS METHOD FOR CUSTOMIZATION</strong>
-		 * 
-		 * This method creates a customized {@link PepperMapper} object and returns it. You can here do some additional initialisations. 
-		 * Things like setting the {@link SElementId} of the {@link SDocument} or {@link SCorpus} object and the {@link URI} resource is done
-		 * by the framework (or more in detail in method {@link #start()}).  
-		 * The parameter <code>sElementId</code>, if a {@link PepperMapper} object should be created in case of the object to map is either 
-		 * an {@link SDocument} object or an {@link SCorpus} object of the mapper should be initialized differently. 
-		 * <br/>
-		 * 
-		 * @param sElementId {@link SElementId} of the {@link SCorpus} or {@link SDocument} to be processed. 
-		 * @return {@link PepperMapper} object to do the mapping task for object connected to given {@link SElementId}
+		 * Creates a {@link Salt2RelANNISMapper} object and passes this object, so that all {@link Salt2RelANNISMapper} object
+		 * can access the {@link IdManager} etc..
 		 */
 		public PepperMapper createPepperMapper(SElementId sElementId)
 		{
@@ -87,6 +68,25 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 		}
 		
 	// =================================================== optional ===================================================	
+		/** Name of the file, to store the corpus-structure. **/
+		public static final String FILE_CORPUS="corpus.tab";
+		/** Name of the file, to store the meta-data of the corpus-structure. **/
+		public static final String FILE_CORPUS_META="corpus_annotation.tab";
+		/** Name of the file, to store the primary text data. **/
+		public static final String FILE_TEXT="text.tab";
+		/** Name of the file, to store all {@link SNode}s. **/
+		public static final String FILE_NODE="node.tab";
+		/** Name of the file, to store the annotations odf the nodes. **/
+		public static final String FILE_NODE_ANNO="node_annotation.tab";
+		/** Name of the file, to store the relations. **/
+		public static final String FILE_RANK="rank.tab";
+		/** Name of the file, to store the annotations of the relations. **/
+		public static final String FILE_EDGE_ANNO="edge_annotation.tab";
+		/** Name of the file, to store the components of the relations. **/
+		public static final String FILE_COMPONENT="component.tab";
+		/** Name of the file, to store the visualization configuration. **/
+		public static final String FILE_VISUALIZATION="resolver_vis_map.tab";
+		
 		/**
 		 * <strong>OVERRIDE THIS METHOD FOR CUSTOMIZATION</strong>
 		 * 
@@ -98,29 +98,11 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 		@Override
 		public boolean isReadyToStart() throws PepperModuleNotReadyException
 		{
-
-			SCorpusGraph sCorpGraph= null;
-			{//emit correct sCorpus graph object
-				if (this.getSaltProject()== null)
-					throw new RelANNISModuleException("Cannot start exporting, because no salt project is given.");
-				if (this.getSaltProject().getSCorpusGraphs()== null)
-					throw new RelANNISModuleException("Cannot start exporting, because there are no corpus graphs in salt project to export.");
-				if (this.getSaltProject().getSCorpusGraphs().size() > 1)
-					throw new RelANNISModuleException("Cannot work with more than one corpus structure graphs.");
-				sCorpGraph= (SCorpusGraph) this.getSaltProject().getSCorpusGraphs().get(0);
-			}//emit correct sCorpus graph object
-			
-			//this.raCorpusGraph= relANNISFactory.eINSTANCE.createRACorpusGraph();
-			//Salt2RelANNISMapper mapper= new Salt2RelANNISMapper();
-			//mapper.setLogService(this.getLogService());
-			
-			/**
-			 * set the tuple writer output files
-			 */
+			//set the tuple writer output files
 			String corpusOutputPath = this.getCorpusDefinition().getCorpusPath().toFileString();
 			//System.out.println("Corpus output path is: "+ corpusOutputPath);
 			// create the corpus tab file
-			String corpusTabFileName = corpusOutputPath+"/corpus.tab";
+			String corpusTabFileName = corpusOutputPath+"/"+FILE_CORPUS;
 			File corpusTabFile = new File(corpusTabFileName);
 			if (corpusTabFile.exists()){
 				
@@ -133,7 +115,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 			}
 			tupleWriterCorpus.setFile(corpusTabFile);
 			
-			String textTabFileName = corpusOutputPath+"/text.tab";
+			String textTabFileName = corpusOutputPath+"/"+FILE_TEXT;
 			File textTabFile = new File(textTabFileName);
 			if (textTabFile.exists()){
 				
@@ -147,7 +129,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 			tupleWriterText.setFile(textTabFile);
 			
 			// create the node tab file
-			String nodeTabFileName = corpusOutputPath+"/node.tab";
+			String nodeTabFileName = corpusOutputPath+"/"+FILE_NODE;
 			File nodeTabFile = new File(nodeTabFileName);
 			if (nodeTabFile.exists()){
 				
@@ -161,7 +143,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 			tupleWriterNode.setFile(nodeTabFile);
 			
 			// create the node annotation file
-			String nodeAnnotationFileName = corpusOutputPath+"/node_annotation.tab";
+			String nodeAnnotationFileName = corpusOutputPath+"/"+FILE_NODE_ANNO;
 			File nodeAnnotationFile = new File(nodeAnnotationFileName);
 			if (nodeAnnotationFile.exists()){
 				
