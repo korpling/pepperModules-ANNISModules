@@ -16,13 +16,18 @@ public class IdManager {
 		//this.rAIdMap.clear();
 	}
 	
-	synchronized Long getNewRAId(SElementId sElementId){
+	public Long getNewRAId(SElementId sElementId){
 		Long newId = this.rAIdMap.get(sElementId);
 		if (newId == null){
-			// no Id found. Create a new one
-			newId = this.rAIdCounter;
-			this.rAIdMap.put(sElementId, rAIdCounter);
-			this.rAIdCounter += 1;
+			synchronized (this) {
+				if (newId == null){
+					// no Id found. Create a new one
+					newId = this.rAIdCounter;
+					this.rAIdMap.put(sElementId, rAIdCounter);
+					this.rAIdCounter += 1;
+
+				}
+			}
 		}
 		return newId;
 		
