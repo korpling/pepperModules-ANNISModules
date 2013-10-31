@@ -5,7 +5,6 @@
 .settings/org.eclipse.jdt.core.prefs -text svneol=unset#text/plain
 .settings/org.eclipse.pde.core.prefs -text svneol=unset#text/plain
 .settings/org.maven.ide.eclipse.prefs -text svneol=unset#text/plain
-/.umlproject -text
 /LICENSE -text
 /NOTICE -text
 /build.properties -text svneol=unset#text/plain
