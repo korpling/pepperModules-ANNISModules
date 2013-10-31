@@ -14,7 +14,6 @@ src/etc/NOTICE_template.txt -text svneol=unset#text/plain
 src/etc/header.txt -text svneol=unset#text/plain
 src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/IdManager.java -text
 src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/RelANNISExporter.java -text svneol=unset#text/plain
-src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/SOrderRelationTraverser.java -text svneol=unset#text/plain
 src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/Salt2RelANNISMapper.java -text svneol=unset#text/plain
 src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/exceptions/RelANNISModuleException.java -text svneol=unset#text/plain
 src/test/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/tests/RelANNISExporterTest.java -text
