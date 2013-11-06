@@ -1,0 +1,7 @@
+digraph G {
+ordering=out;
+{
+rank=max;
+<null/null_graph#sText1>[shape=Mrecord,color=yellow,style=filled,label="{{null/null_graph#sText1}|{sName= sText1}|{text=Is this example more complicated than it appears to be?}}"];
+}
+}

@@ -46,8 +46,11 @@ public class RelANNISExporterTest extends PepperExporterTest{
 		supportedFormatsCheck.add(formatDef);
 		formatDef= PepperModulesFactory.eINSTANCE.createFormatDefinition();
 		formatDef.setFormatName("relANNIS");
+		formatDef.setFormatVersion("3.2");
+		supportedFormatsCheck.add(formatDef);
+		formatDef= PepperModulesFactory.eINSTANCE.createFormatDefinition();
+		formatDef.setFormatName("relANNIS");
 		formatDef.setFormatVersion("4.0");
 		supportedFormatsCheck.add(formatDef);
-//		setName("RelANNISExporter");
 	}
 }

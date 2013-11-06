@@ -13,8 +13,11 @@ src/assemble/assemblies.xml -text svneol=unset#text/plain
 src/etc/NOTICE_template.txt -text svneol=unset#text/plain
 src/etc/header.txt -text svneol=unset#text/plain
 src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/IdManager.java -text
+src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/RelANNIS.java -text svneol=unset#text/plain
 src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/RelANNISExporter.java -text svneol=unset#text/plain
 src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/Salt2RelANNISMapper.java -text svneol=unset#text/plain
 src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/exceptions/RelANNISModuleException.java -text svneol=unset#text/plain
 src/test/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/tests/RelANNISExporterTest.java -text
 src/test/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/tests/Salt2RelANNISMapperTest.java -text svneol=unset#text/plain
+src/test/resources/mapSText/mapSText.dot -text
+src/test/resources/mapSText/mapSText.png -text
