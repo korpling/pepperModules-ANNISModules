@@ -28,17 +28,14 @@ import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperExceptions.PepperMo
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperExceptions.PepperModuleNotReadyException;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperExporter;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperMapper;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperModule;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperModuleProperties;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.impl.PepperExporterImpl;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.exceptions.RelANNISModuleException;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 
 
 @Component(name="RelANNISExporterComponent", factory="PepperExporterComponentFactory")
-public class RelANNISExporter extends PepperExporterImpl implements PepperExporter
+public class RelANNISExporter extends PepperExporterImpl implements PepperExporter, RelANNIS
 {
 	// =================================================== mandatory ===================================================
 		public RelANNISExporter()
@@ -47,12 +44,8 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 			this.name= "RelANNISExporter";
 			this.setVersion("1.0.0");
 			this.addSupportedFormat("RelANNIS", "3.1", null);
+			this.addSupportedFormat("RelANNIS", "3.2", null);
 			this.addSupportedFormat("RelANNIS", "4.0", null); 
-			tupleWriterCorpus = TupleConnectorFactory.fINSTANCE.createTupleWriter();
-			tupleWriterNode = TupleConnectorFactory.fINSTANCE.createTupleWriter();
-			tupleWriterNodeAnnotation = TupleConnectorFactory.fINSTANCE.createTupleWriter();
-			tupleWriterText = TupleConnectorFactory.fINSTANCE.createTupleWriter();
-			this.idManager = new IdManager();
 		}
 		
 		/**
@@ -62,99 +55,56 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 		public PepperMapper createPepperMapper(SElementId sElementId)
 		{
 			Salt2RelANNISMapper mapper  = new Salt2RelANNISMapper();
-			mapper.setRelANNISExporter(this);
+			mapper.setIdManager(getIdManager());
+			mapper.tw_text= tw_text;
+			mapper.tw_node= tw_node;
+			mapper.tw_nodeAnno= tw_nodeAnno;
+			mapper.tw_rank= tw_rank;
+			mapper.tw_edgeAnno= tw_edgeAnno;
+			mapper.tw_component= tw_component;
+			mapper.tw_corpus= tw_corpus;
+			mapper.tw_corpusMeta= tw_corpusMeta;
+			
 			return mapper;
 			
 		}
 		
 	// =================================================== optional ===================================================	
-		/** Name of the file, to store the corpus-structure. **/
-		public static final String FILE_CORPUS="corpus.tab";
-		/** Name of the file, to store the meta-data of the corpus-structure. **/
-		public static final String FILE_CORPUS_META="corpus_annotation.tab";
-		/** Name of the file, to store the primary text data. **/
-		public static final String FILE_TEXT="text.tab";
-		/** Name of the file, to store all {@link SNode}s. **/
-		public static final String FILE_NODE="node.tab";
-		/** Name of the file, to store the annotations odf the nodes. **/
-		public static final String FILE_NODE_ANNO="node_annotation.tab";
-		/** Name of the file, to store the relations. **/
-		public static final String FILE_RANK="rank.tab";
-		/** Name of the file, to store the annotations of the relations. **/
-		public static final String FILE_EDGE_ANNO="edge_annotation.tab";
-		/** Name of the file, to store the components of the relations. **/
-		public static final String FILE_COMPONENT="component.tab";
-		/** Name of the file, to store the visualization configuration. **/
-		public static final String FILE_VISUALIZATION="resolver_vis_map.tab";
+		/**
+		 * Creates a {@link TupleWriter} responsible for the given file.
+		 * @param outFile
+		 * @return
+		 */
+		public static synchronized TupleWriter createTupleWRiter(File outFile)
+		{
+			if (outFile.exists()){
+				
+			} else {
+				try {
+					outFile.createNewFile();
+				} catch (IOException e) {
+					throw new RelANNISModuleException("Could not create the corpus tab file "+ outFile.getAbsolutePath()+ " Exception:"+e.getMessage());
+				}
+			}
+			TupleWriter tWriter= TupleConnectorFactory.fINSTANCE.createTupleWriter();
+			tWriter.setFile(outFile);
+			return(tWriter);
+		}
 		
 		/**
-		 * <strong>OVERRIDE THIS METHOD FOR CUSTOMIZATION</strong>
-		 * 
-		 * This method is called by the pepper framework after initializing this object and directly before start processing. 
-		 * Initializing means setting properties {@link PepperModuleProperties}, setting temporary files, resources etc. .
-		 * returns false or throws an exception in case of {@link PepperModule} instance is not ready for any reason.
-		 * @return false, {@link PepperModule} instance is not ready for any reason, true, else.
+		 * Initializes all {@link TupleWriter} objects.
 		 */
 		@Override
 		public boolean isReadyToStart() throws PepperModuleNotReadyException
 		{
-			//set the tuple writer output files
-			String corpusOutputPath = this.getCorpusDefinition().getCorpusPath().toFileString();
-			//System.out.println("Corpus output path is: "+ corpusOutputPath);
-			// create the corpus tab file
-			String corpusTabFileName = corpusOutputPath+"/"+FILE_CORPUS;
-			File corpusTabFile = new File(corpusTabFileName);
-			if (corpusTabFile.exists()){
-				
-			} else {
-				try {
-					corpusTabFile.createNewFile();
-				} catch (IOException e) {
-					throw new RelANNISModuleException("Could not create the corpus tab file "+ corpusTabFileName+ " Exception:"+e.getMessage());
-				}
-			}
-			tupleWriterCorpus.setFile(corpusTabFile);
-			
-			String textTabFileName = corpusOutputPath+"/"+FILE_TEXT;
-			File textTabFile = new File(textTabFileName);
-			if (textTabFile.exists()){
-				
-			} else {
-				try {
-					textTabFile.createNewFile();
-				} catch (IOException e) {
-					throw new RelANNISModuleException("Could not create the corpus tab file "+ textTabFileName+ " Exception:"+e.getMessage());
-				}
-			}
-			tupleWriterText.setFile(textTabFile);
-			
-			// create the node tab file
-			String nodeTabFileName = corpusOutputPath+"/"+FILE_NODE;
-			File nodeTabFile = new File(nodeTabFileName);
-			if (nodeTabFile.exists()){
-				
-			} else {
-				try {
-					nodeTabFile.createNewFile();
-				} catch (IOException e) {
-					throw new RelANNISModuleException("Could not create the node tab file "+ nodeTabFileName+ " Exception:"+e.getMessage());
-				}
-			}
-			tupleWriterNode.setFile(nodeTabFile);
-			
-			// create the node annotation file
-			String nodeAnnotationFileName = corpusOutputPath+"/"+FILE_NODE_ANNO;
-			File nodeAnnotationFile = new File(nodeAnnotationFileName);
-			if (nodeAnnotationFile.exists()){
-				
-			} else {
-				try {
-					nodeAnnotationFile.createNewFile();
-				} catch (IOException e) {
-					throw new RelANNISModuleException("Could not create the node_annotation tab file "+ nodeAnnotationFileName+ " Exception:"+e.getMessage());
-				}
-			}
-			tupleWriterNodeAnnotation.setFile(nodeAnnotationFile);
+			tw_text= createTupleWRiter(new File(getCorpusDefinition().getCorpusPath().toFileString() + FILE_CORPUS));
+			tw_node= createTupleWRiter(new File(getCorpusDefinition().getCorpusPath().toFileString() + FILE_NODE));
+			tw_nodeAnno= createTupleWRiter(new File(getCorpusDefinition().getCorpusPath().toFileString() + FILE_NODE_ANNO));
+			tw_rank= createTupleWRiter(new File(getCorpusDefinition().getCorpusPath().toFileString() + FILE_RANK));
+			tw_edgeAnno= createTupleWRiter(new File(getCorpusDefinition().getCorpusPath().toFileString() + FILE_EDGE_ANNO));
+			tw_component= createTupleWRiter(new File(getCorpusDefinition().getCorpusPath().toFileString() + FILE_COMPONENT));
+			tw_corpus= createTupleWRiter(new File(getCorpusDefinition().getCorpusPath().toFileString() + FILE_CORPUS));
+			tw_corpusMeta= createTupleWRiter(new File(getCorpusDefinition().getCorpusPath().toFileString() + FILE_CORPUS_META));
 			
 			this.idManager = new IdManager();
 			
@@ -176,39 +126,26 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 			super.exportCorpusStructure(sCorpusGraph);
 		}
 
-		/**
-		 *       All data structures go below this comment!
-		 **/
-		// ------------------------- TupleConector
-		private TupleWriter tupleWriterCorpus;
-		private TupleWriter tupleWriterNode;
-		private TupleWriter tupleWriterNodeAnnotation;
-		private TupleWriter tupleWriterText;
+		/** tuple writer to write {@link RelANNIS#FILE_TEXT} **/
+		public TupleWriter tw_text= null;
+		/** tuple writer to write {@link RelANNIS#FILE_NODE} **/
+		public TupleWriter tw_node= null;
+		/** tuple writer to write {@link RelANNIS#FILE_NODE_ANNO} **/
+		public TupleWriter tw_nodeAnno= null;
+		/** tuple writer to write {@link RelANNIS#FILE_RANK} **/
+		public TupleWriter tw_rank= null;
+		/** tuple writer to write {@link RelANNIS#FILE_EDGE_ANNO} **/
+		public TupleWriter tw_edgeAnno= null;
+		/** tuple writer to write {@link RelANNIS#FILE_COMPONENT} **/
+		public TupleWriter tw_component= null;
+		/** tuple writer to write {@link RelANNIS#FILE_CORPUS} **/
+		public TupleWriter tw_corpus= null;
+		/** tuple writer to write {@link RelANNIS#FILE_CORPUS_META} **/
+		public TupleWriter tw_corpusMeta= null;
 		// ------------------------- IdManager
+		/** object to manage relANNIS ids**/
 		private IdManager idManager;
-		
-		/**
-		 *       All GETTERS go below this comment
-		 */
-		// ------------------------- TupleConector
-		public TupleWriter getCorpusTabTupleWriter(){
-			return this.tupleWriterCorpus;
-		}
-		
-		public TupleWriter getNodeTabTupleWriter(){
-			return this.tupleWriterNode;
-		}
-		
-		public TupleWriter getNodeAnnotationTabTupleWriter(){
-			return this.tupleWriterNodeAnnotation;
-		}
-
-		public TupleWriter getTextTabTupleWriter(){
-			return this.tupleWriterText;
-		}
-		
-		// ------------------------- IdManager
-		
+		/** returns singleton object to manage relANNIS ids**/
 		public IdManager getIdManager(){
 			return this.idManager;
 		}

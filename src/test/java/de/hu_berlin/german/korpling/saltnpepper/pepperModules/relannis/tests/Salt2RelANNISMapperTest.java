@@ -1,14 +1,26 @@
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.tests;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
+import java.util.Vector;
 
 import junit.framework.TestCase;
 
 import org.eclipse.emf.common.util.URI;
+import org.xml.sax.InputSource;
 
+import de.hu_berlin.german.korpling.saltnpepper.misc.tupleconnector.impl.TupleWriterImpl;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.testSuite.moduleTests.util.FileComparator;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.IdManager;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.RelANNIS;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.RelANNISExporter;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.Salt2RelANNISMapper;
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.resources.dot.Salt2DOT;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltSample.SaltSample;
 
@@ -24,9 +36,9 @@ public class Salt2RelANNISMapperTest extends TestCase
 		this.fixture = fixture;
 	}
 	
-	private static final File resourcePath = new File(System.getProperty("java.io.tmpdir")+File.separator+"relANNISModules_test" +File.separator+"Salt2relannisMapper"+File.separator);
+	private static final File tmpPath = new File(System.getProperty("java.io.tmpdir")+File.separator+"relANNISModules_test" +File.separator+"Salt2relannisMapper"+File.separator);
 	
-	private static final File outputDirectory1 = new File(resourcePath.getAbsolutePath()+File.separator+"SampleExport1"+File.separator);
+	private static final File outputDirectory1 = new File(tmpPath.getAbsolutePath()+File.separator+"SampleExport1"+File.separator);
 //	private static final File outputDirectory2 = new File(resourcePath.getAbsolutePath()+File.separator+"SampleExport2"+File.separator);
 	
 	
@@ -35,34 +47,58 @@ public class Salt2RelANNISMapperTest extends TestCase
 		setFixture(new Salt2RelANNISMapper());
 		
 		
-		if (! resourcePath.exists()){
-			resourcePath.mkdirs();
+		if (! tmpPath.exists()){
+			tmpPath.mkdirs();
 		}
 		if (!outputDirectory1.exists()){
 			outputDirectory1.mkdirs();
 		}
 		
-	}
-	@Override
-	public void tearDown() throws IOException{
-		File resourceDir = resourcePath.getParentFile();
-		//System.out.println(resourceDir.toString());
-		if (!deleteDirectory(resourceDir))
-			throw new IOException();
-	}
-	
-	public void testMapSText(){
 		SDocument sDocument= SaltFactory.eINSTANCE.createSDocument();
 		sDocument.setSDocumentGraph(SaltFactory.eINSTANCE.createSDocumentGraph());
-		// create the primary text
-		SaltSample.createPrimaryData(sDocument);
 		getFixture().setSDocument(sDocument);
-		getFixture().setResourceURI(URI.createFileURI(resourcePath.getAbsolutePath()));
+		
+		IdManager idManager= new IdManager();
+		getFixture().setIdManager(idManager);
+		getFixture().tw_text= RelANNISExporter.createTupleWRiter(new File(tmpPath + RelANNIS.FILE_CORPUS));
+		getFixture().tw_node= RelANNISExporter.createTupleWRiter(new File(tmpPath + RelANNIS.FILE_NODE));
+		getFixture().tw_nodeAnno= RelANNISExporter.createTupleWRiter(new File(tmpPath + RelANNIS.FILE_NODE_ANNO));
+		getFixture().tw_rank= RelANNISExporter.createTupleWRiter(new File(tmpPath + RelANNIS.FILE_RANK));
+		getFixture().tw_edgeAnno= RelANNISExporter.createTupleWRiter(new File(tmpPath + RelANNIS.FILE_EDGE_ANNO));
+		getFixture().tw_component= RelANNISExporter.createTupleWRiter(new File(tmpPath + RelANNIS.FILE_COMPONENT));
+		getFixture().tw_corpus= RelANNISExporter.createTupleWRiter(new File(tmpPath + RelANNIS.FILE_CORPUS));
+		getFixture().tw_corpusMeta= RelANNISExporter.createTupleWRiter(new File(tmpPath + RelANNIS.FILE_CORPUS_META));
+		
+		
+	}
+	
+	@Override
+	public void tearDown() throws IOException{
+		if (!deleteDirectory(tmpPath))
+			throw new IOException();
+	}
+
+	
+	/** returns path of test resources **/
+	private String getTestPath()
+	{
+		return("./src/test/resources/");
+	}
+	
+	public void testMapSText() throws IOException
+	{
+		File testPath= new File(getTestPath()+"mapSText");
+		
+		// create the primary text
+		SaltSample.createPrimaryData(getFixture().getSDocument());
+		getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
+		
+//		Salt2DOT salt2dot= new Salt2DOT();
+//		salt2dot.salt2Dot(getFixture().getSDocument().getSDocumentGraph(), URI.createFileURI("./src/test/resources/mapSText/mapSText.dot"));
 		
 		getFixture().mapSDocument();
 		
-		//TODO do the tests, you need
-		fail();
+		assertFalse("There was no file to be compared in folder '"+testPath.getAbsolutePath()+"' and folder '"+tmpPath.getAbsolutePath()+"'.", new Integer(0).equals(compareFiles(testPath, tmpPath)));
 	}
 
 		/**
@@ -83,38 +119,38 @@ public class Salt2RelANNISMapperTest extends TestCase
 	    return fileToDelete.delete();
 	}
 
-
-//	/**
-//	 * Method for compating xml-documents. <br/>
-//	 * This method checks whether input and output files 
-//	 * are identical which should <br/>
-//	 * be the case since the 
-//	 * test works with SaltSample. 
-//	 * 
-//	 * @param uri input path
-//	 * @param uri2 output path
-//	 */
-//	private void compareDocuments(URI uri, URI uri2) {
-//		File fileToCheck = null;
-//		InputSource gold = null;
-//		InputSource toCheck = null;
-//		FileComparator fileComparator = new FileComparator();
-//		for (File in : new File(uri.toFileString()).listFiles(this)){
-//			fileToCheck = new File(uri2.toFileString()+File.separator+in.getName());
-//			try {
-//				toCheck = new InputSource(new FileInputStream(fileToCheck));
-//				gold = new InputSource(new FileInputStream(in));
-//				
-//				
-//				if (! (fileComparator.compareFiles(in, fileToCheck))){
-//					System.out.println("WARNING: File "+in.getAbsolutePath()+" and "+ fileToCheck.getAbsolutePath()+" are not equal!");
-//				}
-//			} catch (FileNotFoundException e) {
-//				e.printStackTrace();
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			}
-//		}
-//		
-//	}
+	/**
+	 * Compares all relANNIS files given by {@link RelANNIS#FILE_RELANNIS_FILES} if they exist in gold path with the createdPath.
+	 * If they do not exist, the method throws an exception. 
+	 * @param goldPath
+	 * @param createdPath
+	 * @return number of compared files
+	 * @throws IOException 
+	 */
+	private int compareFiles(File goldPath, File createdPath) throws IOException
+	{
+		if (!goldPath.exists())
+			throw new FileNotFoundException("Cannot run test, because goldPath '"+goldPath+"' does not exist (Path, where the correct files are located).");
+		
+		Vector<File> filesToCompare= new Vector<File>();
+		for (String raFileName: RelANNIS.FILE_RELANNIS_FILES)
+		{
+			File raFile= new File(goldPath.getAbsolutePath()+raFileName);
+			if (raFile.exists())
+				filesToCompare.add(raFile);
+		}
+		
+		if (filesToCompare.size()== 0)
+			return(0);
+		
+		for (File goldFile: filesToCompare)
+		{
+			File createdFile= new File(createdPath.getAbsolutePath()+goldFile.getName());
+			if (createdFile.exists())
+				throw new FileNotFoundException("Missing file '"+goldFile.getName()+"' in relANNIS path '"+createdPath.getAbsolutePath()+"'.");
+			FileComparator comparator= new FileComparator();
+			comparator.compareFiles(goldFile, createdFile);
+		}
+		return(filesToCompare.size());
+	}
 }

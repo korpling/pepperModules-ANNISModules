@@ -68,12 +68,30 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 		alreadyExistingRANames= new Hashtable<String, String>();
 	}
 
-	private RelANNISExporter exporter = null;
-	
-	public void setRelANNISExporter(RelANNISExporter exp){
-		this.exporter = exp;
+	private IdManager idManager= null;
+	public IdManager getIdManager() {
+		return idManager;
 	}
 
+	public void setIdManager(IdManager idManager) {
+		this.idManager = idManager;
+	}
+	/** tuple writer to write {@link RelANNIS#FILE_TEXT} **/
+	public TupleWriter tw_text= null;
+	/** tuple writer to write {@link RelANNIS#FILE_NODE} **/
+	public TupleWriter tw_node= null;
+	/** tuple writer to write {@link RelANNIS#FILE_NODE_ANNO} **/
+	public TupleWriter tw_nodeAnno= null;
+	/** tuple writer to write {@link RelANNIS#FILE_RANK} **/
+	public TupleWriter tw_rank= null;
+	/** tuple writer to write {@link RelANNIS#FILE_EDGE_ANNO} **/
+	public TupleWriter tw_edgeAnno= null;
+	/** tuple writer to write {@link RelANNIS#FILE_COMPONENT} **/
+	public TupleWriter tw_component= null;
+	/** tuple writer to write {@link RelANNIS#FILE_CORPUS} **/
+	public TupleWriter tw_corpus= null;
+	/** tuple writer to write {@link RelANNIS#FILE_CORPUS_META} **/
+	public TupleWriter tw_corpusMeta= null;
 // -------------------------start: SCorpusGraph 	
 	private SCorpusGraph sCorpusGraph= null;
 	
@@ -313,13 +331,13 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 		Long textId = 0l;
 		System.out.println("Count of textual DS: "+sDoc.getSTextualDSs().size());
 		for (STextualDS text : sDoc.getSTextualDSs()){
-			SElementId sDocumentElementId = text.getSDocumentGraph().getSDocument().getSElementId();
+			SElementId sDocumentElementId = sDoc.getSElementId();
 			if (sDocumentElementId == null){
-				System.out.println("SElement Id of the document is NULL!");
+				throw new RelANNISModuleException("SElement Id of the document '"+sDoc.getSName()+"' is NULL!");
 			}
-			IdManager manager = this.exporter.getIdManager();
+			IdManager manager = getIdManager();
 			if (manager == null){
-				System.out.println("ERROR: no IdManager was found!");
+				throw new RelANNISModuleException("No IdManager was found, this might be a bug.!");
 			}
 			sDocID = manager.getNewRAId(sDocumentElementId);
 			String textName = text.getSName();
@@ -330,13 +348,13 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 			tuple.add(textName);
 			tuple.add(textContent);
 			
-			long transactionId = this.exporter.getTextTabTupleWriter().beginTA();
+			long transactionId = tw_text.beginTA();
 			try {
-				this.exporter.getTextTabTupleWriter().addTuple(transactionId,tuple);
-				this.exporter.getTextTabTupleWriter().commitTA(transactionId);
+				tw_text.addTuple(transactionId,tuple);
+				tw_text.commitTA(transactionId);
 				
 			} catch (FileNotFoundException e) {
-				this.exporter.getTextTabTupleWriter().abortTA(transactionId);
+				tw_text.abortTA(transactionId);
 				throw new RelANNISModuleException("Could not write to the node.tab, exception was"+e.getMessage());
 			}
 			textId++;
@@ -606,11 +624,11 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 						Long iD = null;
 						if (currNode instanceof SDocument){
 							SDocument sd = (SDocument)currNode;
-							iD = this.exporter.getIdManager().getNewRAId(sd.getSElementId());
+							iD = getIdManager().getNewRAId(sd.getSElementId());
 						}
 						if (currNode instanceof SCorpus){
 							SCorpus sc = (SCorpus)currNode;
-							iD = this.exporter.getIdManager().getNewRAId(sc.getSElementId());
+							iD = getIdManager().getNewRAId(sc.getSElementId());
 						}
 						this.mapToCorpusTab(currNode, iD,this.preorderTable.get(currNode),this.postorderTable.get(currNode));
 					}
@@ -738,9 +756,9 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 			if (overlappedSequence.getSEnd()== null)
 				throw new RelANNISModuleException("Cannot map the given structured node object '"+sNode.getSId()+"', because it doesn't have a right (end-value) border, pointing to the primary data.");
 			
-			Long id = this.exporter.getIdManager().getNewRAId(sNode.getSElementId());
-			Long textId = this.exporter.getIdManager().getNewRAId(currSTextDS.getSElementId());
-			Long corpusId = this.exporter.getIdManager().getNewRAId(graph.getSElementId());
+			Long id = getIdManager().getNewRAId(sNode.getSElementId());
+			Long textId = getIdManager().getNewRAId(currSTextDS.getSElementId());
+			Long corpusId = getIdManager().getNewRAId(graph.getSElementId());
 			
 			String namespace = null;
 			String name = null;
@@ -858,9 +876,9 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 		 * String segmentName
 		 * String span : for token, this is the substring of the covered text
 		 */
-		Long id = this.exporter.getIdManager().getNewRAId(sToken.getSElementId());
-		Long textId = this.exporter.getIdManager().getNewRAId(currSTextDS.getSElementId());
-		Long corpusId = this.exporter.getIdManager().getNewRAId(graph.getSElementId());
+		Long id = getIdManager().getNewRAId(sToken.getSElementId());
+		Long textId = getIdManager().getNewRAId(currSTextDS.getSElementId());
+		Long corpusId = getIdManager().getNewRAId(graph.getSElementId());
 		String tokenNamespace = null;
 		String name = null;
 		Long left = null;
@@ -951,7 +969,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 	 * @param postOrder
 	 */
 	private void mapToCorpusTab(SNode sNode,Long id, Long preOrder, Long postOrder ){
-		TupleWriter corpusTabWriter = this.exporter.getCorpusTabTupleWriter();
+		TupleWriter corpusTabWriter = tw_corpus;
 		String idString = id.toString();
 		String name = sNode.getSName();
 		String type = null;
@@ -1061,7 +1079,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 		} else {
 			spanString = span;
 		}
-		TupleWriter nodeTabWriter = this.exporter.getNodeTabTupleWriter();
+		TupleWriter nodeTabWriter = tw_node;
 		
 		Vector<String> tuple = new Vector<String>();
 		tuple.add(idString);
@@ -1121,7 +1139,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 			String nameString = sAnno.getSName();
 			String valueString = sAnno.getSValueSTEXT();
 			
-			TupleWriter nodeAnnoTabWriter = this.exporter.getNodeAnnotationTabTupleWriter();
+			TupleWriter nodeAnnoTabWriter = tw_node;
 			
 			Vector<String> tuple = new Vector<String>();
 			tuple.add(nodeRefString);
@@ -1279,6 +1297,5 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 		else return(false);
 	}
 // ========================================= start: handling to check if node or relation has been visited
-
 	
 }
