@@ -1,0 +1,45 @@
+digraph G {
+ordering=out;
+<null/null_graph#sSpan1> -> <null/null_graph#sTok1>[color=dodgerblue3,style=filled];
+<null/null_graph#sTok1> -> <null/null_graph#sText1>[color=yellow,style=filled];
+<null/null_graph#sSpan2> -> <null/null_graph#sTok2>[color=dodgerblue3,style=filled];
+<null/null_graph#sTok2> -> <null/null_graph#sText1>[color=yellow,style=filled];
+<null/null_graph#sSpan2> -> <null/null_graph#sTok3>[color=dodgerblue3,style=filled];
+<null/null_graph#sTok3> -> <null/null_graph#sText1>[color=yellow,style=filled];
+<null/null_graph#sSpan2> -> <null/null_graph#sTok4>[color=dodgerblue3,style=filled];
+<null/null_graph#sTok4> -> <null/null_graph#sText1>[color=yellow,style=filled];
+<null/null_graph#sSpan2> -> <null/null_graph#sTok5>[color=dodgerblue3,style=filled];
+<null/null_graph#sTok5> -> <null/null_graph#sText1>[color=yellow,style=filled];
+<null/null_graph#sSpan2> -> <null/null_graph#sTok6>[color=dodgerblue3,style=filled];
+<null/null_graph#sTok6> -> <null/null_graph#sText1>[color=yellow,style=filled];
+<null/null_graph#sSpan2> -> <null/null_graph#sTok7>[color=dodgerblue3,style=filled];
+<null/null_graph#sTok7> -> <null/null_graph#sText1>[color=yellow,style=filled];
+<null/null_graph#sSpan2> -> <null/null_graph#sTok8>[color=dodgerblue3,style=filled];
+<null/null_graph#sTok8> -> <null/null_graph#sText1>[color=yellow,style=filled];
+<null/null_graph#sSpan2> -> <null/null_graph#sTok9>[color=dodgerblue3,style=filled];
+<null/null_graph#sTok9> -> <null/null_graph#sText1>[color=yellow,style=filled];
+<null/null_graph#sSpan2> -> <null/null_graph#sTok10>[color=dodgerblue3,style=filled];
+<null/null_graph#sTok10> -> <null/null_graph#sText1>[color=yellow,style=filled];
+{
+rank=max;
+<null/null_graph#sText1>[shape=Mrecord,color=yellow,style=filled,label="{{null/null_graph#sText1}|{sName= sText1}|{text=Is this example more complicated than it appears to be?}}"];
+}
+{
+rank=same;
+<null/null_graph#sTok1>[shape=Mrecord,color=turquoise,style=filled,label="{{null/null_graph#sTok1}|{sName= sTok1}}"];
+<null/null_graph#sTok2>[shape=Mrecord,color=turquoise,style=filled,label="{{null/null_graph#sTok2}|{sName= sTok2}}"];
+<null/null_graph#sTok3>[shape=Mrecord,color=turquoise,style=filled,label="{{null/null_graph#sTok3}|{sName= sTok3}}"];
+<null/null_graph#sTok4>[shape=Mrecord,color=turquoise,style=filled,label="{{null/null_graph#sTok4}|{sName= sTok4}}"];
+<null/null_graph#sTok5>[shape=Mrecord,color=turquoise,style=filled,label="{{null/null_graph#sTok5}|{sName= sTok5}}"];
+<null/null_graph#sTok6>[shape=Mrecord,color=turquoise,style=filled,label="{{null/null_graph#sTok6}|{sName= sTok6}}"];
+<null/null_graph#sTok7>[shape=Mrecord,color=turquoise,style=filled,label="{{null/null_graph#sTok7}|{sName= sTok7}}"];
+<null/null_graph#sTok8>[shape=Mrecord,color=turquoise,style=filled,label="{{null/null_graph#sTok8}|{sName= sTok8}}"];
+<null/null_graph#sTok9>[shape=Mrecord,color=turquoise,style=filled,label="{{null/null_graph#sTok9}|{sName= sTok9}}"];
+<null/null_graph#sTok10>[shape=Mrecord,color=turquoise,style=filled,label="{{null/null_graph#sTok10}|{sName= sTok10}}"];
+}
+{
+rank=same;
+<null/null_graph#sSpan1>[shape=Mrecord,color=dodgerblue3,style=filled,label="{{null/null_graph#sSpan1}|{sName= sSpan1}|{Inf-Struct=contrast-focus}}"];
+<null/null_graph#sSpan2>[shape=Mrecord,color=dodgerblue3,style=filled,label="{{null/null_graph#sSpan2}|{sName= sSpan2}|{Inf-Struct=topic}}"];
+}
+}

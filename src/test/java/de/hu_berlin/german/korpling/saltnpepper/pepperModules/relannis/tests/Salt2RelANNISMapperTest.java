@@ -16,7 +16,10 @@ import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.RelANNISE
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.Salt2RelANNISMapper;
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualDS;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltSample.SaltSample;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.resources.dot.Salt2DOT;
 
 public class Salt2RelANNISMapperTest extends TestCase 
 {
@@ -30,22 +33,15 @@ public class Salt2RelANNISMapperTest extends TestCase
 		this.fixture = fixture;
 	}
 	
-	private static final File tmpPath = new File(System.getProperty("java.io.tmpdir")+File.separator+"relANNISModules_test" +File.separator+"Salt2relannisMapper"+File.separator);
-	
-	private static final File outputDirectory1 = new File(tmpPath.getAbsolutePath()+File.separator+"SampleExport1"+File.separator);
-//	private static final File outputDirectory2 = new File(resourcePath.getAbsolutePath()+File.separator+"SampleExport2"+File.separator);
-	
+	private static final File globalTmpPath = new File(System.getProperty("java.io.tmpdir")+File.separator+"relANNISModules_test" +File.separator+"Salt2relannisMapper"+File.separator);
 	
 	@Override	
 	public void setUp(){
 		setFixture(new Salt2RelANNISMapper());
 		
 		
-		if (! tmpPath.exists()){
-			tmpPath.mkdirs();
-		}
-		if (!outputDirectory1.exists()){
-			outputDirectory1.mkdirs();
+		if (! globalTmpPath.exists()){
+			globalTmpPath.mkdirs();
 		}
 		
 		SDocument sDocument= SaltFactory.eINSTANCE.createSDocument();
@@ -54,14 +50,18 @@ public class Salt2RelANNISMapperTest extends TestCase
 		
 		IdManager idManager= new IdManager();
 		getFixture().setIdManager(idManager);
-		getFixture().tw_text= RelANNISExporter.createTupleWRiter(new File(tmpPath +File.separator+ RelANNIS.FILE_TEXT));
-		getFixture().tw_node= RelANNISExporter.createTupleWRiter(new File(tmpPath +File.separator+ RelANNIS.FILE_NODE));
-		getFixture().tw_nodeAnno= RelANNISExporter.createTupleWRiter(new File(tmpPath +File.separator+ RelANNIS.FILE_NODE_ANNO));
-		getFixture().tw_rank= RelANNISExporter.createTupleWRiter(new File(tmpPath +File.separator+ RelANNIS.FILE_RANK));
-		getFixture().tw_edgeAnno= RelANNISExporter.createTupleWRiter(new File(tmpPath +File.separator+ RelANNIS.FILE_EDGE_ANNO));
-		getFixture().tw_component= RelANNISExporter.createTupleWRiter(new File(tmpPath +File.separator+ RelANNIS.FILE_COMPONENT));
-		getFixture().tw_corpus= RelANNISExporter.createTupleWRiter(new File(tmpPath +File.separator+ RelANNIS.FILE_CORPUS));
-		getFixture().tw_corpusMeta= RelANNISExporter.createTupleWRiter(new File(tmpPath +File.separator+ RelANNIS.FILE_CORPUS_META));
+	}
+	
+	private void createTupleWriters(File path)
+	{
+		getFixture().tw_text= RelANNISExporter.createTupleWRiter(new File(path.getAbsolutePath()+File.separator+ RelANNIS.FILE_TEXT));
+		getFixture().tw_node= RelANNISExporter.createTupleWRiter(new File(path.getAbsolutePath() +File.separator+ RelANNIS.FILE_NODE));
+		getFixture().tw_nodeAnno= RelANNISExporter.createTupleWRiter(new File(path.getAbsolutePath() +File.separator+ RelANNIS.FILE_NODE_ANNO));
+		getFixture().tw_rank= RelANNISExporter.createTupleWRiter(new File(path.getAbsolutePath() +File.separator+ RelANNIS.FILE_RANK));
+		getFixture().tw_edgeAnno= RelANNISExporter.createTupleWRiter(new File(path.getAbsolutePath() +File.separator+ RelANNIS.FILE_EDGE_ANNO));
+		getFixture().tw_component= RelANNISExporter.createTupleWRiter(new File(path.getAbsolutePath() +File.separator+ RelANNIS.FILE_COMPONENT));
+		getFixture().tw_corpus= RelANNISExporter.createTupleWRiter(new File(path.getAbsolutePath() +File.separator+ RelANNIS.FILE_CORPUS));
+		getFixture().tw_corpusMeta= RelANNISExporter.createTupleWRiter(new File(path.getAbsolutePath() +File.separator+ RelANNIS.FILE_CORPUS_META));
 	}
 	
 	@Override
@@ -77,23 +77,276 @@ public class Salt2RelANNISMapperTest extends TestCase
 		return("./src/test/resources/");
 	}
 	
+	/**
+	 * Creates an {@link SDocumentGraph} containing:
+	 * <ul>
+	 * 	<li> a primary text</li>
+	 * </ul>
+	 * @throws IOException
+	 */
 	public void testMapSText() throws IOException
 	{
-		File testPath= new File(getTestPath()+"mapSText");
+		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
+		String testName= ste[1].getMethodName();
+		
+		File tmpPath= new File(globalTmpPath.getAbsoluteFile()+ File.separator+testName);
+		File testPath= new File(getTestPath()+testName);
+		createTupleWriters(tmpPath);
 		
 		// create the primary text
 		SaltSample.createPrimaryData(getFixture().getSDocument());
 		getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
-		
-//		Salt2DOT salt2dot= new Salt2DOT();
-//		salt2dot.salt2Dot(getFixture().getSDocument().getSDocumentGraph(), URI.createFileURI("./src/test/resources/mapSText/mapSText.dot"));
 		
 		getFixture().mapSDocument();
 		
 		assertFalse("There was no file to be compared in folder '"+testPath.getAbsolutePath()+"' and folder '"+tmpPath.getAbsolutePath()+"'.", new Integer(0).equals(compareFiles(testPath, tmpPath)));
 	}
 
-		/**
+	/**
+	 * Creates an {@link SDocumentGraph} containing:
+	 * <ul>
+	 * 	<li> a primary text</li>
+	 *  <li>tokens</li>
+	 * </ul>
+	 * @throws IOException
+	 */
+	public void testMapSToken() throws IOException
+	{
+		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
+		String testName= ste[1].getMethodName();
+		
+		File tmpPath= new File(globalTmpPath.getAbsoluteFile()+ File.separator+testName);
+		File testPath= new File(getTestPath()+testName);
+		createTupleWriters(tmpPath);
+		
+		// create the primary text
+		SaltSample.createPrimaryData(getFixture().getSDocument());
+		SaltSample.createTokens(getFixture().getSDocument());
+		getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
+		
+		getFixture().mapSDocument();
+		
+		assertFalse("There was no file to be compared in folder '"+testPath.getAbsolutePath()+"' and folder '"+tmpPath.getAbsolutePath()+"'.", new Integer(0).equals(compareFiles(testPath, tmpPath)));
+	}
+	
+	/**
+	 * Creates an {@link SDocumentGraph} containing:
+	 * <ul>
+	 * 	<li> a primary text in english</li>
+	 * <li> a primary text in german</li>
+	 *  <li>tokens for english</li>
+	 *  <li>tokens for german</li>
+	 *  
+	 * </ul>
+	 * @throws IOException
+	 */
+	public void testMapSeveralTokenizations() throws IOException
+	{
+		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
+		String testName= ste[1].getMethodName();
+		
+		File tmpPath= new File(globalTmpPath.getAbsoluteFile()+ File.separator+testName);
+		File testPath= new File(getTestPath()+testName);
+		createTupleWriters(tmpPath);
+		
+		// create the primary text
+		SaltSample.createPrimaryData(getFixture().getSDocument());
+		SaltSample.createTokens(getFixture().getSDocument());
+		STextualDS primaryData_DE= SaltSample.createPrimaryData(getFixture().getSDocument(), SaltSample.LANG_DE);
+		SaltSample.createTokens(getFixture().getSDocument(), primaryData_DE);
+		getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
+		
+		getFixture().mapSDocument();
+		
+		assertFalse("There was no file to be compared in folder '"+testPath.getAbsolutePath()+"' and folder '"+tmpPath.getAbsolutePath()+"'.", new Integer(0).equals(compareFiles(testPath, tmpPath)));
+	}
+	
+	/**
+	 * Creates an {@link SDocumentGraph} containing:
+	 * <ul>
+	 * 	<li> a primary text in english</li>
+	 * <li> a primary text in german</li>
+	 *  <li>tokens for english</li>
+	 *  <li>tokens for german</li>
+	 *  <li>alignment relations</li>
+	 *  
+	 * </ul>
+	 * @throws IOException
+	 */
+	public void testMapParallelData() throws IOException
+	{
+		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
+		String testName= ste[1].getMethodName();
+		
+		File tmpPath= new File(globalTmpPath.getAbsoluteFile()+ File.separator+testName);
+		File testPath= new File(getTestPath()+testName);
+		createTupleWriters(tmpPath);
+		
+		// create the primary text
+		SaltSample.createParallelData(getFixture().getSDocument());
+		getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
+		
+		Salt2DOT salt2dot= new Salt2DOT();
+		salt2dot.salt2Dot(getFixture().getSDocument().getSDocumentGraph(), URI.createFileURI(testPath.getAbsolutePath()+ File.separator+testName+".dot"));
+		
+		getFixture().mapSDocument();
+		
+		assertFalse("There was no file to be compared in folder '"+testPath.getAbsolutePath()+"' and folder '"+tmpPath.getAbsolutePath()+"'.", new Integer(0).equals(compareFiles(testPath, tmpPath)));
+	}
+	
+	/**
+	 * Creates an {@link SDocumentGraph} containing:
+	 * <ul>
+	 * 	<li> a primary text</li>
+	 *  <li>tokens</li>
+	 *  <li>annotations on tokens</li>
+	 * </ul>
+	 * @throws IOException
+	 */
+	public void testMapSTokenAnnotation() throws IOException
+	{
+		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
+		String testName= ste[1].getMethodName();
+		
+		File tmpPath= new File(globalTmpPath.getAbsoluteFile()+ File.separator+testName);
+		File testPath= new File(getTestPath()+testName);
+		createTupleWriters(tmpPath);
+		
+		// create the primary text
+		SaltSample.createPrimaryData(getFixture().getSDocument());
+		SaltSample.createTokens(getFixture().getSDocument());
+		SaltSample.createMorphologyAnnotations(getFixture().getSDocument());
+		getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
+	
+		getFixture().mapSDocument();
+		
+		assertFalse("There was no file to be compared in folder '"+testPath.getAbsolutePath()+"' and folder '"+tmpPath.getAbsolutePath()+"'.", new Integer(0).equals(compareFiles(testPath, tmpPath)));
+	}
+	
+	/**
+	 * Creates an {@link SDocumentGraph} containing:
+	 * <ul>
+	 * 	<li> a primary text</li>
+	 *  <li>tokens</li>
+	 *  <li>spans</li>
+	 *  <li>annotations on spans</li>
+	 * </ul>
+	 * @throws IOException
+	 */
+	public void testMapSSpans() throws IOException
+	{
+		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
+		String testName= ste[1].getMethodName();
+		
+		File tmpPath= new File(globalTmpPath.getAbsoluteFile()+ File.separator+testName);
+		File testPath= new File(getTestPath()+testName);
+		createTupleWriters(tmpPath);
+		
+		// create the primary text
+		SaltSample.createPrimaryData(getFixture().getSDocument());
+		SaltSample.createTokens(getFixture().getSDocument());
+		SaltSample.createInformationStructureSpan(getFixture().getSDocument());
+		SaltSample.createInformationStructureAnnotations(getFixture().getSDocument());
+		getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
+		
+		getFixture().mapSDocument();
+		
+		assertFalse("There was no file to be compared in folder '"+testPath.getAbsolutePath()+"' and folder '"+tmpPath.getAbsolutePath()+"'.", new Integer(0).equals(compareFiles(testPath, tmpPath)));
+	}
+	
+	/**
+	 * Creates an {@link SDocumentGraph} containing:
+	 * <ul>
+	 * 	<li> a primary text</li>
+	 *  <li>tokens</li>
+	 *  <li>syntax tree</li>
+	 *  <li>annotation on syntax tree</li>
+	 * </ul>
+	 * @throws IOException
+	 */
+	public void testMapSSyntax() throws IOException
+	{
+		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
+		String testName= ste[1].getMethodName();
+		
+		File tmpPath= new File(globalTmpPath.getAbsoluteFile()+ File.separator+testName);
+		File testPath= new File(getTestPath()+testName);
+		createTupleWriters(tmpPath);
+		
+		// create the primary text
+		SaltSample.createPrimaryData(getFixture().getSDocument());
+		SaltSample.createTokens(getFixture().getSDocument());
+		SaltSample.createSyntaxStructure(getFixture().getSDocument());
+		SaltSample.createSyntaxAnnotations(getFixture().getSDocument());
+		getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
+		
+		getFixture().mapSDocument();
+		
+		assertFalse("There was no file to be compared in folder '"+testPath.getAbsolutePath()+"' and folder '"+tmpPath.getAbsolutePath()+"'.", new Integer(0).equals(compareFiles(testPath, tmpPath)));
+	}
+	
+	/**
+	 * Creates an {@link SDocumentGraph} containing:
+	 * <ul>
+	 * 	<li> a primary text</li>
+	 *  <li>tokens</li>
+	 *  <li>anaphoric annotations</li>
+	 * </ul>
+	 * @throws IOException
+	 */
+	public void testMapAnaphoric() throws IOException
+	{
+		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
+		String testName= ste[1].getMethodName();
+		
+		File tmpPath= new File(globalTmpPath.getAbsoluteFile()+ File.separator+testName);
+		File testPath= new File(getTestPath()+testName);
+		createTupleWriters(tmpPath);
+		
+		// create the primary text
+		SaltSample.createPrimaryData(getFixture().getSDocument());
+		SaltSample.createTokens(getFixture().getSDocument());
+		SaltSample.createAnaphoricAnnotations(getFixture().getSDocument());
+		getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
+		
+		getFixture().mapSDocument();
+		
+		assertFalse("There was no file to be compared in folder '"+testPath.getAbsolutePath()+"' and folder '"+tmpPath.getAbsolutePath()+"'.", new Integer(0).equals(compareFiles(testPath, tmpPath)));
+	}
+	
+	/**
+	 * Creates an {@link SDocumentGraph} containing:
+	 * <ul>
+	 * 	<li> a primary text</li>
+	 *  <li>tokens</li>
+	 *  <li>annotations on token</li>
+	 *  <li>spans</li>
+	 *  <li>information structure annotation on spans</li>
+	 *  <li>syntax tree</li>
+	 *  <li>annotations on syntax tree</li>
+	 *  <li>annotation on syntax tree</li>
+	 * </ul>
+	 * @throws IOException
+	 */
+	public void testMapFullGraph() throws IOException
+	{
+		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
+		String testName= ste[1].getMethodName();
+		
+		File tmpPath= new File(globalTmpPath.getAbsoluteFile()+ File.separator+testName);
+		File testPath= new File(getTestPath()+testName);
+		createTupleWriters(tmpPath);
+		
+		// create the primary text
+		SaltSample.createSDocumentStructure(getFixture().getSDocument());
+		getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
+		
+		getFixture().mapSDocument();
+		
+		assertFalse("There was no file to be compared in folder '"+testPath.getAbsolutePath()+"' and folder '"+tmpPath.getAbsolutePath()+"'.", new Integer(0).equals(compareFiles(testPath, tmpPath)));
+	}
+	
+	/**
 	 * Deletes the directory with all contained directories/files
 	 * @param fileToDelete
 	 */

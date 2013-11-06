@@ -174,8 +174,6 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 			
 			graph.traverse(singleRootList, GRAPH_TRAVERSE_TYPE.TOP_DOWN_DEPTH_FIRST,"export_tokens", this);
 		}
-		
-		
 	}
 	
 	private void traverseSpanningRelations(){
