@@ -1,26 +1,20 @@
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.tests;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
 import java.util.Vector;
 
 import junit.framework.TestCase;
 
 import org.eclipse.emf.common.util.URI;
-import org.xml.sax.InputSource;
 
-import de.hu_berlin.german.korpling.saltnpepper.misc.tupleconnector.impl.TupleWriterImpl;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.testSuite.moduleTests.util.FileComparator;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.IdManager;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.RelANNIS;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.RelANNISExporter;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.Salt2RelANNISMapper;
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.resources.dot.Salt2DOT;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltSample.SaltSample;
 
@@ -60,22 +54,20 @@ public class Salt2RelANNISMapperTest extends TestCase
 		
 		IdManager idManager= new IdManager();
 		getFixture().setIdManager(idManager);
-		getFixture().tw_text= RelANNISExporter.createTupleWRiter(new File(tmpPath + RelANNIS.FILE_CORPUS));
-		getFixture().tw_node= RelANNISExporter.createTupleWRiter(new File(tmpPath + RelANNIS.FILE_NODE));
-		getFixture().tw_nodeAnno= RelANNISExporter.createTupleWRiter(new File(tmpPath + RelANNIS.FILE_NODE_ANNO));
-		getFixture().tw_rank= RelANNISExporter.createTupleWRiter(new File(tmpPath + RelANNIS.FILE_RANK));
-		getFixture().tw_edgeAnno= RelANNISExporter.createTupleWRiter(new File(tmpPath + RelANNIS.FILE_EDGE_ANNO));
-		getFixture().tw_component= RelANNISExporter.createTupleWRiter(new File(tmpPath + RelANNIS.FILE_COMPONENT));
-		getFixture().tw_corpus= RelANNISExporter.createTupleWRiter(new File(tmpPath + RelANNIS.FILE_CORPUS));
-		getFixture().tw_corpusMeta= RelANNISExporter.createTupleWRiter(new File(tmpPath + RelANNIS.FILE_CORPUS_META));
-		
-		
+		getFixture().tw_text= RelANNISExporter.createTupleWRiter(new File(tmpPath +File.separator+ RelANNIS.FILE_TEXT));
+		getFixture().tw_node= RelANNISExporter.createTupleWRiter(new File(tmpPath +File.separator+ RelANNIS.FILE_NODE));
+		getFixture().tw_nodeAnno= RelANNISExporter.createTupleWRiter(new File(tmpPath +File.separator+ RelANNIS.FILE_NODE_ANNO));
+		getFixture().tw_rank= RelANNISExporter.createTupleWRiter(new File(tmpPath +File.separator+ RelANNIS.FILE_RANK));
+		getFixture().tw_edgeAnno= RelANNISExporter.createTupleWRiter(new File(tmpPath +File.separator+ RelANNIS.FILE_EDGE_ANNO));
+		getFixture().tw_component= RelANNISExporter.createTupleWRiter(new File(tmpPath +File.separator+ RelANNIS.FILE_COMPONENT));
+		getFixture().tw_corpus= RelANNISExporter.createTupleWRiter(new File(tmpPath +File.separator+ RelANNIS.FILE_CORPUS));
+		getFixture().tw_corpusMeta= RelANNISExporter.createTupleWRiter(new File(tmpPath +File.separator+ RelANNIS.FILE_CORPUS_META));
 	}
 	
 	@Override
 	public void tearDown() throws IOException{
-		if (!deleteDirectory(tmpPath))
-			throw new IOException();
+//		if (!deleteDirectory(tmpPath))
+//			throw new IOException();
 	}
 
 	
