@@ -19,5 +19,29 @@ src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/Sa
 src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/exceptions/RelANNISModuleException.java -text svneol=unset#text/plain
 src/test/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/tests/RelANNISExporterTest.java -text
 src/test/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/tests/Salt2RelANNISMapperTest.java -text svneol=unset#text/plain
-src/test/resources/mapSText/mapSText.dot -text
-src/test/resources/mapSText/mapSText.png -text
+src/test/resources/testMapAnaphoric/testMapAnaphoric.dot -text
+src/test/resources/testMapAnaphoric/testMapAnaphoric.png -text
+src/test/resources/testMapFullGraph/testMapFullGraph.dot -text
+src/test/resources/testMapFullGraph/testMapFullGraph.png -text
+src/test/resources/testMapParallelData/testMapParallelData.dot -text
+src/test/resources/testMapParallelData/testMapParallelData.png -text
+src/test/resources/testMapSSpans/testMapSSpans.dot -text
+src/test/resources/testMapSSpans/testMapSSpans.png -text
+src/test/resources/testMapSSyntax/testMapSSyntax.dot -text
+src/test/resources/testMapSSyntax/testMapSSyntax.png -text
+src/test/resources/testMapSText/component.tab -text
+src/test/resources/testMapSText/corpus.tab -text
+src/test/resources/testMapSText/corpus_annotation.tab -text
+src/test/resources/testMapSText/edge_annotation.tab -text
+src/test/resources/testMapSText/mapSText.dot -text
+src/test/resources/testMapSText/mapSText.png -text
+src/test/resources/testMapSText/node.tab -text
+src/test/resources/testMapSText/node_annotation.tab -text
+src/test/resources/testMapSText/rank.tab -text
+src/test/resources/testMapSText/text.tab -text
+src/test/resources/testMapSToken/mapSToken.dot -text
+src/test/resources/testMapSToken/mapSToken.png -text
+src/test/resources/testMapSTokenAnnotation/testMapSTokenAnnotation.dot -text
+src/test/resources/testMapSTokenAnnotation/testMapSTokenAnnotation.png -text
+src/test/resources/testMapSeveralTokenizations/testMapSeveralTokenizations.dot -text
+src/test/resources/testMapSeveralTokenizations/testMapSeveralTokenizations.png -text

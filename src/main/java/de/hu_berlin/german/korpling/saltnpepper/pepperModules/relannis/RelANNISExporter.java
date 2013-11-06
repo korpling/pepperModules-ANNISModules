@@ -77,9 +77,9 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 		 */
 		public static synchronized TupleWriter createTupleWRiter(File outFile)
 		{
-			if (outFile.exists()){
-				
-			} else {
+			if (!outFile.getParentFile().exists())
+				outFile.getParentFile().mkdirs();
+			if (!outFile.exists()){
 				try {
 					outFile.createNewFile();
 				} catch (IOException e) {
