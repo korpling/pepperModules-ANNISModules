@@ -15,11 +15,11 @@ import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.RelANNIS;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.RelANNISExporter;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.Salt2RelANNISMapper;
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.resources.dot.Salt2DOT;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualDS;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltSample.SaltSample;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.resources.dot.Salt2DOT;
 
 public class Salt2RelANNISMapperTest extends TestCase 
 {
@@ -339,6 +339,38 @@ public class Salt2RelANNISMapperTest extends TestCase
 		
 		// create the primary text
 		SaltSample.createSDocumentStructure(getFixture().getSDocument());
+		getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
+		
+		getFixture().mapSDocument();
+		
+		assertFalse("There was no file to be compared in folder '"+testPath.getAbsolutePath()+"' and folder '"+tmpPath.getAbsolutePath()+"'.", new Integer(0).equals(compareFiles(testPath, tmpPath)));
+	}
+	
+	/**
+	 * Creates an {@link SDocumentGraph} containing:
+	 * <ul>
+	 * 	<li> a primary text</li>
+	 *  <li>tokens</li>
+	 *  <li>annotations on token</li>
+	 *  <li>spans</li>
+	 *  <li>information structure annotation on spans</li>
+	 *  <li>syntax tree</li>
+	 *  <li>annotations on syntax tree</li>
+	 *  <li>annotation on syntax tree</li>
+	 * </ul>
+	 * @throws IOException
+	 */
+	public void testMapSOrderRelation() throws IOException
+	{
+		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
+		String testName= ste[1].getMethodName();
+		
+		File tmpPath= new File(globalTmpPath.getAbsoluteFile()+ File.separator+testName);
+		File testPath= new File(getTestPath()+testName);
+		createTupleWriters(tmpPath);
+		
+		// create the primary text
+		SaltSample.createDialogue(getFixture().getSDocument());
 		getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 		
 		getFixture().mapSDocument();

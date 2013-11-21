@@ -49,6 +49,8 @@ src/test/resources/testMapParallelData/rank.tab -text
 src/test/resources/testMapParallelData/testMapParallelData.dot -text
 src/test/resources/testMapParallelData/testMapParallelData.png -text
 src/test/resources/testMapParallelData/text.tab -text
+src/test/resources/testMapSOrderRelation/testMapSOrderRelation.dot -text
+src/test/resources/testMapSOrderRelation/testMapSOrderRelation.png -text
 src/test/resources/testMapSSpans/component.tab -text
 src/test/resources/testMapSSpans/corpus.tab -text
 src/test/resources/testMapSSpans/corpus_annotation.tab -text
