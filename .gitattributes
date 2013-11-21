@@ -29,8 +29,16 @@ src/test/resources/testMapAnaphoric/rank.tab -text
 src/test/resources/testMapAnaphoric/testMapAnaphoric.dot -text
 src/test/resources/testMapAnaphoric/testMapAnaphoric.png -text
 src/test/resources/testMapAnaphoric/text.tab -text
+src/test/resources/testMapFullGraph/component.tab -text
+src/test/resources/testMapFullGraph/corpus.tab -text
+src/test/resources/testMapFullGraph/corpus_annotation.tab -text
+src/test/resources/testMapFullGraph/edge_annotation.tab -text
+src/test/resources/testMapFullGraph/node.tab -text
+src/test/resources/testMapFullGraph/node_annotation.tab -text
+src/test/resources/testMapFullGraph/rank.tab -text
 src/test/resources/testMapFullGraph/testMapFullGraph.dot -text
 src/test/resources/testMapFullGraph/testMapFullGraph.png -text
+src/test/resources/testMapFullGraph/text.tab -text
 src/test/resources/testMapParallelData/component.tab -text
 src/test/resources/testMapParallelData/corpus.tab -text
 src/test/resources/testMapParallelData/corpus_annotation.tab -text
