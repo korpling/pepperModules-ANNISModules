@@ -1,5 +1,5 @@
 digraph G {
-ordering=in;
+ordering=out;
 <null/null_graph#sTok1> -> <null/null_graph#sText1>[color=yellow,style=filled];
 <null/null_graph#sTok1> -> <null/null_graph#sTok11>[color=blue,style=filled,label="align= en_de"];
 <null/null_graph#sTok11> -> <null/null_graph#sText2>[color=yellow,style=filled];
