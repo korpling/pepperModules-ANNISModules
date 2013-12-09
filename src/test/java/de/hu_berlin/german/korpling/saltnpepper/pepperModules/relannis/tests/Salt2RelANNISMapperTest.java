@@ -7,6 +7,7 @@ import java.util.Vector;
 
 import junit.framework.TestCase;
 
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 
 import de.hu_berlin.german.korpling.saltnpepper.pepper.testSuite.moduleTests.util.FileComparator;
@@ -18,7 +19,12 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.resources.dot.Salt2DOT;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDominanceRelation;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SPointingRelation;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpanningRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualDS;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltSample.SaltSample;
 
 public class Salt2RelANNISMapperTest extends TestCase 
@@ -340,6 +346,72 @@ public class Salt2RelANNISMapperTest extends TestCase
 		// create the primary text
 		SaltSample.createSDocumentStructure(getFixture().getSDocument());
 		getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
+		
+		
+		// show layers of SNodes:
+		System.out.println("Printing layers of SNodes and their Annotations");
+		for (SNode node : this.getFixture().getSDocument().getSDocumentGraph().getSNodes()){
+			if (node.getSLayers() != null){
+				if (node.getSLayers().size() != 0){
+					System.out.println("Node " + node.getSId() + " has layer " + node.getSLayers().get(0).getSName());
+					if (node.getSAnnotations() != null){
+						if (node.getSAnnotations().size() != 0){
+							for (SAnnotation anno : node.getSAnnotations()){
+								System.out.println("Anno: "+ anno.getSName() + " NS: "+ anno.getSNS() + " Value: "+ anno.getSValueSTEXT());
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		// show Layer of Relations
+		
+		// show layer of SSpanningRelations:
+		System.out.println("Printing layers of the SSpanningRelations:");
+		EList<SSpanningRelation> spanningRelations = this.getFixture().getSDocument().getSDocumentGraph().getSSpanningRelations();
+		for (SSpanningRelation spanRel : spanningRelations){
+			if (spanRel.getSTypes() != null){
+				if (spanRel.getSTypes().size() != 0){
+					System.out.println("Relation type: "+ spanRel.getSTypes().get(0));
+				}
+			}
+			if (spanRel.getSLayers() != null){
+				if (spanRel.getSLayers().size() != 0){
+					System.out.println("SpanningRelation Layer: " + spanRel.getSLayers().get(0).getSName());
+				}
+			}
+		}
+		
+		System.out.println("Printing layers of the SDominanceRelations:");
+		EList<SDominanceRelation> dominanceRelations = this.getFixture().getSDocument().getSDocumentGraph().getSDominanceRelations();
+		for (SDominanceRelation spanRel : dominanceRelations){
+			if (spanRel.getSTypes() != null){
+				if (spanRel.getSTypes().size() != 0){
+					System.out.println("Relation type: "+ spanRel.getSTypes().get(0));
+				}
+			}
+			if (spanRel.getSLayers() != null){
+				if (spanRel.getSLayers().size() != 0){
+					System.out.println("SDominanceRelation Layer: " + spanRel.getSLayers().get(0).getSName());
+				}
+			}
+		}
+		
+		System.out.println("Printing layers of the SPointingRelations:");
+		EList<SPointingRelation> pointingRelations = this.getFixture().getSDocument().getSDocumentGraph().getSPointingRelations();
+		for (SPointingRelation spanRel : pointingRelations){
+			if (spanRel.getSTypes() != null){
+				if (spanRel.getSTypes().size() != 0){
+					System.out.println("Relation type: "+ spanRel.getSTypes().get(0));
+				}
+			}
+			if (spanRel.getSLayers() != null){
+				if (spanRel.getSLayers().size() != 0){
+					System.out.println("SPointingRelation Layer: " + spanRel.getSLayers().get(0).getSName());
+				}
+			}
+		}
 		
 		getFixture().mapSDocument();
 		
