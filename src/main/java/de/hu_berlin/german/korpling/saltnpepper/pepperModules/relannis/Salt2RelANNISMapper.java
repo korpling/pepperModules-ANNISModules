@@ -337,7 +337,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 			if (manager == null){
 				throw new RelANNISModuleException("No IdManager was found, this might be a bug.!");
 			}
-			sDocID = manager.getNewRAId(sDocumentElementId);
+			sDocID = manager.getNewDocumentId(sDocumentElementId);
 			String textName = text.getSName();
 			String textContent = text.getSText();
 			Vector<String> tuple = new Vector<String>();
@@ -622,11 +622,11 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 						Long iD = null;
 						if (currNode instanceof SDocument){
 							SDocument sd = (SDocument)currNode;
-							iD = getIdManager().getNewRAId(sd.getSElementId());
+							iD = getIdManager().getNewDocumentId(sd.getSElementId());
 						}
 						if (currNode instanceof SCorpus){
 							SCorpus sc = (SCorpus)currNode;
-							iD = getIdManager().getNewRAId(sc.getSElementId());
+							iD = getIdManager().getNewDocumentId(sc.getSElementId());
 						}
 						this.mapToCorpusTab(currNode, iD,this.preorderTable.get(currNode),this.postorderTable.get(currNode));
 					}
@@ -754,9 +754,9 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 			if (overlappedSequence.getSEnd()== null)
 				throw new RelANNISModuleException("Cannot map the given structured node object '"+sNode.getSId()+"', because it doesn't have a right (end-value) border, pointing to the primary data.");
 			
-			Long id = getIdManager().getNewRAId(sNode.getSElementId());
-			Long textId = getIdManager().getNewRAId(currSTextDS.getSElementId());
-			Long corpusId = getIdManager().getNewRAId(graph.getSElementId());
+			Long id = getIdManager().getNewNodeId(sNode.getSElementId());
+			Long textId = getIdManager().getNewTextId(currSTextDS.getSElementId());
+			Long corpusId = getIdManager().getNewDocumentId(graph.getSElementId());
 			
 			String namespace = null;
 			String name = null;
@@ -874,9 +874,9 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 		 * String segmentName
 		 * String span : for token, this is the substring of the covered text
 		 */
-		Long id = getIdManager().getNewRAId(sToken.getSElementId());
-		Long textId = getIdManager().getNewRAId(currSTextDS.getSElementId());
-		Long corpusId = getIdManager().getNewRAId(graph.getSElementId());
+		Long id = getIdManager().getNewNodeId(sToken.getSElementId());
+		Long textId = getIdManager().getNewTextId(currSTextDS.getSElementId());
+		Long corpusId = getIdManager().getNewDocumentId(graph.getSElementId());
 		String tokenNamespace = null;
 		String name = null;
 		Long left = null;

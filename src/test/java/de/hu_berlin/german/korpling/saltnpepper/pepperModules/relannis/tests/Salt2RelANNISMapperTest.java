@@ -347,7 +347,7 @@ public class Salt2RelANNISMapperTest extends TestCase
 		SaltSample.createSDocumentStructure(getFixture().getSDocument());
 		getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 		
-		
+		/*
 		// show layers of SNodes:
 		System.out.println("Printing layers of SNodes and their Annotations");
 		for (SNode node : this.getFixture().getSDocument().getSDocumentGraph().getSNodes()){
@@ -412,6 +412,7 @@ public class Salt2RelANNISMapperTest extends TestCase
 				}
 			}
 		}
+		*/
 		
 		getFixture().mapSDocument();
 		
