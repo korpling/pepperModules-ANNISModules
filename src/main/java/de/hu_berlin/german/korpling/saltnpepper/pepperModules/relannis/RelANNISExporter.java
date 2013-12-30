@@ -18,8 +18,12 @@
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Properties;
 
+import org.eclipse.emf.common.util.BasicEList;
+import org.eclipse.emf.common.util.EList;
 import org.osgi.service.component.annotations.Component;
 
 import de.hu_berlin.german.korpling.saltnpepper.misc.tupleconnector.TupleConnectorFactory;
@@ -28,10 +32,14 @@ import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperExceptions.PepperMo
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperExceptions.PepperModuleNotReadyException;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperExporter;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperMapper;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperModuleProperties;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperModuleProperty;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.impl.PepperExporterImpl;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.exceptions.RelANNISModuleException;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpus;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SMetaAnnotation;
 
 
 @Component(name="RelANNISExporterComponent", factory="PepperExporterComponentFactory")
@@ -64,6 +72,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 			mapper.tw_component= tw_component;
 			mapper.tw_corpus= tw_corpus;
 			mapper.tw_corpusMeta= tw_corpusMeta;
+			mapper.individualCorpusName= this.individualCorpusName;
 			
 			return mapper;
 			
@@ -104,7 +113,37 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 			tw_edgeAnno= createTupleWRiter(new File(getCorpusDefinition().getCorpusPath().toFileString() + FILE_EDGE_ANNO));
 			tw_component= createTupleWRiter(new File(getCorpusDefinition().getCorpusPath().toFileString() + FILE_COMPONENT));
 			tw_corpus= createTupleWRiter(new File(getCorpusDefinition().getCorpusPath().toFileString() + FILE_CORPUS));
-			tw_corpusMeta= createTupleWRiter(new File(getCorpusDefinition().getCorpusPath().toFileString() + FILE_CORPUS_META));
+			
+			if (this.getProperties() != null){
+				overwriteResolverVisMap = ((RelANNISExporterProperties)this.getProperties()).getClobberResolverVisMap();
+				overwriteCorpusAnnotations = ((RelANNISExporterProperties)this.getProperties()).getClobberCorpusAnnotations();
+				String individualCorpusName_tmp = ((RelANNISExporterProperties)this.getProperties()).getIndividualCorpusName();
+				
+				// remove leading and trailing whitespaces of the individual corpus name, if it is set.
+				if (individualCorpusName_tmp != null){
+					this.individualCorpusName = individualCorpusName_tmp.trim();
+				}
+			}
+			
+			// set the visualisation tuple writer
+			File resolverVisFile = new File(getCorpusDefinition().getCorpusPath().toFileString()+FILE_VISUALIZATION);
+			if (! resolverVisFile.exists()){
+				tw_visualization= createTupleWRiter(resolverVisFile);
+			} else {
+				if (overwriteResolverVisMap){
+					tw_visualization= createTupleWRiter(resolverVisFile);
+				}
+			}
+			
+			// set the corpus meta annotation tuple writer
+			File corpusAnnotationFile = new File(getCorpusDefinition().getCorpusPath().toFileString()+FILE_CORPUS_META);
+			if (! corpusAnnotationFile.exists()){
+				tw_corpusMeta= createTupleWRiter(corpusAnnotationFile);
+			} else {
+				if (overwriteCorpusAnnotations){
+					tw_corpusMeta= createTupleWRiter(corpusAnnotationFile);
+				}
+			}
 			
 			this.idManager = new IdManager();
 			
@@ -122,8 +161,77 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 		@Override
 		public void exportCorpusStructure(SCorpusGraph corpusGraph) throws PepperModuleException
 		{
+			
 			//TODO remove the following line of code for adoption
 			super.exportCorpusStructure(sCorpusGraph);
+			
+			// print the resolver visualisation tab
+			if (tw_visualization != null){
+				printResolverVisMap(corpusGraph);
+			}
+		}
+
+		/**
+		 * This method prints the resolver_vis_map.tab file with the default values.
+		 * @param corpusGraph the corpus graph
+		 */
+		private void printResolverVisMap(SCorpusGraph corpusGraph) {
+			
+			// print the resolver_vis_map:
+			// corpus 	text 			the name of the supercorpus
+			//version 	text 			the version of the corpus
+			//namespace 	text 			the several layers of the corpus
+			//element 	text 			the type of the entry: "node" or "edge"
+			//vis_type 	text 		X 	the abstract type of visualization: "tree", "discourse", "grid", ...
+			//display_name 	text 		X 	the name of the layer which shall be shown for display
+			//visibility 	text 			either "permanent", "visible", "hidden", "removed" or "preloaded", default is "hidden"
+			//order 	bigint 			the order of the layers, in which they shall be shown
+			//mappings 	text
+			
+			EList<String> resolverTuple= new BasicEList<String>();
+			String corpusName = "NULL";
+			String corpusVersion = "NULL";
+			String corpusNamespace = "default_ns";
+			String elementEntry = "node";
+			String vis_type = "grid"; // nut NULL
+			String display_name = "default_ns"; // not NULL
+			String visibility = "hidden";
+			String order = "NULL";
+			String mappings = "NULL";
+			
+			// get the version of the corpus but initialise the default NULL
+			if (corpusGraph.getSRootCorpus() != null){
+				if (corpusGraph.getSRootCorpus().size() > 0){
+					SCorpus rootCorpus = corpusGraph.getSRootCorpus().get(0);
+					// set corpus name
+					corpusName = rootCorpus.getSName();
+					// set corpus version
+					SMetaAnnotation version= rootCorpus.getSMetaAnnotation("version");
+					if (version != null){
+						if ( version.getValueString() != null){
+							corpusVersion= version.getValueString();
+						}
+					}
+				}
+			}
+			resolverTuple.add(corpusName);
+			resolverTuple.add(corpusVersion);
+			resolverTuple.add(corpusNamespace);
+			resolverTuple.add(elementEntry);
+			resolverTuple.add(vis_type);
+			resolverTuple.add(display_name);
+			resolverTuple.add(visibility);
+			resolverTuple.add(order);
+			resolverTuple.add(mappings);
+			
+			Long transactionId = tw_visualization.beginTA();
+			try {
+				tw_visualization.addTuple(resolverTuple);
+				tw_visualization.commitTA(transactionId);
+			} catch (FileNotFoundException e) {
+				throw new RelANNISModuleException("Could not write to the file "+tw_visualization.getFile().getAbsolutePath()+". Reason: "+e.getMessage(), e);
+			}
+			
 		}
 
 		/** tuple writer to write {@link RelANNIS#FILE_TEXT} **/
@@ -142,6 +250,15 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 		public TupleWriter tw_corpus= null;
 		/** tuple writer to write {@link RelANNIS#FILE_CORPUS_META} **/
 		public TupleWriter tw_corpusMeta= null;
+		/** tuple writer to write {@link RelANNIS#FILE_VISUALIZATION} **/
+		public TupleWriter tw_visualization= null;
+		
+		boolean overwriteResolverVisMap = true;
+		
+		boolean overwriteCorpusAnnotations = true;
+		
+		public String individualCorpusName= null;
+		
 		// ------------------------- IdManager
 		/** object to manage relANNIS ids**/
 		private IdManager idManager;

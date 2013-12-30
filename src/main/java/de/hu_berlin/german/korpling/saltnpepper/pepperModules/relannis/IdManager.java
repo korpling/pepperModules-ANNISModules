@@ -10,7 +10,7 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
 public class IdManager {
 
 	private ConcurrentHashMap<SElementId,Long> nodeIdMap;
-	private ConcurrentHashMap<SElementId,Long> documentIdMap;
+	private ConcurrentHashMap<SElementId,Long> corpusTabIdMap;
 	private ConcurrentHashMap<SElementId,Long> textIdMap;
 	
 	private Long nodeId = 0l;
@@ -19,19 +19,19 @@ public class IdManager {
 	
 	private Long rankId = 0l;
 	
-	private Long documentId = 0l;
+	private Long corpusId = 0l;
 	private Long textId = 0l;
 	
 	
 	public IdManager() {
 		this.nodeId = 0l;
 		this.nodeIdMap = new ConcurrentHashMap<SElementId, Long>();
-		this.documentIdMap = new ConcurrentHashMap<SElementId, Long>();
+		this.corpusTabIdMap = new ConcurrentHashMap<SElementId, Long>();
 		this.textIdMap = new ConcurrentHashMap<SElementId, Long>();
 		
 		this.componentId = 0l;
 		this.rankId = 0l;
-		this.documentId = 0l;
+		this.corpusId = 0l;
 		this.textId = 0l;
 	}
 	
@@ -79,15 +79,16 @@ public class IdManager {
 		return newId;
 	}
 	
-	public Long getNewDocumentId(SElementId sElementId){
-		Long newId = this.documentIdMap.get(sElementId);
+	public Long getNewCorpusTabId(SElementId sElementId){
+		Long newId = this.corpusTabIdMap.get(sElementId);
 		if (newId == null){
 			synchronized (this) {
 				if (newId == null){
 					// no Id found. Create a new one
-					newId = this.documentId;
-					this.documentIdMap.put(sElementId, documentId);
-					this.documentId += 1;
+					newId = this.corpusId;
+					//System.out.println("Added new Element "+sElementId.getValueString()+" with id "+newId.toString());
+					this.corpusTabIdMap.put(sElementId, corpusId);
+					this.corpusId += 1;
 
 				}
 			}

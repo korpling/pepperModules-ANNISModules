@@ -293,7 +293,11 @@ src/main/fonts/DejaVuSerifCondensed.ttf -text
 src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/IdManager.java -text
 src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/RelANNIS.java -text svneol=unset#text/plain
 src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/RelANNISExporter.java -text svneol=unset#text/plain
-src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/SNode2RelANNISMapper.java -text
+src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/RelANNISExporterProperties.java -text
+src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/SDominanceRelation2RelANNISMapper.java -text
+src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/SPointingRelation2RelANNISMapper.java -text
+src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/SRelation2RelANNISMapper.java -text
+src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/SSpanningRelation2RelANNISMapper.java -text
 src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/Salt2RelANNISMapper.java -text svneol=unset#text/plain
 src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/exceptions/RelANNISModuleException.java -text svneol=unset#text/plain
 src/test/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/tests/RelANNISExporterTest.java -text
