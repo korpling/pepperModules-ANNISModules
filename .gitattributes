@@ -318,6 +318,14 @@ src/test/resources/testMapFullGraph/rank.tab -text
 src/test/resources/testMapFullGraph/testMapFullGraph.dot -text
 src/test/resources/testMapFullGraph/testMapFullGraph.png -text
 src/test/resources/testMapFullGraph/text.tab -text
+src/test/resources/testMapIndividualCorpusName/component.tab -text
+src/test/resources/testMapIndividualCorpusName/corpus.tab -text
+src/test/resources/testMapIndividualCorpusName/corpus_annotation.tab -text
+src/test/resources/testMapIndividualCorpusName/edge_annotation.tab -text
+src/test/resources/testMapIndividualCorpusName/node.tab -text
+src/test/resources/testMapIndividualCorpusName/node_annotation.tab -text
+src/test/resources/testMapIndividualCorpusName/rank.tab -text
+src/test/resources/testMapIndividualCorpusName/text.tab -text
 src/test/resources/testMapParallelData/component.tab -text
 src/test/resources/testMapParallelData/corpus.tab -text
 src/test/resources/testMapParallelData/corpus_annotation.tab -text

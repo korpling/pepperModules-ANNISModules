@@ -1,5 +1,5 @@
 0	0	1	default_ns	sSpan1	0	1	NULL	0	0	NULL	NULL	NULL
-1	0	1	morphology	sTok1	0	1	0	0	0	NULL	NULL	is
+1	0	1	morphology	sTok1	0	1	0	0	0	NULL	NULL	Is
 2	0	1	default_ns	sSpan2	3	54	NULL	1	9	NULL	NULL	NULL
 3	0	1	morphology	sTok2	3	6	1	1	1	NULL	NULL	this
 4	0	1	morphology	sTok3	8	14	2	2	2	NULL	NULL	example

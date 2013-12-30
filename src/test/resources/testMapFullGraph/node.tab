@@ -1,7 +1,7 @@
 0	0	1	morphology	sTok7	38	39	6	6	6	NULL	NULL	it
 1	0	1	default_ns	sSpan3	3	14	NULL	1	2	NULL	NULL	NULL
 2	0	1	syntax	structure1	0	54	NULL	0	9	NULL	NULL	NULL
-3	0	1	morphology	sTok1	0	1	0	0	0	NULL	NULL	is
+3	0	1	morphology	sTok1	0	1	0	0	0	NULL	NULL	Is
 4	0	1	syntax	structure2	3	14	NULL	1	2	NULL	NULL	NULL
 5	0	1	morphology	sTok2	3	6	1	1	1	NULL	NULL	this
 6	0	1	morphology	sTok3	8	14	2	2	2	NULL	NULL	example
