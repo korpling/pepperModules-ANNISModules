@@ -17,6 +17,8 @@ import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.RelANNISE
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.Salt2RelANNISMapper;
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.resources.dot.Salt2DOT;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpus;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDominanceRelation;
@@ -50,7 +52,17 @@ public class Salt2RelANNISMapperTest extends TestCase
 			globalTmpPath.mkdirs();
 		}
 		
+		SCorpusGraph sCorpGraph= SaltFactory.eINSTANCE.createSCorpusGraph();
+		SCorpus sCorpus1= SaltFactory.eINSTANCE.createSCorpus();
+		sCorpus1.setSName("mainCorp");
+		sCorpGraph.addSNode(sCorpus1);
+		
+		
+		fixture.setSCorpusGraph(sCorpGraph);
+		
 		SDocument sDocument= SaltFactory.eINSTANCE.createSDocument();
+		sCorpGraph.addSDocument(sCorpus1, sDocument);
+		
 		sDocument.setSDocumentGraph(SaltFactory.eINSTANCE.createSDocumentGraph());
 		getFixture().setSDocument(sDocument);
 		
@@ -103,6 +115,34 @@ public class Salt2RelANNISMapperTest extends TestCase
 		SaltSample.createPrimaryData(getFixture().getSDocument());
 		getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 		
+		getFixture().mapSCorpus();
+		getFixture().mapSDocument();
+		
+		assertFalse("There was no file to be compared in folder '"+testPath.getAbsolutePath()+"' and folder '"+tmpPath.getAbsolutePath()+"'.", new Integer(0).equals(compareFiles(testPath, tmpPath)));
+	}
+	
+	/**
+	 * Creates an {@link SDocumentGraph} containing:
+	 * <ul>
+	 * 	<li> a primary text</li>
+	 * </ul>
+	 * @throws IOException
+	 */
+	public void testMapIndividualCorpusName() throws IOException
+	{
+		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
+		String testName= ste[1].getMethodName();
+		
+		File tmpPath= new File(globalTmpPath.getAbsoluteFile()+ File.separator+testName);
+		File testPath= new File(getTestPath()+testName);
+		createTupleWriters(tmpPath);
+		
+		// create the primary text
+		SaltSample.createPrimaryData(getFixture().getSDocument());
+		getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
+		
+		getFixture().individualCorpusName="NewTopLevelCorpus";
+		getFixture().mapSCorpus();
 		getFixture().mapSDocument();
 		
 		assertFalse("There was no file to be compared in folder '"+testPath.getAbsolutePath()+"' and folder '"+tmpPath.getAbsolutePath()+"'.", new Integer(0).equals(compareFiles(testPath, tmpPath)));
@@ -130,6 +170,7 @@ public class Salt2RelANNISMapperTest extends TestCase
 		SaltSample.createTokens(getFixture().getSDocument());
 		getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 		
+		getFixture().mapSCorpus();
 		getFixture().mapSDocument();
 		
 		assertFalse("There was no file to be compared in folder '"+testPath.getAbsolutePath()+"' and folder '"+tmpPath.getAbsolutePath()+"'.", new Integer(0).equals(compareFiles(testPath, tmpPath)));
@@ -162,6 +203,7 @@ public class Salt2RelANNISMapperTest extends TestCase
 		SaltSample.createTokens(getFixture().getSDocument(), primaryData_DE);
 		getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 		
+		getFixture().mapSCorpus();
 		getFixture().mapSDocument();
 		
 		assertFalse("There was no file to be compared in folder '"+testPath.getAbsolutePath()+"' and folder '"+tmpPath.getAbsolutePath()+"'.", new Integer(0).equals(compareFiles(testPath, tmpPath)));
@@ -195,6 +237,7 @@ public class Salt2RelANNISMapperTest extends TestCase
 		Salt2DOT salt2dot= new Salt2DOT();
 		salt2dot.salt2Dot(getFixture().getSDocument().getSDocumentGraph(), URI.createFileURI(testPath.getAbsolutePath()+ File.separator+testName+".dot"));
 		
+		getFixture().mapSCorpus();
 		getFixture().mapSDocument();
 		
 		assertFalse("There was no file to be compared in folder '"+testPath.getAbsolutePath()+"' and folder '"+tmpPath.getAbsolutePath()+"'.", new Integer(0).equals(compareFiles(testPath, tmpPath)));
@@ -224,6 +267,7 @@ public class Salt2RelANNISMapperTest extends TestCase
 		SaltSample.createMorphologyAnnotations(getFixture().getSDocument());
 		getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 	
+		getFixture().mapSCorpus();
 		getFixture().mapSDocument();
 		
 		assertFalse("There was no file to be compared in folder '"+testPath.getAbsolutePath()+"' and folder '"+tmpPath.getAbsolutePath()+"'.", new Integer(0).equals(compareFiles(testPath, tmpPath)));
@@ -255,6 +299,7 @@ public class Salt2RelANNISMapperTest extends TestCase
 		SaltSample.createInformationStructureAnnotations(getFixture().getSDocument());
 		getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 		
+		getFixture().mapSCorpus();
 		getFixture().mapSDocument();
 		
 		assertFalse("There was no file to be compared in folder '"+testPath.getAbsolutePath()+"' and folder '"+tmpPath.getAbsolutePath()+"'.", new Integer(0).equals(compareFiles(testPath, tmpPath)));
@@ -286,6 +331,7 @@ public class Salt2RelANNISMapperTest extends TestCase
 		SaltSample.createSyntaxAnnotations(getFixture().getSDocument());
 		getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 		
+		getFixture().mapSCorpus();
 		getFixture().mapSDocument();
 		
 		assertFalse("There was no file to be compared in folder '"+testPath.getAbsolutePath()+"' and folder '"+tmpPath.getAbsolutePath()+"'.", new Integer(0).equals(compareFiles(testPath, tmpPath)));
@@ -315,6 +361,7 @@ public class Salt2RelANNISMapperTest extends TestCase
 		SaltSample.createAnaphoricAnnotations(getFixture().getSDocument());
 		getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 		
+		getFixture().mapSCorpus();
 		getFixture().mapSDocument();
 		
 		assertFalse("There was no file to be compared in folder '"+testPath.getAbsolutePath()+"' and folder '"+tmpPath.getAbsolutePath()+"'.", new Integer(0).equals(compareFiles(testPath, tmpPath)));
@@ -414,6 +461,7 @@ public class Salt2RelANNISMapperTest extends TestCase
 		}
 		*/
 		
+		getFixture().mapSCorpus();
 		getFixture().mapSDocument();
 		
 		assertFalse("There was no file to be compared in folder '"+testPath.getAbsolutePath()+"' and folder '"+tmpPath.getAbsolutePath()+"'.", new Integer(0).equals(compareFiles(testPath, tmpPath)));
@@ -446,6 +494,7 @@ public class Salt2RelANNISMapperTest extends TestCase
 		SaltSample.createDialogue(getFixture().getSDocument());
 		getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 		
+		getFixture().mapSCorpus();
 		getFixture().mapSDocument();
 		
 		assertFalse("There was no file to be compared in folder '"+testPath.getAbsolutePath()+"' and folder '"+tmpPath.getAbsolutePath()+"'.", new Integer(0).equals(compareFiles(testPath, tmpPath)));
@@ -474,7 +523,7 @@ public class Salt2RelANNISMapperTest extends TestCase
 	 * If they do not exist, the method throws an exception. 
 	 * @param goldPath
 	 * @param createdPath
-	 * @return number of compared files
+	 * @return number of successfully compared files
 	 * @throws IOException 
 	 */
 	private int compareFiles(File goldPath, File createdPath) throws IOException
@@ -485,7 +534,7 @@ public class Salt2RelANNISMapperTest extends TestCase
 		Vector<File> filesToCompare= new Vector<File>();
 		for (String raFileName: RelANNIS.FILE_RELANNIS_FILES)
 		{
-			File raFile= new File(goldPath.getAbsolutePath()+raFileName);
+			File raFile= new File(goldPath.getAbsolutePath()+File.separator+raFileName);
 			if (raFile.exists())
 				filesToCompare.add(raFile);
 		}
@@ -493,14 +542,24 @@ public class Salt2RelANNISMapperTest extends TestCase
 		if (filesToCompare.size()== 0)
 			return(0);
 		
+		boolean oneComparisonWasUnsuccessful = false;
+		
 		for (File goldFile: filesToCompare)
 		{
-			File createdFile= new File(createdPath.getAbsolutePath()+goldFile.getName());
-			if (createdFile.exists())
+			File createdFile= new File(createdPath.getAbsolutePath()+File.separator+goldFile.getName());
+			if (! createdFile.exists())
 				throw new FileNotFoundException("Missing file '"+goldFile.getName()+"' in relANNIS path '"+createdPath.getAbsolutePath()+"'.");
 			FileComparator comparator= new FileComparator();
-			comparator.compareFiles(goldFile, createdFile);
+			boolean comparisonSuccess = comparator.compareFiles(goldFile, createdFile);
+			if (! comparisonSuccess){
+				oneComparisonWasUnsuccessful = true;
+				System.out.println("File "+goldFile.getAbsolutePath() + " and "+createdFile.getAbsolutePath()+" are not equal");
+			}
 		}
+		if (oneComparisonWasUnsuccessful){
+			return(0);
+		}
+		
 		return(filesToCompare.size());
 	}
 }
