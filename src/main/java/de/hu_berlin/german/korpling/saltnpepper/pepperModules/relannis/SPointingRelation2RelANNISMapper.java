@@ -56,8 +56,9 @@ public class SPointingRelation2RelANNISMapper extends SRelation2RelANNISMapper  
 					super.initialiseTraversion(new String("p"), componentLayer, new String("NULL"));
 				} else {
 					super.initialiseTraversion(new String("p"), componentLayer, this.currentTraversionSType);
+					
 				}
-				
+				//System.out.println("[DEBUG] Mapping pointingRelation with sType "+ this.currentTraversionSType);
 				// create an EList for the current root
 				EList<SNode> singleRootList = new BasicEList<SNode>();
 				singleRootList.add(node);
@@ -90,6 +91,8 @@ public class SPointingRelation2RelANNISMapper extends SRelation2RelANNISMapper  
 					this.currentComponentName = sRelation.getSTypes().get(0);
 					//System.out.println("SType is "+this.currentComponentName);
 				}
+			} else {
+				this.currentComponentName = SDocumentGraph.DEFAULT_STYPE;
 			}
 		}
 		
@@ -128,6 +131,12 @@ public class SPointingRelation2RelANNISMapper extends SRelation2RelANNISMapper  
 								returnVal = true;
 							}
 						}
+					} else {
+						// the current SType is NULL, i.e. SALT::NULL
+						if (this.currentTraversionSType.equals(SDocumentGraph.DEFAULT_STYPE)){
+							returnVal = true;
+						}
+						
 					}
 				}
 			} 

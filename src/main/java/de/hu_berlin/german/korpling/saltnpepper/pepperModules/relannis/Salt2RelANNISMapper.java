@@ -24,6 +24,8 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.Vector;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 import org.osgi.service.log.LogService;
@@ -34,12 +36,17 @@ import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.impl.Pepper
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.exceptions.RelANNISModuleException;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.Edge;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.GRAPH_TRAVERSE_TYPE;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.exceptions.SaltEmptyParameterException;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.exceptions.SaltException;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.exceptions.SaltInvalidModelException;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.exceptions.SaltModuleException;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpus;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDataSourceSequence;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDominanceRelation;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SOrderRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SPointingRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpan;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpanningRelation;
@@ -48,6 +55,7 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructu
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STYPE_NAME;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualDS;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualRelation;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STimelineRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
@@ -94,7 +102,9 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 	
 	/** the individual name for the top-level corpus **/
 	public String individualCorpusName= null;
+	private Pair<String,String> individualCorpusNameReplacement=null;
 	
+	public boolean isTestMode = false;
 	
 // -------------------------start: SCorpusGraph 	
 	private SCorpusGraph sCorpusGraph= null;
@@ -153,7 +163,8 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 				
 				// set the SName of the corpus graph root to the individual one
 				if (this.individualCorpusName != null){
-					roots.get(0).setSName(this.individualCorpusName);
+					this.individualCorpusNameReplacement = new ImmutablePair<String, String>(roots.get(0).getSName(), this.individualCorpusName);
+					//roots.get(0).setSName(this.individualCorpusName);
 				}
 				//set traversion type to corpus structure
 				this.currTraversionType= TRAVERSION_TYPE.CORPUS_STRUCTURE;
@@ -201,7 +212,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 			
 			try
 			{
-				this.mapSText();
+				
 				/**
 				 * traverse by 
 				 * SpanningRelations: DOCUMENT_STRUCTURE_CR
@@ -218,16 +229,112 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 				 * the pre and post order needs to be 0 for the root
 				 * node. You need to handle this.
 				 */
+				EList<SNode> sRelationRoots = null;
+				Map<String,EList<SNode>> subComponentRoots = null;
 				
-				// Step 1: map SOrderRelation
+				// START Step 1: map SOrderRelation
+				
+				// check whether there are SOrderRelations
+				/*
+				if (this.getSDocument().getSDocumentGraph().getSOrderRelations() != null){
+					if (this.getSDocument().getSDocumentGraph().getSOrderRelations().size() > 0){
+						// check whether there are STimelineRelations
+						if (this.getSDocument().getSDocumentGraph().getSTimelineRelations() != null){
+							if (this.getSDocument().getSDocumentGraph().getSTimelineRelations().size() > 0){
+								// we have SOrderRelations AND STimelineRelations
+								// In this case, the virtual tokenization needs to be established
+								System.out.println("Creating virtual tokenization for the STimelineRelation");
+								SRelation2RelANNISMapper sOrderRelationMapper = new SOrderRelation2RelANNISMapper(getIdManager(), getSDocument().getSDocumentGraph(), tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component);
+								((SOrderRelation2RelANNISMapper)sOrderRelationMapper).createVirtualTokenization();
+							}
+						}
+					}
+				}*/
+				
+				subComponentRoots = this.getSDocument().getSDocumentGraph().getRootsBySRelationSType(STYPE_NAME.SORDER_RELATION);
+				if (subComponentRoots != null){
+					if (subComponentRoots.size() > 0){
+						for (String key : subComponentRoots.keySet()){
+							System.out.println("Count of SOrderRelation roots for key "+key+" : "+subComponentRoots.get(key).size());
+							System.out.println("Mapping SOrderRelations subcomponents with sType: "+key);
+							SRelation2RelANNISMapper sOrderRelationMapper = new SOrderRelation2RelANNISMapper(getIdManager(), getSDocument().getSDocumentGraph(), tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component);
+							sOrderRelationMapper.setTraversionSType(key);
+							sOrderRelationMapper.mapSRelations2RelANNIS(subComponentRoots.get(key), STYPE_NAME.SORDER_RELATION, null);
+						}
+					}
+				}
+				
+				// END Step 1: map SOrderRelation
+				
+				// START Step 2: map SText
+				if (this.getSDocument().getSDocumentGraph().getSTimelineRelations() == null){
+					this.mapSText();
+				} else {
+					if (this.getSDocument().getSDocumentGraph().getSTimelineRelations().size() == 0){
+						this.mapSText();
+					} else {
+						Long sDocID = null;
+						Long textId = 0l;
+						SElementId sDocumentElementId = this.getSDocument().getSElementId();
+							
+						if (sDocumentElementId == null){
+							throw new RelANNISModuleException("SElement Id of the document '"+this.getSDocument().getSName()+"' is NULL!");
+						}
+						sDocID = this.idManager.getNewCorpusTabId(sDocumentElementId);
+						String textName = "sText0";
+						String textContent = "";
+						Vector<String> tuple = new Vector<String>();
+						tuple.add(sDocID.toString());
+						tuple.add(textId.toString());
+						tuple.add(textName);
+						tuple.add(textContent);
+							
+						long transactionId = tw_text.beginTA();
+						try {
+							tw_text.addTuple(transactionId,tuple);
+							tw_text.commitTA(transactionId);
+							
+						} catch (FileNotFoundException e) {
+							tw_text.abortTA(transactionId);
+							throw new RelANNISModuleException("Could not write to the node.tab, exception was"+e.getMessage());
+						}
+					}
+				}
+				
+				// END Step 2: map SText
 				
 				// START Step 2: map SPointingRelations
-				SRelation2RelANNISMapper pointingRelationMapper = new SPointingRelation2RelANNISMapper(getIdManager(), getSDocument().getSDocumentGraph(), tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component);
-				EList<SNode> sRelationRoots = this.getSDocument().getSDocumentGraph().getRootsBySRelation(STYPE_NAME.SPOINTING_RELATION);
-				if (sRelationRoots != null){
-					if (sRelationRoots.size() > 0){
-						pointingRelationMapper.mapSRelations2RelANNIS(sRelationRoots, STYPE_NAME.SPOINTING_RELATION, TRAVERSION_TYPE.DOCUMENT_STRUCTURE_PR);
+				/*
+				if (this.getSDocument().getSDocumentGraph().getSPointingRelations() != null) {
+					for (SPointingRelation pointRel : this.getSDocument().getSDocumentGraph().getSPointingRelations()){
+						// set the default SType if the PointingRelation does not have one
+						if (pointRel.getSTypes() == null){
+							pointRel.addSType("annis_pr");
+						} else {
+							if (pointRel.getSTypes().isEmpty()){
+								pointRel.addSType("annis_pr");
+							}
+						}
 					}
+				}*/
+				
+				subComponentRoots = this.sDocument.getSDocumentGraph().getRootsBySRelationSType(STYPE_NAME.SPOINTING_RELATION);
+				if (subComponentRoots != null){
+					System.out.println("The Pointing relation graphs have "+ subComponentRoots.size() + " STypes.");
+					if (subComponentRoots.size() > 0){
+						
+						for (String key : subComponentRoots.keySet()){
+							System.out.println("Count of PR roots for key "+key+" : "+subComponentRoots.get(key).size());
+							System.out.println("Mapping PointingRelation subcomponents with sType: "+key);
+							SRelation2RelANNISMapper sPointingSubRelationMapper = new SPointingRelation2RelANNISMapper(getIdManager(), getSDocument().getSDocumentGraph(), tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component);
+							sPointingSubRelationMapper.setTraversionSType(key);
+							sPointingSubRelationMapper.mapSRelations2RelANNIS(subComponentRoots.get(key), STYPE_NAME.SPOINTING_RELATION, TRAVERSION_TYPE.DOCUMENT_STRUCTURE_PR);
+						}
+					} else {
+						System.out.println("No PointingRelation components found (null map)");
+					}
+				} else {
+					System.out.println("No PointingRelation components found (empty map)");
 				}
 				// END Step 2: map SPointingRelations
 				
@@ -242,7 +349,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 				// END Step 3: map SDominanceRelations
 				
 				// START Step 3.1 : map the subComponents of the SDominanceRelations
-				Map<String,EList<SNode>> subComponentRoots = this.sDocument.getSDocumentGraph().getRootsBySRelationSType(STYPE_NAME.SDOMINANCE_RELATION);
+				subComponentRoots = this.sDocument.getSDocumentGraph().getRootsBySRelationSType(STYPE_NAME.SDOMINANCE_RELATION);
 				if (subComponentRoots != null){
 					System.out.println("The Dominance relation graphs have "+ subComponentRoots.size() + " STypes.");
 					if (subComponentRoots.size() > 0){
@@ -274,7 +381,10 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 				// START Step 5: map all SToken which were not mapped, yet
 				SRelation2RelANNISMapper mapper = new SSpanningRelation2RelANNISMapper(getIdManager(), getSDocument().getSDocumentGraph(), tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component);
 				for (SNode node : getSDocument().getSDocumentGraph().getSTokens()){
-					mapper.mapSNode(node);
+					if (this.idManager.getVirtualisedSpanId(node.getSElementId()) == null){
+						mapper.mapSNode(node);
+					}
+					
 				}
 				// END Step 5: map all SToken which were not mapped, yet
 			}catch (Exception e) {
@@ -295,6 +405,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 	 * </pre>
 	 */
 	protected void mapSText(){
+		System.out.println("MAPPING TEXT ****************************************");
 		SDocumentGraph sDoc = this.getSDocument().getSDocumentGraph();
 		Long sDocID = null;
 		Long textId = 0l;
@@ -319,7 +430,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 			String textContent = text.getSText();
 			Vector<String> tuple = new Vector<String>();
 			tuple.add(sDocID.toString());
-			tuple.add(textId.toString());
+			tuple.add(manager.getNewTextId(text.getSElementId()).toString());
 			tuple.add(textName);
 			tuple.add(textContent);
 			
@@ -396,6 +507,12 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 		String idString = id.toString();
 		
 		String name = sNode.getSName();
+		if (this.individualCorpusNameReplacement != null){
+			if (name.equals(this.individualCorpusNameReplacement.getLeft())){
+				name = this.individualCorpusNameReplacement.getRight();
+			}
+		}
+		
 		
 		String type = null;
 		String version = "NULL";

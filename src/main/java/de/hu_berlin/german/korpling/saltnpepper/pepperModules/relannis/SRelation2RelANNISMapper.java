@@ -38,6 +38,7 @@ public abstract class SRelation2RelANNISMapper implements SGraphTraverseHandler 
 	 * Default name for namespaces if they cannot be computed by the layers name.
 	 */
 	protected final static String DEFAULT_NS= "default_ns";
+	protected final static String DEFAULT_LAYER= "default_layer";
 	
 	
 // =================================== Constructor ============================ 
@@ -350,7 +351,11 @@ public abstract class SRelation2RelANNISMapper implements SGraphTraverseHandler 
 		}
 	}
 	
-	public void mapSNode(SNode node){
+	public void mapSNode(SNode sNode){
+		this.mapSNode(sNode, null, null, null);
+	}
+	
+	public void mapSNode(SNode node, Long seg_index, String seg_name, String span){
 		/// get the SElementId of the node since we will need it many times
 		SElementId nodeSElementId = node.getSElementId();
 		
@@ -368,6 +373,7 @@ public abstract class SRelation2RelANNISMapper implements SGraphTraverseHandler 
 		// get the document ref
 		Long corpus_ref = this.idManager.getNewCorpusTabId(this.documentGraph.getSDocument().getSElementId());
 		// get the layer if there is one
+		//@ TODO: Change this to DEFAULT_LAYER
 		String layer = DEFAULT_NS;
 		// initialise the name
 		String name = node.getSName();
@@ -382,11 +388,11 @@ public abstract class SRelation2RelANNISMapper implements SGraphTraverseHandler 
 		// get the last covered token
 		Long right_token = null;
 		// get the segment_index
-		Long seg_index = null;
+		//Long seg_index = null;
 		// initialise the segment name
-		String seg_name = null;
+		//String seg_name = null;
 		// initialise the span
-		String span = null;
+		//String span = null;
 		
 		{// set the layer to the actual value
 			if (node.getSLayers() != null){
@@ -490,7 +496,7 @@ public abstract class SRelation2RelANNISMapper implements SGraphTraverseHandler 
 		}
 	}
 	
-	private void writeNodeTabEntry(
+	protected void writeNodeTabEntry(
 			Long id, Long text_ref, Long corpus_ref,
 			String layer, String name,
 			Long left, Long right, Long token_index,
@@ -539,25 +545,13 @@ public abstract class SRelation2RelANNISMapper implements SGraphTraverseHandler 
 	
 // ======================== Mapping of SNodeAnnotations =======================
 	
-	private void mapSNodeAnnotations(SNode node, Long node_ref, EList<SAnnotation> annotations){
+	protected void mapSNodeAnnotations(SNode node, Long node_ref, EList<SAnnotation> annotations){
 		for (SAnnotation annotation : annotations){
 			this.mapSNodeAnnotation(node, node_ref, annotation);
 		}
 	}
 	
-	private void mapSNodeAnnotation(SNode node, Long node_ref, SAnnotation annotation){
-		String namespace = annotation.getNamespace();
-		if (namespace != null){
-			if (namespace.equals("null")){
-				namespace = DEFAULT_NS;
-			}
-		} else {
-			namespace = DEFAULT_NS;
-		}
-		
-		String name = annotation.getSName();
-		String value = annotation.getSValueSTEXT();
-		
+	protected void mapSNodeAnnotation(Long node_ref, String namespace, String name, String value){
 		Long transactionId = this.nodeAnnoTabWriter.beginTA();
 		EList<String> tableEntry = new BasicEList<String>();
 		tableEntry.add(node_ref.toString());
@@ -570,6 +564,22 @@ public abstract class SRelation2RelANNISMapper implements SGraphTraverseHandler 
 		} catch (FileNotFoundException e) {
 			throw new RelANNISModuleException("Could not write to the node annotation tab TupleWriter. Exception is: "+e.getMessage(),e);
 		}
+	}
+	
+	protected void mapSNodeAnnotation(SNode node, Long node_ref, SAnnotation annotation){
+		String namespace = annotation.getNamespace();
+		if (namespace != null){
+			if (namespace.equals("null")){
+				namespace = DEFAULT_NS;
+			}
+		} else {
+			namespace = DEFAULT_NS;
+		}
+		
+		String name = annotation.getSName();
+		String value = annotation.getSValueSTEXT();
+		mapSNodeAnnotation(node_ref,namespace,name,value);
+		
 	}
 
 	

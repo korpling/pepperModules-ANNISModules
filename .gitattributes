@@ -295,6 +295,7 @@ src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/Re
 src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/RelANNISExporter.java -text svneol=unset#text/plain
 src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/RelANNISExporterProperties.java -text
 src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/SDominanceRelation2RelANNISMapper.java -text
+src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/SOrderRelation2RelANNISMapper.java -text
 src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/SPointingRelation2RelANNISMapper.java -text
 src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/SRelation2RelANNISMapper.java -text
 src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/SSpanningRelation2RelANNISMapper.java -text
