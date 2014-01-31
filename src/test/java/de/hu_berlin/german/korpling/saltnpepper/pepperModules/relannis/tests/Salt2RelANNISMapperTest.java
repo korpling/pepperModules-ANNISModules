@@ -3,10 +3,12 @@ package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.tests;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.List;
 import java.util.Vector;
 
 import junit.framework.TestCase;
 
+import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 
@@ -23,8 +25,11 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDominanceRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SPointingRelation;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpan;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpanningRelation;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STYPE_NAME;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualDS;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltSample.SaltSample;
@@ -65,6 +70,8 @@ public class Salt2RelANNISMapperTest extends TestCase
 		
 		sDocument.setSDocumentGraph(SaltFactory.eINSTANCE.createSDocumentGraph());
 		getFixture().setSDocument(sDocument);
+		
+		getFixture().isTestMode = true;
 		
 		IdManager idManager= new IdManager();
 		getFixture().setIdManager(idManager);
@@ -239,6 +246,43 @@ public class Salt2RelANNISMapperTest extends TestCase
 		
 		getFixture().mapSCorpus();
 		getFixture().mapSDocument();
+		
+		assertFalse("There was no file to be compared in folder '"+testPath.getAbsolutePath()+"' and folder '"+tmpPath.getAbsolutePath()+"'.", new Integer(0).equals(compareFiles(testPath, tmpPath)));
+	}
+	
+	/**
+	 * Creates an {@link SDocumentGraph} containing:
+	 * <ul>
+	 * 	<li> a primary text in english</li>
+	 * <li> a primary text in german</li>
+	 *  <li>tokens for english</li>
+	 *  <li>tokens for german</li>
+	 *  <li>alignment relations</li>
+	 *  <li>one pointingRelation which has no SType</li>
+	 *  
+	 * </ul>
+	 * @throws IOException
+	 */
+	public void testMapUntypedPointingRelation() throws IOException
+	{
+		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
+		String testName= ste[1].getMethodName();
+		
+		File tmpPath= new File(globalTmpPath.getAbsoluteFile()+ File.separator+testName);
+		File testPath= new File(getTestPath()+testName);
+		createTupleWriters(tmpPath);
+		
+		// create the primary text
+		SaltSample.createParallelData(getFixture().getSDocument(),false);
+		getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
+		
+		Salt2DOT salt2dot= new Salt2DOT();
+		salt2dot.salt2Dot(getFixture().getSDocument().getSDocumentGraph(), URI.createFileURI(testPath.getAbsolutePath()+ File.separator+testName+".dot"));
+		System.out.println("Starting Untyped PR Test START");
+		getFixture().mapSCorpus();
+		getFixture().mapSDocument();
+		
+		System.out.println("Starting Untyped PR Test END");
 		
 		assertFalse("There was no file to be compared in folder '"+testPath.getAbsolutePath()+"' and folder '"+tmpPath.getAbsolutePath()+"'.", new Integer(0).equals(compareFiles(testPath, tmpPath)));
 	}
@@ -492,10 +536,19 @@ public class Salt2RelANNISMapperTest extends TestCase
 		
 		// create the primary text
 		SaltSample.createDialogue(getFixture().getSDocument());
+		
 		getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
+		
+		File dotPath = new File(globalTmpPath.getAbsoluteFile()+testName+File.separator+"newSOrderRelationTest.dot");
+		Salt2DOT salt2Dot = new Salt2DOT();
+		System.out.println("Writing Dot file "+dotPath.getAbsolutePath());
+		salt2Dot.salt2Dot(getFixture().getSDocument().getSDocumentGraph(), URI.createFileURI(dotPath.getAbsolutePath()));
+		
 		
 		getFixture().mapSCorpus();
 		getFixture().mapSDocument();
+		
+		
 		
 		assertFalse("There was no file to be compared in folder '"+testPath.getAbsolutePath()+"' and folder '"+tmpPath.getAbsolutePath()+"'.", new Integer(0).equals(compareFiles(testPath, tmpPath)));
 	}
