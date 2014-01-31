@@ -412,3 +412,13 @@ src/test/resources/testMapSeveralTokenizations/rank.tab -text
 src/test/resources/testMapSeveralTokenizations/testMapSeveralTokenizations.dot -text
 src/test/resources/testMapSeveralTokenizations/testMapSeveralTokenizations.png -text
 src/test/resources/testMapSeveralTokenizations/text.tab -text
+src/test/resources/testMapUntypedPointingRelation/component.tab -text
+src/test/resources/testMapUntypedPointingRelation/corpus.tab -text
+src/test/resources/testMapUntypedPointingRelation/corpus_annotation.tab -text
+src/test/resources/testMapUntypedPointingRelation/edge_annotation.tab -text
+src/test/resources/testMapUntypedPointingRelation/node.tab -text
+src/test/resources/testMapUntypedPointingRelation/node_annotation.tab -text
+src/test/resources/testMapUntypedPointingRelation/rank.tab -text
+src/test/resources/testMapUntypedPointingRelation/testMapUntypedPointingRelation.dot -text
+src/test/resources/testMapUntypedPointingRelation/testMapUntypedPointingRelation.png -text
+src/test/resources/testMapUntypedPointingRelation/text.tab -text
