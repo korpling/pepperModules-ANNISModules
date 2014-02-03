@@ -233,24 +233,6 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 				Map<String,EList<SNode>> subComponentRoots = null;
 				
 				// START Step 1: map SOrderRelation
-				
-				// check whether there are SOrderRelations
-				/*
-				if (this.getSDocument().getSDocumentGraph().getSOrderRelations() != null){
-					if (this.getSDocument().getSDocumentGraph().getSOrderRelations().size() > 0){
-						// check whether there are STimelineRelations
-						if (this.getSDocument().getSDocumentGraph().getSTimelineRelations() != null){
-							if (this.getSDocument().getSDocumentGraph().getSTimelineRelations().size() > 0){
-								// we have SOrderRelations AND STimelineRelations
-								// In this case, the virtual tokenization needs to be established
-								System.out.println("Creating virtual tokenization for the STimelineRelation");
-								SRelation2RelANNISMapper sOrderRelationMapper = new SOrderRelation2RelANNISMapper(getIdManager(), getSDocument().getSDocumentGraph(), tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component);
-								((SOrderRelation2RelANNISMapper)sOrderRelationMapper).createVirtualTokenization();
-							}
-						}
-					}
-				}*/
-				
 				subComponentRoots = this.getSDocument().getSDocumentGraph().getRootsBySRelationSType(STYPE_NAME.SORDER_RELATION);
 				if (subComponentRoots != null){
 					if (subComponentRoots.size() > 0){
@@ -300,23 +282,6 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 						}
 					}
 				}
-				
-				// END Step 2: map SText
-				
-				// START Step 2: map SPointingRelations
-				/*
-				if (this.getSDocument().getSDocumentGraph().getSPointingRelations() != null) {
-					for (SPointingRelation pointRel : this.getSDocument().getSDocumentGraph().getSPointingRelations()){
-						// set the default SType if the PointingRelation does not have one
-						if (pointRel.getSTypes() == null){
-							pointRel.addSType("annis_pr");
-						} else {
-							if (pointRel.getSTypes().isEmpty()){
-								pointRel.addSType("annis_pr");
-							}
-						}
-					}
-				}*/
 				
 				subComponentRoots = this.sDocument.getSDocumentGraph().getRootsBySRelationSType(STYPE_NAME.SPOINTING_RELATION);
 				if (subComponentRoots != null){

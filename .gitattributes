@@ -303,6 +303,18 @@ src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/Sa
 src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/exceptions/RelANNISModuleException.java -text svneol=unset#text/plain
 src/test/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/tests/RelANNISExporterTest.java -text
 src/test/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/tests/Salt2RelANNISMapperTest.java -text svneol=unset#text/plain
+src/test/resources/testComplexMapSOrderRelation/component.tab -text
+src/test/resources/testComplexMapSOrderRelation/corpus.tab -text
+src/test/resources/testComplexMapSOrderRelation/corpus_annotation.tab -text
+src/test/resources/testComplexMapSOrderRelation/edge_annotation.tab -text
+src/test/resources/testComplexMapSOrderRelation/node.tab -text
+src/test/resources/testComplexMapSOrderRelation/node_annotation.tab -text
+src/test/resources/testComplexMapSOrderRelation/rank.tab -text
+src/test/resources/testComplexMapSOrderRelation/testComplexMapSOrderRelation.dot -text
+src/test/resources/testComplexMapSOrderRelation/testComplexMapSOrderRelation.png -text
+src/test/resources/testComplexMapSOrderRelation/testMapSOrderRelation3.dot -text
+src/test/resources/testComplexMapSOrderRelation/testMapSOrderRelation3.png -text
+src/test/resources/testComplexMapSOrderRelation/text.tab -text
 src/test/resources/testMapAnaphoric/component.tab -text
 src/test/resources/testMapAnaphoric/corpus.tab -text
 src/test/resources/testMapAnaphoric/corpus_annotation.tab -text
@@ -352,6 +364,8 @@ src/test/resources/testMapSOrderRelation/node_annotation.tab -text
 src/test/resources/testMapSOrderRelation/rank.tab -text
 src/test/resources/testMapSOrderRelation/testMapSOrderRelation.dot -text
 src/test/resources/testMapSOrderRelation/testMapSOrderRelation.png -text
+src/test/resources/testMapSOrderRelation/testMapSOrderRelationGenerated.dot -text
+src/test/resources/testMapSOrderRelation/testMapSOrderRelationGenerated.png -text
 src/test/resources/testMapSOrderRelation/text.tab -text
 src/test/resources/testMapSSpans/component.tab -text
 src/test/resources/testMapSSpans/corpus.tab -text

@@ -54,63 +54,6 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 	
 	private Hashtable<SToken,Pair<Long,Pair<String,String>>> segindex_segname_span_table = new Hashtable<SToken, Pair<Long,Pair<String,String>>>();
 	
-	private Hashtable<Integer,EList<STimelineRelation>> getTimelineRelationsByPOT(EList<STimelineRelation> timelineRelations){
-		Hashtable<Integer,EList<STimelineRelation>> retVal = new Hashtable<Integer, EList<STimelineRelation>>();
-		
-		for (STimelineRelation timelineRelation : timelineRelations)
-		{
-			if (retVal.contains(timelineRelation.getSStart()))
-			{ // there are timeline relations which have the same time interval as the current relation
-				retVal.get(timelineRelation.getSStart()).add(timelineRelation);
-			} else 
-			{ // this is the first timeline relation which has this interval
-				EList<STimelineRelation> newTimelineRelationList = new BasicEList<STimelineRelation>();
-				newTimelineRelationList.add(timelineRelation);
-				retVal.put(timelineRelation.getSStart(), newTimelineRelationList);
-			}
-		}
-		return retVal;
-	}
-	
-	public void mapVirtualNode(SElementId nodeSElementId, String name, String layer, Long left_token, Long right_token, EList<SAnnotation> sAnnotations ){
-		/// get the SElementId of the node since we will need it many times
-		/// if the node already has a nodeId, it was already mapped
-		Pair<Long,Boolean> idPair = this.idManager.getNewNodeId(nodeSElementId);
-		if (idPair.getRight().booleanValue() == false){
-			// the node is not new
-			return;
-		}
-		// initialise all variables which will be used for the node.tab 
-		// get the RAId
-		Long id = idPair.getLeft();
-		// get the text ref
-		Long text_ref = null;
-		// get the document ref
-		Long corpus_ref = this.idManager.getNewCorpusTabId(this.documentGraph.getSDocument().getSElementId());
-		// get the first covered character
-		Long left = 0L;
-		// get the last covered character
-		Long right = 0L;
-		// get the token index. If the node is no Token, the tokenIndex is NULL
-		Long token_index = null;
-		// get the segment_index
-		Long seg_index = null;
-		// initialise the segment name
-		String seg_name = null;
-		// initialise the span
-		String span = null;
-		
-		
-		
-			
-		
-		this.writeNodeTabEntry(id, text_ref, corpus_ref, layer, name, left, right, token_index, left_token, right_token, seg_index, seg_name, span);
-		
-		if (sAnnotations != null){
-			this.mapSNodeAnnotations(null, id, sAnnotations);
-		}
-	}
-	
 	private void mapSTimeline(STimelineRelation timelineRelation, Hashtable<String,STimelineRelation> minimalTimelineRelations,EList<STimelineRelation> minimalTimelineRelationList,boolean minimal){
 		
 		// define a new component
@@ -297,17 +240,11 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 		}*/
 		System.out.println("SOrderRelation2RelANNOSMapper : Points of time are " + pointsOfTime);
 		
-		Hashtable<Integer,EList<SToken>> tokensMinimalByTimeline = new Hashtable<Integer, EList<SToken>>();
-		
 		HashSet<STimelineRelation> nonMinimalTimelineRelations = new HashSet<STimelineRelation>();
 		HashSet<STimelineRelation> minimalTimelineRelations = new HashSet<STimelineRelation>();
 		EList<STimelineRelation> minimalTimelineRelationList = new BasicEList<STimelineRelation>();
 		
 		if (timelineRelations != null && !timelineRelations.isEmpty()){
-			Hashtable<Integer,EList<STimelineRelation>> timelineRelationsByPOT = getTimelineRelationsByPOT(timelineRelations);
-			
-			Hashtable<Integer,EList<STimelineRelation>> timelineRelationsByTimeInterval = new Hashtable<Integer, EList<STimelineRelation>>();
-			
 			{// get minimal and non-minimal timelines
 				for (STimelineRelation timelineRel1 : timelineRelations)
 				{
@@ -347,26 +284,6 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 					}
 				}
 			}// get minimal and non-minimal timelines
-			/*
-			for ( int i = Integer.parseInt(pointsOfTime.get(0)) ; i < timelineRelationsByPOT.size() ; i++)
-			{
-				EList<STimelineRelation> currentTimelineRelations = timelineRelationsByPOT.get(i);
-				STimelineRelation shortestIntervalRelation = null;
-				int shortestInterval = Integer.parseInt(pointsOfTime.get(pointsOfTime.size()-1));
-				
-				for (STimelineRelation t : currentTimelineRelations)
-				{
-					if ( shortestInterval > (t.getSEnd() - t.getSStart()) )
-					{ // the current relation's interval is shorter than the current shortest interval
-						shortestInterval = (t.getSEnd() - t.getSStart());
-						shortestIntervalRelation = t;
-					}
-				}
-				System.out.println("STimelineRelation with the shortest interval of "+ shortestInterval + " for start POT "+i + " found");
-				System.out.println("The respective Token is "+shortestIntervalRelation.getSToken().getSId());
-				minimalTimelineRelations.add(shortestIntervalRelation);
-				minimalTimelineRelationList.add(shortestIntervalRelation);
-			}*/
 			Hashtable<String,STimelineRelation> minimalTimelineRelationsSortedByStart = this.sortTimelineRelationsByStart(minimalTimelineRelationList);
 			
 			for (STimelineRelation t : minimalTimelineRelations)
@@ -378,132 +295,28 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 				this.mapSTimeline(t,minimalTimelineRelationsSortedByStart,minimalTimelineRelationList,false);
 			}
 			
-			
-			{ // get the timeline relations with the shortest intervals
-				int minimumTimeInterval = timelineRelations.get(0).getSEnd() - timelineRelations.get(0).getSStart();
-				int maximumTimeInterval = 0;
-				
-				EList<STimelineRelation> shortestTimelineRelationCandidates = new BasicEList<STimelineRelation>();
-				
-				/**
-				 * Definition of the property "shortest timeline interval":
-				 * Let TR be the Set of STimelineRelations
-				 * Then, sTR with sTR \subset TR is the set of the shortest-interval, non-overlapping STimelineRelations
-				 * 		iff
-				 *  (
-				 *  	\forall s:STimelineRelation \in sTR : \neg \exists t:STimelineRelations \in TR :
-				 *  	( 
-				 *  		( t.start >= s.start && t.end < s.end )
-				 *  			||
-				 *  		( t.start > s.start && t.end <= s.end )
-				 *  	)
-				 *  ) AND (
-				 *  	\forall s1,s2:STimelineRelation \in sTR :
-				 *  		s1.start >= s2.end OR s1.end <= s2.start
-				 *  )
-				 * 		
-				 */
-				/*
-				for (STimelineRelation timelineRelation : timelineRelations)
-				{ // \forall s:STimelineRelation \in sTR :
-					boolean timelineRelationIsShortestInterval = true;
-					for (STimelineRelation otherTimelineRelation : timelineRelations)
-					{ // \neg \exists t:STimelineRelations \in TR :
-						if (timelineRelation.equals(otherTimelineRelation)){
-							continue;
+			{ // create the sorted virtual token id list
+				EList<STimelineRelation> sortedMinimalTimelineRelationList = new BasicEList<STimelineRelation>();
+				EList<Long> sortedMinimalIdList = new BasicEList<Long>();
+				for (String pot : pointsOfTime)
+				{ 
+					for (String key : minimalTimelineRelationsSortedByStart.keySet()){
+						if ( key.equals(pot)){
+							System.out.println("Found minimal key");
+							sortedMinimalTimelineRelationList.add(minimalTimelineRelationsSortedByStart.get(key));
 						}
-						
-						if ( otherTimelineRelation.getSStart() >= timelineRelation.getSStart() && 
-							 otherTimelineRelation.getSEnd() < timelineRelation.getSEnd() )
-						{ // ( t.start >= s.start && t.end < s.end )
-							//    |   t  |
-							//   |    s   | or
-							//    |   s   |
-							timelineRelationIsShortestInterval = false;
-							break;
-						} else if (otherTimelineRelation.getSStart() > timelineRelation.getSStart() && 
-								 otherTimelineRelation.getSEnd() <= timelineRelation.getSEnd())
-						{ // ( t.start > s.start && t.end <= s.end )
-							//    | t     |
-							//   |  s     | or
-							//   |  s      |
-							timelineRelationIsShortestInterval = false;
-							break;
-						} else {
-							
-						}
-						
-					}
-					if (timelineRelationIsShortestInterval){
-						shortestTimelineRelationCandidates.add(timelineRelation);
-					}
-					
-					for (STimelineRelation s1 : shortestTimelineRelationCandidates)
-					{ // \forall s1,s2:STimelineRelation \in sTR :
-						for (STimelineRelation s2 : shortestTimelineRelationCandidates){
-							if (s1.equals(s2)){
-								continue;
-							}
-							if (!(s1.getSStart() >= s2.getSEnd() || s1.getSEnd() <= s2.getSStart()))
-							{// s1.start >= s2.end OR s1.end <= s2.start
-								// if this pproperty does not hold, the candidate is no shortest timeline-relation
-								
-							}
-							
-						}
-					}
-					
-				}*/
-				/*
-				for (Integer interval : timelineRelationsByTimeInterval.keySet())
-				{ // calculate the minimal and maximal time interval
-					if (interval > maximumTimeInterval)
-					{
-						maximumTimeInterval = interval;
-					} 
-					else if (interval < minimumTimeInterval)
-					{
-						minimumTimeInterval = interval;
 					}
 				}
-				
-				boolean pOTsAreFilled = false;
-				
-				for (int i = minimumTimeInterval ; i <= maximumTimeInterval ; i++)
-				{	// for all time intervals: iterate with increasing interval length
-					
-					
-					if (pOTsAreFilled)
-					{ // stop if we filled the POTs
-						break;
+				for (STimelineRelation tr : sortedMinimalTimelineRelationList){
+					EList<Long> tr_IdS = this.idManager.getVirtualisedTokenId(tr.getSToken().getSElementId());
+					if (tr_IdS.size() > 1){
+						System.out.println("WARNING: minimal timeline relation has more than one virtual token id");
+					} else {
+						sortedMinimalIdList.add(tr_IdS.get(0));
 					}
-					if (timelineRelationsByTimeInterval.contains(i))
-					{ // if there are timeline relations with the current time interval
-						EList<STimelineRelation> currentIntervalRelations = timelineRelationsByTimeInterval.get(i);
-						for (STimelineRelation t : currentIntervalRelations){
-							
-						}
-						
-						// if there is a STimelineRelation which has a shorter time interval
-						for (int j = minimumTimeInterval ; j < i ; j++)
-						{ // for all time intervals which are shorter than the current one
-							if (timelineRelationsByTimeInterval.contains(j))
-							{// there are timeline relations with an interval shorter than the current one
-								for (STimelineRelation shorterIntervalRelation : timelineRelationsByTimeInterval.get(j))
-								{ // for all timeline relations with the shorter time interval
-									//if ((shorterIntervalRelation.getSStart() > ))
-									{ // if the shorter timeline relation's interval is contained in the.
-									  // i.e.: s.start > t.start && s.end <= t.end  || s.start >= t.start && s.end < t.end
-										
-									}
-									
-								}
-							}
-						}
-					}
-				}*/
-			}
-			
+				}
+				this.idManager.registerVirtualTokenIdList(sortedMinimalIdList);
+			} // create the sorted virtual token id list
 		}
 		
 	}
@@ -542,25 +355,6 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 					super.mapSNode(tok,id,nameSpanPair.getLeft(),nameSpanPair.getRight());
 				}
 			}
-			
-			/*
-			if (timelineRelations != null){
-				
-				for (STimelineRelation timelineRelation : timelineRelations){
-					
-					if ((timelineRelation.getSStart() + 1) == timelineRelation.getSEnd()){
-						tokensMinimalByTimeline.put(timelineRelation.getSStart(),timelineRelation.getSToken());
-					} else {
-						tokensNotMinimalByTimeline.add(timelineRelation);
-					}
-				}
-			}
-			if (! tokensMinimalByTimeline.isEmpty()){
-				System.out.println("Tokens which have a duration of one in the timeline");
-				for (SToken token : tokensMinimalByTimeline){
-					System.out.println(token.getSName());
-				}
-			}*/
 		}
 		
 	}
@@ -602,8 +396,6 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 								STextualRelation sTextualRelation = ((STextualRelation)edge);
 								// set the left value
 								Long left = new Long(sTextualRelation.getSStart());
-								// set the right value which is end -1 since SEnd points to the index of the last char +1
-								Long right = new Long(sTextualRelation.getSEnd()-1);
 								// set the overlapped text
 								segSpan = sTextualRelation.getSTextualDS().getSText().substring(left.intValue(),sTextualRelation.getSEnd());
 								break;

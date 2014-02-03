@@ -1,0 +1,86 @@
+digraph G {
+ordering=out;
+//outputMode=edgesfirst;
+//rankdir=LR;
+//constraint=false;
+// Virtual STextualRelations
+{
+<a0> -> <a1>[label="{{id=1}|{pre=1}|{post=2}}"];
+<aNULL1> -> <a0>[label="{{id=0}|{pre=0}|{post=3}}"];
+<a2> -> <a3>[label="{{id=3}|{pre=1}|{post=2}}"];
+<aNULL2> -> <a2>[label="{{id=2}|{pre=0}|{post=3}}"];
+<a4> -> <a5>[label="{{id=5}|{pre=1}|{post=2}}"];
+<aNULL3> -> <a4>[label="{{id=4}|{pre=0}|{post=3}}"];
+<a6> -> <a7>[label="{{id=7}|{pre=1}|{post=2}}"];
+<aNULL4> -> <a6>[label="{{id=6}|{pre=0}|{post=3}}"];
+<a8> -> <a9>[label="{{id=9}|{pre=1}|{post=2}}"];
+<aNULL5> -> <a8>[label="{{id=8}|{pre=0}|{post=3}}"];
+<a10> -> <a11>[label="{{id=11}|{pre=1}|{post=2}}"];
+<aNULL6> -> <a10>[label="{{id=10}|{pre=0}|{post=3}}"];
+<a12> -> <a13>[label="{{id=13}|{pre=1}|{post=2}}"];
+<aNULL7> -> <a12>[label="{{id=12}|{pre=0}|{post=3}}"];
+<a14> -> <a15>[label="{{id=15}|{pre=1}|{post=2}}"];
+<aNULL8> -> <a14>[label="{{id=14}|{pre=0}|{post=3}}"];
+<a16> -> <a17>[label="{{id=17}|{pre=1}|{post=2}}"];
+<aNULL9> -> <a16>[label="{{id=16}|{pre=0}|{post=3}}"];
+<a18> -> <a19>[label="{{id=19}|{pre=1}|{post=2}}"];
+<aNULL10> -> <a18>[label="{{id=18}|{pre=0}|{post=3}}"];
+<a20> -> <a21>[label="{{id=21}|{pre=1}|{post=2}}"];
+<aNULL11> -> <a20>[label="{{id=20}|{pre=0}|{post=3}}"];
+<a22> -> <a17>[label="{{id=23}|{pre=1}|{post=2}}"];
+<a22> -> <a21>[label="{{id=24}|{pre=3}|{post=4}}"];
+<aNULL12> -> <a22>[label="{{id=22}|{pre=0}|{post=5}}"];
+<a23> -> <a1>[label="{{id=26}|{pre=1}|{post=2}}"];
+<a23> -> <a3>[label="{{id=27}|{pre=3}|{post=4}}"];
+<aNULL13> -> <a23>[label="{{id=25}|{pre=0}|{post=5}}"];
+
+}
+
+{
+rank=min;
+<aNULL1>;
+<aNULL2>;
+<aNULL3>;
+<aNULL4>;
+<aNULL5>;
+<aNULL6>;
+<aNULL7>;
+<aNULL8>;
+<aNULL9>;
+<aNULL10>;
+<aNULL11>;
+<aNULL12>;
+<aNULL13>;
+}
+{
+rank=same;
+<a0>[shape=Mrecord,color=dodgerblue3,style=filled,label="{{default_layer/sTok12_virtualSpan}|{segId=1}|{segName=default_seg1}|{span=oh}|{anno1=oh}}"];
+<a2>[shape=Mrecord,color=dodgerblue3,style=filled,label="{{default_layer/sTok13_virtualSpan}|{segId=2}|{segName=default_seg1}|{span=yes!}|{anno1=yes!}}"];
+<a4>[shape=Mrecord,color=dodgerblue3,style=filled,label="{{default_layer/sTok7_virtualSpan}|{segId=6}|{segName=default_seg0}|{span=it}|{anno1=it}}"];
+<a6>[shape=Mrecord,color=dodgerblue3,style=filled,label="{{default_layer/sTok1_virtualSpan}|{segId=0}|{segName=default_seg0}|{span=Is}|{anno1=Is}}"];
+<a8>[shape=Mrecord,color=dodgerblue3,style=filled,label="{{default_layer/sTok6_virtualSpan}|{segId=5}|{segName=default_seg0}|{span=than}|{anno1=than}}"];
+<a10>[shape=Mrecord,color=dodgerblue3,style=filled,label="{{default_layer/sTok2_virtualSpan}|{segId=1}|{segName=default_seg0}|{span=this}|{anno1=this}}"];
+<a12>[shape=Mrecord,color=dodgerblue3,style=filled,label="{{default_layer/sTok4_virtualSpan}|{segId=3}|{segName=default_seg0}|{span=more}|{anno1=more}}"];
+<a14>[shape=Mrecord,color=dodgerblue3,style=filled,label="{{default_layer/sTok3_virtualSpan}|{segId=2}|{segName=default_seg0}|{span=example}|{anno1=example}}"];
+<a16>[shape=Mrecord,color=dodgerblue3,style=filled,label="{{default_layer/sTok8_virtualSpan}|{segId=7}|{segName=default_seg0}|{span=appears}|{anno1=appears}}"];
+<a18>[shape=Mrecord,color=dodgerblue3,style=filled,label="{{default_layer/sTok5_virtualSpan}|{segId=4}|{segName=default_seg0}|{span=complicated}|{anno1=complicated}}"];
+<a20>[shape=Mrecord,color=dodgerblue3,style=filled,label="{{default_layer/sTok9_virtualSpan}|{segId=8}|{segName=default_seg0}|{span=to}|{anno1=to}}"];
+<a22>[shape=Mrecord,color=dodgerblue3,style=filled,label="{{default_layer/sTok11_virtualSpan}|{segId=0}|{segName=default_seg1}|{span=Uhm}|{anno1=Uhm}}"];
+<a23>[shape=Mrecord,color=dodgerblue3,style=filled,label="{{default_layer/sTok10_virtualSpan}|{segId=9}|{segName=default_seg0}|{span=be?}|{anno1=be?}}"];
+}
+{
+rank=max;
+<a1>[shape=Mrecord,color=turquoise,style=filled,label="default_layer/sTok12_virtualToken"];
+<a3>[shape=Mrecord,color=turquoise,style=filled,label="default_layer/sTok13_virtualToken"];
+<a5>[shape=Mrecord,color=turquoise,style=filled,label="default_layer/sTok7_virtualToken"];
+<a7>[shape=Mrecord,color=turquoise,style=filled,label="default_layer/sTok1_virtualToken"];
+<a9>[shape=Mrecord,color=turquoise,style=filled,label="default_layer/sTok6_virtualToken"];
+<a11>[shape=Mrecord,color=turquoise,style=filled,label="default_layer/sTok2_virtualToken"];
+<a13>[shape=Mrecord,color=turquoise,style=filled,label="default_layer/sTok4_virtualToken"];
+<a15>[shape=Mrecord,color=turquoise,style=filled,label="default_layer/sTok3_virtualToken"];
+<a17>[shape=Mrecord,color=turquoise,style=filled,label="default_layer/sTok8_virtualToken"];
+<a19>[shape=Mrecord,color=turquoise,style=filled,label="default_layer/sTok5_virtualToken"];
+<a21>[shape=Mrecord,color=turquoise,style=filled,label="default_layer/sTok9_virtualToken"];
+}
+
+}
