@@ -540,9 +540,53 @@ public class Salt2RelANNISMapperTest extends TestCase
 		getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 		
 		File dotPath = new File(globalTmpPath.getAbsoluteFile()+testName+File.separator+"newSOrderRelationTest.dot");
-		Salt2DOT salt2Dot = new Salt2DOT();
-		System.out.println("Writing Dot file "+dotPath.getAbsolutePath());
-		salt2Dot.salt2Dot(getFixture().getSDocument().getSDocumentGraph(), URI.createFileURI(dotPath.getAbsolutePath()));
+		Salt2DOT salt2dot= new Salt2DOT();
+		salt2dot.salt2Dot(getFixture().getSDocument().getSDocumentGraph(), URI.createFileURI(testPath.getAbsolutePath()+ File.separator+testName+".dot"));
+		
+		
+		
+		getFixture().mapSCorpus();
+		getFixture().mapSDocument();
+		
+		
+		
+		assertFalse("There was no file to be compared in folder '"+testPath.getAbsolutePath()+"' and folder '"+tmpPath.getAbsolutePath()+"'.", new Integer(0).equals(compareFiles(testPath, tmpPath)));
+	}
+	
+	/**
+	 * Creates an {@link SDocumentGraph} containing:
+	 * <ul>
+	 * 	<li> a primary text</li>
+	 *  <li>tokens</li>
+	 *  <li>annotations on token</li>
+	 *  <li>spans</li>
+	 *  <li>information structure annotation on spans</li>
+	 *  <li>syntax tree</li>
+	 *  <li>annotations on syntax tree</li>
+	 *  <li>annotation on syntax tree</li>
+	 * </ul>
+	 * @throws IOException
+	 */
+	public void testComplexMapSOrderRelation() throws IOException
+	{
+		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
+		String testName= ste[1].getMethodName();
+		
+		File tmpPath= new File(globalTmpPath.getAbsoluteFile()+ File.separator+testName);
+		File testPath= new File(getTestPath()+testName);
+		createTupleWriters(tmpPath);
+		
+		// create the primary text
+		SaltSample.createDialogue(getFixture().getSDocument());
+		EList<SToken> sDocumentTokens = getFixture().getSDocument().getSDocumentGraph().getSTokens();
+		getFixture().getSDocument().getSDocumentGraph().createSRelation(sDocumentTokens.get(0), sDocumentTokens.get(1), STYPE_NAME.SPOINTING_RELATION, "anno=test");
+		getFixture().getSDocument().getSDocumentGraph().createSSpan(sDocumentTokens.get(0));
+		
+		getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
+		
+		File dotPath = new File(globalTmpPath.getAbsoluteFile()+testName+File.separator+"newSOrderRelationTest.dot");
+		Salt2DOT salt2dot= new Salt2DOT();
+		salt2dot.salt2Dot(getFixture().getSDocument().getSDocumentGraph(), URI.createFileURI(testPath.getAbsolutePath()+ File.separator+testName+".dot"));
 		
 		
 		getFixture().mapSCorpus();

@@ -1,6 +1,7 @@
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis;
 
 import java.io.FileNotFoundException;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
@@ -15,7 +16,9 @@ import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.exception
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.Edge;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.GRAPH_TRAVERSE_TYPE;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDominanceRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpan;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpanningRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SStructure;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STYPE_NAME;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualRelation;
@@ -94,6 +97,8 @@ public abstract class SRelation2RelANNISMapper implements SGraphTraverseHandler 
 		// initialise the preorder
 		prePostOrder = 0l;
 		
+		this.virtualNodes = new HashSet<SNode>();
+		
 		// initialise rank Hashtable
 		this.rankTable = new Hashtable<SNode, Long>();
 	}
@@ -149,6 +154,8 @@ public abstract class SRelation2RelANNISMapper implements SGraphTraverseHandler 
 
 // ================================= Graph Traversion   =======================
 	
+	HashSet<SNode> virtualNodes;
+	
 	@Override
 	public void nodeReached(GRAPH_TRAVERSE_TYPE traversalType,
 			String traversalId, SNode currNode, SRelation sRelation,
@@ -156,24 +163,90 @@ public abstract class SRelation2RelANNISMapper implements SGraphTraverseHandler 
 		// A node was reached.
 		// We've got the rank
 		// fromNode -> edge -> currNode
-		
+
 		//if (this.traversionType.equals(TRAVERSION_TYPE.valueOf(traversalId))){
-			// the traversion type is correct
-			
-			if (this.preorderTable.contains(currNode)){
-				// this should NOT happen
-			} else {
+		// the traversion type is correct
+
+		if (this.preorderTable.contains(currNode)){
+			// this should NOT happen
+		} else {
+			Long rankId = null;
+			EList<Long> virtualTokenIds = this.idManager.getVirtualisedTokenId(currNode.getSElementId());
+			// if there are virtual token ids, the virtual tokens were already mapped into the node.tab
+			// We have to create n ranks where n is the count of virtual token ids.
+			// all ranks have the same annotations
+			if (virtualTokenIds != null)
+			{ // THERE ARE VIRTUAL TOKEN IDS
+				if (this.traversionType.equals(TRAVERSION_TYPE.DOCUMENT_STRUCTURE_PR))
+				{ // HANDLE POINTING RELATIONS
+					// They are redirected to the virtual spans
+					virtualTokenIds = new BasicEList<Long>();
+					virtualTokenIds.add(this.idManager.getVirtualisedSpanId(currNode.getSElementId()));
+					System.out.println("Mapping pointing relations concerning a virtual token/span");
+				} // HANDLE POINTING RELATIONS
+				// set virtual token rank mapping
+				this.virtualNodes.add(currNode);
+
+				for (Long virtualTokenId : virtualTokenIds){
+					// get a rank id
+					rankId = this.idManager.getNewRankId();
+					
+					Long parentRank = null;
+					if (fromNode != null){
+						parentRank = this.rankTable.get(fromNode);
+					}
+					Long pre = this.getNewPPOrder();
+					Long post = this.getNewPPOrder();
+					
+					if (this.traversionType.equals(TRAVERSION_TYPE.DOCUMENT_STRUCTURE_PR)){
+						System.out.println("Mapping PointingRelation rank to node with Id "+virtualTokenId);
+						this.preorderTable.put(currNode, pre);
+						this.rankTable.put(currNode, rankId);
+					}
+					
+					{ // map the rank
+						EList<String> rankEntry = new BasicEList<String>();
+						rankEntry.add(rankId.toString());
+						rankEntry.add(pre.toString());
+						rankEntry.add(post.toString());
+						rankEntry.add(virtualTokenId.toString());
+						rankEntry.add(this.currentComponentId.toString());
+						if (parentRank == null){
+							rankEntry.add(new String("NULL"));
+						} else {
+							rankEntry.add(parentRank.toString());
+						}
+						rankEntry.add(this.rankLevel.toString());
+						Long transactionId = this.rankTabWriter.beginTA();
+						try {
+							this.rankTabWriter.addTuple(transactionId, rankEntry);
+							this.rankTabWriter.commitTA(transactionId);
+						} catch (FileNotFoundException e) {
+							throw new RelANNISModuleException("Could not write to the rank tab TupleWriter. Exception is: "+e.getMessage(),e);
+						}
+					} // map the rank
+					if (sRelation != null)
+					{ // MAP THE SAnnotations
+						if (sRelation.getSAnnotations() != null)
+						{
+							for (SAnnotation sAnnotation : sRelation.getSAnnotations())
+							{
+								this.mapSAnnotation2RelANNIS(rankId, sAnnotation);
+							}
+						}
+					} // MAP THE SAnnotations
+				} // MAP VIRTUAL RANK 
+			} // THERE ARE NO VIRTUAL TOKEN IDs	
+			else 
+			{ // MAP NORMAL RANK
+				// set the rank id
+				rankId = this.idManager.getNewRankId();
 				// It does not have a pre-order. Set it.
 				this.preorderTable.put(currNode, this.getNewPPOrder());
 				//System.out.println("Reached node: "+currNode.getSName()+ " with pre "+this.preorderTable.get(currNode));
-				
 				// map the target node
 				this.mapSNode(currNode);
-				
-				// set the rank id
-				Long rankId = this.idManager.getNewRankId();
 				this.rankTable.put(currNode, rankId);
-				
 				// map the SAnnotations
 				if (sRelation != null){
 					if (sRelation.getSAnnotations() != null){
@@ -182,10 +255,11 @@ public abstract class SRelation2RelANNISMapper implements SGraphTraverseHandler 
 						}
 					}
 				}
-				
-				this.rankLevel += 1;
-			}
-		//}
+			}// MAP NORMAL RANK
+			
+
+			this.rankLevel += 1;
+		}
 	}
 
 	@Override
@@ -195,13 +269,8 @@ public abstract class SRelation2RelANNISMapper implements SGraphTraverseHandler 
 		// We've got the rank
 		// fromNode -> edge -> currNode
 		
-		//if (this.traversionType.equals(TRAVERSION_TYPE.valueOf(traversalId))){
-			// the traversion type is correct
-			// the target node has a pre-order.
-			
-			//if (this.preorderTable.contains(currNode)){
-				// map the rank and edge annotations
-				
+		// only do something if we are not mapping a rank to a virtual token
+		if (! this.virtualNodes.contains(currNode)){
 				Long parentRank = null;
 				if (fromNode != null){
 					parentRank = this.rankTable.get(fromNode);
@@ -215,7 +284,10 @@ public abstract class SRelation2RelANNISMapper implements SGraphTraverseHandler 
 				this.rankLevel -= 1;
 				
 				this.mapRank2RelANNIS(edge, currNode, rankId, pre, post, parentRank, rankLevel);
-				
+		} else {
+			// decrease the rank level
+			this.rankLevel -= 1;	
+		}		
 				
 				
 			//}
@@ -365,6 +437,10 @@ public abstract class SRelation2RelANNISMapper implements SGraphTraverseHandler 
 			// the node is not new
 			return;
 		}
+		if (this.idManager.getVirtualisedSpanId(nodeSElementId) != null){
+			// the node is not new
+			return;
+		}
 		// initialise all variables which will be used for the node.tab 
 		// get the RAId
 		Long id = idPair.getLeft();
@@ -487,6 +563,17 @@ public abstract class SRelation2RelANNISMapper implements SGraphTraverseHandler 
 				// IGNORE CASE
 			}
 			// the node is a span or structure
+		}
+		if (this.idManager.hasVirtualTokenization()){
+			EList<Long> virtualisedTokenIds = this.idManager.getVirtualisedTokenId(node.getSElementId());
+			if (virtualisedTokenIds != null){
+				left = 0l;
+				right = 0l;
+				Pair<Long,Long> leftRight = this.idManager.getLeftRightVirtualToken(virtualisedTokenIds.get(0), virtualisedTokenIds.get(virtualisedTokenIds.size()-1));
+				left_token = leftRight.getLeft(); // get this
+				right_token = leftRight.getRight(); // get this
+				span = null;
+			}
 		}
 		
 		this.writeNodeTabEntry(id, text_ref, corpus_ref, layer, name, left, right, token_index, left_token, right_token, seg_index, seg_name, span);

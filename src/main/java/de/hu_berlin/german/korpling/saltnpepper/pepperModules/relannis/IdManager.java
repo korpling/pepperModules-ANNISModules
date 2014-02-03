@@ -4,8 +4,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
 
 public class IdManager {
@@ -28,6 +30,7 @@ public class IdManager {
 	
 	private boolean containsVirtualTokens = false;
 	
+	private EList<Long> virtualTokenIdList = null;
 	
 	public IdManager() {
 		this.nodeId = 0l;
@@ -38,10 +41,22 @@ public class IdManager {
 		this.tokenVirtualisationMapping = new ConcurrentHashMap<SElementId, EList<Long>>();
 		this.spanVirtualisationMapping = new ConcurrentHashMap<SElementId, Long>();
 		
+		this.virtualTokenIdList = new BasicEList<Long>();
+		
 		this.componentId = 0l;
 		this.rankId = 0l;
 		this.corpusId = 0l;
 		this.textId = 0l;
+	}
+	
+	public boolean hasVirtualTokenization(){
+		return this.containsVirtualTokens;
+	}
+	
+	public Pair<Long,Long> getLeftRightVirtualToken(Long left, Long right){
+		Pair<Long,Long> leftRightVirtualToken = null;
+		leftRightVirtualToken = new ImmutablePair<Long, Long>((long)virtualTokenIdList.indexOf(left), (long)virtualTokenIdList.indexOf(right));
+		return leftRightVirtualToken;
 	}
 	
 	/**
@@ -86,6 +101,10 @@ public class IdManager {
 			}
 		}
 		return new ImmutablePair<Long,Boolean>(newId,isNew);
+	}
+	
+	public void registerVirtualTokenIdList(EList<Long> virtTokIdList){
+		this.virtualTokenIdList = virtTokIdList;
 	}
 	
 	public void registerTokenVirtMapping(SElementId tokenId, Long virtualSpanId, EList<Long> virtualTokenIds){
