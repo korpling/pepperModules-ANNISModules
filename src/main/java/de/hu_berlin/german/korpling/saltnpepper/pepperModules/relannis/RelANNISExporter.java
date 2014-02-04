@@ -83,6 +83,8 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 		/**
 		 * Creates a {@link TupleWriter} responsible for the given file.
 		 * @param outFile
+		 * @param escapeCharacters states whether characters should be escaped
+		 * @param characterEscapeTable contains the character-escape-mapping
 		 * @return
 		 */
 		public static synchronized TupleWriter createTupleWRiter(File outFile,boolean escapeCharacters,Hashtable<Character,String> characterEscapeTable)
@@ -97,10 +99,33 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 				}
 			}
 			TupleWriter tWriter= TupleConnectorFactory.fINSTANCE.createTupleWriter();
+			
 			tWriter.setEscaping(escapeCharacters);
 			if (characterEscapeTable != null){
 				tWriter.setEscapeTable(characterEscapeTable);
 			}
+			
+			tWriter.setFile(outFile);
+			return(tWriter);
+		}
+		
+		/**
+		 * Creates a {@link TupleWriter} responsible for the given file.
+		 * @param outFile
+		 * @return
+		 */
+		public static synchronized TupleWriter createTupleWRiter(File outFile)
+		{
+			if (!outFile.getParentFile().exists())
+				outFile.getParentFile().mkdirs();
+			if (!outFile.exists()){
+				try {
+					outFile.createNewFile();
+				} catch (IOException e) {
+					throw new RelANNISModuleException("Could not create the corpus tab file "+ outFile.getAbsolutePath()+ " Exception:"+e.getMessage());
+				}
+			}
+			TupleWriter tWriter= TupleConnectorFactory.fINSTANCE.createTupleWriter();
 			tWriter.setFile(outFile);
 			return(tWriter);
 		}
