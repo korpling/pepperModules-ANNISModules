@@ -23,6 +23,8 @@ import java.util.Hashtable;
 import java.util.Map;
 import java.util.Stack;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -142,7 +144,8 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 	
 	@Override
 	public MAPPING_RESULT mapSCorpus()
-	{
+	{   
+		
 		//this.setSCorpusGraph(sCorpusGraph);
 		if (this.getSCorpusGraph() == null)
 			throw new RelANNISModuleException("Cannot map sCorpusGraph, because sCorpusGraph is null.");

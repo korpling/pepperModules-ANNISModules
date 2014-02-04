@@ -20,6 +20,7 @@ package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Hashtable;
 import java.util.Properties;
 
 import org.eclipse.emf.common.util.BasicEList;
@@ -84,7 +85,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 		 * @param outFile
 		 * @return
 		 */
-		public static synchronized TupleWriter createTupleWRiter(File outFile)
+		public static synchronized TupleWriter createTupleWRiter(File outFile,boolean escapeCharacters,Hashtable<Character,String> characterEscapeTable)
 		{
 			if (!outFile.getParentFile().exists())
 				outFile.getParentFile().mkdirs();
@@ -96,6 +97,10 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 				}
 			}
 			TupleWriter tWriter= TupleConnectorFactory.fINSTANCE.createTupleWriter();
+			tWriter.setEscaping(escapeCharacters);
+			if (characterEscapeTable != null){
+				tWriter.setEscapeTable(characterEscapeTable);
+			}
 			tWriter.setFile(outFile);
 			return(tWriter);
 		}
@@ -106,14 +111,6 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 		@Override
 		public boolean isReadyToStart() throws PepperModuleNotReadyException
 		{
-			tw_text= createTupleWRiter(new File(getCorpusDefinition().getCorpusPath().toFileString() + FILE_CORPUS));
-			tw_node= createTupleWRiter(new File(getCorpusDefinition().getCorpusPath().toFileString() + FILE_NODE));
-			tw_nodeAnno= createTupleWRiter(new File(getCorpusDefinition().getCorpusPath().toFileString() + FILE_NODE_ANNO));
-			tw_rank= createTupleWRiter(new File(getCorpusDefinition().getCorpusPath().toFileString() + FILE_RANK));
-			tw_edgeAnno= createTupleWRiter(new File(getCorpusDefinition().getCorpusPath().toFileString() + FILE_EDGE_ANNO));
-			tw_component= createTupleWRiter(new File(getCorpusDefinition().getCorpusPath().toFileString() + FILE_COMPONENT));
-			tw_corpus= createTupleWRiter(new File(getCorpusDefinition().getCorpusPath().toFileString() + FILE_CORPUS));
-			
 			if (this.getProperties() != null){
 				overwriteResolverVisMap = ((RelANNISExporterProperties)this.getProperties()).getClobberResolverVisMap();
 				overwriteCorpusAnnotations = ((RelANNISExporterProperties)this.getProperties()).getClobberCorpusAnnotations();
@@ -123,25 +120,40 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 				if (individualCorpusName_tmp != null){
 					this.individualCorpusName = individualCorpusName_tmp.trim();
 				}
+				
+				this.escapeCharacters = ((RelANNISExporterProperties)this.getProperties()).getEscapeCharacters();
+				if (this.escapeCharacters){
+					this.characterEscapeTable = ((RelANNISExporterProperties)this.getProperties()).getEscapeCharactersSet();
+				}
 			}
+			
+			tw_text= createTupleWRiter(new File(getCorpusDefinition().getCorpusPath().toFileString() + FILE_CORPUS),this.escapeCharacters,this.characterEscapeTable);
+			tw_node= createTupleWRiter(new File(getCorpusDefinition().getCorpusPath().toFileString() + FILE_NODE),this.escapeCharacters,this.characterEscapeTable);
+			tw_nodeAnno= createTupleWRiter(new File(getCorpusDefinition().getCorpusPath().toFileString() + FILE_NODE_ANNO),this.escapeCharacters,this.characterEscapeTable);
+			tw_rank= createTupleWRiter(new File(getCorpusDefinition().getCorpusPath().toFileString() + FILE_RANK),this.escapeCharacters,this.characterEscapeTable);
+			tw_edgeAnno= createTupleWRiter(new File(getCorpusDefinition().getCorpusPath().toFileString() + FILE_EDGE_ANNO),this.escapeCharacters,this.characterEscapeTable);
+			tw_component= createTupleWRiter(new File(getCorpusDefinition().getCorpusPath().toFileString() + FILE_COMPONENT),this.escapeCharacters,this.characterEscapeTable);
+			tw_corpus= createTupleWRiter(new File(getCorpusDefinition().getCorpusPath().toFileString() + FILE_CORPUS),this.escapeCharacters,this.characterEscapeTable);
+			
+			
 			
 			// set the visualisation tuple writer
 			File resolverVisFile = new File(getCorpusDefinition().getCorpusPath().toFileString()+FILE_VISUALIZATION);
 			if (! resolverVisFile.exists()){
-				tw_visualization= createTupleWRiter(resolverVisFile);
+				tw_visualization= createTupleWRiter(resolverVisFile,this.escapeCharacters,this.characterEscapeTable);
 			} else {
 				if (overwriteResolverVisMap){
-					tw_visualization= createTupleWRiter(resolverVisFile);
+					tw_visualization= createTupleWRiter(resolverVisFile,this.escapeCharacters,this.characterEscapeTable);
 				}
 			}
 			
 			// set the corpus meta annotation tuple writer
 			File corpusAnnotationFile = new File(getCorpusDefinition().getCorpusPath().toFileString()+FILE_CORPUS_META);
 			if (! corpusAnnotationFile.exists()){
-				tw_corpusMeta= createTupleWRiter(corpusAnnotationFile);
+				tw_corpusMeta= createTupleWRiter(corpusAnnotationFile,this.escapeCharacters,this.characterEscapeTable);
 			} else {
 				if (overwriteCorpusAnnotations){
-					tw_corpusMeta= createTupleWRiter(corpusAnnotationFile);
+					tw_corpusMeta= createTupleWRiter(corpusAnnotationFile,this.escapeCharacters,this.characterEscapeTable);
 				}
 			}
 			
@@ -258,6 +270,9 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 		boolean overwriteCorpusAnnotations = true;
 		
 		public String individualCorpusName= null;
+		
+		private Hashtable<Character,String> characterEscapeTable= null;
+		private boolean escapeCharacters=true;
 		
 		// ------------------------- IdManager
 		/** object to manage relANNIS ids**/

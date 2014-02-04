@@ -18,6 +18,11 @@
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis;
 
 
+import java.util.Hashtable;
+import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperModuleProperties;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperModuleProperty;
 
@@ -48,13 +53,81 @@ public class RelANNISExporterProperties extends PepperModuleProperties
 	 */
 	public static final String PROP_INDIVIDUAL_CORPUS_NAME=PREFIX+"corpusName";
 	
+	public static final String PROP_ESCAPE_CHARACTERS= PREFIX+"escapeCharacters";
+	
+	public static final String PROP_ESCAPE_CHARACTERS_LIST= PREFIX+"escapeCharactersList";
+	
 	public RelANNISExporterProperties()
 	{
-		this.addProperty(new PepperModuleProperty<Boolean>(PROP_VISUALISATION_CLOBBER, Boolean.class, "This property defines whether the resolver_vis_map.tab is allowed to be overwritten if it is existent. By default, the table is overwritten(value:true)", false,Boolean.TRUE));
-		this.addProperty(new PepperModuleProperty<Boolean>(PROP_CORPUS_ANNOTATION_CLOBBER, Boolean.class, "This property defines whether the corpus_annotation.tab is allowed to be overwritten if it is existent. By default, the table is overwritten(value:true)", false,Boolean.TRUE));
-		this.addProperty(new PepperModuleProperty<String>(PROP_INDIVIDUAL_CORPUS_NAME, String.class, "This property defines an individual name for the top-level corpus. By default, the top-level corpus gets a generic name by the salt meta model.", null,Boolean.TRUE));
+		this.addProperty(new PepperModuleProperty<Boolean>(PROP_VISUALISATION_CLOBBER, Boolean.class, "This property defines whether the resolver_vis_map.tab is allowed to be overwritten if it is existent. By default, the table is overwritten(value:true)", false,Boolean.FALSE));
+		this.addProperty(new PepperModuleProperty<Boolean>(PROP_CORPUS_ANNOTATION_CLOBBER, Boolean.class, "This property defines whether the corpus_annotation.tab is allowed to be overwritten if it is existent. By default, the table is overwritten(value:true)", false,Boolean.FALSE));
+		this.addProperty(new PepperModuleProperty<String>(PROP_INDIVIDUAL_CORPUS_NAME, String.class, "This property defines an individual name for the top-level corpus. By default, the top-level corpus gets a generic name by the salt meta model.", null,Boolean.FALSE));
+		this.addProperty(new PepperModuleProperty<Boolean>(PROP_ESCAPE_CHARACTERS, Boolean.class, "This property defines whether special characters are escaped during export. By default, characters which are incompatible with databases are escaped.",true, Boolean.FALSE));
+		this.addProperty(new PepperModuleProperty<String>(PROP_ESCAPE_CHARACTERS_LIST, String.class, "This property defines a set of special characters with their escape characters.",null, Boolean.FALSE));
+		
 	}
 	
+	/**
+	 * Returns whether special characters should be escaped.
+	 * @return
+	 */
+	public boolean getEscapeCharacters()
+	{
+			return((Boolean)this.getProperty(PROP_ESCAPE_CHARACTERS).getValue());
+	}
+	
+	/**
+	 * Returns which characters should be replaced by which character.
+	 * @return
+	 */
+	public Hashtable<Character,String> getEscapeCharactersSet(){
+		Hashtable<Character,String> characterEscapeTable = new Hashtable<Character, String>();
+		String escapeString = ((String)this.getProperty(PROP_ESCAPE_CHARACTERS_LIST).getValue());
+		if (escapeString != null){
+			if (!escapeString.isEmpty()){
+				// \(FIND_CHAR=REPLACE_CHAR\) (,\(FIND_CHAR=REPLACE_CHAR\))*
+				Pattern pattern = Pattern.compile("(\\()(.*?=.*?)(\\))");
+		        Matcher matcher = pattern.matcher(escapeString);
+
+		        Vector<String> listMatches = new Vector<String>();
+
+		        System.out.println("Count of groups: "+matcher.groupCount());
+		        while(matcher.find())
+		        {
+		        	
+		        	System.out.println("Matched: "+matcher.group());
+		            listMatches.add(matcher.group(2));
+		        }
+		        System.out.println("Escape table configuration:");
+		        for (String escapePair : listMatches){
+					String[] valuePair = escapePair.split("=");
+					if (valuePair.length == 2){
+						System.out.println("Key:"+valuePair[0]+" , Value:"+valuePair[1]);
+						char key = ' ';
+						if (valuePair[0].equals("\\t")){
+							key = '\t';
+						} else if (valuePair[0].equals("\\n")){
+							key = '\n';
+						} else if (valuePair[0].equals("\\r")){
+							key = '\r';
+						} else if (valuePair[0].equals("\'")){
+							key = '\'';
+						} else if (valuePair[0].equals("\"")){
+							key = '\"';
+						} else if (valuePair[0].length()==1){
+							key = valuePair[0].toCharArray()[0];
+						} else {
+							System.out.println("INFO: malformed character in escape values: "+valuePair[0]);
+							continue;
+						}
+						characterEscapeTable.put(key, valuePair[1]);
+					}
+				}
+				
+			}
+		}
+		return characterEscapeTable;
+	}
 	
 	/**
 	 * Returns whether the resolver_vis_map.tab should be overwritten.
