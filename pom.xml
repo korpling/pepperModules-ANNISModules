@@ -66,7 +66,8 @@
     <dependency>
 		<groupId>de.hu_berlin.german.korpling.saltnpepper</groupId>
           <artifactId>misc-TupleConnector</artifactId>
-          <version>[1.1.4,)</version>
+          <!--  <version>[1.1.4,)</version> -->
+          <version>1.1.4-SNAPSHOT</version>
           <type>bundle</type>
           <scope>compile</scope>
       </dependency>
@@ -127,7 +128,8 @@
             <Bundle-Version>${project.version}</Bundle-Version>
             <Bundle-RequiredExecutionEnvironment>JavaSE-${java.version}</Bundle-RequiredExecutionEnvironment>
             <Service-Component>${allServiceComponents}</Service-Component>
-            <Include-Resource>{maven-resources}, LICENSE, NOTICE</Include-Resource>
+            <Bundle-ClassPath>.,{maven-dependencies}, lib/commons-lang3-3.0.jar</Bundle-ClassPath>
+            <Include-Resource>{maven-resources}, LICENSE, NOTICE, lib/commons-lang3-3.0.jar=lib/commons-lang3-3.0.jar</Include-Resource>
             <!-- 	TODO /13/ 
             		In case of you want to add not mavenized 3rd party libraries, put the into the project structure 
             		under path RESOURCE_PATH and fullfill the following two entries. The alias RESOURCE_ALIAS can be any String
