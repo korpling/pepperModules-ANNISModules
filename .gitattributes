@@ -8,6 +8,7 @@
 /LICENSE -text
 /NOTICE -text
 /build.properties -text svneol=unset#text/plain
+lib/commons-lang3-3.0.jar -text
 /pom.xml -text svneol=unset#text/plain
 src/assemble/assemblies.xml -text svneol=unset#text/plain
 src/etc/NOTICE_template.txt -text svneol=unset#text/plain

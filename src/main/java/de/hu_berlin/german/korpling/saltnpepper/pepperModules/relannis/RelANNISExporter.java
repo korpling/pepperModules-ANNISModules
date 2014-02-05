@@ -21,7 +21,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Hashtable;
-import java.util.Properties;
 
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
@@ -33,8 +32,6 @@ import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperExceptions.PepperMo
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperExceptions.PepperModuleNotReadyException;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperExporter;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperMapper;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperModuleProperties;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperModuleProperty;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.impl.PepperExporterImpl;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.exceptions.RelANNISModuleException;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpus;
@@ -50,11 +47,12 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 		public RelANNISExporter()
 		{
 			super();
+			setProperties(new RelANNISExporterProperties());
 			this.name= "RelANNISExporter";
 			this.setVersion("1.0.0");
-			this.addSupportedFormat("RelANNIS", "3.1", null);
-			this.addSupportedFormat("RelANNIS", "3.2", null);
-			this.addSupportedFormat("RelANNIS", "4.0", null); 
+			this.addSupportedFormat("relANNIS", "3.1", null);
+			this.addSupportedFormat("relANNIS", "3.2", null);
+			this.addSupportedFormat("relANNIS", "4.0", null); 
 		}
 		
 		/**
@@ -74,6 +72,13 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 			mapper.tw_corpus= tw_corpus;
 			mapper.tw_corpusMeta= tw_corpusMeta;
 			mapper.individualCorpusName= this.individualCorpusName;
+			
+			//a fix: it seems to be a bug, that ScorpusGraph is not set automatically for mapper
+			if (sElementId.getSIdentifiableElement()!= null){
+				if (sElementId.getSIdentifiableElement() instanceof SCorpus){
+					mapper.setSCorpusGraph(((SCorpus)sElementId.getSIdentifiableElement()).getSCorpusGraph());
+				}
+			}
 			
 			return mapper;
 			
@@ -151,19 +156,17 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 					this.characterEscapeTable = ((RelANNISExporterProperties)this.getProperties()).getEscapeCharactersSet();
 				}
 			}
-			
-			tw_text= createTupleWRiter(new File(getCorpusDefinition().getCorpusPath().toFileString() + FILE_CORPUS),this.escapeCharacters,this.characterEscapeTable);
-			tw_node= createTupleWRiter(new File(getCorpusDefinition().getCorpusPath().toFileString() + FILE_NODE),this.escapeCharacters,this.characterEscapeTable);
-			tw_nodeAnno= createTupleWRiter(new File(getCorpusDefinition().getCorpusPath().toFileString() + FILE_NODE_ANNO),this.escapeCharacters,this.characterEscapeTable);
-			tw_rank= createTupleWRiter(new File(getCorpusDefinition().getCorpusPath().toFileString() + FILE_RANK),this.escapeCharacters,this.characterEscapeTable);
-			tw_edgeAnno= createTupleWRiter(new File(getCorpusDefinition().getCorpusPath().toFileString() + FILE_EDGE_ANNO),this.escapeCharacters,this.characterEscapeTable);
-			tw_component= createTupleWRiter(new File(getCorpusDefinition().getCorpusPath().toFileString() + FILE_COMPONENT),this.escapeCharacters,this.characterEscapeTable);
-			tw_corpus= createTupleWRiter(new File(getCorpusDefinition().getCorpusPath().toFileString() + FILE_CORPUS),this.escapeCharacters,this.characterEscapeTable);
-			
-			
+			String corpPath= getCorpusDefinition().getCorpusPath().toFileString() +((getCorpusDefinition().getCorpusPath().toFileString().endsWith("/"))?"":"/");
+			tw_text= createTupleWRiter(new File(corpPath+ FILE_TEXT),this.escapeCharacters,this.characterEscapeTable);
+			tw_node= createTupleWRiter(new File(corpPath+  FILE_NODE),this.escapeCharacters,this.characterEscapeTable);
+			tw_nodeAnno= createTupleWRiter(new File(corpPath + FILE_NODE_ANNO),this.escapeCharacters,this.characterEscapeTable);
+			tw_rank= createTupleWRiter(new File(corpPath + FILE_RANK),this.escapeCharacters,this.characterEscapeTable);
+			tw_edgeAnno= createTupleWRiter(new File(corpPath + FILE_EDGE_ANNO),this.escapeCharacters,this.characterEscapeTable);
+			tw_component= createTupleWRiter(new File(corpPath + FILE_COMPONENT),this.escapeCharacters,this.characterEscapeTable);
+			tw_corpus= createTupleWRiter(new File(corpPath + FILE_CORPUS),this.escapeCharacters,this.characterEscapeTable);
 			
 			// set the visualisation tuple writer
-			File resolverVisFile = new File(getCorpusDefinition().getCorpusPath().toFileString()+FILE_VISUALIZATION);
+			File resolverVisFile = new File(corpPath+FILE_VISUALIZATION);
 			if (! resolverVisFile.exists()){
 				tw_visualization= createTupleWRiter(resolverVisFile,this.escapeCharacters,this.characterEscapeTable);
 			} else {
@@ -173,7 +176,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 			}
 			
 			// set the corpus meta annotation tuple writer
-			File corpusAnnotationFile = new File(getCorpusDefinition().getCorpusPath().toFileString()+FILE_CORPUS_META);
+			File corpusAnnotationFile = new File(corpPath+FILE_CORPUS_META);
 			if (! corpusAnnotationFile.exists()){
 				tw_corpusMeta= createTupleWRiter(corpusAnnotationFile,this.escapeCharacters,this.characterEscapeTable);
 			} else {
