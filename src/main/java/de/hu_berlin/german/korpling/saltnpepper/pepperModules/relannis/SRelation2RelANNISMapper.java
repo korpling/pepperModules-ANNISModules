@@ -3,8 +3,6 @@ package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis;
 import java.io.FileNotFoundException;
 import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.Stack;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.emf.common.util.BasicEList;
@@ -16,9 +14,7 @@ import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.exception
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.Edge;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.GRAPH_TRAVERSE_TYPE;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDominanceRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpan;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpanningRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SStructure;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STYPE_NAME;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualRelation;
@@ -182,7 +178,7 @@ public abstract class SRelation2RelANNISMapper implements SGraphTraverseHandler 
 					// They are redirected to the virtual spans
 					virtualTokenIds = new BasicEList<Long>();
 					virtualTokenIds.add(this.idManager.getVirtualisedSpanId(currNode.getSElementId()));
-					System.out.println("Mapping pointing relations concerning a virtual token/span");
+					//System.out.println("Mapping pointing relations concerning a virtual token/span");
 				} // HANDLE POINTING RELATIONS
 				// set virtual token rank mapping
 				this.virtualNodes.add(currNode);
@@ -199,7 +195,7 @@ public abstract class SRelation2RelANNISMapper implements SGraphTraverseHandler 
 					Long post = this.getNewPPOrder();
 					
 					if (this.traversionType.equals(TRAVERSION_TYPE.DOCUMENT_STRUCTURE_PR)){
-						System.out.println("Mapping PointingRelation rank to node with Id "+virtualTokenId);
+						//System.out.println("Mapping PointingRelation rank to node with Id "+virtualTokenId);
 						this.preorderTable.put(currNode, pre);
 						this.rankTable.put(currNode, rankId);
 					}
