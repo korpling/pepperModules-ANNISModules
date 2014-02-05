@@ -8,6 +8,7 @@ import org.eclipse.emf.common.util.EList;
 
 import de.hu_berlin.german.korpling.saltnpepper.misc.tupleconnector.TupleWriter;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.Salt2RelANNISMapper.TRAVERSION_TYPE;
+import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.GRAPH_TRAVERSE_TYPE;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDominanceRelation;
@@ -92,7 +93,7 @@ public class SPointingRelation2RelANNISMapper extends SRelation2RelANNISMapper  
 					//System.out.println("SType is "+this.currentComponentName);
 				}
 			} else {
-				this.currentComponentName = SDocumentGraph.DEFAULT_STYPE;
+				this.currentComponentName = SaltFactory.DEFAULT_STYPE;
 			}
 		}
 		
@@ -133,7 +134,7 @@ public class SPointingRelation2RelANNISMapper extends SRelation2RelANNISMapper  
 						}
 					} else {
 						// the current SType is NULL, i.e. SALT::NULL
-						if (this.currentTraversionSType.equals(SDocumentGraph.DEFAULT_STYPE)){
+						if (this.currentTraversionSType.equals(SaltFactory.DEFAULT_STYPE)){
 							returnVal = true;
 						}
 						

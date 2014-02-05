@@ -11,5 +11,5 @@
 10	c	VIRTUAL	timelineRelationMapping
 11	c	VIRTUAL	timelineRelationMapping
 12	c	VIRTUAL	timelineRelationMapping
-13	p	default_ns	SALT::NULL
+13	p	default_ns	salt::NULL
 14	c	default_ns	NULL

@@ -50,8 +50,8 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 			setProperties(new RelANNISExporterProperties());
 			this.name= "RelANNISExporter";
 			this.setVersion("1.0.0");
-			this.addSupportedFormat("relANNIS", "3.1", null);
-			this.addSupportedFormat("relANNIS", "3.2", null);
+//			this.addSupportedFormat("relANNIS", "3.1", null);
+//			this.addSupportedFormat("relANNIS", "3.2", null);
 			this.addSupportedFormat("relANNIS", "4.0", null); 
 		}
 		
