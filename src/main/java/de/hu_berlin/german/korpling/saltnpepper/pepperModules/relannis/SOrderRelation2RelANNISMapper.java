@@ -104,13 +104,13 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 			*/
 			EList<STimelineRelation> overlappedTimelines = new BasicEList<STimelineRelation>();
 			
-			System.out.println(minimalTimelineRelations.keySet());
+			//System.out.println(minimalTimelineRelations.keySet());
 			for (Integer i = timelineRelation.getSStart() ; i < timelineRelation.getSEnd() ; i++)
 			{ // get all timeline-overlapped timelines
 				for (String key : minimalTimelineRelations.keySet()){
 					if ( key.equals(i.toString())){
-						System.out.println("Found key");
-						System.out.println("Found POT "+i);
+						//System.out.println("Found key");
+						//System.out.println("Found POT "+i);
 						overlappedTimelines.add(minimalTimelineRelations.get(key));
 					}
 				}
@@ -236,7 +236,7 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 		for (String pot : pointsOfTime){
 			System.out.println("POT: "+pot);
 		}*/
-		System.out.println("SOrderRelation2RelANNOSMapper : Points of time are " + pointsOfTime);
+		//System.out.println("SOrderRelation2RelANNOSMapper : Points of time are " + pointsOfTime);
 		
 		HashSet<STimelineRelation> nonMinimalTimelineRelations = new HashSet<STimelineRelation>();
 		HashSet<STimelineRelation> minimalTimelineRelations = new HashSet<STimelineRelation>();
@@ -300,7 +300,7 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 				{ 
 					for (String key : minimalTimelineRelationsSortedByStart.keySet()){
 						if ( key.equals(pot)){
-							System.out.println("Found minimal key");
+							//System.out.println("Found minimal key");
 							sortedMinimalTimelineRelationList.add(minimalTimelineRelationsSortedByStart.get(key));
 						}
 					}

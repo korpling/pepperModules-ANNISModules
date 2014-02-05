@@ -217,8 +217,8 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 				if (subComponentRoots != null){
 					if (subComponentRoots.size() > 0){
 						for (String key : subComponentRoots.keySet()){
-							System.out.println("Count of SOrderRelation roots for key "+key+" : "+subComponentRoots.get(key).size());
-							System.out.println("Mapping SOrderRelations subcomponents with sType: "+key);
+							//System.out.println("Count of SOrderRelation roots for key "+key+" : "+subComponentRoots.get(key).size());
+							//System.out.println("Mapping SOrderRelations subcomponents with sType: "+key);
 							SRelation2RelANNISMapper sOrderRelationMapper = new SOrderRelation2RelANNISMapper(getIdManager(), getSDocument().getSDocumentGraph(), tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component);
 							sOrderRelationMapper.setTraversionSType(key);
 							sOrderRelationMapper.mapSRelations2RelANNIS(subComponentRoots.get(key), STYPE_NAME.SORDER_RELATION, null);
@@ -265,21 +265,21 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 				
 				subComponentRoots = this.sDocument.getSDocumentGraph().getRootsBySRelationSType(STYPE_NAME.SPOINTING_RELATION);
 				if (subComponentRoots != null){
-					System.out.println("The Pointing relation graphs have "+ subComponentRoots.size() + " STypes.");
+					//System.out.println("The Pointing relation graphs have "+ subComponentRoots.size() + " STypes.");
 					if (subComponentRoots.size() > 0){
 						
 						for (String key : subComponentRoots.keySet()){
-							System.out.println("Count of PR roots for key "+key+" : "+subComponentRoots.get(key).size());
-							System.out.println("Mapping PointingRelation subcomponents with sType: "+key);
+							//System.out.println("Count of PR roots for key "+key+" : "+subComponentRoots.get(key).size());
+							//System.out.println("Mapping PointingRelation subcomponents with sType: "+key);
 							SRelation2RelANNISMapper sPointingSubRelationMapper = new SPointingRelation2RelANNISMapper(getIdManager(), getSDocument().getSDocumentGraph(), tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component);
 							sPointingSubRelationMapper.setTraversionSType(key);
 							sPointingSubRelationMapper.mapSRelations2RelANNIS(subComponentRoots.get(key), STYPE_NAME.SPOINTING_RELATION, TRAVERSION_TYPE.DOCUMENT_STRUCTURE_PR);
 						}
 					} else {
-						System.out.println("No PointingRelation components found (null map)");
+						//System.out.println("No PointingRelation components found (null map)");
 					}
 				} else {
-					System.out.println("No PointingRelation components found (empty map)");
+					//System.out.println("No PointingRelation components found (empty map)");
 				}
 				// END Step 2: map SPointingRelations
 				
@@ -296,20 +296,20 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 				// START Step 3.1 : map the subComponents of the SDominanceRelations
 				subComponentRoots = this.sDocument.getSDocumentGraph().getRootsBySRelationSType(STYPE_NAME.SDOMINANCE_RELATION);
 				if (subComponentRoots != null){
-					System.out.println("The Dominance relation graphs have "+ subComponentRoots.size() + " STypes.");
+					//System.out.println("The Dominance relation graphs have "+ subComponentRoots.size() + " STypes.");
 					if (subComponentRoots.size() > 0){
 						for (String key : subComponentRoots.keySet()){
-							System.out.println("Mapping DominanceRelation subcomponents with sType: "+key);
+							//System.out.println("Mapping DominanceRelation subcomponents with sType: "+key);
 							
 							SRelation2RelANNISMapper sDominanceSubRelationMapper = new SDominanceRelation2RelANNISMapper(getIdManager(), getSDocument().getSDocumentGraph(), tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component);
 							sDominanceSubRelationMapper.setTraversionSType(key);
 							sDominanceSubRelationMapper.mapSRelations2RelANNIS(subComponentRoots.get(key), STYPE_NAME.SDOMINANCE_RELATION, TRAVERSION_TYPE.DOCUMENT_STRUCTURE_DR);
 						}
 					} else {
-						System.out.println("No DominanceRelation subcomponents found (null map)");
+						//System.out.println("No DominanceRelation subcomponents found (null map)");
 					}
 				} else {
-					System.out.println("No DominanceRelation subcomponents found (empty map)");
+					//System.out.println("No DominanceRelation subcomponents found (empty map)");
 				}
 				// END Step 3.1 : map the subComponents of the SDominanceRelations
 				
@@ -350,7 +350,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 	 * </pre>
 	 */
 	protected void mapSText(){
-		System.out.println("MAPPING TEXT ****************************************");
+		//System.out.println("MAPPING TEXT ****************************************");
 		SDocumentGraph sDoc = this.getSDocument().getSDocumentGraph();
 		Long sDocID = null;
 		Long textId = 0l;
@@ -393,36 +393,6 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 	}
 	
 // ================================================ end: mapping document structure
-	
-	
-	
-	/**
-	 * Computes a String value for identifiying a sub component and returns it. Component id
-	 * is created out of all sTypes of sRelation. 
-	 * @param sRelation
-	 * @return
-	 */
-	private String computeConnectedComponentId(SRelation sRelation)
-	{
-		String retVal= null;
-		{//compute connected component id
-			if (	(sRelation.getSTypes()!= null)&&
-					(sRelation.getSTypes().size()> 0))
-			{	
-				StringBuffer sTypes= new StringBuffer();
-				for (String sType: sRelation.getSTypes())
-				{	
-					if ("".equals(sTypes.toString()))
-						sTypes.append(sType);
-					else sTypes.append(sTypes.toString()+ ":" + sType);
-				}
-				retVal= sTypes.toString();
-			}
-		}//compute connected component id
-		return(retVal);
-	}
-		
-	
 	
 	
 	/**
