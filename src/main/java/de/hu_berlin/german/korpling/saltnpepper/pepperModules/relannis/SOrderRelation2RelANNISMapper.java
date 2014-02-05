@@ -54,6 +54,13 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 	
 	private Hashtable<SToken,Pair<Long,Pair<String,String>>> segindex_segname_span_table = new Hashtable<SToken, Pair<Long,Pair<String,String>>>();
 	
+	/**
+	 * This method maps the given {@link STimelineRelation} timelineRelation with use of the minimal timeline relations.
+	 * @param timelineRelation The {@link STimelineRelation} to map
+	 * @param minimalTimelineRelations The set of {@link STimelineRelation} objects indexed by their start Point of Time
+	 * @param minimalTimelineRelationList A list of minimal timeline relations
+	 * @param minimal States whether the given {@link STimelineRelation} is minimal, i.e. there is no other timeline which is contained in the given one.
+	 */
 	private void mapSTimeline(STimelineRelation timelineRelation, Hashtable<String,STimelineRelation> minimalTimelineRelations,EList<STimelineRelation> minimalTimelineRelationList,boolean minimal){
 		
 		// define a new component
@@ -98,13 +105,13 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 		} // map a timeline which has only one virtual token
 		else
 		{ // map a timeline which has more than one virtual token
+			/*
 			System.out.println("Count of minimal timelines: "+ minimalTimelineRelationList.size());
 			System.out.println("Mapping timeline for token "+ timelineRelation.getSToken().getSName());
 			System.out.println("Start POT "+ timelineRelation.getSStart());
 			System.out.println("End POT "+ timelineRelation.getSEnd());
+			*/
 			EList<STimelineRelation> overlappedTimelines = new BasicEList<STimelineRelation>();
-			
-			
 			
 			System.out.println(minimalTimelineRelations.keySet());
 			for (Integer i = timelineRelation.getSStart() ; i < timelineRelation.getSEnd() ; i++)
@@ -116,13 +123,6 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 						overlappedTimelines.add(minimalTimelineRelations.get(key));
 					}
 				}
-				/*
-				if (minimalTimelineRelations.contains(i.toString())){
-					System.out.println("Found POT "+i);
-					overlappedTimelines.add(minimalTimelineRelations.get(i.toString()));
-				} else {
-					System.out.println("Did not find POT "+i);
-				}*/
 			}// get all timeline-overlapped timelines
 			{// set token_left and token_right
 				token_left = (long) minimalTimelineRelationList.indexOf(overlappedTimelines.get(0));
@@ -219,6 +219,11 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 		}
 	}
 	
+	/**
+	 * This method sorts the {@link STimelineRelation} objects given as parameter by their start Point of Time
+	 * @param sTimelineRelations the {@link STimelineRelation} objects to sort
+	 * @return The sorted {@link STimelineRelation} objects
+	 */
 	private Hashtable<String,STimelineRelation> sortTimelineRelationsByStart(EList<STimelineRelation> sTimelineRelations){
 		Hashtable<String,STimelineRelation> retVal = new Hashtable<String, STimelineRelation>();
 		for (STimelineRelation t : sTimelineRelations){
@@ -229,7 +234,9 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 		return retVal;
 	}
 	
-	
+	/**
+	 * This method creates a virtual tokenization for all {@link SToken} which are overlapped by a {@link STimelineRelation}
+	 */
 	public void createVirtualTokenization(){
 		EList<STimelineRelation> timelineRelations = this.documentGraph.getSTimelineRelations();
 		
@@ -276,7 +283,7 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 					} // for all other timeline relations
 					if (relationIsMinimal){
 						int interval =  (timelineRel1.getSEnd() - timelineRel1.getSStart());
-						System.out.println("Found minimal STimelineRelation with interval "+interval+" and POT "+timelineRel1.getSStart()+" for Token "+ timelineRel1.getSToken().getSName());
+						//System.out.println("Found minimal STimelineRelation with interval "+interval+" and POT "+timelineRel1.getSStart()+" for Token "+ timelineRel1.getSToken().getSName());
 						minimalTimelineRelations.add(timelineRel1);
 						minimalTimelineRelationList.add(timelineRel1);
 					} else {

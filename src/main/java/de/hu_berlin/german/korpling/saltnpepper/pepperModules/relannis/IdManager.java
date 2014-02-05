@@ -20,16 +20,14 @@ public class IdManager {
 	private ConcurrentHashMap<SElementId,Long> spanVirtualisationMapping;
 	
 	private Long nodeId = 0l;
-	
 	private Long componentId = 0l;
-	
 	private Long rankId = 0l;
-	
 	private Long corpusId = 0l;
 	private Long textId = 0l;
 	
+	// states whether virtual tokens and spans are managed
 	private boolean containsVirtualTokens = false;
-	
+	// the virtual tokens which are sorted by their point of time
 	private EList<Long> virtualTokenIdList = null;
 	
 	public IdManager() {
@@ -49,21 +47,31 @@ public class IdManager {
 		this.textId = 0l;
 	}
 	
-	public boolean hasVirtualTokenization(){
+	/**
+	 * This method returns whether this manager manages virtual tokens
+	 * @return true, if virtual tokens are existent and false, else
+	 */
+	public synchronized boolean hasVirtualTokenization(){
 		return this.containsVirtualTokens;
 	}
 	
-	public Pair<Long,Long> getLeftRightVirtualToken(Long left, Long right){
-		Pair<Long,Long> leftRightVirtualToken = null;
-		leftRightVirtualToken = new ImmutablePair<Long, Long>((long)virtualTokenIdList.indexOf(left), (long)virtualTokenIdList.indexOf(right));
-		return leftRightVirtualToken;
+	/**
+	 * This method returns the token id of the first and last covered virtual token.
+	 * @param leftTokenRAId The RelANNIS id of the first covered token
+	 * @param rightTokenRAId The RelANNIS id of the last covered token
+	 * @return A pair of token ids
+	 */
+	public synchronized Pair<Long,Long> getLeftRightVirtualToken(Long leftTokenRAId, Long rightTokenRAId){
+		Pair<Long,Long> returnVal = null;
+		returnVal = new ImmutablePair<Long, Long>((long)virtualTokenIdList.indexOf(leftTokenRAId), (long)virtualTokenIdList.indexOf(rightTokenRAId));
+		return returnVal;
 	}
 	
 	/**
 	 * This method returns an unique node tab RelANNIS id for the 
-	 * node with the specified SElementId. Also, the method returns a boolean
+	 * node with the specified {@link SElementId}. Also, the method returns a boolean
 	 * which specifies whether the RelANNIS id is fresh.
-	 * @param sElementId the SElementId of the node
+	 * @param sElementId the {@link SElementId} of the node
 	 * @return a pair <Long,Boolean> which is the RelANNIS node tab id and
 	 * 		a boolean which specifies whether the id is fresh.
 	 */
@@ -85,6 +93,12 @@ public class IdManager {
 		return new ImmutablePair<Long,Boolean>(newId,isNew);
 	}
 	
+	/**
+	 * This method returns a RelANNIS id for a virtual node specified by the given string parameter.
+	 * @param sElementId The element id
+	 * @return a pair <Long,Boolean> which is the RelANNIS node tab id and
+	 * 		a boolean which specifies whether the id is fresh.
+	 */
 	public Pair<Long,Boolean> getVirtualNodeId(String sElementId){
 		boolean isNew = false;
 		Long newId = this.virtualNodeIdMap.get(sElementId);
@@ -103,11 +117,23 @@ public class IdManager {
 		return new ImmutablePair<Long,Boolean>(newId,isNew);
 	}
 	
-	public void registerVirtualTokenIdList(EList<Long> virtTokIdList){
+	/**
+	 * This method is used to set the list of virtual tokens which is sorted by the Point Of Time of the respective vitrual tokens.
+	 * @param virtTokIdList the sorted token id list
+	 */
+	public synchronized void registerVirtualTokenIdList(EList<Long> virtTokIdList){
 		this.virtualTokenIdList = virtTokIdList;
 	}
 	
-	public void registerTokenVirtMapping(SElementId tokenId, Long virtualSpanId, EList<Long> virtualTokenIds){
+	/**
+	 * This method is used to register the mapping of a real token (specified by tokenId) to a
+	 * virtual span (specified by virtualSpanId) and a set of virtual tokens (specified by virtualTokenIds)
+	 * which are overlapped by the virtual span.
+	 * @param tokenId The {@link SElementId} of the real token
+	 * @param virtualSpanId The RelANNIS id of the virtual span
+	 * @param virtualTokenIds The RelANNIS ids of the virtual tokens
+	 */
+	public synchronized void registerTokenVirtMapping(SElementId tokenId, Long virtualSpanId, EList<Long> virtualTokenIds){
 		this.containsVirtualTokens = true;
 		if (! this.tokenVirtualisationMapping.contains(tokenId)){
 			this.tokenVirtualisationMapping.put(tokenId, virtualTokenIds);
@@ -117,14 +143,28 @@ public class IdManager {
 		}
 	}
 	
+	/**
+	 * This method returns the RelANNIS ids of the virtual tokens which represent the token specified by tokenId.
+	 * @param tokenId The {@link SElementId} of the node
+	 * @return The list of RelANNIS ids of the virtual tokens or null, if the token was not virtualised.
+	 */
 	public synchronized EList<Long> getVirtualisedTokenId(SElementId tokenId){
 		return this.tokenVirtualisationMapping.get(tokenId);
 	}
 	
+	/**
+	 * This method returns the RelANNIS id of the virtual span which represents the token specified by tokenId.
+	 * @param tokenId The {@link SElementId} of the node
+	 * @return The RelANNIS id of the virtual Span or null, if the token was not virtualised.
+	 */
 	public synchronized Long getVirtualisedSpanId(SElementId tokenId){
 		return this.spanVirtualisationMapping.get(tokenId);
 	}
 	
+	/**
+	 * This method returns a new component id.
+	 * @return The component id
+	 */
 	public Long getNewComponentId(){
 		Long newId = null;
 		synchronized (this) {
@@ -134,6 +174,10 @@ public class IdManager {
 		return newId;
 	}
 	
+	/**
+	 * This method returns a new rank id.
+	 * @return The new rank id
+	 */
 	public Long getNewRankId(){
 		Long newId = null;
 		synchronized (this) {
@@ -143,6 +187,11 @@ public class IdManager {
 		return newId;
 	}
 	
+	/**
+	 * This method returns the corpus tab id of the {@link SCorpus} or {@link SDocument} specified by the {@link SElementId} sElementId
+	 * @param sElementId The {@link SElementId} of the {@link SCorpus} or {@link SDocument}
+	 * @return The corpus tab id.
+	 */
 	public Long getNewCorpusTabId(SElementId sElementId){
 		Long newId = this.corpusTabIdMap.get(sElementId);
 		if (newId == null){
@@ -160,6 +209,11 @@ public class IdManager {
 		return newId;
 	}
 	
+	/**
+	 * This method returns the text tab id of the {@link STextualDS} specified by the {@link SElementId} sElementId
+	 * @param sElementId The {@link SElementId} of the {@link STextualDS}
+	 * @return The text tab id which is 0, if this class currently manages virtual tokens.
+	 */
 	public Long getNewTextId(SElementId sElementId){
 		if (this.containsVirtualTokens)
 		{
