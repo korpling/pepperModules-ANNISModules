@@ -9,7 +9,7 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
  */
 public interface RelANNIS {
 	/** Name of the file, to store the corpus-structure. **/
-	public static final String FILE_ENDING=".tab";
+	public static final String FILE_ENDING=".relannis";
 	
 	/** Name of the file, to store the corpus-structure. **/
 	public static final String FILE_CORPUS="corpus"+ FILE_ENDING;
