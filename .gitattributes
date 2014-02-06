@@ -438,3 +438,5 @@ src/test/resources/testMapUntypedPointingRelation/rank.relannis -text
 src/test/resources/testMapUntypedPointingRelation/testMapUntypedPointingRelation.dot -text
 src/test/resources/testMapUntypedPointingRelation/testMapUntypedPointingRelation.png -text
 src/test/resources/testMapUntypedPointingRelation/text.relannis -text
+src/test/resources/testSpecialParams/test1.pepperParams -text
+src/test/resources/testSpecialParams/test2.pepperParams -text

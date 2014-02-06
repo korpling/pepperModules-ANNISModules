@@ -1,0 +1,5 @@
+relANNIS.exporter.clobber.visualisation=true
+relANNIS.exporter.clobber.corpus_annotation=true
+relANNIS.exporter.corpusName=TestCorpusName
+relANNIS.exporter.escapeCharacters=false // true
+relANNIS.exporter.escapeCharactersList=(\=\\),(a=bcd),(\t= )
