@@ -33,7 +33,7 @@ import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperModul
  */
 public class RelANNISExporterProperties extends PepperModuleProperties 
 {
-	public static final String PREFIX="relAnnis.exporter.";
+	public static final String PREFIX="relANNIS.exporter.";
 	
 	public static final String PREFIX_CLOBBER="clobber.";
 	
@@ -81,10 +81,11 @@ public class RelANNISExporterProperties extends PepperModuleProperties
 	 * @return
 	 */
 	public Hashtable<Character,String> getEscapeCharactersSet(){
-		Hashtable<Character,String> characterEscapeTable = new Hashtable<Character, String>();
+		Hashtable<Character,String> characterEscapeTable= null;
 		String escapeString = ((String)this.getProperty(PROP_ESCAPE_CHARACTERS_LIST).getValue());
 		if (escapeString != null){
 			if (!escapeString.isEmpty()){
+				characterEscapeTable = new Hashtable<Character, String>();
 				// \(FIND_CHAR=REPLACE_CHAR\) (,\(FIND_CHAR=REPLACE_CHAR\))*
 				Pattern pattern = Pattern.compile("(\\()(.*?=.*?)(\\))");
 		        Matcher matcher = pattern.matcher(escapeString);
@@ -125,7 +126,7 @@ public class RelANNISExporterProperties extends PepperModuleProperties
 				}
 				
 			}
-		}
+		} 
 		return characterEscapeTable;
 	}
 	

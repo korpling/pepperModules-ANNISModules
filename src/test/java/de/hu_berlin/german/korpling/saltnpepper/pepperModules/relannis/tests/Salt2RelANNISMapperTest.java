@@ -567,6 +567,7 @@ public class Salt2RelANNISMapperTest extends TestCase
 		assertFalse("There was no file to be compared in folder '"+testPath.getAbsolutePath()+"' and folder '"+tmpPath.getAbsolutePath()+"'.", new Integer(0).equals(compareFiles(testPath, tmpPath)));
 	}
 	
+	
 	/**
 	 * Deletes the directory with all contained directories/files
 	 * @param fileToDelete

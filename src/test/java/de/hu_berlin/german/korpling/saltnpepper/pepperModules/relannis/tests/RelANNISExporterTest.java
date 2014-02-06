@@ -18,13 +18,19 @@
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.tests;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.Hashtable;
 
 import org.eclipse.emf.common.util.URI;
 
+import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperFW.PepperProperties;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.FormatDefinition;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperModuleProperties;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperModuleProperty;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperModulesFactory;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.testSuite.moduleTests.PepperExporterTest;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.RelANNISExporter;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.RelANNISExporterProperties;
 
  
  
@@ -54,4 +60,59 @@ public class RelANNISExporterTest extends PepperExporterTest{
 		formatDef.setFormatVersion("4.0");
 		supportedFormatsCheck.add(formatDef);
 	}
+	
+	private void setSpecialParamsURI(File file){
+		getFixture();
+	}
+	
+	public void testSpecialParams1() throws IOException
+	{
+		File pepperParams= new File("./src/test/resources/testSpecialParams/test1.pepperParams");
+		
+		this.setSpecialParamsURI(pepperParams);
+		
+		PepperModuleProperties props = getFixture().getProperties();
+		boolean clobberVisMap = ((RelANNISExporterProperties) props).getClobberResolverVisMap();
+		boolean clobberCorpusAnno = ((RelANNISExporterProperties) props).getClobberCorpusAnnotations();
+		String individualCorpName = ((RelANNISExporterProperties) props).getIndividualCorpusName();
+		boolean escapeCharacters = ((RelANNISExporterProperties) props).getEscapeCharacters();
+		Hashtable<Character, String> escapeCharactersList = ((RelANNISExporterProperties) props).getEscapeCharactersSet();
+		
+		
+		assertFalse(clobberVisMap);
+		assertFalse(clobberCorpusAnno);
+		assertNull(individualCorpName);
+		assertTrue(escapeCharacters);
+		assertNull(escapeCharactersList);
+		
+		
+		//fail();
+	}
+	
+	public void testSpecialParams2() throws IOException
+	{
+		File pepperParams= new File("./src/test/resources/testSpecialParams/test2.pepperParams");
+		
+		this.setSpecialParamsURI(pepperParams);
+		
+		PepperModuleProperties props = getFixture().getProperties();
+		boolean clobberVisMap = ((RelANNISExporterProperties) props).getClobberResolverVisMap();
+		boolean clobberCorpusAnno = ((RelANNISExporterProperties) props).getClobberCorpusAnnotations();
+		String individualCorpName = ((RelANNISExporterProperties) props).getIndividualCorpusName();
+		boolean escapeCharacters = ((RelANNISExporterProperties) props).getEscapeCharacters();
+		Hashtable<Character, String> escapeCharactersList = ((RelANNISExporterProperties) props).getEscapeCharactersSet();
+		
+		
+		assertTrue(clobberVisMap);
+		assertTrue(clobberCorpusAnno);
+		assertNotNull(individualCorpName);
+		assertEquals(individualCorpName,"TestCorpusName");
+		assertFalse(escapeCharacters);
+		assertNotNull(escapeCharactersList);
+		
+		// assert: (\=\\),(a=bcd),(\t= )
+		
+		//fail();
+	}
+	
 }
