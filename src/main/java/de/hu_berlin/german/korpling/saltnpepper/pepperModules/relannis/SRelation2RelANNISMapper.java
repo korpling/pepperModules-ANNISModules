@@ -25,7 +25,7 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SGraphTraverseHand
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
 
-public abstract class SRelation2RelANNISMapper implements SGraphTraverseHandler {
+public abstract class SRelation2RelANNISMapper extends Thread implements SGraphTraverseHandler{
 
 // =============================== Globally used objects ======================
 	
@@ -38,6 +38,9 @@ public abstract class SRelation2RelANNISMapper implements SGraphTraverseHandler 
 	 */
 	protected final static String DEFAULT_NS= "default_ns";
 	protected final static String DEFAULT_LAYER= "default_layer";
+	
+	EList<SNode> sRelationRoots= null;
+	STYPE_NAME relationTypeName= null; 
 	
 	
 // =================================== Constructor ============================ 

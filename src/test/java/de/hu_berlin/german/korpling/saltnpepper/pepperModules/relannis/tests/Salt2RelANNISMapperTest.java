@@ -44,6 +44,7 @@ public class Salt2RelANNISMapperTest extends TestCase
 	public void setUp(){
 		setFixture(new Salt2RelANNISMapper());
 		
+		getFixture().mapRelationsInParallel(false);
 		
 		if (! globalTmpPath.exists()){
 			globalTmpPath.mkdirs();
@@ -430,77 +431,54 @@ public class Salt2RelANNISMapperTest extends TestCase
 		SaltSample.createSDocumentStructure(getFixture().getSDocument());
 		getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 		
-		/*
-		// show layers of SNodes:
-		System.out.println("Printing layers of SNodes and their Annotations");
-		for (SNode node : this.getFixture().getSDocument().getSDocumentGraph().getSNodes()){
-			if (node.getSLayers() != null){
-				if (node.getSLayers().size() != 0){
-					System.out.println("Node " + node.getSId() + " has layer " + node.getSLayers().get(0).getSName());
-					if (node.getSAnnotations() != null){
-						if (node.getSAnnotations().size() != 0){
-							for (SAnnotation anno : node.getSAnnotations()){
-								System.out.println("Anno: "+ anno.getSName() + " NS: "+ anno.getSNS() + " Value: "+ anno.getSValueSTEXT());
-							}
-						}
-					}
-				}
-			}
-		}
-		
-		// show Layer of Relations
-		
-		// show layer of SSpanningRelations:
-		System.out.println("Printing layers of the SSpanningRelations:");
-		EList<SSpanningRelation> spanningRelations = this.getFixture().getSDocument().getSDocumentGraph().getSSpanningRelations();
-		for (SSpanningRelation spanRel : spanningRelations){
-			if (spanRel.getSTypes() != null){
-				if (spanRel.getSTypes().size() != 0){
-					System.out.println("Relation type: "+ spanRel.getSTypes().get(0));
-				}
-			}
-			if (spanRel.getSLayers() != null){
-				if (spanRel.getSLayers().size() != 0){
-					System.out.println("SpanningRelation Layer: " + spanRel.getSLayers().get(0).getSName());
-				}
-			}
-		}
-		
-		System.out.println("Printing layers of the SDominanceRelations:");
-		EList<SDominanceRelation> dominanceRelations = this.getFixture().getSDocument().getSDocumentGraph().getSDominanceRelations();
-		for (SDominanceRelation spanRel : dominanceRelations){
-			if (spanRel.getSTypes() != null){
-				if (spanRel.getSTypes().size() != 0){
-					System.out.println("Relation type: "+ spanRel.getSTypes().get(0));
-				}
-			}
-			if (spanRel.getSLayers() != null){
-				if (spanRel.getSLayers().size() != 0){
-					System.out.println("SDominanceRelation Layer: " + spanRel.getSLayers().get(0).getSName());
-				}
-			}
-		}
-		
-		System.out.println("Printing layers of the SPointingRelations:");
-		EList<SPointingRelation> pointingRelations = this.getFixture().getSDocument().getSDocumentGraph().getSPointingRelations();
-		for (SPointingRelation spanRel : pointingRelations){
-			if (spanRel.getSTypes() != null){
-				if (spanRel.getSTypes().size() != 0){
-					System.out.println("Relation type: "+ spanRel.getSTypes().get(0));
-				}
-			}
-			if (spanRel.getSLayers() != null){
-				if (spanRel.getSLayers().size() != 0){
-					System.out.println("SPointingRelation Layer: " + spanRel.getSLayers().get(0).getSName());
-				}
-			}
-		}
-		*/
-		
 		getFixture().mapSCorpus();
 		getFixture().mapSDocument();
 		
 		assertFalse("There was no file to be compared in folder '"+testPath.getAbsolutePath()+"' and folder '"+tmpPath.getAbsolutePath()+"'.", new Integer(0).equals(compareFiles(testPath, tmpPath)));
+	}
+	
+	public void testMultiThreadingSpeed(){
+		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
+		String testName= ste[1].getMethodName();
+		
+		File tmpPath= new File(globalTmpPath.getAbsoluteFile()+ File.separator+testName);
+		File testPath= new File(getTestPath()+testName);
+		createTupleWriters(tmpPath);
+		
+		// create the primary text
+		SaltSample.createSDocumentStructure(getFixture().getSDocument());
+		getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
+		
+		getFixture().mapSCorpus();
+		
+		long startTime = 0l;
+		long stopTime = 0l;
+		long elapsedTime = 0l;
+		
+		long averageTime = 0l;
+		System.out.println("INFO: Starting single-threaded mapping (average of 100 times) of FullGraph");
+		for (int i = 0; i < 100 ; i++){
+			startTime = System.currentTimeMillis();
+			getFixture().mapSDocument();
+		    stopTime = System.currentTimeMillis();
+		    elapsedTime = stopTime - startTime;
+		    averageTime += elapsedTime;
+		}
+	    System.out.println("INFO: Single-threaded mapping (average of 100 times) of FullGraph needed "+(averageTime/100)+" ms");
+	    
+	    averageTime = 0l;
+	    
+	    System.out.println("INFO: Starting multi-threaded mapping (average of 100 times) of FullGraph");
+		for (int i = 0; i < 100 ; i++){
+			startTime = System.currentTimeMillis();
+			getFixture().mapRelationsInParallel(true);
+			getFixture().mapSDocument();
+		    stopTime = System.currentTimeMillis();
+		    elapsedTime = stopTime - startTime;
+		    averageTime += elapsedTime;
+		}
+	    System.out.println("INFO: Multi-threaded mapping (average of 100 times) of FullGraph needed "+(averageTime/100)+" ms");
+		
 	}
 	
 	/**

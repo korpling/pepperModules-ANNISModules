@@ -1,8 +1,5 @@
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis;
 
-import java.util.Hashtable;
-
-import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 
@@ -11,15 +8,8 @@ import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.Salt2RelA
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.GRAPH_TRAVERSE_TYPE;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDominanceRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SPointingRelation;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpan;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SStructure;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STYPE_NAME;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SGraphTraverseHandler;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SLayer;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
 
@@ -36,43 +26,53 @@ public class SPointingRelation2RelANNISMapper extends SRelation2RelANNISMapper  
 	}
 
 	@Override
-	public void mapSRelations2RelANNIS(EList<SNode> sRelationRoots,
-			STYPE_NAME relationTypeName, TRAVERSION_TYPE traversionType) {
-		this.traversionType = traversionType;
+	public void run(){
 		if (sRelationRoots != null && sRelationRoots.size() != 0){
 			for (SNode node : sRelationRoots){
-				
+
 				String componentLayer = DEFAULT_NS;
 				/*
-				EList<SLayer> nodeLayer = node.getSLayers();
-				if (nodeLayer != null){
-					if (nodeLayer.size() > 0){
-						if (! "".equals(nodeLayer.get(0))){
-							componentLayer = nodeLayer.get(0).toString();
+					EList<SLayer> nodeLayer = node.getSLayers();
+					if (nodeLayer != null){
+						if (nodeLayer.size() > 0){
+							if (! "".equals(nodeLayer.get(0))){
+								componentLayer = nodeLayer.get(0).toString();
+							}
 						}
-					}
-				}*/
-				
+					}*/
+
 				if (this.currentTraversionSType== null){
 					super.initialiseTraversion(new String("p"), componentLayer, new String("NULL"));
 				} else {
 					super.initialiseTraversion(new String("p"), componentLayer, this.currentTraversionSType);
-					
+
 				}
 				//System.out.println("[DEBUG] Mapping pointingRelation with sType "+ this.currentTraversionSType);
 				// create an EList for the current root
 				EList<SNode> singleRootList = new BasicEList<SNode>();
 				singleRootList.add(node);
-				
+
 				this.documentGraph.traverse(singleRootList, GRAPH_TRAVERSE_TYPE.TOP_DOWN_DEPTH_FIRST,traversionType.toString(), this);
-				
+
 				// map the component
 				this.mapComponent2RelANNIS();
-				
+
 			}
-		}
+		} 
+	}
+	
+	@Override
+	public void mapSRelations2RelANNIS(EList<SNode> sRelationRoots,
+			STYPE_NAME relationTypeName, TRAVERSION_TYPE traversionType) {
+		this.traversionType = traversionType;
+		this.relationTypeName = relationTypeName;
+		this.sRelationRoots = sRelationRoots;
+		
+		
 		
 	}
+	
+	
 	
 // ========================= Graph Traversion =================================
 	
@@ -145,6 +145,8 @@ public class SPointingRelation2RelANNISMapper extends SRelation2RelANNISMapper  
 		
 		return returnVal;
 	}
+
+	
 
 	
 	
