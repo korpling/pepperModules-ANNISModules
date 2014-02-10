@@ -23,10 +23,8 @@ import java.util.Hashtable;
 
 import org.eclipse.emf.common.util.URI;
 
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperFW.PepperProperties;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.FormatDefinition;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperModuleProperties;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperModuleProperty;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperModulesFactory;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.testSuite.moduleTests.PepperExporterTest;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.RelANNISExporter;
@@ -47,29 +45,16 @@ public class RelANNISExporterTest extends PepperExporterTest{
 		resFile.mkdirs();
 		setResourcesURI(URI.createFileURI(resFile.getAbsolutePath()));
 		FormatDefinition formatDef;
-//		formatDef= PepperModulesFactory.eINSTANCE.createFormatDefinition();
-//		formatDef.setFormatName("relANNIS");
-//		formatDef.setFormatVersion("3.1");
-//		supportedFormatsCheck.add(formatDef);
-//		formatDef= PepperModulesFactory.eINSTANCE.createFormatDefinition();
-//		formatDef.setFormatName("relANNIS");
-//		formatDef.setFormatVersion("3.2");
-//		supportedFormatsCheck.add(formatDef);
 		formatDef= PepperModulesFactory.eINSTANCE.createFormatDefinition();
 		formatDef.setFormatName("relANNIS");
 		formatDef.setFormatVersion("4.0");
 		supportedFormatsCheck.add(formatDef);
 	}
 	
-	private void setSpecialParamsURI(File file){
-		getFixture();
-	}
-	
 	public void testSpecialParams1() throws IOException
 	{
 		File pepperParams= new File("./src/test/resources/testSpecialParams/test1.pepperParams");
-		
-		this.setSpecialParamsURI(pepperParams);
+		getFixture().getProperties().addProperties(URI.createFileURI(pepperParams.getAbsolutePath()));
 		
 		PepperModuleProperties props = getFixture().getProperties();
 		boolean clobberVisMap = ((RelANNISExporterProperties) props).getClobberResolverVisMap();
@@ -92,8 +77,7 @@ public class RelANNISExporterTest extends PepperExporterTest{
 	public void testSpecialParams2() throws IOException
 	{
 		File pepperParams= new File("./src/test/resources/testSpecialParams/test2.pepperParams");
-		
-		this.setSpecialParamsURI(pepperParams);
+		getFixture().getProperties().addProperties(URI.createFileURI(pepperParams.getAbsolutePath()));
 		
 		PepperModuleProperties props = getFixture().getProperties();
 		boolean clobberVisMap = ((RelANNISExporterProperties) props).getClobberResolverVisMap();
