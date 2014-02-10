@@ -92,18 +92,13 @@ public class RelANNISExporterProperties extends PepperModuleProperties
 
 		        Vector<String> listMatches = new Vector<String>();
 
-		        System.out.println("Count of groups: "+matcher.groupCount());
 		        while(matcher.find())
 		        {
-		        	
-		        	System.out.println("Matched: "+matcher.group());
 		            listMatches.add(matcher.group(2));
 		        }
-		        System.out.println("Escape table configuration:");
 		        for (String escapePair : listMatches){
 					String[] valuePair = escapePair.split("=");
 					if (valuePair.length == 2){
-						System.out.println("Key:"+valuePair[0]+" , Value:"+valuePair[1]);
 						char key = ' ';
 						if (valuePair[0].equals("\\t")){
 							key = '\t';
@@ -118,7 +113,6 @@ public class RelANNISExporterProperties extends PepperModuleProperties
 						} else if (valuePair[0].length()==1){
 							key = valuePair[0].toCharArray()[0];
 						} else {
-							System.out.println("INFO: malformed character in escape values: "+valuePair[0]);
 							continue;
 						}
 						characterEscapeTable.put(key, valuePair[1]);
