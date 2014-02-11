@@ -1,5 +1,6 @@
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis;
 
+import java.util.Hashtable;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -11,6 +12,7 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualDS;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 
 public class IdManager {
 
@@ -32,6 +34,8 @@ public class IdManager {
 	// the virtual tokens which are sorted by their point of time
 	private EList<Long> virtualTokenIdList = null;
 	
+	protected Hashtable<SElementId,Pair<Long,Pair<String,String>>> segindex_segname_span_table = null;
+	
 	public IdManager() {
 		this.nodeId = 0l;
 		this.nodeIdMap = new ConcurrentHashMap<SElementId, Long>();
@@ -47,6 +51,8 @@ public class IdManager {
 		this.rankId = 0l;
 		this.corpusId = 0l;
 		this.textId = 0l;
+		
+		this.segindex_segname_span_table = new Hashtable<SElementId, Pair<Long,Pair<String,String>>>();
 	}
 	
 	/**
@@ -117,6 +123,27 @@ public class IdManager {
 			}
 		}
 		return new ImmutablePair<Long,Boolean>(newId,isNew);
+	}
+	
+	/**
+	 * This method registers a segment index, segment name and segment span for the node specified by the {@link SElementId}
+	 * @param node The {@link SElementId} of the node
+	 * @param segIndex the segment index
+	 * @param segName the segment name
+	 * @param segSpan the segment span
+	 */
+	public synchronized void addSegmentInformation(SElementId node, Long segIndex, String segName, String segSpan){
+		this.segindex_segname_span_table.put(node, new ImmutablePair<Long,Pair<String,String>>(segIndex,new ImmutablePair<String,String>(segName,segSpan)));
+	}
+	
+	/**
+	 * This method returns the segment information for the node specified by the {@link SElementId}.
+	 * @param node The {@link SElementId} of the node
+	 * @return the segmentation info or null if the node has no segment property
+	 */
+	public synchronized Pair<Long,Pair<String,String>> getSegmentInformation(SElementId node){
+		Pair<Long,Pair<String,String>> returnVal = this.segindex_segname_span_table.get(node);
+		return returnVal;
 	}
 	
 	/**

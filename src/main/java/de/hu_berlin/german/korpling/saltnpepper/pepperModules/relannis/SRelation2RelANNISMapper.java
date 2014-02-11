@@ -43,6 +43,7 @@ public abstract class SRelation2RelANNISMapper extends Thread implements SGraphT
 	STYPE_NAME relationTypeName= null; 
 	
 	
+	
 // =================================== Constructor ============================ 
 	
 	
@@ -423,7 +424,13 @@ public abstract class SRelation2RelANNISMapper extends Thread implements SGraphT
 	}
 	
 	public void mapSNode(SNode sNode){
-		this.mapSNode(sNode, null, null, null);
+		Pair<Long,Pair<String,String>> segInfo = this.idManager.getSegmentInformation(sNode.getSElementId());
+		if (segInfo != null){
+			this.mapSNode(sNode, segInfo.getLeft(), segInfo.getRight().getLeft(), segInfo.getRight().getRight());
+		} else {
+			this.mapSNode(sNode, null, null, null);
+		}
+		
 	}
 	
 	public void mapSNode(SNode node, Long seg_index, String seg_name, String span){
