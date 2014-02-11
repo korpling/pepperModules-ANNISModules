@@ -167,6 +167,15 @@ public abstract class SRelation2RelANNISMapper extends Thread implements SGraphT
 		//if (this.traversionType.equals(TRAVERSION_TYPE.valueOf(traversalId))){
 		// the traversion type is correct
 
+		// set component layer
+		if (sRelation != null){
+			if (sRelation.getSLayers() != null){
+				if (sRelation.getSLayers().size() > 0){
+					this.currentComponentLayer = sRelation.getSLayers().get(0).getSName();
+				}
+			}
+		}
+		
 		if (this.preorderTable.contains(currNode)){
 			// this should NOT happen
 		} else {

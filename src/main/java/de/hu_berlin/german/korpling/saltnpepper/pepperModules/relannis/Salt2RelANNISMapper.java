@@ -40,6 +40,7 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructu
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SGraphTraverseHandler;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SProcessingAnnotation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
 
 public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTraverseHandler
@@ -276,6 +277,11 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 				if (subComponentRoots != null){
 					//System.out.println("The Pointing relation graphs have "+ subComponentRoots.size() + " STypes.");
 					if (subComponentRoots.size() > 0){
+						
+						SProcessingAnnotation proc = this.getSCorpusGraph().getSProcessingAnnotation("someDocumentContainsPointingRelations");
+						if (proc == null){
+							this.getSCorpusGraph().createSProcessingAnnotation(null, "someDocumentContainsPointingRelations", "true");
+						}
 						
 						for (String key : subComponentRoots.keySet()){
 							//System.out.println("Count of PR roots for key "+key+" : "+subComponentRoots.get(key).size());
