@@ -43,7 +43,7 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 	
 	private Long seg_index = 0l;
 	
-	private Hashtable<SToken,Pair<Long,Pair<String,String>>> segindex_segname_span_table = new Hashtable<SToken, Pair<Long,Pair<String,String>>>();
+	
 	
 	/**
 	 * This method maps the given {@link STimelineRelation} timelineRelation with use of the minimal timeline relations.
@@ -140,10 +140,11 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 			Long segId = null;
 			String segName = null;
 			String span = null;
-			if (this.segindex_segname_span_table.get(tok) != null){
-				segId = this.segindex_segname_span_table.get(tok).getLeft();
-				segName = this.segindex_segname_span_table.get(tok).getRight().getLeft();
-				span = this.segindex_segname_span_table.get(tok).getRight().getRight();
+			Pair<Long,Pair<String,String>> segmentInfo = this.idManager.getSegmentInformation(tok.getSElementId());
+			if (segmentInfo != null){
+				segId = segmentInfo.getLeft();
+				segName = segmentInfo.getRight().getLeft();
+				span = segmentInfo.getRight().getRight();
 			}
 			// map the span
 			super.writeNodeTabEntry(virtualSpanId.getLeft(), 0l, 
@@ -338,21 +339,12 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 			}
 			
 			// Step 2: map the timeline relations, if existent
-			boolean weHaveTimelines = false;
 			if (this.documentGraph.getSTimelineRelations() != null){
 				if (this.documentGraph.getSTimelineRelations().size() > 0){
-					weHaveTimelines = true;
 					this.createVirtualTokenization();
 				}
 			} 
 			
-			if (! weHaveTimelines){
-				for (SToken tok : this.segindex_segname_span_table.keySet()){
-					Long id = this.segindex_segname_span_table.get(tok).getLeft();
-					Pair<String,String> nameSpanPair = this.segindex_segname_span_table.get(tok).getRight();
-					super.mapSNode(tok,id,nameSpanPair.getLeft(),nameSpanPair.getRight());
-				}
-			}
 		}
 		
 	}
@@ -400,9 +392,7 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 							}
 						}
 					}
-					Pair<String,String> nameSpanPair = new ImmutablePair<String,String>(name,segSpan);
-					Pair<Long,Pair<String,String>> finalPair = new ImmutablePair<Long, Pair<String,String>>(segIndex, nameSpanPair);
-					this.segindex_segname_span_table.put((SToken)currNode,finalPair);
+					this.idManager.addSegmentInformation(currNode.getSElementId(), segIndex, name, segSpan);
 					
 					//System.out.println("SType is "+this.currentComponentName);
 				//}
