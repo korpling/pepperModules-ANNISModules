@@ -9,8 +9,8 @@ import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 
 import de.hu_berlin.german.korpling.saltnpepper.misc.tupleconnector.TupleWriter;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleException;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.Salt2RelANNISMapper.TRAVERSION_TYPE;
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.exceptions.RelANNISModuleException;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.Edge;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.GRAPH_TRAVERSE_TYPE;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
@@ -231,7 +231,7 @@ public abstract class SRelation2RelANNISMapper extends Thread implements SGraphT
 							this.rankTabWriter.addTuple(transactionId, rankEntry);
 							this.rankTabWriter.commitTA(transactionId);
 						} catch (FileNotFoundException e) {
-							throw new RelANNISModuleException("Could not write to the rank tab TupleWriter. Exception is: "+e.getMessage(),e);
+							throw new PepperModuleException("Could not write to the rank tab TupleWriter. Exception is: "+e.getMessage(),e);
 						}
 					} // map the rank
 					if (sRelation != null)
@@ -339,7 +339,7 @@ public abstract class SRelation2RelANNISMapper extends Thread implements SGraphT
 			this.componentTabWriter.addTuple(componentEntry);
 			this.componentTabWriter.commitTA(transactionId);
 		} catch (FileNotFoundException e) {
-			throw new RelANNISModuleException("Could not write to the component tab TupleWriter. Exception is: "+e.getMessage(),e);
+			throw new PepperModuleException("Could not write to the component tab TupleWriter. Exception is: "+e.getMessage(),e);
 		}
 		
 	}
@@ -347,15 +347,15 @@ public abstract class SRelation2RelANNISMapper extends Thread implements SGraphT
 	protected void mapRank2RelANNIS(SRelation sRelation, SNode targetNode,Long rankId, Long preOrder, Long postOrder, Long parentRank, Long level){
 		// check all needed params
 		if (targetNode == null)
-			throw new RelANNISModuleException("The given target node for the rank is null");
+			throw new PepperModuleException("The given target node for the rank is null");
 		if (rankId == null)
-			throw new RelANNISModuleException("The given rank id for the rank is null");
+			throw new PepperModuleException("The given rank id for the rank is null");
 		if (preOrder == null)
-			throw new RelANNISModuleException("The given pre order for the rank is null");
+			throw new PepperModuleException("The given pre order for the rank is null");
 		if (postOrder == null)
-			throw new RelANNISModuleException("The given post order for the rank is null");
+			throw new PepperModuleException("The given post order for the rank is null");
 		if (level == null)
-			throw new RelANNISModuleException("The given level for the rank is null");
+			throw new PepperModuleException("The given level for the rank is null");
 		
 		
 		
@@ -385,15 +385,15 @@ public abstract class SRelation2RelANNISMapper extends Thread implements SGraphT
 			this.rankTabWriter.addTuple(transactionId, rankEntry);
 			this.rankTabWriter.commitTA(transactionId);
 		} catch (FileNotFoundException e) {
-			throw new RelANNISModuleException("Could not write to the rank tab TupleWriter. Exception is: "+e.getMessage(),e);
+			throw new PepperModuleException("Could not write to the rank tab TupleWriter. Exception is: "+e.getMessage(),e);
 		}
 	}
 	
 	protected void mapSAnnotation2RelANNIS(Long rankId, SAnnotation sAnnotation){
 		if (rankId == null)
-			throw new RelANNISModuleException("The given rank id for the mapping of the SAnnotation is null");
+			throw new PepperModuleException("The given rank id for the mapping of the SAnnotation is null");
 		if (sAnnotation == null)
-			throw new RelANNISModuleException("The given SAnnotation is null");
+			throw new PepperModuleException("The given SAnnotation is null");
 		// rank_id 	namespace	name	value
 		
 		EList<String> edgeAnnotationEntry = new BasicEList<String>();
@@ -412,7 +412,7 @@ public abstract class SRelation2RelANNISMapper extends Thread implements SGraphT
 			this.edgeAnnoTabWriter.addTuple(transactionId, edgeAnnotationEntry);
 			this.edgeAnnoTabWriter.commitTA(transactionId);
 		} catch (FileNotFoundException e) {
-			throw new RelANNISModuleException("Could not write to the edge annotation TupleWriter. Exception is: "+e.getMessage(),e);
+			throw new PepperModuleException("Could not write to the edge annotation TupleWriter. Exception is: "+e.getMessage(),e);
 		}
 		
 	}
@@ -503,7 +503,7 @@ public abstract class SRelation2RelANNISMapper extends Thread implements SGraphT
 			// set the left and right value and the text_ref
 			EList<Edge> outEdges = documentGraph.getOutEdges(node.getSId());
 			if (outEdges == null)
-				throw new RelANNISModuleException("The token "+node.getSId()+ " has no outgoing edges!");
+				throw new PepperModuleException("The token "+node.getSId()+ " has no outgoing edges!");
 			/// find the STextualRelation
 			for (Edge edge : outEdges){
 				// get the edge which is of the type STextual relation
@@ -541,7 +541,7 @@ public abstract class SRelation2RelANNISMapper extends Thread implements SGraphT
 				// get first and last overlapped character
 				EList<Edge> firstTokenOutEdges = documentGraph.getOutEdges(firstOverlappedToken.getSId());
 				if (firstTokenOutEdges == null)
-					throw new RelANNISModuleException("The token "+firstOverlappedToken.getSId()+ " has no outgoing edges!");
+					throw new PepperModuleException("The token "+firstOverlappedToken.getSId()+ " has no outgoing edges!");
 				
 				/// find the STextualRelation
 				for (Edge edge : firstTokenOutEdges){
@@ -559,7 +559,7 @@ public abstract class SRelation2RelANNISMapper extends Thread implements SGraphT
 				
 				EList<Edge> lastTokenOutEdges = documentGraph.getOutEdges(lastOverlappedToken.getSId());
 				if (lastTokenOutEdges == null)
-					throw new RelANNISModuleException("The token "+lastOverlappedToken.getSId()+ " has no outgoing edges!");
+					throw new PepperModuleException("The token "+lastOverlappedToken.getSId()+ " has no outgoing edges!");
 				
 				/// find the STextualRelation
 				for (Edge edge : lastTokenOutEdges){
@@ -640,7 +640,7 @@ public abstract class SRelation2RelANNISMapper extends Thread implements SGraphT
 			this.nodeTabWriter.addTuple(transactionId, tableEntry);
 			this.nodeTabWriter.commitTA(transactionId);
 		} catch (FileNotFoundException e) {
-			throw new RelANNISModuleException("Could not write to the node tab TupleWriter. Exception is: "+e.getMessage(),e);
+			throw new PepperModuleException("Could not write to the node tab TupleWriter. Exception is: "+e.getMessage(),e);
 		}
 		
 	}
@@ -664,7 +664,7 @@ public abstract class SRelation2RelANNISMapper extends Thread implements SGraphT
 			this.nodeAnnoTabWriter.addTuple(transactionId, tableEntry);
 			this.nodeAnnoTabWriter.commitTA(transactionId);
 		} catch (FileNotFoundException e) {
-			throw new RelANNISModuleException("Could not write to the node annotation tab TupleWriter. Exception is: "+e.getMessage(),e);
+			throw new PepperModuleException("Could not write to the node annotation tab TupleWriter. Exception is: "+e.getMessage(),e);
 		}
 	}
 	

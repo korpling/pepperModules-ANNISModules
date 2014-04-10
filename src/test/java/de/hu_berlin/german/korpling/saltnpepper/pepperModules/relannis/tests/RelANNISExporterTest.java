@@ -17,40 +17,46 @@
  */
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.tests;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Hashtable;
 
 import org.eclipse.emf.common.util.URI;
+import org.junit.Before;
+import org.junit.Test;
 
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.FormatDefinition;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperModuleProperties;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperModulesFactory;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.testSuite.moduleTests.PepperExporterTest;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.common.FormatDesc;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperModuleProperties;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.testFramework.PepperExporterTest;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.RelANNISExporter;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.RelANNISExporterProperties;
-
  
  
 public class RelANNISExporterTest extends PepperExporterTest{ 
 	
-	@Override
+	
+	@Before
 	public void setUp()
 	{
 		setFixture(new RelANNISExporter());
 		File tmpFile= new File(System.getProperty("java.io.tmpdir")+File.separator+"relANNISExporter_test");
 		tmpFile.mkdirs();
-		setTemprorariesURI(URI.createFileURI(tmpFile.getAbsolutePath()));
 		File resFile= new File("./src/test/resources");
 		resFile.mkdirs();
 		setResourcesURI(URI.createFileURI(resFile.getAbsolutePath()));
-		FormatDefinition formatDef;
-		formatDef= PepperModulesFactory.eINSTANCE.createFormatDefinition();
+		FormatDesc formatDef;
+		formatDef= new FormatDesc();
 		formatDef.setFormatName("relANNIS");
 		formatDef.setFormatVersion("4.0");
 		supportedFormatsCheck.add(formatDef);
 	}
-	
+	@Test
 	public void testSpecialParams1() throws IOException
 	{
 		File pepperParams= new File("./src/test/resources/testSpecialParams/test1.pepperParams");
@@ -73,7 +79,7 @@ public class RelANNISExporterTest extends PepperExporterTest{
 		
 		//fail();
 	}
-	
+	@Test
 	public void testSpecialParams2() throws IOException
 	{
 		File pepperParams= new File("./src/test/resources/testSpecialParams/test2.pepperParams");

@@ -4,19 +4,17 @@ import java.io.FileNotFoundException;
 import java.util.HashSet;
 import java.util.Hashtable;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 
 import de.hu_berlin.german.korpling.saltnpepper.misc.tupleconnector.TupleWriter;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleException;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.Salt2RelANNISMapper.TRAVERSION_TYPE;
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.exceptions.RelANNISModuleException;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.Edge;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.GRAPH_TRAVERSE_TYPE;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SOrderRelation;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpanningRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STYPE_NAME;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STimelineRelation;
@@ -26,10 +24,6 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
 
 public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
-
-	
-	
-	
 	public SOrderRelation2RelANNISMapper(IdManager idManager,
 			SDocumentGraph documentGraph, TupleWriter nodeTabWriter,
 			TupleWriter nodeAnnoTabWriter, TupleWriter rankTabWriter,
@@ -187,7 +181,7 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 						this.rankTabWriter.addTuple(transactionId, rankEntry);
 						this.rankTabWriter.commitTA(transactionId);
 					} catch (FileNotFoundException e) {
-						throw new RelANNISModuleException("Could not write to the rank tab TupleWriter. Exception is: "+e.getMessage(),e);
+						throw new PepperModuleException("Could not write to the rank tab TupleWriter. Exception is: "+e.getMessage(),e);
 					}
 				}
 			}
@@ -206,7 +200,7 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 					this.rankTabWriter.addTuple(transactionId, rankEntry);
 					this.rankTabWriter.commitTA(transactionId);
 				} catch (FileNotFoundException e) {
-					throw new RelANNISModuleException("Could not write to the rank tab TupleWriter. Exception is: "+e.getMessage(),e);
+					throw new PepperModuleException("Could not write to the rank tab TupleWriter. Exception is: "+e.getMessage(),e);
 				}
 			}
 		}
@@ -379,7 +373,7 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 						// set the left and right value and the text_ref
 						EList<Edge> outEdges = documentGraph.getOutEdges(currNode.getSId());
 						if (outEdges == null)
-							throw new RelANNISModuleException("The token "+currNode.getSId()+ " has no outgoing edges!");
+							throw new PepperModuleException("The token "+currNode.getSId()+ " has no outgoing edges!");
 						/// find the STextualRelation
 						for (Edge edge : outEdges){
 							// get the edge which is of the type STextual relation
