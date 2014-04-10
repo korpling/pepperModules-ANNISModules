@@ -27,9 +27,9 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.emf.common.util.EList;
 
 import de.hu_berlin.german.korpling.saltnpepper.misc.tupleconnector.TupleWriter;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.MAPPING_RESULT;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.impl.PepperMapperImpl;
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.exceptions.RelANNISModuleException;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.common.DOCUMENT_STATUS;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleException;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.impl.PepperMapperImpl;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.GRAPH_TRAVERSE_TYPE;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpus;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
@@ -121,12 +121,12 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 	
 	
 	@Override
-	public MAPPING_RESULT mapSCorpus()
+	public DOCUMENT_STATUS mapSCorpus()
 	{   
 		
 		//this.setSCorpusGraph(sCorpusGraph);
 		if (this.getSCorpusGraph() == null)
-			throw new RelANNISModuleException("Cannot map sCorpusGraph, because sCorpusGraph is null.");
+			throw new PepperModuleException(this, "Cannot map sCorpusGraph, because sCorpusGraph is null.");
 		
 		{//start traversion of corpus structure
 			/// initialize preOrder and postOrder:
@@ -139,7 +139,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 				EList<SNode> roots= this.getSCorpusGraph().getSRoots();
 				if (	(roots== null) || (roots.size()== 0))
 				{
-					throw new RelANNISModuleException("Cannot traverse through corpus structure, because there is no Corpus-object as root.");
+					throw new PepperModuleException(this, "Cannot traverse through corpus structure, because there is no Corpus-object as root.");
 				}
 				
 				// set the SName of the corpus graph root to the individual one
@@ -151,10 +151,10 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 				this.currTraversionType= TRAVERSION_TYPE.CORPUS_STRUCTURE;
 				sCorpusGraph.traverse(roots, GRAPH_TRAVERSE_TYPE.TOP_DOWN_DEPTH_FIRST, "compute_corpus_structure", this);
 			}catch (Exception e) {
-				throw new RelANNISModuleException("Some error occurs while traversing corpus structure graph.", e);
+				throw new PepperModuleException(this, "Some error occurs while traversing corpus structure graph.", e);
 			}
 		}//start traversion of corpus structure
-		return MAPPING_RESULT.FINISHED;
+		return DOCUMENT_STATUS.COMPLETED;
 	}
 	
 // ================================================ end: mapping corpus structure
@@ -185,14 +185,14 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 	}
 	
 	@Override
-	public MAPPING_RESULT mapSDocument(){
+	public DOCUMENT_STATUS mapSDocument(){
 
 		this.preorderTable = new Hashtable<SNode, Long>();
 		this.postorderTable = new Hashtable<SNode, Long>();
 		prePostOrder = 0l;
 		
 		if (this.getSDocument() == null)
-			throw new RelANNISModuleException("Cannot map sDocumentGraph, because sDocumentGraph is null.");
+			throw new PepperModuleException(this, "Cannot map sDocumentGraph, because sDocumentGraph is null.");
 		
 		{//start traversion of documentStructure
 			
@@ -248,7 +248,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 						SElementId sDocumentElementId = this.getSDocument().getSElementId();
 							
 						if (sDocumentElementId == null){
-							throw new RelANNISModuleException("SElement Id of the document '"+this.getSDocument().getSName()+"' is NULL!");
+							throw new PepperModuleException(this, "SElement Id of the document '"+this.getSDocument().getSName()+"' is NULL!");
 						}
 						sDocID = this.idManager.getNewCorpusTabId(sDocumentElementId);
 						String textName = "sText0";
@@ -266,14 +266,14 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 							
 						} catch (FileNotFoundException e) {
 							tw_text.abortTA(transactionId);
-							throw new RelANNISModuleException("Could not write to the node.tab, exception was"+e.getMessage());
+							throw new PepperModuleException(this, "Could not write to the node.tab, exception was"+e.getMessage());
 						}
 					}
 				}
 				
 				Vector<SRelation2RelANNISMapper> threads = new Vector<SRelation2RelANNISMapper>();
 				
-				subComponentRoots = this.sDocument.getSDocumentGraph().getRootsBySRelationSType(STYPE_NAME.SPOINTING_RELATION);
+				subComponentRoots = getSDocument().getSDocumentGraph().getRootsBySRelationSType(STYPE_NAME.SPOINTING_RELATION);
 				if (subComponentRoots != null){
 					//System.out.println("The Pointing relation graphs have "+ subComponentRoots.size() + " STypes.");
 					if (subComponentRoots.size() > 0){
@@ -321,7 +321,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 				// END Step 3: map SDominanceRelations
 				
 				// START Step 3.1 : map the subComponents of the SDominanceRelations
-				subComponentRoots = this.sDocument.getSDocumentGraph().getRootsBySRelationSType(STYPE_NAME.SDOMINANCE_RELATION);
+				subComponentRoots = getSDocument().getSDocumentGraph().getRootsBySRelationSType(STYPE_NAME.SDOMINANCE_RELATION);
 				if (subComponentRoots != null){
 					//System.out.println("The Dominance relation graphs have "+ subComponentRoots.size() + " STypes.");
 					if (subComponentRoots.size() > 0){
@@ -377,11 +377,11 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 				}
 				// END Step 5: map all SToken which were not mapped, yet
 			}catch (Exception e) {
-				throw new RelANNISModuleException("Some error occurs while traversing document structure graph.", e);
+				throw new PepperModuleException(this, "Some error occurs while traversing document structure graph.", e);
 			}
 		}//start traversion of corpus structure
 		
-		return MAPPING_RESULT.FINISHED;
+		return DOCUMENT_STATUS.COMPLETED;
 	}
 	
 	
@@ -408,11 +408,11 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 			//}
 			
 			if (sDocumentElementId == null){
-				throw new RelANNISModuleException("SElement Id of the document '"+sDoc.getSName()+"' is NULL!");
+				throw new PepperModuleException(this, "SElement Id of the document '"+sDoc.getSName()+"' is NULL!");
 			}
 			IdManager manager = getIdManager();
 			if (manager == null){
-				throw new RelANNISModuleException("No IdManager was found, this might be a bug.!");
+				throw new PepperModuleException(this, "No IdManager was found, this might be a bug.!");
 			}
 			sDocID = manager.getNewCorpusTabId(sDocumentElementId);
 			String textName = text.getSName();
@@ -430,7 +430,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 				
 			} catch (FileNotFoundException e) {
 				tw_text.abortTA(transactionId);
-				throw new RelANNISModuleException("Could not write to the node.tab, exception was"+e.getMessage());
+				throw new PepperModuleException(this, "Could not write to the node.tab, exception was"+e.getMessage());
 			}
 			textId++;
 		}
@@ -499,7 +499,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 			corpusTabWriter.commitTA(transactionId);
 		} catch (FileNotFoundException e) {
 			corpusTabWriter.abortTA(transactionId);
-			throw new RelANNISModuleException("Could not write to the corpus.tab, exception was"+e.getMessage());
+			throw new PepperModuleException(this, "Could not write to the corpus.tab, exception was"+e.getMessage());
 		}
 		
 		// TODO: map to corpus_annotations.tab

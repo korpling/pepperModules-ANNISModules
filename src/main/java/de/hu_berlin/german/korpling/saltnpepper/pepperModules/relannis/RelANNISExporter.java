@@ -28,12 +28,11 @@ import org.osgi.service.component.annotations.Component;
 
 import de.hu_berlin.german.korpling.saltnpepper.misc.tupleconnector.TupleConnectorFactory;
 import de.hu_berlin.german.korpling.saltnpepper.misc.tupleconnector.TupleWriter;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperExceptions.PepperModuleException;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperExceptions.PepperModuleNotReadyException;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperExporter;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperMapper;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.impl.PepperExporterImpl;
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.exceptions.RelANNISModuleException;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperExporter;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperMapper;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleException;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleNotReadyException;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.impl.PepperExporterImpl;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpus;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
@@ -48,7 +47,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 		{
 			super();
 			setProperties(new RelANNISExporterProperties());
-			this.name= "RelANNISExporter";
+			this.setName("RelANNISExporter");
 			this.setVersion("1.0.0");
 //			this.addSupportedFormat("relANNIS", "3.1", null);
 //			this.addSupportedFormat("relANNIS", "3.2", null);
@@ -102,7 +101,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 				try {
 					outFile.createNewFile();
 				} catch (IOException e) {
-					throw new RelANNISModuleException("Could not create the corpus tab file "+ outFile.getAbsolutePath()+ " Exception:"+e.getMessage());
+					throw new PepperModuleException("Could not create the corpus tab file "+ outFile.getAbsolutePath()+ " Exception:"+e.getMessage());
 				}
 			}
 			TupleWriter tWriter= TupleConnectorFactory.fINSTANCE.createTupleWriter();
@@ -129,7 +128,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 				try {
 					outFile.createNewFile();
 				} catch (IOException e) {
-					throw new RelANNISModuleException("Could not create the corpus tab file "+ outFile.getAbsolutePath()+ " Exception:"+e.getMessage());
+					throw new PepperModuleException("Could not create the corpus tab file "+ outFile.getAbsolutePath()+ " Exception:"+e.getMessage());
 				}
 			}
 			TupleWriter tWriter= TupleConnectorFactory.fINSTANCE.createTupleWriter();
@@ -158,7 +157,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 					this.characterEscapeTable = ((RelANNISExporterProperties)this.getProperties()).getEscapeCharactersSet();
 				}
 			}
-			String corpPath= getCorpusDefinition().getCorpusPath().toFileString() +((getCorpusDefinition().getCorpusPath().toFileString().endsWith("/"))?"":"/");
+			String corpPath= getCorpusDesc().getCorpusPath().toFileString() +((getCorpusDesc().getCorpusPath().toFileString().endsWith("/"))?"":"/");
 			tw_text= createTupleWRiter(new File(corpPath+ FILE_TEXT),this.escapeCharacters,this.characterEscapeTable);
 			tw_node= createTupleWRiter(new File(corpPath+  FILE_NODE),this.escapeCharacters,this.characterEscapeTable);
 			tw_nodeAnno= createTupleWRiter(new File(corpPath + FILE_NODE_ANNO),this.escapeCharacters,this.characterEscapeTable);
@@ -192,24 +191,19 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 			return(super.isReadyToStart());
 		}
 		
-		/**
-		 * <strong>OVERRIDE THIS METHOD FOR CUSTOMIZATION</strong>
-		 * 
-		 * This method is called by {@link #start()} to export the corpus-structure. This method than can create the 
-		 * folder-structure to store the document-structure into it, if necessary. 
-		 * 
-		 * @param corpusGraph {@link SCorpusGraph} object to be exported
-		 */
+
 		@Override
-		public void exportCorpusStructure(SCorpusGraph corpusGraph) throws PepperModuleException
+		public void exportCorpusStructure() throws PepperModuleException
 		{
 			
 			//TODO remove the following line of code for adoption
-			super.exportCorpusStructure(sCorpusGraph);
+			super.exportCorpusStructure();
 			
 			// print the resolver visualisation tab
-			if (tw_visualization != null){
-				printResolverVisMap(corpusGraph);
+			for (SCorpusGraph corpusGraph: getSaltProject().getSCorpusGraphs()){
+				if (tw_visualization != null){
+					printResolverVisMap(corpusGraph);
+				}
 			}
 		}
 
@@ -271,7 +265,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 				tw_visualization.addTuple(resolverTuple);
 				tw_visualization.commitTA(transactionId);
 			} catch (FileNotFoundException e) {
-				throw new RelANNISModuleException("Could not write to the file "+tw_visualization.getFile().getAbsolutePath()+". Reason: "+e.getMessage(), e);
+				throw new PepperModuleException(this, "Could not write to the file "+tw_visualization.getFile().getAbsolutePath()+". Reason: "+e.getMessage(), e);
 			}
 			
 		}

@@ -9,14 +9,14 @@ import junit.framework.TestCase;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
+import org.junit.After;
+import org.junit.Test;
 
-import de.hu_berlin.german.korpling.saltnpepper.pepper.testSuite.moduleTests.util.FileComparator;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.IdManager;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.RelANNIS;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.RelANNISExporter;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.Salt2RelANNISMapper;
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.resources.dot.Salt2DOT;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpus;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
@@ -33,7 +33,6 @@ public class Salt2RelANNISMapperTest extends TestCase
 	public Salt2RelANNISMapper getFixture() {
 		return fixture;
 	}
-
 	public void setFixture(Salt2RelANNISMapper fixture) {
 		this.fixture = fixture;
 	}
@@ -82,7 +81,7 @@ public class Salt2RelANNISMapperTest extends TestCase
 		getFixture().tw_corpusMeta= RelANNISExporter.createTupleWRiter(new File(path.getAbsolutePath() +File.separator+ RelANNIS.FILE_CORPUS_META));
 	}
 	
-	@Override
+	@After
 	public void tearDown() throws IOException{
 //		if (!deleteDirectory(tmpPath))
 //			throw new IOException();
@@ -102,6 +101,7 @@ public class Salt2RelANNISMapperTest extends TestCase
 	 * </ul>
 	 * @throws IOException
 	 */
+	@Test
 	public void testMapSText() throws IOException
 	{
 		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
@@ -128,6 +128,7 @@ public class Salt2RelANNISMapperTest extends TestCase
 	 * </ul>
 	 * @throws IOException
 	 */
+	@Test
 	public void testMapIndividualCorpusName() throws IOException
 	{
 		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
@@ -156,6 +157,7 @@ public class Salt2RelANNISMapperTest extends TestCase
 	 * </ul>
 	 * @throws IOException
 	 */
+	@Test
 	public void testMapSToken() throws IOException
 	{
 		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
@@ -187,6 +189,7 @@ public class Salt2RelANNISMapperTest extends TestCase
 	 * </ul>
 	 * @throws IOException
 	 */
+	@Test
 	public void testMapSeveralTokenizations() throws IOException
 	{
 		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
@@ -221,6 +224,7 @@ public class Salt2RelANNISMapperTest extends TestCase
 	 * </ul>
 	 * @throws IOException
 	 */
+	@Test
 	public void testMapParallelData() throws IOException
 	{
 		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
@@ -233,9 +237,6 @@ public class Salt2RelANNISMapperTest extends TestCase
 		// create the primary text
 		SaltSample.createParallelData(getFixture().getSDocument());
 		getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
-		
-		Salt2DOT salt2dot= new Salt2DOT();
-		salt2dot.salt2Dot(getFixture().getSDocument().getSDocumentGraph(), URI.createFileURI(testPath.getAbsolutePath()+ File.separator+testName+".dot"));
 		
 		getFixture().mapSCorpus();
 		getFixture().mapSDocument();
@@ -256,6 +257,7 @@ public class Salt2RelANNISMapperTest extends TestCase
 	 * </ul>
 	 * @throws IOException
 	 */
+	@Test
 	public void testMapUntypedPointingRelation() throws IOException
 	{
 		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
@@ -269,13 +271,8 @@ public class Salt2RelANNISMapperTest extends TestCase
 		SaltSample.createParallelData(getFixture().getSDocument(),false);
 		getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 		
-		Salt2DOT salt2dot= new Salt2DOT();
-		salt2dot.salt2Dot(getFixture().getSDocument().getSDocumentGraph(), URI.createFileURI(testPath.getAbsolutePath()+ File.separator+testName+".dot"));
-		//System.out.println("Starting Untyped PR Test START");
 		getFixture().mapSCorpus();
 		getFixture().mapSDocument();
-		
-		//System.out.println("Starting Untyped PR Test END");
 		
 		assertFalse("There was no file to be compared in folder '"+testPath.getAbsolutePath()+"' and folder '"+tmpPath.getAbsolutePath()+"'.", new Integer(0).equals(compareFiles(testPath, tmpPath)));
 	}
@@ -289,6 +286,7 @@ public class Salt2RelANNISMapperTest extends TestCase
 	 * </ul>
 	 * @throws IOException
 	 */
+	@Test
 	public void testMapSTokenAnnotation() throws IOException
 	{
 		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
@@ -320,6 +318,7 @@ public class Salt2RelANNISMapperTest extends TestCase
 	 * </ul>
 	 * @throws IOException
 	 */
+	@Test
 	public void testMapSSpans() throws IOException
 	{
 		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
@@ -352,6 +351,7 @@ public class Salt2RelANNISMapperTest extends TestCase
 	 * </ul>
 	 * @throws IOException
 	 */
+	@Test
 	public void testMapSSyntax() throws IOException
 	{
 		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
@@ -383,6 +383,7 @@ public class Salt2RelANNISMapperTest extends TestCase
 	 * </ul>
 	 * @throws IOException
 	 */
+	@Test
 	public void testMapAnaphoric() throws IOException
 	{
 		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
@@ -418,6 +419,7 @@ public class Salt2RelANNISMapperTest extends TestCase
 	 * </ul>
 	 * @throws IOException
 	 */
+	@Test
 	public void testMapFullGraph() throws IOException
 	{
 		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
@@ -437,6 +439,7 @@ public class Salt2RelANNISMapperTest extends TestCase
 		assertFalse("There was no file to be compared in folder '"+testPath.getAbsolutePath()+"' and folder '"+tmpPath.getAbsolutePath()+"'.", new Integer(0).equals(compareFiles(testPath, tmpPath)));
 	}
 	
+	@Test
 	public void testMultiThreadingSpeed(){
 		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
 		String testName= ste[1].getMethodName();
@@ -495,6 +498,7 @@ public class Salt2RelANNISMapperTest extends TestCase
 	 * </ul>
 	 * @throws IOException
 	 */
+	@Test
 	public void testMapSOrderRelation() throws IOException
 	{
 		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
@@ -509,10 +513,7 @@ public class Salt2RelANNISMapperTest extends TestCase
 		
 		getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 		
-		File dotPath = new File(globalTmpPath.getAbsoluteFile()+testName+File.separator+"newSOrderRelationTest.dot");
-		Salt2DOT salt2dot= new Salt2DOT();
-		salt2dot.salt2Dot(getFixture().getSDocument().getSDocumentGraph(), URI.createFileURI(testPath.getAbsolutePath()+ File.separator+testName+".dot"));
-		
+		File dotPath = new File(globalTmpPath.getAbsoluteFile()+testName+File.separator+"newSOrderRelationTest.dot");	
 		
 		
 		getFixture().mapSCorpus();
@@ -537,6 +538,7 @@ public class Salt2RelANNISMapperTest extends TestCase
 	 * </ul>
 	 * @throws IOException
 	 */
+	@Test
 	public void testComplexMapSOrderRelation() throws IOException
 	{
 		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
@@ -554,10 +556,7 @@ public class Salt2RelANNISMapperTest extends TestCase
 		
 		getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 		
-		File dotPath = new File(globalTmpPath.getAbsoluteFile()+testName+File.separator+"newSOrderRelationTest.dot");
-		Salt2DOT salt2dot= new Salt2DOT();
-		salt2dot.salt2Dot(getFixture().getSDocument().getSDocumentGraph(), URI.createFileURI(testPath.getAbsolutePath()+ File.separator+testName+".dot"));
-		
+		File dotPath = new File(globalTmpPath.getAbsoluteFile()+testName+File.separator+"newSOrderRelationTest.dot");	
 		
 		getFixture().mapSCorpus();
 		getFixture().mapSDocument();
@@ -573,7 +572,6 @@ public class Salt2RelANNISMapperTest extends TestCase
 	 * @param fileToDelete
 	 */
 	private boolean deleteDirectory(File fileToDelete) {
-		//System.out.println("Deleting "+fileToDelete.getAbsolutePath());
 		if (fileToDelete.isDirectory()) {
 	        String[] directoryContent = fileToDelete.list();
 	        for (int i=0; i < directoryContent.length; i++) {
@@ -621,7 +619,6 @@ public class Salt2RelANNISMapperTest extends TestCase
 			boolean comparisonSuccess = comparator.compareFiles(goldFile, createdFile);
 			if (! comparisonSuccess){
 				oneComparisonWasUnsuccessful = true;
-				System.out.println("File "+goldFile.getAbsolutePath() + " and "+createdFile.getAbsolutePath()+" are not equal");
 			}
 		}
 		if (oneComparisonWasUnsuccessful){
