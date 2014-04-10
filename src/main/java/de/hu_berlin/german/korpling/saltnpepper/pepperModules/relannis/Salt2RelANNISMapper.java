@@ -278,11 +278,6 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 					//System.out.println("The Pointing relation graphs have "+ subComponentRoots.size() + " STypes.");
 					if (subComponentRoots.size() > 0){
 						
-						SProcessingAnnotation proc = this.getSCorpusGraph().getSProcessingAnnotation("someDocumentContainsPointingRelations");
-						if (proc == null){
-							this.getSCorpusGraph().createSProcessingAnnotation(null, "someDocumentContainsPointingRelations", "true");
-						}
-						
 						for (String key : subComponentRoots.keySet()){
 							//System.out.println("Count of PR roots for key "+key+" : "+subComponentRoots.get(key).size());
 							//System.out.println("Mapping PointingRelation subcomponents with sType: "+key);
