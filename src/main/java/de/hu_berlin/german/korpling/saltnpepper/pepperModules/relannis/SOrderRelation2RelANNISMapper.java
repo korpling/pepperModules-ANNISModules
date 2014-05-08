@@ -379,23 +379,10 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 					Long segIndex = this.seg_index;
 					this.seg_index = this.seg_index + 1;
 					String segSpan = "NULL";
-					if (currNode instanceof SToken){
-						// set the left and right value and the text_ref
-						EList<Edge> outEdges = documentGraph.getOutEdges(currNode.getSId());
-						if (outEdges == null)
-							throw new PepperModuleException("The token "+currNode.getSId()+ " has no outgoing edges!");
-						/// find the STextualRelation
-						for (Edge edge : outEdges){
-							// get the edge which is of the type STextual relation
-							if (edge instanceof STextualRelation){
-								STextualRelation sTextualRelation = ((STextualRelation)edge);
-								// set the left value
-								Long left = new Long(sTextualRelation.getSStart());
-								// set the overlapped text
-								segSpan = sTextualRelation.getSTextualDS().getSText().substring(left.intValue(),sTextualRelation.getSEnd());
-								break;
-							}
-						}
+					if(currNode.getSGraph() instanceof SDocumentGraph)
+					{
+						SDocumentGraph g = (SDocumentGraph) currNode.getSGraph();
+						segSpan = g.getSText(currNode);
 					}
 					this.idManager.addSegmentInformation(currNode.getSElementId(), segIndex, name, segSpan);
 					
