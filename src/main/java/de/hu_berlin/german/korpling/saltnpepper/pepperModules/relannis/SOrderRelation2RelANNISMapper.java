@@ -7,6 +7,8 @@ import java.util.Hashtable;
 import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.hu_berlin.german.korpling.saltnpepper.misc.tupleconnector.TupleWriter;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleException;
@@ -24,6 +26,9 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
 
 public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
+	
+	private static final Logger log = LoggerFactory.getLogger(SOrderRelation2RelANNISMapper.class);
+	
 	public SOrderRelation2RelANNISMapper(IdManager idManager,
 			SDocumentGraph documentGraph, TupleWriter nodeTabWriter,
 			TupleWriter nodeAnnoTabWriter, TupleWriter rankTabWriter,
@@ -215,7 +220,9 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 		Hashtable<String,STimelineRelation> retVal = new Hashtable<String, STimelineRelation>();
 		for (STimelineRelation t : sTimelineRelations){
 			if (retVal.contains(t.getSStart()))
-				System.out.println("WARN: sortTimelineRelationsByStart: Both the timeline for Token "+t.getSToken().getSId()+ " and "+retVal.get(t).getSToken().getSId()+ " is "+t.getSStart());
+			{
+				log.warn("sortTimelineRelationsByStart: Both the timeline for Token "+t.getSToken().getSId()+ " and "+retVal.get(t).getSToken().getSId()+ " is "+t.getSStart());
+			}
 			retVal.put(t.getSStart().toString(), t);
 		}
 		return retVal;
@@ -304,7 +311,10 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 				for (STimelineRelation tr : sortedMinimalTimelineRelationList){
 					EList<Long> tr_IdS = this.idManager.getVirtualisedTokenId(tr.getSToken().getSElementId());
 					if (tr_IdS.size() > 1){
-						System.out.println("WARNING: minimal timeline relation has more than one virtual token id");
+						log.warn("minimal timeline relation has more than one virtual token id");
+					}
+					else if(tr_IdS.isEmpty()) {
+						log.warn("token is not mapped to virtual one");
 					} else {
 						sortedMinimalIdList.add(tr_IdS.get(0));
 					}
