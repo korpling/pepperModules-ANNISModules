@@ -106,7 +106,7 @@ public class IdManager {
 	 * @return a pair <Long,Boolean> which is the RelANNIS node tab id and
 	 * 		a boolean which specifies whether the id is fresh.
 	 */
-	public Pair<Long,Boolean> getVirtualNodeId(String sElementId){
+	public VirtualNodeID getVirtualNodeId(String sElementId){
 		boolean isNew = false;
 		Long newId = this.virtualNodeIdMap.get(sElementId);
 		if (newId == null){
@@ -121,7 +121,7 @@ public class IdManager {
 				}
 			}
 		}
-		return new ImmutablePair<Long,Boolean>(newId,isNew);
+		return new VirtualNodeID(newId, isNew);
 	}
 	
 	/**
@@ -268,4 +268,25 @@ public class IdManager {
 		}	
 	}
 	
+	
+	public static class VirtualNodeID
+	{
+		private long nodeID;
+		private boolean fresh;
+		
+		
+		public VirtualNodeID(long nodeID, boolean fresh) {
+			super();
+			this.nodeID = nodeID;
+			this.fresh = fresh;
+		}
+		public long getNodeID() {
+			return nodeID;
+		}
+		public boolean isFresh() {
+			return fresh;
+		}
+		
+		
+	}
 }
