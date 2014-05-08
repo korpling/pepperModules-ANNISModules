@@ -71,25 +71,25 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 		virtualSpanSId = virtualSpanSId+"_virtualSpan";
 		String virtualSpanName = tok.getSName()+"_virtualSpan";
 		
-		Pair<Long,Boolean> virtualSpanId = this.idManager.getVirtualNodeId(virtualSpanSId);
+		IdManager.VirtualNodeID virtualSpanId = this.idManager.getVirtualNodeId(virtualSpanSId);
 		EList<Long> virtualTokenIds = new BasicEList<Long>();
 		
 		if (minimal)
 		{ // map a timeline which has only one virtual token
 			String virtualTokenName = tok.getSName() + "_virtualToken";
 			
-			Pair<Long,Boolean> virtualTokenId = this.idManager.getVirtualNodeId(virtualTokenName);
-			if (virtualTokenId.getRight())
+			IdManager.VirtualNodeID virtualTokenId = this.idManager.getVirtualNodeId(virtualTokenName);
+			if (virtualTokenId.isFresh())
 			{ // this is a new virtual token
 				Long tokenIndex = (long)minimalTimelineRelationList.indexOf(timelineRelation);
 				token_left = tokenIndex;
 				token_right = tokenIndex;
 				
-				virtualTokenIds.add(virtualTokenId.getLeft());
+				virtualTokenIds.add(virtualTokenId.getNodeID());
 				
 				
 				// map the virtual token
-				super.writeNodeTabEntry(virtualTokenId.getLeft(), 0l, 
+				super.writeNodeTabEntry(virtualTokenId.getNodeID(), 0l, 
 						corpus_ref, DEFAULT_LAYER, virtualTokenName, 0l, 0l, tokenIndex, token_left, token_right, null, null, "");
 			} // this is a new virtual token
 	
@@ -126,15 +126,15 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 				String virtualTokenName = overlappedToken.getSName() + "_virtualToken";//+ virtualTokenPostfix;
 				//virtualTokenPostfix = virtualTokenPostfix + 1;
 				
-				Pair<Long,Boolean> virtualTokenId = this.idManager.getVirtualNodeId(virtualTokenName);
-				virtualTokenIds.add(virtualTokenId.getLeft());
+				IdManager.VirtualNodeID virtualTokenId = this.idManager.getVirtualNodeId(virtualTokenName);
+				virtualTokenIds.add(virtualTokenId.getNodeID());
 			} // create the list of virtual token ids
 		} // map a timeline which has more than one virtual token
 		
 		// register the mapping
-		this.idManager.registerTokenVirtMapping(tok.getSElementId(), virtualSpanId.getLeft(), virtualTokenIds);
+		this.idManager.registerTokenVirtMapping(tok.getSElementId(), virtualSpanId.getNodeID(), virtualTokenIds);
 		
-		if (virtualSpanId.getRight())
+		if (virtualSpanId.isFresh())
 		{ // map the virtual span and the Token annotations
 			// get the segmentation information
 			Long segId = null;
@@ -147,14 +147,14 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 				span = segmentInfo.getRight().getRight();
 			}
 			// map the span
-			super.writeNodeTabEntry(virtualSpanId.getLeft(), 0l, 
+			super.writeNodeTabEntry(virtualSpanId.getNodeID(), 0l, 
 					corpus_ref, DEFAULT_LAYER, virtualSpanName, 0l, 0l, null, token_left, token_right, segId, segName, span);
 			// map the virtual anno
-			this.mapSNodeAnnotation(virtualSpanId.getLeft(), DEFAULT_LAYER+"_virtual", "anno1", span);
+			this.mapSNodeAnnotation(virtualSpanId.getNodeID(), DEFAULT_LAYER+"_virtual", "anno1", span);
 			// map the token annotations
 			if (tok.getSAnnotations() != null){
 				for (SAnnotation anno : tok.getSAnnotations()){
-					this.mapSNodeAnnotation(null, virtualSpanId.getLeft(), anno);
+					this.mapSNodeAnnotation(null, virtualSpanId.getNodeID(), anno);
 				}
 			}
 		} // map the virtual span and the Token annotations
@@ -196,7 +196,7 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 				rankEntry.add(parentRank.toString());
 				rankEntry.add("0");
 				rankEntry.add(this.getNewPPOrder().toString());
-				rankEntry.add(virtualSpanId.getLeft().toString());
+				rankEntry.add("" + virtualSpanId.getNodeID());
 				rankEntry.add(this.currentComponentId.toString());
 				rankEntry.add(new String("NULL"));
 				rankEntry.add("0");
@@ -314,7 +314,7 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 						log.warn("minimal timeline relation has more than one virtual token id");
 					}
 					else if(tr_IdS.isEmpty()) {
-						log.warn("token is not mapped to virtual one");
+						log.warn("token {} is not mapped to virtual one", tr.getSToken().getSId(), tr_IdS);
 					} else {
 						sortedMinimalIdList.add(tr_IdS.get(0));
 					}
