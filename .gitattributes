@@ -301,6 +301,7 @@ src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/SP
 src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/SRelation2RelANNISMapper.java -text
 src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/SSpanningRelation2RelANNISMapper.java -text
 src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/Salt2RelANNISMapper.java -text svneol=unset#text/plain
+src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/SegmentationInfo.java -text svneol=unset#text/plain
 src/test/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/tests/FileComparator.java -text svneol=unset#text/plain
 src/test/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/tests/RelANNISExporterTest.java -text
 src/test/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/tests/Salt2RelANNISMapperTest.java -text svneol=unset#text/plain

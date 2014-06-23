@@ -33,7 +33,7 @@ public class IdManager {
 	// the virtual tokens which are sorted by their point of time
 	private EList<Long> virtualTokenIdList = null;
 	
-	protected Hashtable<SElementId,Pair<Long,Pair<String,String>>> segindex_segname_span_table = null;
+	protected Hashtable<SElementId,SegmentationInfo> segmentationInfoTable = null;
 	
 	public IdManager() {
 		this.nodeId = 0l;
@@ -51,7 +51,7 @@ public class IdManager {
 		this.corpusId = 0l;
 		this.textId = 0l;
 		
-		this.segindex_segname_span_table = new Hashtable<SElementId, Pair<Long,Pair<String,String>>>();
+		this.segmentationInfoTable = new Hashtable<SElementId, SegmentationInfo>();
 	}
 	
 	/**
@@ -132,7 +132,7 @@ public class IdManager {
 	 * @param segSpan the segment span
 	 */
 	public synchronized void addSegmentInformation(SElementId node, Long segIndex, String segName, String segSpan){
-		this.segindex_segname_span_table.put(node, new ImmutablePair<Long,Pair<String,String>>(segIndex,new ImmutablePair<String,String>(segName,segSpan)));
+		this.segmentationInfoTable.put(node, new SegmentationInfo(segIndex, segName, segSpan));
 	}
 	
 	/**
@@ -140,8 +140,8 @@ public class IdManager {
 	 * @param node The {@link SElementId} of the node
 	 * @return the segmentation info or null if the node has no segment property
 	 */
-	public synchronized Pair<Long,Pair<String,String>> getSegmentInformation(SElementId node){
-		Pair<Long,Pair<String,String>> returnVal = this.segindex_segname_span_table.get(node);
+	public synchronized SegmentationInfo getSegmentInformation(SElementId node){
+		SegmentationInfo returnVal = this.segmentationInfoTable.get(node);
 		return returnVal;
 	}
 	

@@ -433,9 +433,9 @@ public abstract class SRelation2RelANNISMapper extends Thread implements SGraphT
 	}
 	
 	public void mapSNode(SNode sNode){
-		Pair<Long,Pair<String,String>> segInfo = this.idManager.getSegmentInformation(sNode.getSElementId());
+		SegmentationInfo segInfo = this.idManager.getSegmentInformation(sNode.getSElementId());
 		if (segInfo != null){
-			this.mapSNode(sNode, segInfo.getLeft(), segInfo.getRight().getLeft(), segInfo.getRight().getRight());
+			this.mapSNode(sNode, segInfo.getRelANNISId(), segInfo.getSegmentationName(), segInfo.getSpan());
 		} else {
 			this.mapSNode(sNode, null, null, null);
 		}
