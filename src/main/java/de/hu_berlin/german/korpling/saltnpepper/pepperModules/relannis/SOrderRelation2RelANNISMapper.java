@@ -142,11 +142,11 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 			Long segId = null;
 			String segName = null;
 			String span = null;
-			Pair<Long,Pair<String,String>> segmentInfo = this.idManager.getSegmentInformation(tok.getSElementId());
+			SegmentationInfo segmentInfo = this.idManager.getSegmentInformation(tok.getSElementId());
 			if (segmentInfo != null){
-				segId = segmentInfo.getLeft();
-				segName = segmentInfo.getRight().getLeft();
-				span = segmentInfo.getRight().getRight();
+				segId = segmentInfo.getRelANNISId();
+				segName = segmentInfo.getSegmentationName();
+				span = segmentInfo.getSpan();
 			}
 			// map the span
 			super.writeNodeTabEntry(virtualSpanId.getNodeID(), 0l, 
