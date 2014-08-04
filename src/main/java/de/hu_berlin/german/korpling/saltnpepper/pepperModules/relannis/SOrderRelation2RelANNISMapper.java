@@ -80,14 +80,16 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 			
 			IdManager.VirtualNodeID virtualTokenId = this.idManager.getVirtualNodeId(virtualTokenName);
 
-			Long tokenIndex = (long)minimalTimelineRelationList.indexOf(timelineRelation);
 			virtualTokenIds.add(virtualTokenId.getNodeID());
-			token_left = tokenIndex;
-			token_right = tokenIndex;
-			
 			
 			if (virtualTokenId.isFresh())
-			{ // this is a new virtual token	
+			{ // this is a new virtual token
+				Long tokenIndex = (long)minimalTimelineRelationList.indexOf(timelineRelation);
+				token_left = tokenIndex;
+				token_right = tokenIndex;
+				
+				
+				
 				// map the virtual token
 				super.writeNodeTabEntry(virtualTokenId.getNodeID(), 0l, 
 						corpus_ref, DEFAULT_LAYER, virtualTokenName, 0l, 0l, tokenIndex, token_left, token_right, null, null, "");
@@ -338,20 +340,16 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 				EList<SNode> singleRootList = new BasicEList<SNode>();
 				singleRootList.add(node);
 						
-				this.inertialSegNode = null;
 				this.documentGraph.traverse(singleRootList, GRAPH_TRAVERSE_TYPE.TOP_DOWN_DEPTH_FIRST,"", this);
 				this.segPathCounter = this.segPathCounter + 1;
-				this.seg_index = 1l;
+				this.seg_index = 0l;
 			}
 			
-			// Step 2: create a virtual tokenization of a timeline exists and there are more than one texts
-			if(documentGraph.getSTimeline() != null 
-					&& documentGraph.getSTextualDSs() != null 
-					&& documentGraph.getSTextualDSs().size() > 1
-					&& documentGraph.getSTimelineRelations() != null
-					&& documentGraph.getSTimelineRelations().size() > 0)
-			{
-				this.createVirtualTokenization();
+			// Step 2: map the timeline relations, if existent
+			if (this.documentGraph.getSTimelineRelations() != null){
+				if (this.documentGraph.getSTimelineRelations().size() > 0){
+					this.createVirtualTokenization();
+				}
 			} 
 			
 		}
@@ -360,66 +358,42 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 	
 // ========================= Graph Traversion =================================
 	
-	private SNode inertialSegNode = null;
-	
-	private String getSegmentationSpan(SNode node, String name) {
-		String segSpan = "NULL";
-		
-		// get the segmentation value from the annotation for spans and from the covered text for token
-		if(node instanceof SToken)
-		{
-			if(node.getSGraph() instanceof SDocumentGraph)
-			{
-				SDocumentGraph g = (SDocumentGraph) node.getSGraph();
-				segSpan = g.getSText(node);
-			}
-		}
-		else if(name != null)
-		{
-			EList<SAnnotation> annos = node.getSAnnotations();
-			if(annos != null)
-			{
-				for(SAnnotation a : annos)
-				{
-					if(name.equals(a.getSName()))
-					{
-						segSpan = a.getSValueSTEXT();
-						break;
-					}
-				}
-			}
-		}
-		return segSpan;
-	}
-	
 	@Override
 	public void nodeReached(GRAPH_TRAVERSE_TYPE traversalType,
 			String traversalId, SNode currNode, SRelation sRelation,
 			SNode fromNode, long order) {
-
-		if(sRelation != null)
-		{
-			if(sRelation.getSTypes() != null && !sRelation.getSTypes().isEmpty())
-			{
-				String name = sRelation.getSTypes().get(0);
-				Long segIndex = this.seg_index;
-				this.seg_index = this.seg_index + 1;
-				String segSpan = getSegmentationSpan(currNode, name);
-
-				this.idManager.addSegmentInformation(currNode.getSElementId(), segIndex, name, segSpan);
-				if(inertialSegNode != null)
-				{
-					this.idManager.addSegmentInformation(
-							inertialSegNode.getSElementId(), 
-							segIndex-1, name, getSegmentationSpan(inertialSegNode, name));
-					inertialSegNode = null;
-				}
-			}
-		}
-		else
-		{
-			inertialSegNode = currNode;
-		}
+		
+		
+		//if (sRelation != null & sRelation instanceof SOrderRelation){
+			//System.out.println("found relation "+ fromNode.getSName() +" ->["+sRelation.getSId()+"] "+currNode.getSName());
+			//System.out.println("Traversal id is: "+traversalId);
+			//if (sRelation.getSTypes() != null){
+				//if (sRelation.getSTypes().size() > 0){
+					// set the segName, segIndex and segSpan
+					String name = null;
+					if (sRelation == null){
+						name = this.currentTraversionSType + segPathCounter;
+					} else if (sRelation.getSTypes() == null){
+						name = this.currentTraversionSType + segPathCounter;
+					} else {
+						name = sRelation.getSTypes().get(0);
+					}
+					Long segIndex = this.seg_index;
+					this.seg_index = this.seg_index + 1;
+					String segSpan = "NULL";
+					if(currNode.getSGraph() instanceof SDocumentGraph)
+					{
+						SDocumentGraph g = (SDocumentGraph) currNode.getSGraph();
+						segSpan = g.getSText(currNode);
+					}
+					this.idManager.addSegmentInformation(currNode.getSElementId(), segIndex, name, segSpan);
+					
+					//System.out.println("SType is "+this.currentComponentName);
+				//}
+			//}
+		//}
+		
+		
 	}
 
 	@Override
