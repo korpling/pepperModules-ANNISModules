@@ -38,6 +38,9 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 				rankTabWriter, edgeAnnoTabWriter, componentTabWriter);
 		
 	}
+	
+	private int segPathCounter = 0;
+	
 	private Long seg_index = 1l;
 	
 	
@@ -338,6 +341,7 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 				singleRootList.add(node);
 						
 				this.documentGraph.traverse(singleRootList, GRAPH_TRAVERSE_TYPE.TOP_DOWN_DEPTH_FIRST,"", this);
+				this.segPathCounter = this.segPathCounter + 1;
 				this.seg_index = 0l;
 			}
 			
@@ -368,9 +372,9 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 					// set the segName, segIndex and segSpan
 					String name = null;
 					if (sRelation == null){
-						name = this.currentTraversionSType;
+						name = this.currentTraversionSType + segPathCounter;
 					} else if (sRelation.getSTypes() == null){
-						name = this.currentTraversionSType;
+						name = this.currentTraversionSType + segPathCounter;
 					} else {
 						name = sRelation.getSTypes().get(0);
 					}
