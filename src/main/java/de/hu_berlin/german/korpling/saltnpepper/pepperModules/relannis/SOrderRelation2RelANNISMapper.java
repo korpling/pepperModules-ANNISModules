@@ -41,7 +41,7 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 	
 	private int segPathCounter = 0;
 	
-	private Long seg_index = 1l;
+	private long seg_index = 0l;
 	
 	
 	
