@@ -50,10 +50,11 @@
             conversion process. A description of how to model a workflow description file can be
             found under https://korpling.german.hu-berlin.de/saltnpepper/.</para>
         <para>relANNIS is the tab separated file format of the linguistic search and visualization
-            tool ANNIS (see: <link xlink:href="http://www.sfb632.uni-potsdam.de/annis/">http://www.sfb632.uni-potsdam.de/annis/</link>). The
-            relANNIS format is similar to the Salt meta model a graph based meta model. It also
-            consists of nodes and edges, which are subtyped by a more specific linguistic meaning.
-            Nevertheless, like Salt also the relANNIS format is a theory independent format.</para>
+            tool ANNIS (see: <link xlink:href="http://www.sfb632.uni-potsdam.de/annis/"
+                >http://www.sfb632.uni-potsdam.de/annis/</link>). The relANNIS format is similar to
+            the Salt meta model a graph based meta model. It also consists of nodes and edges, which
+            are subtyped by a more specific linguistic meaning. Nevertheless, like Salt also the
+            relANNIS format is a theory independent format.</para>
         <table xml:id="table_overview" frame="all">
             <title>Pepper modules contained in this project</title>
             <tgroup cols="3" align="left" colsep="1" rowsep="1">
@@ -65,55 +66,20 @@
                     </row>
                 </thead>
                 <tbody>
-                    <row>
-                        <entry><xref linkend="relANNIS_importer" endterm="relANNIS_importer_name"
-                            /></entry>
-                        <entry>importer</entry>
-                        <entry>3.1</entry>
-                    </row>
+                    <row/>
                     <row>
                         <entry><xref linkend="relANNIS_exporter" endterm="relANNIS_exporter_name"
                             /></entry>
                         <entry>exporter</entry>
-                        <entry>3.1, 3.2</entry>
+                        <entry>4.0</entry>
                     </row>
                 </tbody>
             </tgroup>
         </table>
-    </chapter>
-    <chapter xml:id="relANNIS_importer">
-        <title xml:id="relANNIS_importer_name">RelANNISImporter</title>
-        <para> The RelANNISImporter make use of the relANNISModel project to map data from the
-            relANNIS model to the Salt model. That means, the conversion process is divided into two
-            steps: <itemizedlist>
-                <listitem>
-                    <para>Importing the relANNIS data from file into relANNIS model (in main
-                        memory)</para>
-                </listitem>
-                <listitem>
-                    <para>Mapping of the relANNIS model to a Salt model</para>
-                </listitem>
-            </itemizedlist>
-        </para>
+        <para> </para>
     </chapter>
     <chapter xml:id="relANNIS_exporter">
         <title xml:id="relANNIS_exporter_name">RelANNISExporter</title>
-        <para> The RelANNISExporter make use of the relANNISModel project to map data from the
-            relANNIS model to the Salt model. That means, the conversion process is divided into two
-            steps: <itemizedlist>
-                <listitem>
-                    <para>Mapping of the Salt model to a relANNIS model</para>
-                </listitem>
-                <listitem>
-                    <para>Exporting the relANNIS model to a file</para>
-                </listitem>
-            </itemizedlist>
-        </para>
-        <para>Since relANNIS is available in two different versions, the relANNIS 3.1 format and the
-            relANNIS 3.2 format, you can customize the relANNIS creation only when using the format
-            description. That means the second case of identifying an im- or exporter. The relANNIS
-            3.1 format fits for all ANNIS 2.X versions, whereas the relANNIS 3.2 is importable since
-            ANNIS 3.0. </para>
         <para>The relANNIS format is a csv based format and uses for separating columns the tab
             character and for separating lines a line break character. Therefore it is necessary to
             not have tab characters or line breaks inside the data like annotation names, annotation

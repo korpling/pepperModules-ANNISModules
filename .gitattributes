@@ -1,0 +1,443 @@
+* text=auto !eol
+/.classpath -text svneol=unset#text/plain
+/.project -text svneol=unset#text/plain
+.settings/org.eclipse.core.resources.prefs -text svneol=unset#text/plain
+.settings/org.eclipse.jdt.core.prefs -text svneol=unset#text/plain
+.settings/org.eclipse.pde.core.prefs -text svneol=unset#text/plain
+.settings/org.maven.ide.eclipse.prefs -text svneol=unset#text/plain
+/LICENSE -text
+/NOTICE -text
+/build.properties -text svneol=unset#text/plain
+lib/commons-lang3-3.0.jar -text
+/pom.xml -text svneol=unset#text/plain
+src/assemble/assemblies.xml -text svneol=unset#text/plain
+src/etc/NOTICE_template.txt -text svneol=unset#text/plain
+src/etc/header.txt -text svneol=unset#text/plain
+src/main/docbkx/custom.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/AUTHORS -text
+src/main/docbkx/docbook-xsl/BUGS -text
+src/main/docbkx/docbook-xsl/COPYING -text
+src/main/docbkx/docbook-xsl/NEWS -text
+src/main/docbkx/docbook-xsl/README -text
+src/main/docbkx/docbook-xsl/RELEASE-NOTES.txt -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/REVISION -text
+src/main/docbkx/docbook-xsl/TODO -text
+src/main/docbkx/docbook-xsl/VERSION -text
+src/main/docbkx/docbook-xsl/VERSION.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/af.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/am.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/ar.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/as.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/ast.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/autoidx-kimber.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/autoidx-kosek.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/az.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/bg.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/bn.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/bn_in.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/bs.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/ca.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/charmap.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/charmap.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/common.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/common.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/cs.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/cy.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/da.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/de.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/el.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/en.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/entities.ent -text
+src/main/docbkx/docbook-xsl/common/eo.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/es.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/et.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/eu.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/fa.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/fi.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/fr.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/ga.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/gentext.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/gl.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/gu.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/he.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/hi.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/hr.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/hu.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/id.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/insertfile.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/is.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/it.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/ja.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/ka.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/kn.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/ko.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/ky.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/l10n.dtd -text
+src/main/docbkx/docbook-xsl/common/l10n.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/l10n.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/la.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/labels.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/lt.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/lv.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/ml.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/mn.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/mr.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/nb.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/nds.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/nl.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/nn.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/olink.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/or.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/pa.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/pi.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/pi.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/pl.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/pt.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/pt_br.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/refentry.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/refentry.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/ro.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/ru.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/sk.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/sl.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/sq.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/sr.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/sr_Latn.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/stripns.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/subtitles.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/sv.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/ta.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/table.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/targetdatabase.dtd -text
+src/main/docbkx/docbook-xsl/common/targets.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/te.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/th.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/titles.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/tl.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/tr.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/uk.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/utility.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/utility.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/vi.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/xh.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/zh.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/zh_cn.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/common/zh_tw.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/admon.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/annotations.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/autoidx-kimber.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/autoidx-kosek.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/autoidx-ng.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/autoidx.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/autotoc.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/axf.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/biblio-iso690.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/biblio.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/block.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/callout.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/component.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/division.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/docbook.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/ebnf.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/fo-rtf.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/fo.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/footnote.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/fop.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/fop1.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/formal.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/glossary.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/graphics.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/highlight.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/htmltbl.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/index.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/info.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/inline.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/keywords.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/lists.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/math.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/pagesetup.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/param.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/param.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/passivetex.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/pdf2index -text
+src/main/docbkx/docbook-xsl/fo/pi.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/pi.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/profile-docbook.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/ptc.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/qandaset.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/refentry.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/sections.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/spaces.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/synop.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/table.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/table.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/task.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/titlepage.templates.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/titlepage.templates.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/titlepage.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/toc.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/verbatim.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/xep.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/fo/xref.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/highlighting/README -text
+src/main/docbkx/docbook-xsl/highlighting/c-hl.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/highlighting/common.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/highlighting/cpp-hl.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/highlighting/csharp-hl.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/highlighting/delphi-hl.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/highlighting/ini-hl.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/highlighting/java-hl.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/highlighting/javascript-hl.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/highlighting/m2-hl.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/highlighting/myxml-hl.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/highlighting/perl-hl.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/highlighting/php-hl.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/highlighting/python-hl.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/highlighting/ruby-hl.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/highlighting/tcl-hl.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/highlighting/xslthl-config.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/admon.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/annotations.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/autoidx-kimber.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/autoidx-kosek.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/autoidx-ng.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/autoidx.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/autotoc.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/biblio-iso690.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/biblio.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/block.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/callout.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/changebars.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/chunk-changebars.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/chunk-code.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/chunk-common.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/chunk.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/chunker.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/chunkfast.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/chunktoc.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/component.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/division.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/docbook.css.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/docbook.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/ebnf.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/footnote.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/formal.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/glossary.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/graphics.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/highlight.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/html-rtf.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/html.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/htmltbl.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/index.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/info.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/inline.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/keywords.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/lists.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/maketoc.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/manifest.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/math.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/oldchunker.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/onechunk.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/param.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/param.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/pi.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/pi.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/profile-chunk-code.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/profile-chunk.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/profile-docbook.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/profile-onechunk.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/qandaset.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/refentry.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/sections.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/synop.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/table.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/task.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/titlepage.templates.xml -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/titlepage.templates.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/titlepage.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/toc.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/verbatim.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/html/xref.xsl -text svneol=unset#text/plain
+src/main/docbkx/docbook-xsl/lib/lib.xsl -text svneol=unset#text/plain
+src/main/docbkx/images/sample-CorpusGraphMapping.jpg -text
+src/main/docbkx/images/samples.odg -text
+src/main/docbkx/images/samplesAnnoSet.jpg -text
+src/main/docbkx/images/samplesPointRel.jpg -text
+src/main/docbkx/images/samplesSpan.jpg -text
+src/main/docbkx/images/samplesStruct.jpg -text
+src/main/docbkx/images/samplesToken.jpg -text
+src/main/docbkx/images/text_sample.jpg -text
+src/main/docbkx/manual.xml -text svneol=unset#text/plain
+src/main/docbkx/manual.xpr -text
+src/main/docbkx/out/pdf/manual.pdf -text
+src/main/fonts/DejaVuSans-Bold.ttf -text
+src/main/fonts/DejaVuSans-BoldOblique.ttf -text
+src/main/fonts/DejaVuSans-ExtraLight.ttf -text
+src/main/fonts/DejaVuSans-Oblique.ttf -text
+src/main/fonts/DejaVuSans.ttf -text
+src/main/fonts/DejaVuSansCondensed-Bold.ttf -text
+src/main/fonts/DejaVuSansCondensed-BoldOblique.ttf -text
+src/main/fonts/DejaVuSansCondensed-Oblique.ttf -text
+src/main/fonts/DejaVuSansCondensed.ttf -text
+src/main/fonts/DejaVuSansMono-Bold.ttf -text
+src/main/fonts/DejaVuSansMono-BoldOblique.ttf -text
+src/main/fonts/DejaVuSansMono-Oblique.ttf -text
+src/main/fonts/DejaVuSansMono.ttf -text
+src/main/fonts/DejaVuSerif-Bold.ttf -text
+src/main/fonts/DejaVuSerif-BoldItalic.ttf -text
+src/main/fonts/DejaVuSerif-Italic.ttf -text
+src/main/fonts/DejaVuSerif.ttf -text
+src/main/fonts/DejaVuSerifCondensed-Bold.ttf -text
+src/main/fonts/DejaVuSerifCondensed-BoldItalic.ttf -text
+src/main/fonts/DejaVuSerifCondensed-Italic.ttf -text
+src/main/fonts/DejaVuSerifCondensed.ttf -text
+src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/IdManager.java -text
+src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/RelANNIS.java -text svneol=unset#text/plain
+src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/RelANNISExporter.java -text svneol=unset#text/plain
+src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/RelANNISExporterProperties.java -text
+src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/SDominanceRelation2RelANNISMapper.java -text
+src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/SOrderRelation2RelANNISMapper.java -text
+src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/SPointingRelation2RelANNISMapper.java -text
+src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/SRelation2RelANNISMapper.java -text
+src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/SSpanningRelation2RelANNISMapper.java -text
+src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/Salt2RelANNISMapper.java -text svneol=unset#text/plain
+src/main/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/SegmentationInfo.java -text svneol=unset#text/plain
+src/test/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/tests/FileComparator.java -text svneol=unset#text/plain
+src/test/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/tests/RelANNISExporterTest.java -text
+src/test/java/de/hu_berlin/german/korpling/saltnpepper/pepperModules/relannis/tests/Salt2RelANNISMapperTest.java -text svneol=unset#text/plain
+src/test/resources/testComplexMapSOrderRelation/component.relannis -text
+src/test/resources/testComplexMapSOrderRelation/corpus.relannis -text
+src/test/resources/testComplexMapSOrderRelation/corpus_annotation.relannis -text
+src/test/resources/testComplexMapSOrderRelation/edge_annotation.relannis -text
+src/test/resources/testComplexMapSOrderRelation/node.relannis -text
+src/test/resources/testComplexMapSOrderRelation/node_annotation.relannis -text
+src/test/resources/testComplexMapSOrderRelation/rank.relannis -text
+src/test/resources/testComplexMapSOrderRelation/testComplexMapSOrderRelation.dot -text
+src/test/resources/testComplexMapSOrderRelation/testComplexMapSOrderRelation.png -text
+src/test/resources/testComplexMapSOrderRelation/testMapSOrderRelation3.dot -text
+src/test/resources/testComplexMapSOrderRelation/testMapSOrderRelation3.png -text
+src/test/resources/testComplexMapSOrderRelation/text.relannis -text
+src/test/resources/testMapAnaphoric/component.relannis -text
+src/test/resources/testMapAnaphoric/corpus.relannis -text
+src/test/resources/testMapAnaphoric/corpus_annotation.relannis -text
+src/test/resources/testMapAnaphoric/edge_annotation.relannis -text
+src/test/resources/testMapAnaphoric/node.relannis -text
+src/test/resources/testMapAnaphoric/node_annotation.relannis -text
+src/test/resources/testMapAnaphoric/rank.relannis -text
+src/test/resources/testMapAnaphoric/testMapAnaphoric.dot -text
+src/test/resources/testMapAnaphoric/testMapAnaphoric.png -text
+src/test/resources/testMapAnaphoric/text.relannis -text
+src/test/resources/testMapFullGraph/component.relannis -text
+src/test/resources/testMapFullGraph/corpus.relannis -text
+src/test/resources/testMapFullGraph/corpus_annotation.relannis -text
+src/test/resources/testMapFullGraph/edge_annotation.relannis -text
+src/test/resources/testMapFullGraph/node.relannis -text
+src/test/resources/testMapFullGraph/node_annotation.relannis -text
+src/test/resources/testMapFullGraph/rank.relannis -text
+src/test/resources/testMapFullGraph/testMapFullGraph.dot -text
+src/test/resources/testMapFullGraph/testMapFullGraph.png -text
+src/test/resources/testMapFullGraph/text.relannis -text
+src/test/resources/testMapIndividualCorpusName/component.relannis -text
+src/test/resources/testMapIndividualCorpusName/corpus.relannis -text
+src/test/resources/testMapIndividualCorpusName/corpus_annotation.relannis -text
+src/test/resources/testMapIndividualCorpusName/edge_annotation.relannis -text
+src/test/resources/testMapIndividualCorpusName/node.relannis -text
+src/test/resources/testMapIndividualCorpusName/node_annotation.relannis -text
+src/test/resources/testMapIndividualCorpusName/rank.relannis -text
+src/test/resources/testMapIndividualCorpusName/text.relannis -text
+src/test/resources/testMapParallelData/component.relannis -text
+src/test/resources/testMapParallelData/corpus.relannis -text
+src/test/resources/testMapParallelData/corpus_annotation.relannis -text
+src/test/resources/testMapParallelData/edge_annotation.relannis -text
+src/test/resources/testMapParallelData/node.relannis -text
+src/test/resources/testMapParallelData/node_annotation.relannis -text
+src/test/resources/testMapParallelData/rank.relannis -text
+src/test/resources/testMapParallelData/testMapParallelData.dot -text
+src/test/resources/testMapParallelData/testMapParallelData.png -text
+src/test/resources/testMapParallelData/text.relannis -text
+src/test/resources/testMapSOrderRelation/SOrderRelationMappingExample.ods -text
+src/test/resources/testMapSOrderRelation/SOrderRelationMappingExample.pdf -text
+src/test/resources/testMapSOrderRelation/component.relannis -text
+src/test/resources/testMapSOrderRelation/corpus.relannis -text
+src/test/resources/testMapSOrderRelation/corpus_annotation.relannis -text
+src/test/resources/testMapSOrderRelation/edge_annotation.relannis -text
+src/test/resources/testMapSOrderRelation/node.relannis -text
+src/test/resources/testMapSOrderRelation/node_annotation.relannis -text
+src/test/resources/testMapSOrderRelation/rank.relannis -text
+src/test/resources/testMapSOrderRelation/testMapSOrderRelation.dot -text
+src/test/resources/testMapSOrderRelation/testMapSOrderRelation.png -text
+src/test/resources/testMapSOrderRelation/testMapSOrderRelationGenerated.dot -text
+src/test/resources/testMapSOrderRelation/testMapSOrderRelationGenerated.png -text
+src/test/resources/testMapSOrderRelation/text.relannis -text
+src/test/resources/testMapSSpans/component.relannis -text
+src/test/resources/testMapSSpans/corpus.relannis -text
+src/test/resources/testMapSSpans/corpus_annotation.relannis -text
+src/test/resources/testMapSSpans/edge_annotation.relannis -text
+src/test/resources/testMapSSpans/node.relannis -text
+src/test/resources/testMapSSpans/node_annotation.relannis -text
+src/test/resources/testMapSSpans/rank.relannis -text
+src/test/resources/testMapSSpans/testMapSSpans.dot -text
+src/test/resources/testMapSSpans/testMapSSpans.png -text
+src/test/resources/testMapSSpans/text.relannis -text
+src/test/resources/testMapSSyntax/component.relannis -text
+src/test/resources/testMapSSyntax/corpus.relannis -text
+src/test/resources/testMapSSyntax/corpus_annotation.relannis -text
+src/test/resources/testMapSSyntax/edge_annotation.relannis -text
+src/test/resources/testMapSSyntax/node.relannis -text
+src/test/resources/testMapSSyntax/node_annotation.relannis -text
+src/test/resources/testMapSSyntax/rank.relannis -text
+src/test/resources/testMapSSyntax/testMapSSyntax.dot -text
+src/test/resources/testMapSSyntax/testMapSSyntax.png -text
+src/test/resources/testMapSSyntax/text.relannis -text
+src/test/resources/testMapSText/component.relannis -text
+src/test/resources/testMapSText/corpus.relannis -text
+src/test/resources/testMapSText/corpus_annotation.relannis -text
+src/test/resources/testMapSText/edge_annotation.relannis -text
+src/test/resources/testMapSText/mapSText.dot -text
+src/test/resources/testMapSText/mapSText.png -text
+src/test/resources/testMapSText/node.relannis -text
+src/test/resources/testMapSText/node_annotation.relannis -text
+src/test/resources/testMapSText/rank.relannis -text
+src/test/resources/testMapSText/text.relannis -text
+src/test/resources/testMapSToken/component.relannis -text
+src/test/resources/testMapSToken/corpus.relannis -text
+src/test/resources/testMapSToken/corpus_annotation.relannis -text
+src/test/resources/testMapSToken/edge_annotation.relannis -text
+src/test/resources/testMapSToken/mapSToken.dot -text
+src/test/resources/testMapSToken/mapSToken.png -text
+src/test/resources/testMapSToken/node.relannis -text
+src/test/resources/testMapSToken/node_annotation.relannis -text
+src/test/resources/testMapSToken/rank.relannis -text
+src/test/resources/testMapSToken/text.relannis -text
+src/test/resources/testMapSTokenAnnotation/component.relannis -text
+src/test/resources/testMapSTokenAnnotation/corpus.relannis -text
+src/test/resources/testMapSTokenAnnotation/corpus_annotation.relannis -text
+src/test/resources/testMapSTokenAnnotation/edge_annotation.relannis -text
+src/test/resources/testMapSTokenAnnotation/node.relannis -text
+src/test/resources/testMapSTokenAnnotation/node_annotation.relannis -text
+src/test/resources/testMapSTokenAnnotation/rank.relannis -text
+src/test/resources/testMapSTokenAnnotation/testMapSTokenAnnotation.dot -text
+src/test/resources/testMapSTokenAnnotation/testMapSTokenAnnotation.png -text
+src/test/resources/testMapSTokenAnnotation/text.relannis -text
+src/test/resources/testMapSeveralTokenizations/component.relannis -text
+src/test/resources/testMapSeveralTokenizations/corpus.relannis -text
+src/test/resources/testMapSeveralTokenizations/corpus_annotation.relannis -text
+src/test/resources/testMapSeveralTokenizations/edge_annotation.relannis -text
+src/test/resources/testMapSeveralTokenizations/node.relannis -text
+src/test/resources/testMapSeveralTokenizations/node_annotation.relannis -text
+src/test/resources/testMapSeveralTokenizations/rank.relannis -text
+src/test/resources/testMapSeveralTokenizations/testMapSeveralTokenizations.dot -text
+src/test/resources/testMapSeveralTokenizations/testMapSeveralTokenizations.png -text
+src/test/resources/testMapSeveralTokenizations/text.relannis -text
+src/test/resources/testMapUntypedPointingRelation/component.relannis -text
+src/test/resources/testMapUntypedPointingRelation/corpus.relannis -text
+src/test/resources/testMapUntypedPointingRelation/corpus_annotation.relannis -text
+src/test/resources/testMapUntypedPointingRelation/edge_annotation.relannis -text
+src/test/resources/testMapUntypedPointingRelation/node.relannis -text
+src/test/resources/testMapUntypedPointingRelation/node_annotation.relannis -text
+src/test/resources/testMapUntypedPointingRelation/rank.relannis -text
+src/test/resources/testMapUntypedPointingRelation/testMapUntypedPointingRelation.dot -text
+src/test/resources/testMapUntypedPointingRelation/testMapUntypedPointingRelation.png -text
+src/test/resources/testMapUntypedPointingRelation/text.relannis -text
+src/test/resources/testSpecialParams/test1.pepperParams -text
+src/test/resources/testSpecialParams/test2.pepperParams -text
