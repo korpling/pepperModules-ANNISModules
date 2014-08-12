@@ -616,8 +616,22 @@ public class Salt2RelANNISMapperTest extends TestCase
 			File createdFile= new File(createdPath.getAbsolutePath()+File.separator+goldFile.getName());
 			if (! createdFile.exists())
 				throw new FileNotFoundException("Missing file '"+goldFile.getName()+"' in relANNIS path '"+createdPath.getAbsolutePath()+"'.");
-			TabFileComparator.checkEqual(goldFile.getAbsolutePath(), createdFile.getAbsolutePath(), 0);
- 	    
+			
+      if("node.relannis".equalsIgnoreCase(goldFile.getName()) || 
+        "node_annotation.relannis".equalsIgnoreCase(goldFile.getName()))
+      {
+        // we can ignore the ID column as long as the other columns are the same
+        TabFileComparator.checkEqual(goldFile.getAbsolutePath(), createdFile.getAbsolutePath(), 0);
+      }
+      else if("rank.relannis".equalsIgnoreCase(goldFile.getName()))
+      {
+        // we can ignore the node_ref column as long as the other columns are the same
+        TabFileComparator.checkEqual(goldFile.getAbsolutePath(), createdFile.getAbsolutePath(), 3);
+      }
+      else
+      {
+        TabFileComparator.checkEqual(goldFile.getAbsolutePath(), createdFile.getAbsolutePath());
+      }
 		}
 		if (oneComparisonWasUnsuccessful){
 			return(0);
