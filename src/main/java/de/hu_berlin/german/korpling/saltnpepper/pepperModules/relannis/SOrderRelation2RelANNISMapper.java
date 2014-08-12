@@ -4,7 +4,6 @@ import java.io.FileNotFoundException;
 import java.util.HashSet;
 import java.util.Hashtable;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 import org.slf4j.Logger;
@@ -13,12 +12,10 @@ import org.slf4j.LoggerFactory;
 import de.hu_berlin.german.korpling.saltnpepper.misc.tupleconnector.TupleWriter;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleException;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.Salt2RelANNISMapper.TRAVERSION_TYPE;
-import de.hu_berlin.german.korpling.saltnpepper.salt.graph.Edge;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.GRAPH_TRAVERSE_TYPE;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SOrderRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STYPE_NAME;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STimelineRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
@@ -92,7 +89,7 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 				
 				// map the virtual token
 				super.writeNodeTabEntry(virtualTokenId.getNodeID(), 0l, 
-						corpus_ref, DEFAULT_LAYER, virtualTokenName, 0l, 0l, tokenIndex, token_left, token_right, null, null, "");
+						corpus_ref, DEFAULT_LAYER, virtualTokenName, tokenIndex, tokenIndex, tokenIndex, token_left, token_right, null, null, " ");
 			} // this is a new virtual token
 	
 		} // map a timeline which has only one virtual token
@@ -150,7 +147,7 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 			}
 			// map the span
 			super.writeNodeTabEntry(virtualSpanId.getNodeID(), 0l, 
-					corpus_ref, DEFAULT_LAYER, virtualSpanName, 0l, 0l, null, token_left, token_right, segId, segName, span);
+					corpus_ref, DEFAULT_LAYER, virtualSpanName, token_left, token_right, null, token_left, token_right, segId, segName, span);
 			// map the virtual anno
 			this.mapSNodeAnnotation(virtualSpanId.getNodeID(), DEFAULT_LAYER+"_virtual", "anno1", span);
 			// map the token annotations
