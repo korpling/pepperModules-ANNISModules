@@ -1,5 +1,6 @@
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.tests;
 
+import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleTestException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -615,11 +616,8 @@ public class Salt2RelANNISMapperTest extends TestCase
 			File createdFile= new File(createdPath.getAbsolutePath()+File.separator+goldFile.getName());
 			if (! createdFile.exists())
 				throw new FileNotFoundException("Missing file '"+goldFile.getName()+"' in relANNIS path '"+createdPath.getAbsolutePath()+"'.");
-			FileComparator comparator= new FileComparator();
-			boolean comparisonSuccess = comparator.compareFiles(goldFile, createdFile);
-			if (! comparisonSuccess){
-				oneComparisonWasUnsuccessful = true;
-			}
+			TabFileComparator.checkEqual(goldFile.getAbsolutePath(), createdFile.getAbsolutePath(), 0);
+ 	    
 		}
 		if (oneComparisonWasUnsuccessful){
 			return(0);
