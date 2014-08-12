@@ -1,25 +1,25 @@
-1	0	1	default_layer	sTok12_virtualToken	0	0	9	9	9	NULL	NULL	
-0	0	1	default_layer	sTok12_virtualSpan	0	0	NULL	9	9	1	default_seg1	oh
-3	0	1	default_layer	sTok13_virtualToken	0	0	10	10	10	NULL	NULL	
-2	0	1	default_layer	sTok13_virtualSpan	0	0	NULL	10	10	2	default_seg1	yes!
-5	0	1	default_layer	sTok7_virtualToken	0	0	6	6	6	NULL	NULL	
-4	0	1	default_layer	sTok7_virtualSpan	0	0	NULL	6	6	6	default_seg0	it
-7	0	1	default_layer	sTok1_virtualToken	0	0	0	0	0	NULL	NULL	
+1	0	1	default_layer	sTok12_virtualToken	9	9	9	9	9	NULL	NULL	 
+0	0	1	default_layer	sTok12_virtualSpan	9	9	NULL	9	9	1	default_seg1	oh
+3	0	1	default_layer	sTok13_virtualToken	10	10	10	10	10	NULL	NULL	 
+2	0	1	default_layer	sTok13_virtualSpan	10	10	NULL	10	10	2	default_seg1	yes!
+5	0	1	default_layer	sTok7_virtualToken	6	6	6	6	6	NULL	NULL	 
+4	0	1	default_layer	sTok7_virtualSpan	6	6	NULL	6	6	6	default_seg0	it
+7	0	1	default_layer	sTok1_virtualToken	0	0	0	0	0	NULL	NULL	 
 6	0	1	default_layer	sTok1_virtualSpan	0	0	NULL	0	0	0	default_seg0	Is
-9	0	1	default_layer	sTok6_virtualToken	0	0	5	5	5	NULL	NULL	
-8	0	1	default_layer	sTok6_virtualSpan	0	0	NULL	5	5	5	default_seg0	than
-11	0	1	default_layer	sTok2_virtualToken	0	0	1	1	1	NULL	NULL	
-10	0	1	default_layer	sTok2_virtualSpan	0	0	NULL	1	1	1	default_seg0	this
-13	0	1	default_layer	sTok4_virtualToken	0	0	3	3	3	NULL	NULL	
-12	0	1	default_layer	sTok4_virtualSpan	0	0	NULL	3	3	3	default_seg0	more
-15	0	1	default_layer	sTok3_virtualToken	0	0	2	2	2	NULL	NULL	
-14	0	1	default_layer	sTok3_virtualSpan	0	0	NULL	2	2	2	default_seg0	example
-17	0	1	default_layer	sTok8_virtualToken	0	0	7	7	7	NULL	NULL	
-16	0	1	default_layer	sTok8_virtualSpan	0	0	NULL	7	7	7	default_seg0	appears
-19	0	1	default_layer	sTok5_virtualToken	0	0	4	4	4	NULL	NULL	
-18	0	1	default_layer	sTok5_virtualSpan	0	0	NULL	4	4	4	default_seg0	complicated
-21	0	1	default_layer	sTok9_virtualToken	0	0	8	8	8	NULL	NULL	
-20	0	1	default_layer	sTok9_virtualSpan	0	0	NULL	8	8	8	default_seg0	to
-22	0	1	default_layer	sTok11_virtualSpan	0	0	NULL	7	8	0	default_seg1	Uhm
-23	0	1	default_layer	sTok10_virtualSpan	0	0	NULL	9	10	9	default_seg0	be?
+9	0	1	default_layer	sTok6_virtualToken	5	5	5	5	5	NULL	NULL	 
+8	0	1	default_layer	sTok6_virtualSpan	5	5	NULL	5	5	5	default_seg0	than
+11	0	1	default_layer	sTok2_virtualToken	1	1	1	1	1	NULL	NULL	 
+10	0	1	default_layer	sTok2_virtualSpan	1	1	NULL	1	1	1	default_seg0	this
+13	0	1	default_layer	sTok4_virtualToken	3	3	3	3	3	NULL	NULL	 
+12	0	1	default_layer	sTok4_virtualSpan	3	3	NULL	3	3	3	default_seg0	more
+15	0	1	default_layer	sTok3_virtualToken	2	2	2	2	2	NULL	NULL	 
+14	0	1	default_layer	sTok3_virtualSpan	2	2	NULL	2	2	2	default_seg0	example
+17	0	1	default_layer	sTok8_virtualToken	7	7	7	7	7	NULL	NULL	 
+16	0	1	default_layer	sTok8_virtualSpan	7	7	NULL	7	7	7	default_seg0	appears
+19	0	1	default_layer	sTok5_virtualToken	4	4	4	4	4	NULL	NULL	 
+18	0	1	default_layer	sTok5_virtualSpan	4	4	NULL	4	4	4	default_seg0	complicated
+21	0	1	default_layer	sTok9_virtualToken	8	8	8	8	8	NULL	NULL	 
+20	0	1	default_layer	sTok9_virtualSpan	8	8	NULL	8	8	8	default_seg0	to
+22	0	1	default_layer	sTok11_virtualSpan	7	8	NULL	7	8	0	default_seg1	Uhm
+23	0	1	default_layer	sTok10_virtualSpan	9	10	NULL	9	10	9	default_seg0	be?
 24	0	1	default_ns	sSpan1	0	1	NULL	0	0	NULL	NULL	NULL
