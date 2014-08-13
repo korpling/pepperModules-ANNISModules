@@ -21,19 +21,26 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.Vector;
-import junit.framework.TestCase;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.junit.After;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 
-public class Salt2RelANNISMapperTest extends TestCase 
+public class Salt2RelANNISMapperTest 
 {
+  
+  @Rule 
+  public TestName name = new TestName();
+  
 	private Salt2RelANNISMapper fixture= null;
 
 	public Salt2RelANNISMapper getFixture() {
@@ -42,10 +49,14 @@ public class Salt2RelANNISMapperTest extends TestCase
 	public void setFixture(Salt2RelANNISMapper fixture) {
 		this.fixture = fixture;
 	}
+  
+  private File tmpPath;
+  private File testPath;
+  
 	
 	private static final File globalTmpPath = new File(System.getProperty("java.io.tmpdir")+File.separator+"relANNISModules_test" +File.separator+"Salt2relannisMapper"+File.separator);
 	
-	@Override	
+	@Before
 	public void setUp(){
 		setFixture(new Salt2RelANNISMapper());
 		
@@ -73,6 +84,10 @@ public class Salt2RelANNISMapperTest extends TestCase
 		
 		IdManager idManager= new IdManager();
 		getFixture().setIdManager(idManager);
+    
+    tmpPath= new File(globalTmpPath.getAbsoluteFile()+ File.separator+name.getMethodName());
+		testPath= new File(getTestPath()+name.getMethodName());
+		createTupleWriters(tmpPath);
 	}
 	
 	private void createTupleWriters(File path)
@@ -109,14 +124,7 @@ public class Salt2RelANNISMapperTest extends TestCase
 	 */
 	@Test
 	public void testMapSText() throws IOException
-	{
-		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
-		String testName= ste[1].getMethodName();
-		
-		File tmpPath= new File(globalTmpPath.getAbsoluteFile()+ File.separator+testName);
-		File testPath= new File(getTestPath()+testName);
-		createTupleWriters(tmpPath);
-		
+	{	
 		// create the primary text
 		SaltSample.createPrimaryData(getFixture().getSDocument());
 		getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
@@ -136,14 +144,7 @@ public class Salt2RelANNISMapperTest extends TestCase
 	 */
 	@Test
 	public void testMapIndividualCorpusName() throws IOException
-	{
-		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
-		String testName= ste[1].getMethodName();
-		
-		File tmpPath= new File(globalTmpPath.getAbsoluteFile()+ File.separator+testName);
-		File testPath= new File(getTestPath()+testName);
-		createTupleWriters(tmpPath);
-		
+	{	
 		// create the primary text
 		SaltSample.createPrimaryData(getFixture().getSDocument());
 		getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
@@ -165,14 +166,7 @@ public class Salt2RelANNISMapperTest extends TestCase
 	 */
 	@Test
 	public void testMapSToken() throws IOException
-	{
-		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
-		String testName= ste[1].getMethodName();
-		
-		File tmpPath= new File(globalTmpPath.getAbsoluteFile()+ File.separator+testName);
-		File testPath= new File(getTestPath()+testName);
-		createTupleWriters(tmpPath);
-		
+	{	
 		// create the primary text
 		SaltSample.createPrimaryData(getFixture().getSDocument());
 		SaltSample.createTokens(getFixture().getSDocument());
@@ -197,14 +191,7 @@ public class Salt2RelANNISMapperTest extends TestCase
 	 */
 	@Test
 	public void testMapSeveralTokenizations() throws IOException
-	{
-		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
-		String testName= ste[1].getMethodName();
-		
-		File tmpPath= new File(globalTmpPath.getAbsoluteFile()+ File.separator+testName);
-		File testPath= new File(getTestPath()+testName);
-		createTupleWriters(tmpPath);
-		
+	{	
 		// create the primary text
 		SaltSample.createPrimaryData(getFixture().getSDocument());
 		SaltSample.createTokens(getFixture().getSDocument());
@@ -232,14 +219,7 @@ public class Salt2RelANNISMapperTest extends TestCase
 	 */
 	@Test
 	public void testMapParallelData() throws IOException
-	{
-		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
-		String testName= ste[1].getMethodName();
-		
-		File tmpPath= new File(globalTmpPath.getAbsoluteFile()+ File.separator+testName);
-		File testPath= new File(getTestPath()+testName);
-		createTupleWriters(tmpPath);
-		
+	{		
 		// create the primary text
 		SaltSample.createParallelData(getFixture().getSDocument());
 		getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
@@ -265,14 +245,7 @@ public class Salt2RelANNISMapperTest extends TestCase
 	 */
 	@Test
 	public void testMapUntypedPointingRelation() throws IOException
-	{
-		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
-		String testName= ste[1].getMethodName();
-		
-		File tmpPath= new File(globalTmpPath.getAbsoluteFile()+ File.separator+testName);
-		File testPath= new File(getTestPath()+testName);
-		createTupleWriters(tmpPath);
-		
+	{		
 		// create the primary text
 		SaltSample.createParallelData(getFixture().getSDocument(),false);
 		getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
@@ -295,13 +268,6 @@ public class Salt2RelANNISMapperTest extends TestCase
 	@Test
 	public void testMapSTokenAnnotation() throws IOException
 	{
-		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
-		String testName= ste[1].getMethodName();
-		
-		File tmpPath= new File(globalTmpPath.getAbsoluteFile()+ File.separator+testName);
-		File testPath= new File(getTestPath()+testName);
-		createTupleWriters(tmpPath);
-		
 		// create the primary text
 		SaltSample.createPrimaryData(getFixture().getSDocument());
 		SaltSample.createTokens(getFixture().getSDocument());
@@ -327,13 +293,6 @@ public class Salt2RelANNISMapperTest extends TestCase
 	@Test
 	public void testMapSSpans() throws IOException
 	{
-		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
-		String testName= ste[1].getMethodName();
-		
-		File tmpPath= new File(globalTmpPath.getAbsoluteFile()+ File.separator+testName);
-		File testPath= new File(getTestPath()+testName);
-		createTupleWriters(tmpPath);
-		
 		// create the primary text
 		SaltSample.createPrimaryData(getFixture().getSDocument());
 		SaltSample.createTokens(getFixture().getSDocument());
@@ -360,13 +319,6 @@ public class Salt2RelANNISMapperTest extends TestCase
 	@Test
 	public void testMapSSyntax() throws IOException
 	{
-		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
-		String testName= ste[1].getMethodName();
-		
-		File tmpPath= new File(globalTmpPath.getAbsoluteFile()+ File.separator+testName);
-		File testPath= new File(getTestPath()+testName);
-		createTupleWriters(tmpPath);
-		
 		// create the primary text
 		SaltSample.createPrimaryData(getFixture().getSDocument());
 		SaltSample.createTokens(getFixture().getSDocument());
@@ -391,14 +343,7 @@ public class Salt2RelANNISMapperTest extends TestCase
 	 */
 	@Test
 	public void testMapAnaphoric() throws IOException
-	{
-		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
-		String testName= ste[1].getMethodName();
-		
-		File tmpPath= new File(globalTmpPath.getAbsoluteFile()+ File.separator+testName);
-		File testPath= new File(getTestPath()+testName);
-		createTupleWriters(tmpPath);
-		
+	{	
 		// create the primary text
 		SaltSample.createPrimaryData(getFixture().getSDocument());
 		SaltSample.createTokens(getFixture().getSDocument());
@@ -428,13 +373,6 @@ public class Salt2RelANNISMapperTest extends TestCase
 	@Test
 	public void testMapFullGraph() throws IOException
 	{
-		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
-		String testName= ste[1].getMethodName();
-		
-		File tmpPath= new File(globalTmpPath.getAbsoluteFile()+ File.separator+testName);
-		File testPath= new File(getTestPath()+testName);
-		createTupleWriters(tmpPath);
-		
 		// create the primary text
 		SaltSample.createSDocumentStructure(getFixture().getSDocument());
 		getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
@@ -446,14 +384,8 @@ public class Salt2RelANNISMapperTest extends TestCase
 	}
 	
 	@Test
-	public void testMultiThreadingSpeed(){
-		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
-		String testName= ste[1].getMethodName();
-		
-		File tmpPath= new File(globalTmpPath.getAbsoluteFile()+ File.separator+testName);
-		File testPath= new File(getTestPath()+testName);
-		createTupleWriters(tmpPath);
-		
+	public void testMultiThreadingSpeed()
+  {	
 		// create the primary text
 		SaltSample.createSDocumentStructure(getFixture().getSDocument());
 		getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
@@ -506,21 +438,11 @@ public class Salt2RelANNISMapperTest extends TestCase
 	 */
 	@Test
 	public void testMapSOrderRelation() throws IOException
-	{
-		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
-		String testName= ste[1].getMethodName();
-		
-		File tmpPath= new File(globalTmpPath.getAbsoluteFile()+ File.separator+testName);
-		File testPath= new File(getTestPath()+testName);
-		createTupleWriters(tmpPath);
-		
+	{	
 		// create the primary text
 		SaltSample.createDialogue(getFixture().getSDocument());
 		
 		getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
-		
-		File dotPath = new File(globalTmpPath.getAbsoluteFile()+testName+File.separator+"newSOrderRelationTest.dot");	
-		
 		
 		getFixture().mapSCorpus();
 		getFixture().mapSDocument();
@@ -546,14 +468,7 @@ public class Salt2RelANNISMapperTest extends TestCase
 	 */
 	@Test
 	public void testComplexMapSOrderRelation() throws IOException
-	{
-		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
-		String testName= ste[1].getMethodName();
-		
-		File tmpPath= new File(globalTmpPath.getAbsoluteFile()+ File.separator+testName);
-		File testPath= new File(getTestPath()+testName);
-		createTupleWriters(tmpPath);
-		
+	{		
 		// create the primary text
 		SaltSample.createDialogue(getFixture().getSDocument());
 		EList<SToken> sDocumentTokens = getFixture().getSDocument().getSDocumentGraph().getSTokens();
@@ -561,8 +476,6 @@ public class Salt2RelANNISMapperTest extends TestCase
 		getFixture().getSDocument().getSDocumentGraph().createSSpan(sDocumentTokens.get(0));
 		
 		getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
-		
-		File dotPath = new File(globalTmpPath.getAbsoluteFile()+testName+File.separator+"newSOrderRelationTest.dot");	
 		
 		getFixture().mapSCorpus();
 		getFixture().mapSDocument();
@@ -574,13 +487,7 @@ public class Salt2RelANNISMapperTest extends TestCase
   
   @Test
 	public void testReuseExistingSOrderName() throws IOException
-	{
-		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
-		String testName= ste[1].getMethodName();
-		
-		File tmpPath= new File(globalTmpPath.getAbsoluteFile()+ File.separator+testName);
-		createTupleWriters(tmpPath);
-		
+	{		
 		// create the primary text
     SaltSample.createPrimaryData(getFixture().getSDocument());
     SaltSample.createTokens(getFixture().getSDocument());
@@ -633,14 +540,7 @@ public class Salt2RelANNISMapperTest extends TestCase
   
   @Test
 	public void testAppendIndexForSOrderWithMultipleRoots() throws IOException
-	{
-		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
-		String testName= ste[1].getMethodName();
-		
-		File tmpPath= new File(globalTmpPath.getAbsoluteFile()+ File.separator+testName);
-		createTupleWriters(tmpPath);
-    getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
-		
+	{				
 		// create the primary text
     SaltSample.createPrimaryData(getFixture().getSDocument());
     SaltSample.createTokens(getFixture().getSDocument());
