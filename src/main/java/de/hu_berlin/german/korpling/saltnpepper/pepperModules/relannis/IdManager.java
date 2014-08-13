@@ -179,6 +179,10 @@ public class IdManager {
 	public synchronized EList<Long> getVirtualisedTokenId(SElementId tokenId){
 		return this.tokenVirtualisationMapping.get(tokenId);
 	}
+  
+  public synchronized int getNumberOfVirtualToken() {
+    return virtualTokenIdList == null ? 0 : virtualTokenIdList.size();
+  }
 	
 	/**
 	 * This method returns the RelANNIS id of the virtual span which represents the token specified by tokenId.

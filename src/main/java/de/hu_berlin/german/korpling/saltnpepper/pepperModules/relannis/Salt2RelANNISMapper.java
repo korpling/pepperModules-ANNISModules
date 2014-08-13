@@ -17,6 +17,8 @@
  */
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis;
 
+import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
 import java.io.FileNotFoundException;
 import java.util.Hashtable;
 import java.util.Map;
@@ -236,40 +238,48 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 				
 				// END Step 1: map SOrderRelation
 				
-				// START Step 2: map SText
-				if (this.getSDocument().getSDocumentGraph().getSTimelineRelations() == null){
-					this.mapSText();
-				} else {
-					if (this.getSDocument().getSDocumentGraph().getSTimelineRelations().size() == 0){
-						this.mapSText();
-					} else {
-						Long sDocID = null;
-						Long textId = 0l;
-						SElementId sDocumentElementId = this.getSDocument().getSElementId();
-							
-						if (sDocumentElementId == null){
-							throw new PepperModuleException(this, "SElement Id of the document '"+this.getSDocument().getSName()+"' is NULL!");
-						}
-						sDocID = this.idManager.getNewCorpusTabId(sDocumentElementId);
-						String textName = "sText0";
-						String textContent = "";
-						Vector<String> tuple = new Vector<String>();
-						tuple.add(sDocID.toString());
-						tuple.add(textId.toString());
-						tuple.add(textName);
-						tuple.add(textContent);
-							
-						long transactionId = tw_text.beginTA();
-						try {
-							tw_text.addTuple(transactionId,tuple);
-							tw_text.commitTA(transactionId);
-							
-						} catch (FileNotFoundException e) {
-							tw_text.abortTA(transactionId);
-							throw new PepperModuleException(this, "Could not write to the node.tab, exception was"+e.getMessage());
-						}
-					}
-				}
+        // START Step 2: map SText
+        if (idManager.hasVirtualTokenization())
+        {
+          Long sDocID = null;
+          Long textId = 0l;
+          SElementId sDocumentElementId = this.getSDocument().getSElementId();
+
+          if (sDocumentElementId == null)
+          {
+            throw new PepperModuleException(this,
+              "SElement Id of the document '" + this.getSDocument().getSName()
+              + "' is NULL!");
+          }
+          sDocID = this.idManager.getNewCorpusTabId(sDocumentElementId);
+          String textName = "sText0";
+          String textContent = Strings.repeat(" ", idManager.getNumberOfVirtualToken());
+          Vector<String> tuple = new Vector<String>();
+          tuple.add(sDocID.toString());
+          tuple.add(textId.toString());
+          tuple.add(textName);
+          tuple.add(textContent);
+
+          long transactionId = tw_text.beginTA();
+          try
+          {
+            tw_text.addTuple(transactionId, tuple);
+            tw_text.commitTA(transactionId);
+
+          }
+          catch (FileNotFoundException e)
+          {
+            tw_text.abortTA(transactionId);
+            throw new PepperModuleException(this,
+              "Could not write to the node.tab, exception was" + e.
+              getMessage());
+          }
+        }
+        else
+        {
+          this.mapSText();
+        }
+      
 				
 				Vector<SRelation2RelANNISMapper> threads = new Vector<SRelation2RelANNISMapper>();
 				

@@ -374,7 +374,7 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 						name = this.currentTraversionSType + segPathCounter;
 					} else {
 						name = sRelation.getSTypes().get(0);
-					}
+					} 
 					Long segIndex = this.seg_index;
 					this.seg_index = this.seg_index + 1;
 					String segSpan = "NULL";
