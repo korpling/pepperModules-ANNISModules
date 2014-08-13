@@ -36,6 +36,7 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 		
 	}
 	
+  private boolean appendIndex = false;
 	private int segPathCounter = 0;
 	
 	private long seg_index = 0l;
@@ -332,6 +333,8 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 		
 		if (sRelationRoots != null && sRelationRoots.size() != 0){
 			
+      appendIndex = sRelationRoots.size() > 1;
+      
 			// Step 1: traverse the SOrderRelations
 			for (SNode node : sRelationRoots){
 				EList<SNode> singleRootList = new BasicEList<SNode>();
@@ -368,13 +371,14 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 				//if (sRelation.getSTypes().size() > 0){
 					// set the segName, segIndex and segSpan
 					String name = null;
-					if (sRelation == null){
+					if (appendIndex)
+          {
 						name = this.currentTraversionSType + segPathCounter;
-					} else if (sRelation.getSTypes() == null){
-						name = this.currentTraversionSType + segPathCounter;
-					} else {
-						name = sRelation.getSTypes().get(0);
-					} 
+					} else
+          {
+						name = this.currentTraversionSType;
+					}
+          
 					Long segIndex = this.seg_index;
 					this.seg_index = this.seg_index + 1;
 					String segSpan = "NULL";

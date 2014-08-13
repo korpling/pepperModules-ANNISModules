@@ -225,12 +225,21 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 				subComponentRoots = this.getSDocument().getSDocumentGraph().getRootsBySRelationSType(STYPE_NAME.SORDER_RELATION);
 				if (subComponentRoots != null){
 					if (subComponentRoots.size() > 0){
-						for (String key : subComponentRoots.keySet()){
+						for (Map.Entry<String, EList<SNode>> entry : subComponentRoots.entrySet())
+            {
 							//System.out.println("Count of SOrderRelation roots for key "+key+" : "+subComponentRoots.get(key).size());
 							//System.out.println("Mapping SOrderRelations subcomponents with sType: "+key);
 							SRelation2RelANNISMapper sOrderRelationMapper = new SOrderRelation2RelANNISMapper(getIdManager(), getSDocument().getSDocumentGraph(), tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component);
-							sOrderRelationMapper.setTraversionSType(key);
-							sOrderRelationMapper.mapSRelations2RelANNIS(subComponentRoots.get(key), STYPE_NAME.SORDER_RELATION, null);
+							
+              String segChainName = entry.getKey();
+              // append an index to the segmentation chain name if it has several roots
+              if(entry.getValue() != null && entry.getValue().size() > 1)
+              {
+                
+              }
+              
+              sOrderRelationMapper.setTraversionSType(entry.getKey());
+							sOrderRelationMapper.mapSRelations2RelANNIS(subComponentRoots.get(entry.getKey()), STYPE_NAME.SORDER_RELATION, null);
 							
 						}
 					}

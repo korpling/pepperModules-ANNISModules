@@ -1,18 +1,8 @@
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.tests;
 
-import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleTestException;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.Vector;
-
-import junit.framework.TestCase;
-
-import org.eclipse.emf.common.util.EList;
-import org.eclipse.emf.common.util.URI;
-import org.junit.After;
-import org.junit.Test;
-
+import com.google.common.base.Charsets;
+import com.google.common.io.Files;
+import com.google.common.io.LineProcessor;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.IdManager;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.RelANNIS;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.RelANNISExporter;
@@ -22,10 +12,25 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SOrderRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STYPE_NAME;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualDS;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltSample.SaltSample;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.Vector;
+import junit.framework.TestCase;
+import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.common.util.URI;
+import org.junit.After;
+import org.junit.Test;
 
 public class Salt2RelANNISMapperTest extends TestCase 
 {
@@ -565,6 +570,121 @@ public class Salt2RelANNISMapperTest extends TestCase
 		
 		
 		assertFalse("There was no file to be compared in folder '"+testPath.getAbsolutePath()+"' and folder '"+tmpPath.getAbsolutePath()+"'.", new Integer(0).equals(compareFiles(testPath, tmpPath)));
+	}
+  
+  @Test
+	public void testReuseExistingSOrderName() throws IOException
+	{
+		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
+		String testName= ste[1].getMethodName();
+		
+		File tmpPath= new File(globalTmpPath.getAbsoluteFile()+ File.separator+testName);
+		createTupleWriters(tmpPath);
+		
+		// create the primary text
+    SaltSample.createPrimaryData(getFixture().getSDocument());
+    SaltSample.createTokens(getFixture().getSDocument());
+    
+    // create a single SOrderRelation chain
+    SToken previousToken = null;
+    for(SToken t : getFixture().getSDocument().getSDocumentGraph().getSortedSTokenByText())
+    {
+      if(previousToken != null)
+      {
+        SOrderRelation r = SaltFactory.eINSTANCE.createSOrderRelation();
+        r.addSType("order");
+        r.setSSource(previousToken);
+        r.setSTarget(t);
+        getFixture().getSDocument().getSDocumentGraph().addSRelation(r);
+      }
+      
+      previousToken = t;
+    }
+    
+		getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
+		
+		
+		getFixture().mapSCorpus();
+		getFixture().mapSDocument();
+		
+    // check output files that only "order" is used as segmentation name
+    Set<String> segNames = 
+      Files.readLines(new File(tmpPath, "node.relannis"), Charsets.UTF_8, new LineProcessor<Set<String>>()
+    {
+      private final Set<String> result = new TreeSet<String>();
+
+      @Override
+      public boolean processLine(String line) throws IOException
+      {
+        String[] split = line.split("\t");
+        result.add(split[11]);
+        return true;
+      }
+
+      @Override
+      public Set<String> getResult()
+      {
+        return result;
+      }
+    });
+		
+    assertEquals(Arrays.asList("order"), new LinkedList(segNames));
+	}
+  
+  @Test
+	public void testAppendIndexForSOrderWithMultipleRoots() throws IOException
+	{
+		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
+		String testName= ste[1].getMethodName();
+		
+		File tmpPath= new File(globalTmpPath.getAbsoluteFile()+ File.separator+testName);
+		createTupleWriters(tmpPath);
+    getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
+		
+		// create the primary text
+    SaltSample.createPrimaryData(getFixture().getSDocument());
+    SaltSample.createTokens(getFixture().getSDocument());
+    
+    // create a several SOrderRelation chains (pairwise)
+    EList<SToken> tokens = getFixture().getSDocument().getSDocumentGraph().getSortedSTokenByText();
+    int numberOfChains = tokens.size() / 2;
+    LinkedList<String> expectedNames = new LinkedList<String>();
+    for(int i=0; i < numberOfChains; i++)
+    {
+      SOrderRelation r = SaltFactory.eINSTANCE.createSOrderRelation();
+      r.addSType("order");
+      r.setSSource(tokens.get(i*2));
+      r.setSTarget(tokens.get((i*2)+1));
+      getFixture().getSDocument().getSDocumentGraph().addSRelation(r);
+      
+      expectedNames.add("order" + i);
+    }
+		
+		getFixture().mapSCorpus();
+		getFixture().mapSDocument();
+		
+    // check output files that only "order" is used as segmentation name
+    Set<String> segNames = 
+      Files.readLines(new File(tmpPath, "node.relannis"), Charsets.UTF_8, new LineProcessor<Set<String>>()
+    {
+      private final Set<String> result = new TreeSet<String>();
+
+      @Override
+      public boolean processLine(String line) throws IOException
+      {
+        String[] split = line.split("\t");
+        result.add(split[11]);
+        return true;
+      }
+
+      @Override
+      public Set<String> getResult()
+      {
+        return result;
+      }
+    });
+		
+    assertEquals(expectedNames, new LinkedList(segNames));
 	}
 	
 	
