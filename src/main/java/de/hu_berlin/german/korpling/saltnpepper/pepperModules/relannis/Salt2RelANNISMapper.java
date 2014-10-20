@@ -534,7 +534,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
             String namespace = meta.getSNS();
             if(namespace == null)
             {
-              namespace = SRelation2RelANNISMapper.DEFAULT_NS;
+              namespace = "NULL";
             }
             tw_corpusMeta.addTuple(transactionId, 
               Arrays.asList(idString, namespace, meta.getSName(), meta.getSValue().toString()));
