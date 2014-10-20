@@ -41,9 +41,12 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructu
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualDS;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SGraphTraverseHandler;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SMetaAnnotatableElement;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SMetaAnnotation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SProcessingAnnotation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
+import java.util.Arrays;
 
 public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTraverseHandler
 {
@@ -390,6 +393,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 					
 				}
 				// END Step 5: map all SToken which were not mapped, yet
+        
 			}catch (Exception e) {
 				throw new PepperModuleException(this, "Some error occurs while traversing document structure graph.", e);
 			}
@@ -513,11 +517,38 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 			corpusTabWriter.commitTA(transactionId);
 		} catch (FileNotFoundException e) {
 			corpusTabWriter.abortTA(transactionId);
-			throw new PepperModuleException(this, "Could not write to the corpus.tab, exception was"+e.getMessage());
+			throw new PepperModuleException(this, "Could not write to the corpus.relannis, exception was"+e.getMessage());
 		}
 		
-		// TODO: map to corpus_annotations.tab
-		
+    if(tw_corpusMeta != null && sNode instanceof SMetaAnnotatableElement)
+    {
+      SMetaAnnotatableElement metaOwner = (SMetaAnnotatableElement) sNode;
+      if(metaOwner.getSMetaAnnotations() != null)
+      {
+        transactionId = tw_corpusMeta.beginTA();
+        try
+        {
+
+          for(SMetaAnnotation meta : metaOwner.getSMetaAnnotations())
+          {
+            String namespace = meta.getSNS();
+            if(namespace == null)
+            {
+              namespace = SRelation2RelANNISMapper.DEFAULT_NS;
+            }
+            tw_corpusMeta.addTuple(transactionId, 
+              Arrays.asList(idString, namespace, meta.getSName(), meta.getSValue().toString()));
+          }
+          tw_corpusMeta.commitTA(transactionId);
+        }
+        catch(FileNotFoundException ex)
+        {
+          tw_corpusMeta.abortTA(transactionId);
+          throw new PepperModuleException(this, 
+            "Could not write to the corpus_annotation.relannis, exception was"+ex.getMessage());
+        }
+      }
+    }
 	}
 	
 	// ==================================================== Traversion ===============================================
