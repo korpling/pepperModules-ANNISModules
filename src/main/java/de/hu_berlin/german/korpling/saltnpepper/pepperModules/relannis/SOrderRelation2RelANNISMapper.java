@@ -79,15 +79,12 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 			IdManager.VirtualNodeID virtualTokenId = this.idManager.getVirtualNodeId(virtualTokenName);
 
 			virtualTokenIds.add(virtualTokenId.getNodeID());
-			
+			Long tokenIndex = (long)minimalTimelineRelationList.indexOf(timelineRelation);
+      token_left = tokenIndex;
+      token_right = tokenIndex;
+        
 			if (virtualTokenId.isFresh())
 			{ // this is a new virtual token
-				Long tokenIndex = (long)minimalTimelineRelationList.indexOf(timelineRelation);
-				token_left = tokenIndex;
-				token_right = tokenIndex;
-				
-				
-				
 				// map the virtual token
 				super.writeNodeTabEntry(virtualTokenId.getNodeID(), 0l, 
 						corpus_ref, DEFAULT_LAYER, virtualTokenName, tokenIndex, tokenIndex, tokenIndex, token_left, token_right, null, null, " ");
