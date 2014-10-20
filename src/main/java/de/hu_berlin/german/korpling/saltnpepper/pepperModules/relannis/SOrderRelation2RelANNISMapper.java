@@ -367,7 +367,7 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 			//if (sRelation.getSTypes() != null){
 				//if (sRelation.getSTypes().size() > 0){
 					// set the segName, segIndex and segSpan
-					String name = null;
+					String name;
 					if (appendIndex)
           {
 						name = this.currentTraversionSType + segPathCounter;
@@ -379,11 +379,19 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 					Long segIndex = this.seg_index;
 					this.seg_index = this.seg_index + 1;
 					String segSpan = "NULL";
-					if(currNode.getSGraph() instanceof SDocumentGraph)
-					{
-						SDocumentGraph g = (SDocumentGraph) currNode.getSGraph();
-						segSpan = g.getSText(currNode);
-					}
+          // find the annotation value with the same name as the segmentation chain
+          EList<SAnnotation> annos = currNode.getSAnnotations();
+          if(annos != null)
+          {
+            for(SAnnotation a : annos)
+            {
+              if(name.equals(a.getSName()))
+              {
+                segSpan = a.getSValueSTEXT();
+                break;
+              }
+            }
+          }
 					this.idManager.addSegmentInformation(currNode.getSElementId(), segIndex, name, segSpan);
 					
 					//System.out.println("SType is "+this.currentComponentName);
