@@ -1,5 +1,6 @@
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis;
 
+import com.google.common.base.Preconditions;
 import java.io.FileNotFoundException;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -175,9 +176,11 @@ public abstract class SRelation2RelANNISMapper extends Thread implements SGraphT
 				}
 			}
 		}
-		
+    		
 		if (this.preorderTable.contains(currNode)){
 			// this should NOT happen
+      throw new RuntimeException("Impossible traversal state");
+      
 		} else {
 			Long rankId = null;
 			EList<Long> virtualTokenIds = this.idManager.getVirtualisedTokenId(currNode.getSElementId());

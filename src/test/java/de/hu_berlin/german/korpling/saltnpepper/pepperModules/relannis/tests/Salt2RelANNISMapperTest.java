@@ -12,9 +12,12 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDominanceRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SOrderRelation;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SStructuredNode;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STYPE_NAME;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualDS;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltSample.SaltSample;
 import java.io.File;
@@ -25,8 +28,10 @@ import java.util.LinkedList;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.Vector;
+import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.util.FeatureMapUtil;
 import org.junit.After;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -375,6 +380,50 @@ public class Salt2RelANNISMapperTest
     assertFalse("There was no file to be compared in folder '" + testPath.
       getAbsolutePath() + "' and folder '" + tmpPath.getAbsolutePath() + "'.",
       new Integer(0).equals(compareFiles(testPath, tmpPath)));
+  }
+  
+  @Test
+  public void testMapDAGSimple() throws IOException 
+  {
+    
+    /*
+      create the following graph
+           1
+         /   \
+        v     v
+        2     3
+         \   /
+          v v
+           4
+           |
+           v
+           a
+    */
+    
+    getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
+    
+    SDocumentGraph graph = SaltFactory.eINSTANCE.createSDocumentGraph();
+    getFixture().getSDocument().setSDocumentGraph(graph);
+    
+    
+    STextualDS textDS = graph.createSTextualDS("a");
+    
+    SToken tok = graph.createSToken(textDS, 0, 1);
+    
+    SStructuredNode struct4 = graph.createSStructure(tok);
+    SStructuredNode struct3 = graph.createSStructure(struct4);
+    SStructuredNode struct2 = graph.createSStructure(struct4);
+    EList<SStructuredNode> struct1Targets = new BasicEList<SStructuredNode>();
+    struct1Targets.add(struct2);
+    struct1Targets.add(struct3);
+    SStructuredNode struct1 = graph.createSStructure(struct1Targets);
+
+    getFixture().mapSCorpus();
+    getFixture().mapSDocument();
+    
+    // check the pre/post-order and level
+    TabFileComparator.checkEqual(testPath.getAbsolutePath() + "/rank.relannis", 
+      tmpPath.getAbsolutePath() + "/rank.relannis", 0, 3, 4, 5);
   }
 
   /**
