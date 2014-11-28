@@ -244,8 +244,8 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 					// set corpus version
 					SMetaAnnotation version= rootCorpus.getSMetaAnnotation("version");
 					if (version != null){
-						if ( version.getValueString() != null){
-							corpusVersion= version.getValueString();
+						if ( version.getSValueSTEXT() != null){
+							corpusVersion= version.getSValueSTEXT();
 						}
 					}
 				}

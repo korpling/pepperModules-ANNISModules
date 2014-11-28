@@ -14,6 +14,7 @@ import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.Pepper
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.Salt2RelANNISMapper.TRAVERSION_TYPE;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.Edge;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.GRAPH_TRAVERSE_TYPE;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.helper.modules.SDataSourceAccessor;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpan;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SStructure;
@@ -295,7 +296,7 @@ public abstract class SRelation2RelANNISMapper extends Thread implements SGraphT
 				// decrease the rank level
 				this.rankLevel -= 1;
 				
-				this.mapRank2RelANNIS(edge, currNode, rankId, pre, post, parentRank, rankLevel);
+        this.mapRank2RelANNIS(edge, currNode, rankId, pre, post, parentRank, rankLevel);
 		} else {
 			// decrease the rank level
 			this.rankLevel -= 1;	
@@ -425,7 +426,7 @@ public abstract class SRelation2RelANNISMapper extends Thread implements SGraphT
 	private TupleWriter nodeTabWriter;
 	private TupleWriter nodeAnnoTabWriter;
 	
-	private EList<SToken> tokenSortedByLeft;
+	private final EList<SToken> tokenSortedByLeft;
 	
 // ================================= Mapping of SNodes ========================
 	
@@ -593,8 +594,12 @@ public abstract class SRelation2RelANNISMapper extends Thread implements SGraphT
 				span = null;
 			}
 		}
-		
-		this.writeNodeTabEntry(id, text_ref, corpus_ref, layer, name, left, right, token_index, left_token, right_token, seg_index, seg_name, span);
+    
+    
+    
+		this.writeNodeTabEntry(id, text_ref, corpus_ref, layer, name, left, right, 
+      token_index, left_token, right_token, seg_index, seg_name, span, 
+      isRoot(node));
 		
 		if (node.getSAnnotations() != null){
 			this.mapSNodeAnnotations(node, id, node.getSAnnotations());
@@ -606,7 +611,8 @@ public abstract class SRelation2RelANNISMapper extends Thread implements SGraphT
 			String layer, String name,
 			Long left, Long right, Long token_index,
 			Long left_token, Long right_token,
-			Long seg_index, String seg_name, String span){
+			Long seg_index, String seg_name, String span,
+      boolean isRoot){
 		
 		Long transactionId = this.nodeTabWriter.beginTA();
 		EList<String> tableEntry = new BasicEList<String>();
@@ -639,6 +645,9 @@ public abstract class SRelation2RelANNISMapper extends Thread implements SGraphT
 		} else {
 			tableEntry.add(span);
 		}
+    
+    tableEntry.add(isRoot ? "TRUE" : "FALSE");
+    
 		try {
 			this.nodeTabWriter.addTuple(transactionId, tableEntry);
 			this.nodeTabWriter.commitTA(transactionId);
@@ -687,9 +696,21 @@ public abstract class SRelation2RelANNISMapper extends Thread implements SGraphT
 		
 	}
 
-	
-	
-	
-	
+  public EList<SToken> getTokenSortedByLeft()
+  {
+    return tokenSortedByLeft;
+  }
+  
+  protected boolean isRoot(SNode n)
+  {
+    boolean isRoot = false;
+    if(n != null)
+    {
+      EList<Edge> inEdges = documentGraph.getInEdges(n.getSId());
+      isRoot = inEdges == null || inEdges.isEmpty();
+    }
+    return isRoot;
+  }
+
 	
 }

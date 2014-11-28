@@ -87,7 +87,9 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 			{ // this is a new virtual token
 				// map the virtual token
 				super.writeNodeTabEntry(virtualTokenId.getNodeID(), 0l, 
-						corpus_ref, DEFAULT_LAYER, virtualTokenName, tokenIndex, tokenIndex, tokenIndex, token_left, token_right, null, null, " ");
+						corpus_ref, DEFAULT_LAYER, virtualTokenName, tokenIndex, tokenIndex, 
+            tokenIndex, token_left, token_right, null, null, " ",
+            isRoot(tok));
 			} // this is a new virtual token
 	
 		} // map a timeline which has only one virtual token
@@ -145,7 +147,8 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 			}
 			// map the span
 			super.writeNodeTabEntry(virtualSpanId.getNodeID(), 0l, 
-					corpus_ref, DEFAULT_LAYER, virtualSpanName, token_left, token_right, null, token_left, token_right, segId, segName, span);
+					corpus_ref, DEFAULT_LAYER, virtualSpanName, token_left, token_right, 
+          null, token_left, token_right, segId, segName, span, isRoot(tok));
 			// map the virtual anno
 			this.mapSNodeAnnotation(virtualSpanId.getNodeID(), DEFAULT_LAYER+"_virtual", "anno1", span);
 			// map the token annotations
