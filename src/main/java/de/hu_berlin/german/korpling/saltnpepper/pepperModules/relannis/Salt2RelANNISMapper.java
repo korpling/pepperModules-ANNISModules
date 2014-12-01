@@ -17,7 +17,6 @@
  */
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis;
 
-import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import java.io.FileNotFoundException;
 import java.util.Hashtable;
@@ -44,9 +43,14 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SGraphTraverseHand
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SMetaAnnotatableElement;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SMetaAnnotation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SProcessingAnnotation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTraverseHandler
 {
@@ -292,8 +296,11 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
           this.mapSText();
         }
       
-				
-				Vector<SRelation2RelANNISMapper> threads = new Vector<SRelation2RelANNISMapper>();
+        ExecutorService exec = null;
+        if(mapRelationsInParallel)
+        {
+          exec = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        }
 				
 				subComponentRoots = getSDocument().getSDocumentGraph().getRootsBySRelationSType(STYPE_NAME.SPOINTING_RELATION);
 				if (subComponentRoots != null){
@@ -306,9 +313,8 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 							SRelation2RelANNISMapper sPointingSubRelationMapper = new SPointingRelation2RelANNISMapper(getIdManager(), getSDocument().getSDocumentGraph(), tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component);
 							sPointingSubRelationMapper.mapSRelations2RelANNIS(subComponentRoots.get(key), STYPE_NAME.SPOINTING_RELATION, TRAVERSION_TYPE.DOCUMENT_STRUCTURE_PR);
 							sPointingSubRelationMapper.setTraversionSType(key);
-							if (this.mapRelationsInParallel ){
-								threads.add(sPointingSubRelationMapper);
-								sPointingSubRelationMapper.start();
+							if (exec != null ){
+                exec.execute(sPointingSubRelationMapper);
 							} else {
 								sPointingSubRelationMapper.run();
 							}
@@ -327,10 +333,9 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 					if (sRelationRoots.size() > 0){
 						SRelation2RelANNISMapper sDominanceRelationMapper = new SDominanceRelation2RelANNISMapper(getIdManager(), getSDocument().getSDocumentGraph(), tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component);
 						sDominanceRelationMapper.mapSRelations2RelANNIS(sRelationRoots, STYPE_NAME.SDOMINANCE_RELATION, TRAVERSION_TYPE.DOCUMENT_STRUCTURE_DR);
-						if (this.mapRelationsInParallel){
-							threads.add(sDominanceRelationMapper);
-							sDominanceRelationMapper.start();
-						} else {
+						if (exec != null){
+              exec.execute(sDominanceRelationMapper);
+            } else {
 							sDominanceRelationMapper.run();
 						}
 					}
@@ -348,9 +353,8 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 							SRelation2RelANNISMapper sDominanceSubRelationMapper = new SDominanceRelation2RelANNISMapper(getIdManager(), getSDocument().getSDocumentGraph(), tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component);
 							sDominanceSubRelationMapper.setTraversionSType(key);
 							sDominanceSubRelationMapper.mapSRelations2RelANNIS(subComponentRoots.get(key), STYPE_NAME.SDOMINANCE_RELATION, TRAVERSION_TYPE.DOCUMENT_STRUCTURE_DR);
-							if (this.mapRelationsInParallel){
-								threads.add(sDominanceSubRelationMapper);
-								sDominanceSubRelationMapper.start();
+							if (exec != null){
+                exec.execute(sDominanceSubRelationMapper);
 							} else {
 								sDominanceSubRelationMapper.run();
 							}
@@ -369,9 +373,8 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 					if (sRelationRoots.size() > 0){
 						SRelation2RelANNISMapper spanningRelationMapper = new SSpanningRelation2RelANNISMapper(getIdManager(), getSDocument().getSDocumentGraph(), tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component);
 						spanningRelationMapper.mapSRelations2RelANNIS(sRelationRoots, STYPE_NAME.SSPANNING_RELATION, TRAVERSION_TYPE.DOCUMENT_STRUCTURE_CR);
-						if (this.mapRelationsInParallel){
-							threads.add(spanningRelationMapper);
-							spanningRelationMapper.start();
+						if (exec != null){
+              exec.execute(spanningRelationMapper);
 						} else {
 							spanningRelationMapper.run();
 						}
@@ -379,11 +382,15 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 				}
 				// END Step 4: map SSpanningrelations
 				
-				if (this.mapRelationsInParallel){
-					for (SRelation2RelANNISMapper mapper : threads){
-						mapper.join();
-					}
-				}
+        if(exec != null)
+        {
+          exec.shutdown();
+          while(exec.awaitTermination(60, TimeUnit.SECONDS))
+          {
+            // wait to finish
+          }
+        }
+
 				// START Step 5: map all SToken which were not mapped, yet
 				SRelation2RelANNISMapper mapper = new SSpanningRelation2RelANNISMapper(getIdManager(), getSDocument().getSDocumentGraph(), tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component);
 				for (SNode node : getSDocument().getSDocumentGraph().getSTokens()){

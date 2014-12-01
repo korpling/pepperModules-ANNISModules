@@ -19,10 +19,15 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructu
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.commons.lang3.tuple.Pair;
 
 public class SSpanningRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 
+  private final Map<SSpan, Boolean> spanIsContinous;
+  
 	public SSpanningRelation2RelANNISMapper(IdManager idManager,
 			SDocumentGraph documentGraph, TupleWriter nodeTabWriter,
 			TupleWriter nodeAnnoTabWriter, TupleWriter rankTabWriter,
@@ -31,10 +36,13 @@ public class SSpanningRelation2RelANNISMapper extends SRelation2RelANNISMapper  
 		super(idManager, documentGraph, nodeTabWriter, nodeAnnoTabWriter,
 				rankTabWriter, edgeAnnoTabWriter, componentTabWriter);
 		
+    spanIsContinous = Collections.synchronizedMap(new HashMap<SSpan, Boolean>());
 	}
 
 	@Override
 	public void run(){
+
+    
 		if (sRelationRoots != null && sRelationRoots.size() != 0){
 			for (SNode node : sRelationRoots){
 				
@@ -85,7 +93,6 @@ public class SSpanningRelation2RelANNISMapper extends SRelation2RelANNISMapper  
     boolean doMapping = true;
     if(sRelation != null && targetNode instanceof SToken)
     {
-      
       if(sRelation.getSAnnotations() != null && !sRelation.getSAnnotations().isEmpty())
       {
         // always do mapping if the edge has annotations
@@ -94,35 +101,9 @@ public class SSpanningRelation2RelANNISMapper extends SRelation2RelANNISMapper  
       else
       {
         // otherwise check if the span is continuous
-        
         SSpan span = (SSpan) sRelation.getSSource();
-
-        BasicEList<STYPE_NAME> spanRel = new BasicEList<STYPE_NAME>();
-        spanRel.add(STYPE_NAME.SSPANNING_RELATION);
-
-        EList<SToken> overlappedToken = 
-          documentGraph.getSortedSTokenByText(documentGraph.getOverlappedSTokens(span, spanRel));
-
-        if(!overlappedToken.isEmpty())
-        {
-          Range rangeOfFirst = getRangeForToken(overlappedToken.get(0));
-          Range rangeOfLast = getRangeForToken(overlappedToken.get(overlappedToken.size()-1));
-
-          SDataSourceSequence seq = SaltFactory.eINSTANCE.createSDataSourceSequence();
-          seq.setSSequentialDS(rangeOfFirst.textualDS);
-          seq.setSStart(rangeOfFirst.start);
-          seq.setSEnd(rangeOfLast.end);
-
-
-          EList<SToken> allTokenInRange = documentGraph.getSTokensBySequence(seq);
-
-          // only do the mapping if the span is not continuous
-          if (allTokenInRange != null && allTokenInRange.size() <= overlappedToken.
-            size())
-          {
-            doMapping = false;
-          }
-        }
+        doMapping = !isContinuous(span);
+        
       }
     } // end if non-null relation and target node is token
     if(doMapping)
@@ -133,27 +114,44 @@ public class SSpanningRelation2RelANNISMapper extends SRelation2RelANNISMapper  
     }
   }
   
-  private Range getRangeForToken(SToken tok)
+  private boolean isContinuous(SSpan span)
   {
-    if(tok != null)
+    boolean continuous = false;
+    // look it up in the cache
+    Boolean cachedValue = spanIsContinous.get(span);
+    if (cachedValue != null)
     {
-      EList<SRelation> outRelsOfFirstToken = tok.getOutgoingSRelations();
-      if (outRelsOfFirstToken != null)
+      continuous = cachedValue;
+    }
+    else
+    {
+      // we need to compute wether the span is continuous
+      BasicEList<STYPE_NAME> spanRel = new BasicEList<STYPE_NAME>();
+      spanRel.add(STYPE_NAME.SSPANNING_RELATION);
+
+      EList<SToken> overlappedToken = documentGraph.getSortedSTokenByText(
+        documentGraph.getOverlappedSTokens(span, spanRel));
+
+      if (overlappedToken != null && !overlappedToken.isEmpty())
       {
-        for (SRelation rel : outRelsOfFirstToken)
+        long minIndex = Integer.MAX_VALUE;
+        long maxIndex = Integer.MIN_VALUE;
+        for (SToken tok : overlappedToken)
         {
-          if (rel instanceof STextualRelation)
+          Long idx = token2Index.get(tok);
+          if (idx != null)
           {
-            Range result = new Range();
-            result.start = ((STextualRelation) rel).getSStart();
-            result.end = ((STextualRelation) rel).getSEnd();
-            result.textualDS = ((STextualRelation) rel).getSTextualDS();
-            return result;
+            minIndex = Math.min(minIndex, idx);
+            maxIndex = Math.max(maxIndex, idx);
           }
         }
+        long rangeSize = maxIndex - minIndex + 1;
+        continuous = (rangeSize == overlappedToken.size());
+        spanIsContinous.put(span, continuous);
       }
+
     }
-    return null;
+    return continuous;
   }
   
 	
@@ -191,14 +189,5 @@ public class SSpanningRelation2RelANNISMapper extends SRelation2RelANNISMapper  
 		
 		return returnVal;
 	}
-
-  
-  private static class Range
-  {
-    public int start;
-    public int end;
-    public STextualDS textualDS;
-  }
-	
 	
 }

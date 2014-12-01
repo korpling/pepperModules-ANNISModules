@@ -1,6 +1,5 @@
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis;
 
-import com.google.common.base.Preconditions;
 import java.io.FileNotFoundException;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -14,7 +13,6 @@ import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.Pepper
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.Salt2RelANNISMapper.TRAVERSION_TYPE;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.Edge;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.GRAPH_TRAVERSE_TYPE;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.helper.modules.SDataSourceAccessor;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpan;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SStructure;
@@ -26,8 +24,10 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SGraphTraverseHandler;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
+import java.util.HashMap;
+import java.util.Map;
 
-public abstract class SRelation2RelANNISMapper extends Thread implements SGraphTraverseHandler{
+public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraverseHandler{
 
 // =============================== Globally used objects ======================
 	
@@ -68,6 +68,17 @@ public abstract class SRelation2RelANNISMapper extends Thread implements SGraphT
 		this.documentGraph = documentGraph;
 		
 		this.tokenSortedByLeft = documentGraph.getSortedSTokenByText();
+        // calculate the index of each token
+    this.token2Index = new HashMap<SToken, Long>();
+    if(this.tokenSortedByLeft != null)
+    {
+      long i=0;
+      for(SToken tok : this.tokenSortedByLeft)
+      {
+        token2Index.put(tok, i);
+        i++;
+      }
+    }
 		
 		this.nodeTabWriter = nodeTabWriter;
 		this.nodeAnnoTabWriter = nodeAnnoTabWriter;
@@ -426,7 +437,9 @@ public abstract class SRelation2RelANNISMapper extends Thread implements SGraphT
 	private TupleWriter nodeTabWriter;
 	private TupleWriter nodeAnnoTabWriter;
 	
-	private final EList<SToken> tokenSortedByLeft;
+	protected final EList<SToken> tokenSortedByLeft;
+  protected final Map<SToken, Long> token2Index;
+  
 	
 // ================================= Mapping of SNodes ========================
 	
@@ -500,7 +513,7 @@ public abstract class SRelation2RelANNISMapper extends Thread implements SGraphT
 		
 		if (node instanceof SToken){
 			// set the token index
-			token_index = new Long(this.tokenSortedByLeft.indexOf(node));
+			token_index = this.token2Index.get((SToken) node);
 			left_token = token_index;
 			right_token = token_index;
 			
@@ -539,9 +552,9 @@ public abstract class SRelation2RelANNISMapper extends Thread implements SGraphT
 				SToken firstOverlappedToken = sortedOverlappedToken.get(0);
 				SToken lastOverlappedToken = sortedOverlappedToken.get(sortedOverlappedToken.size()-1);
 				// set left_token
-				left_token = (long) this.tokenSortedByLeft.indexOf(firstOverlappedToken);
+				left_token = (long) this.token2Index.get(firstOverlappedToken);
 				// set right_token
-				right_token = (long) this.tokenSortedByLeft.indexOf(lastOverlappedToken);
+				right_token = (long) this.token2Index.get(lastOverlappedToken);
 				// get first and last overlapped character
 				EList<Edge> firstTokenOutEdges = documentGraph.getOutEdges(firstOverlappedToken.getSId());
 				if (firstTokenOutEdges == null)
