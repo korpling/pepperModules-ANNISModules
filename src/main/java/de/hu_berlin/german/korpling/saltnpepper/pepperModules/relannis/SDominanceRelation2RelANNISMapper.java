@@ -26,6 +26,9 @@ public class SDominanceRelation2RelANNISMapper extends SRelation2RelANNISMapper 
 
 	@Override
 	public void run(){
+    
+    beginTransaction();
+    
 		if (sRelationRoots != null && sRelationRoots.size() != 0){
 			for (SNode node : sRelationRoots){
 				String componentLayer = DEFAULT_NS;
@@ -54,9 +57,12 @@ public class SDominanceRelation2RelANNISMapper extends SRelation2RelANNISMapper 
 				
 				// map the component
 				this.mapComponent2RelANNIS();
+        
 				
 			}
 		}
+    
+    commitTransaction();
 	}
 	
 	@Override

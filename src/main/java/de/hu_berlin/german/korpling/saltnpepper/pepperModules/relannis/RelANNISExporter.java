@@ -72,7 +72,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 			mapper.tw_corpusMeta= tw_corpusMeta;
 			mapper.individualCorpusName= this.individualCorpusName;
 			
-			mapper.mapRelationsInParallel(false);
+			mapper.mapRelationsInParallel(true);
 			
 			//a fix: it seems to be a bug, that ScorpusGraph is not set automatically for mapper
 			if (sElementId.getSIdentifiableElement()!= null){

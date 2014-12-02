@@ -337,7 +337,8 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 	public void mapSRelations2RelANNIS(EList<SNode> sRelationRoots,
 			STYPE_NAME relationTypeName, TRAVERSION_TYPE traversionType) {
 		
-		
+    
+    beginTransaction();
 		
 		if (sRelationRoots != null && sRelationRoots.size() != 0){
 			
@@ -361,6 +362,8 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 			} 
 			
 		}
+    
+    commitTransaction();
 		
 	}
 	

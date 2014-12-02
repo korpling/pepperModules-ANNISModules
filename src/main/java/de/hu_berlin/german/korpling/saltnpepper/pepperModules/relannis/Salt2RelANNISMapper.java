@@ -51,6 +51,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTraverseHandler
 {
@@ -61,8 +63,9 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 	
 	private void init()
 	{
-		
 	}
+  
+  private final static Logger log = LoggerFactory.getLogger(Salt2RelANNISMapper.class);
 
 	private IdManager idManager= null;
 	public IdManager getIdManager() {
@@ -204,8 +207,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 			throw new PepperModuleException(this, "Cannot map sDocumentGraph, because sDocumentGraph is null.");
 		
 		{//start traversion of documentStructure
-			
-			
+		
 			try
 			{
 				
@@ -228,6 +230,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 				EList<SNode> sRelationRoots = null;
 				Map<String,EList<SNode>> subComponentRoots = null;
 				
+        
 				// START Step 1: map SOrderRelation
 				subComponentRoots = this.getSDocument().getSDocumentGraph().getRootsBySRelationSType(STYPE_NAME.SORDER_RELATION);
 				if (subComponentRoots != null){
@@ -251,9 +254,8 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 						}
 					}
 				}
-				
 				// END Step 1: map SOrderRelation
-				
+        
         // START Step 2: map SText
         if (idManager.hasVirtualTokenization())
         {
@@ -301,6 +303,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
         {
           exec = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
         }
+        
 				
 				subComponentRoots = getSDocument().getSDocumentGraph().getRootsBySRelationSType(STYPE_NAME.SPOINTING_RELATION);
 				if (subComponentRoots != null){
@@ -385,7 +388,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
         if(exec != null)
         {
           exec.shutdown();
-          while(exec.awaitTermination(60, TimeUnit.SECONDS))
+          while(!exec.awaitTermination(60, TimeUnit.SECONDS))
           {
             // wait to finish
           }
@@ -404,8 +407,10 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 			}catch (Exception e) {
 				throw new PepperModuleException(this, "Some error occurs while traversing document structure graph.", e);
 			}
-		}//start traversion of corpus structure
-		
+    }//start traversion of corpus structure
+    	
+	
+    setProgress(1.0);
 		return DOCUMENT_STATUS.COMPLETED;
 	}
 	

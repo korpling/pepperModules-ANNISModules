@@ -27,6 +27,8 @@ public class SPointingRelation2RelANNISMapper extends SRelation2RelANNISMapper  
 
 	@Override
 	public void run(){
+    
+    beginTransaction();
 		if (sRelationRoots != null && sRelationRoots.size() != 0){
 			for (SNode node : sRelationRoots){
 
@@ -58,7 +60,9 @@ public class SPointingRelation2RelANNISMapper extends SRelation2RelANNISMapper  
 				this.mapComponent2RelANNIS();
 
 			}
-		} 
+		}
+    
+    commitTransaction();
 	}
 	
 	@Override
