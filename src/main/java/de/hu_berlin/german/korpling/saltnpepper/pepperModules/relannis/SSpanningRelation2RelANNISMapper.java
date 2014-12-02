@@ -129,8 +129,8 @@ public class SSpanningRelation2RelANNISMapper extends SRelation2RelANNISMapper  
       BasicEList<STYPE_NAME> spanRel = new BasicEList<STYPE_NAME>();
       spanRel.add(STYPE_NAME.SSPANNING_RELATION);
 
-      EList<SToken> overlappedToken = documentGraph.getSortedSTokenByText(
-        documentGraph.getOverlappedSTokens(span, spanRel));
+      EList<SToken> overlappedToken = 
+        documentGraph.getOverlappedSTokens(span, spanRel);
 
       if (overlappedToken != null && !overlappedToken.isEmpty())
       {
