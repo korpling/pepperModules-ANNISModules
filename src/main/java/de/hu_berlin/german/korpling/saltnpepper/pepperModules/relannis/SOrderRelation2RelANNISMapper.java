@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.hu_berlin.german.korpling.saltnpepper.misc.tupleconnector.TupleWriter;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperMapper;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleException;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.Salt2RelANNISMapper.TRAVERSION_TYPE;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.GRAPH_TRAVERSE_TYPE;
@@ -29,10 +30,11 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 	public SOrderRelation2RelANNISMapper(IdManager idManager,
 			SDocumentGraph documentGraph, TupleWriter nodeTabWriter,
 			TupleWriter nodeAnnoTabWriter, TupleWriter rankTabWriter,
-			TupleWriter edgeAnnoTabWriter, TupleWriter componentTabWriter) {
+			TupleWriter edgeAnnoTabWriter, TupleWriter componentTabWriter,
+      Salt2RelANNISMapper parentMapper) {
 		
 		super(idManager, documentGraph, nodeTabWriter, nodeAnnoTabWriter,
-				rankTabWriter, edgeAnnoTabWriter, componentTabWriter);
+				rankTabWriter, edgeAnnoTabWriter, componentTabWriter, parentMapper);
 		
 	}
 	

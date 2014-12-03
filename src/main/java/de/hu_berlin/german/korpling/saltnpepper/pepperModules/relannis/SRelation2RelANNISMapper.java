@@ -10,6 +10,7 @@ import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 
 import de.hu_berlin.german.korpling.saltnpepper.misc.tupleconnector.TupleWriter;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperMapper;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleException;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.Salt2RelANNISMapper.TRAVERSION_TYPE;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.Edge;
@@ -37,6 +38,7 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
   private final static Logger log = LoggerFactory.getLogger(SRelation2RelANNISMapper.class);
   
 	protected IdManager idManager;
+  private final Salt2RelANNISMapper parentMapper;
 	
 	protected SDocumentGraph documentGraph;
 	
@@ -63,14 +65,16 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 	 * @param rankTabWriter
 	 * @param edgeAnnoTabWriter
 	 * @param componentTabWriter
+   * @param parentMapper
 	 */
 	public SRelation2RelANNISMapper(IdManager idManager,SDocumentGraph documentGraph, 
 			TupleWriter nodeTabWriter, TupleWriter nodeAnnoTabWriter,
 			TupleWriter rankTabWriter, TupleWriter edgeAnnoTabWriter,
-			TupleWriter componentTabWriter) {
+			TupleWriter componentTabWriter,
+      Salt2RelANNISMapper parentMapper) {
 		
 		this.idManager = idManager;
-		
+		this.parentMapper = parentMapper;
 		this.documentGraph = documentGraph;
 		
 		this.tokenSortedByLeft = documentGraph.getSortedSTokenByText();
@@ -669,6 +673,10 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 		if (node.getSAnnotations() != null){
 			this.mapSNodeAnnotations(node, id, node.getSAnnotations());
 		}
+    
+    // report progress
+    parentMapper.notifiyNewNodeMapped();
+    
 	}
 	
 	protected void writeNodeTabEntry(

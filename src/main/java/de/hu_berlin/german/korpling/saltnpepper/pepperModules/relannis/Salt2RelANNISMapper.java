@@ -51,11 +51,15 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTraverseHandler
 {
+  private final AtomicInteger numberOfMappedNodes = new AtomicInteger();
+  private int numberOfDocumentNodes;
+  
 	public Salt2RelANNISMapper()
 	{
 		this.init();
@@ -68,7 +72,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
   private final static Logger log = LoggerFactory.getLogger(Salt2RelANNISMapper.class);
 
 	private IdManager idManager= null;
-	public IdManager getIdManager() {
+  public IdManager getIdManager() {
 		return idManager;
 	}
 
@@ -203,7 +207,9 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 		this.postorderTable = new Hashtable<SNode, Long>();
 		prePostOrder = 0l;
 		
-		if (this.getSDocument() == null)
+    numberOfMappedNodes.set(0);
+    
+		if (this.getSDocument() == null || this.getSDocument().getSDocumentGraph() == null)
 			throw new PepperModuleException(this, "Cannot map sDocumentGraph, because sDocumentGraph is null.");
 		
 		{//start traversion of documentStructure
@@ -211,6 +217,11 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 			try
 			{
 				
+        if(this.getSDocument().getSDocumentGraph().getSNodes() != null)
+        {
+          this.numberOfDocumentNodes = this.getSDocument().getSDocumentGraph().getSNodes().size();
+        }
+        
 				/**
 				 * traverse by 
 				 * SpanningRelations: DOCUMENT_STRUCTURE_CR
@@ -239,7 +250,11 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
             {
 							//System.out.println("Count of SOrderRelation roots for key "+key+" : "+subComponentRoots.get(key).size());
 							//System.out.println("Mapping SOrderRelations subcomponents with sType: "+key);
-							SRelation2RelANNISMapper sOrderRelationMapper = new SOrderRelation2RelANNISMapper(getIdManager(), getSDocument().getSDocumentGraph(), tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component);
+							SRelation2RelANNISMapper sOrderRelationMapper = 
+                new SOrderRelation2RelANNISMapper(getIdManager(), 
+                  getSDocument().getSDocumentGraph(), 
+                  tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component,
+                  this);
 							
               String segChainName = entry.getKey();
               // append an index to the segmentation chain name if it has several roots
@@ -313,7 +328,12 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 						for (String key : subComponentRoots.keySet()){
 							//System.out.println("Count of PR roots for key "+key+" : "+subComponentRoots.get(key).size());
 							//System.out.println("Mapping PointingRelation subcomponents with sType: "+key);
-							SRelation2RelANNISMapper sPointingSubRelationMapper = new SPointingRelation2RelANNISMapper(getIdManager(), getSDocument().getSDocumentGraph(), tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component);
+							SRelation2RelANNISMapper sPointingSubRelationMapper = 
+                new SPointingRelation2RelANNISMapper(getIdManager(), 
+                  getSDocument().getSDocumentGraph(), 
+                  tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component,
+                  this
+                );
 							sPointingSubRelationMapper.mapSRelations2RelANNIS(subComponentRoots.get(key), STYPE_NAME.SPOINTING_RELATION, TRAVERSION_TYPE.DOCUMENT_STRUCTURE_PR);
 							sPointingSubRelationMapper.setTraversionSType(key);
 							if (exec != null ){
@@ -334,7 +354,12 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 				sRelationRoots = this.getSDocument().getSDocumentGraph().getRootsBySRelation(STYPE_NAME.SDOMINANCE_RELATION);
 				if (sRelationRoots != null){
 					if (sRelationRoots.size() > 0){
-						SRelation2RelANNISMapper sDominanceRelationMapper = new SDominanceRelation2RelANNISMapper(getIdManager(), getSDocument().getSDocumentGraph(), tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component);
+						SRelation2RelANNISMapper sDominanceRelationMapper
+              = new SDominanceRelation2RelANNISMapper(getIdManager(),
+                getSDocument().getSDocumentGraph(),
+                tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component,
+                this
+              );
 						sDominanceRelationMapper.mapSRelations2RelANNIS(sRelationRoots, STYPE_NAME.SDOMINANCE_RELATION, TRAVERSION_TYPE.DOCUMENT_STRUCTURE_DR);
 						if (exec != null){
               exec.execute(sDominanceRelationMapper);
@@ -353,7 +378,10 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 						for (String key : subComponentRoots.keySet()){
 							//System.out.println("Mapping DominanceRelation subcomponents with sType: "+key);
 							
-							SRelation2RelANNISMapper sDominanceSubRelationMapper = new SDominanceRelation2RelANNISMapper(getIdManager(), getSDocument().getSDocumentGraph(), tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component);
+							SRelation2RelANNISMapper sDominanceSubRelationMapper = 
+                new SDominanceRelation2RelANNISMapper(getIdManager(), 
+                  getSDocument().getSDocumentGraph(), 
+                  tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component, this);
 							sDominanceSubRelationMapper.setTraversionSType(key);
 							sDominanceSubRelationMapper.mapSRelations2RelANNIS(subComponentRoots.get(key), STYPE_NAME.SDOMINANCE_RELATION, TRAVERSION_TYPE.DOCUMENT_STRUCTURE_DR);
 							if (exec != null){
@@ -374,7 +402,10 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 				sRelationRoots = this.getSDocument().getSDocumentGraph().getRootsBySRelation(STYPE_NAME.SSPANNING_RELATION);
 				if (sRelationRoots != null){
 					if (sRelationRoots.size() > 0){
-						SRelation2RelANNISMapper spanningRelationMapper = new SSpanningRelation2RelANNISMapper(getIdManager(), getSDocument().getSDocumentGraph(), tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component);
+						SRelation2RelANNISMapper spanningRelationMapper = 
+              new SSpanningRelation2RelANNISMapper(getIdManager(), 
+                getSDocument().getSDocumentGraph(), 
+                tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component, this);
 						spanningRelationMapper.mapSRelations2RelANNIS(sRelationRoots, STYPE_NAME.SSPANNING_RELATION, TRAVERSION_TYPE.DOCUMENT_STRUCTURE_CR);
 						if (exec != null){
               exec.execute(spanningRelationMapper);
@@ -395,7 +426,10 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
         }
 
 				// START Step 5: map all SToken which were not mapped, yet
-				SRelation2RelANNISMapper mapper = new SSpanningRelation2RelANNISMapper(getIdManager(), getSDocument().getSDocumentGraph(), tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component);
+				SRelation2RelANNISMapper mapper = 
+          new SSpanningRelation2RelANNISMapper(getIdManager(), 
+            getSDocument().getSDocumentGraph(), 
+            tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component, this);
 				for (SNode node : getSDocument().getSDocumentGraph().getSTokens()){
 					if (this.idManager.getVirtualisedSpanId(node.getSElementId()) == null){
 						mapper.mapSNode(node);
@@ -658,7 +692,18 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 		}//traversing corpus structure
 		
 	}
-
+  
+  public void notifiyNewNodeMapped()
+  {
+    int newValue = numberOfMappedNodes.incrementAndGet();
+    // only set status for each 100th node
+    if(newValue % 100 == 0)
+    {
+      double percent = (double) (newValue) / (double) numberOfDocumentNodes;
+      // stretch the value so that we report 90% when all nodes are done
+      setProgress(percent*0.9);
+    }
+  }
 	
 	
 }

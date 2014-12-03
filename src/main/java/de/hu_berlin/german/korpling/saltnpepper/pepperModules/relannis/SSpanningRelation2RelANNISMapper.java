@@ -4,6 +4,7 @@ import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 
 import de.hu_berlin.german.korpling.saltnpepper.misc.tupleconnector.TupleWriter;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperMapper;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.Salt2RelANNISMapper.TRAVERSION_TYPE;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.GRAPH_TRAVERSE_TYPE;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
@@ -24,10 +25,12 @@ public class SSpanningRelation2RelANNISMapper extends SRelation2RelANNISMapper  
 	public SSpanningRelation2RelANNISMapper(IdManager idManager,
 			SDocumentGraph documentGraph, TupleWriter nodeTabWriter,
 			TupleWriter nodeAnnoTabWriter, TupleWriter rankTabWriter,
-			TupleWriter edgeAnnoTabWriter, TupleWriter componentTabWriter) {
+			TupleWriter edgeAnnoTabWriter, TupleWriter componentTabWriter,
+      Salt2RelANNISMapper parentMapper) {
 		
 		super(idManager, documentGraph, nodeTabWriter, nodeAnnoTabWriter,
-				rankTabWriter, edgeAnnoTabWriter, componentTabWriter);
+				rankTabWriter, edgeAnnoTabWriter, componentTabWriter,
+        parentMapper);
 		
     spanIsContinous = Collections.synchronizedMap(new HashMap<SSpan, Boolean>());
 	}
