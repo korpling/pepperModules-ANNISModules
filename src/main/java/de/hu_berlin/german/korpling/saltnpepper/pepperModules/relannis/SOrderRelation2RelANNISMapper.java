@@ -183,10 +183,13 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 					rankEntry.add(this.currentComponentId.toString());
 					rankEntry.add(parentRank.toString());
 					rankEntry.add("1");
-					Long transactionId = this.rankTabWriter.beginTA();
+          
+          TupleWriter rankTabWriter = writers.get(SRelation2RelANNISMapper.OutputTable.RANK);
+          
+					Long transactionId = rankTabWriter.beginTA();
 					try {
-						this.rankTabWriter.addTuple(transactionId, rankEntry);
-						this.rankTabWriter.commitTA(transactionId);
+						rankTabWriter.addTuple(transactionId, rankEntry);
+						rankTabWriter.commitTA(transactionId);
 					} catch (FileNotFoundException e) {
 						throw new PepperModuleException("Could not write to the rank tab TupleWriter. Exception is: "+e.getMessage(),e);
 					}
@@ -202,10 +205,11 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 				rankEntry.add(this.currentComponentId.toString());
 				rankEntry.add(new String("NULL"));
 				rankEntry.add("0");
-				Long transactionId = this.rankTabWriter.beginTA();
+        TupleWriter rankTabWriter = writers.get(SRelation2RelANNISMapper.OutputTable.RANK);
+				Long transactionId = rankTabWriter.beginTA();
 				try {
-					this.rankTabWriter.addTuple(transactionId, rankEntry);
-					this.rankTabWriter.commitTA(transactionId);
+					rankTabWriter.addTuple(transactionId, rankEntry);
+					rankTabWriter.commitTA(transactionId);
 				} catch (FileNotFoundException e) {
 					throw new PepperModuleException("Could not write to the rank tab TupleWriter. Exception is: "+e.getMessage(),e);
 				}

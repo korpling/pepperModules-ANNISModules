@@ -26,6 +26,8 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SGraphTraverseHandler;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
+import java.util.Collection;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -36,6 +38,8 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 // =============================== Globally used objects ======================
 
   private final static Logger log = LoggerFactory.getLogger(SRelation2RelANNISMapper.class);
+  
+  private final static long MAX_UNCOMMITED_TUPLES = 100l;
   
 	protected IdManager idManager;
   private final Salt2RelANNISMapper parentMapper;
@@ -90,12 +94,12 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
       }
     }
 		
-		this.nodeTabWriter = nodeTabWriter;
-		this.nodeAnnoTabWriter = nodeAnnoTabWriter;
-		
-		this.rankTabWriter = rankTabWriter;
-		this.edgeAnnoTabWriter = edgeAnnoTabWriter;
-		this.componentTabWriter = componentTabWriter;
+    writers.clear();
+    writers.put(OutputTable.NODE, nodeTabWriter);
+    writers.put(OutputTable.NODE_ANNOTATION, nodeAnnoTabWriter);
+    writers.put(OutputTable.RANK, rankTabWriter);
+    writers.put(OutputTable.EDGE_ANNO, edgeAnnoTabWriter);
+    writers.put(OutputTable.COMPONENT, componentTabWriter);
 	}
 
 	protected void setTraversionSType(String traversionSType){
@@ -104,11 +108,13 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 	
   protected void beginTransaction()
   {
-    transactionIdComponent = componentTabWriter.beginTA();
-    transactionIdEdgeAnno = edgeAnnoTabWriter.beginTA();
-    transactionIdNode = nodeTabWriter.beginTA();
-    transactionIdNodeAnno = nodeAnnoTabWriter.beginTA();
-    transactionIdRank = rankTabWriter.beginTA();
+    transactionIds.clear();
+    numberOfUncommitedTuples.clear();
+    for(Map.Entry<OutputTable, TupleWriter> e : writers.entrySet())
+    {
+      transactionIds.put(e.getKey(), e.getValue().beginTA());
+      numberOfUncommitedTuples.put(e.getKey(), 0l);
+    }
   }
   
 	protected void initialiseTraversion(String componentType,String componentLayer, String componentName){
@@ -142,39 +148,53 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 
     try
     {
-      componentTabWriter.commitTA(transactionIdComponent);
-      edgeAnnoTabWriter.commitTA(transactionIdEdgeAnno);
-      nodeTabWriter.commitTA(transactionIdNode);
-      nodeAnnoTabWriter.commitTA(transactionIdNodeAnno);
-      rankTabWriter.commitTA(transactionIdRank);
+      for (Map.Entry<OutputTable, TupleWriter> e : writers.entrySet())
+      {
+        Long txId = transactionIds.get(e.getKey());
+        if(txId != null)
+        {
+          e.getValue().commitTA(txId);
+        }
+      }
+      
     }
     catch (FileNotFoundException ex)
     {
       log.error("Could not write output file", ex);
       abortTransaction();
     }
+    transactionIds.clear();
+    numberOfUncommitedTuples.clear();
   }
 
   
   protected void abortTransaction()
   {
-    componentTabWriter.abortTA(transactionIdComponent);
-    edgeAnnoTabWriter.abortTA(transactionIdEdgeAnno);
-    nodeTabWriter.abortTA(transactionIdNode);
-    nodeAnnoTabWriter.abortTA(transactionIdNodeAnno);
-    rankTabWriter.abortTA(transactionIdRank);
+    for (Map.Entry<OutputTable, TupleWriter> e : writers.entrySet())
+    {
+      Long txId = transactionIds.get(e.getKey());
+      if (txId != null)
+      {
+        e.getValue().abortTA(txId);
+      }
+    }
+    transactionIds.clear();
+    numberOfUncommitedTuples.clear();
   }
+  
+  public enum OutputTable {RANK, EDGE_ANNO, COMPONENT, NODE, NODE_ANNOTATION}
+  
+  protected final Map<OutputTable, TupleWriter> writers = 
+    new EnumMap<OutputTable, TupleWriter>(OutputTable.class);
+  
+  private final Map<OutputTable, Long> transactionIds = 
+    new EnumMap<OutputTable, Long>(OutputTable.class);
+  
+  private final Map<OutputTable, Long> numberOfUncommitedTuples = 
+    new EnumMap<OutputTable, Long>(OutputTable.class);
 	
 // ============================ Data for SRelation Mapping ====================
-	
-	protected TupleWriter rankTabWriter;
-	protected TupleWriter edgeAnnoTabWriter;
-	protected TupleWriter componentTabWriter;
   
-  
-  private Long transactionIdRank;
-  private Long  transactionIdEdgeAnno;
-  private Long  transactionIdComponent;
 	
 	protected TRAVERSION_TYPE traversionType;
 	
@@ -296,14 +316,8 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 						}
 						rankEntry.add(this.rankLevel.toString());
             
-            Preconditions.checkNotNull(transactionIdRank, "transaction for rank table was not started");
-            
-						try {
-							this.rankTabWriter.addTuple(transactionIdRank, rankEntry);
-						} catch (FileNotFoundException e) {
-							throw new PepperModuleException("Could not write to the rank tab TupleWriter. Exception is: "+e.getMessage(),e);
-						}
-					} // map the rank
+            addTuple(OutputTable.RANK, rankEntry);
+						} // map the rank
 					if (sRelation != null)
 					{ // MAP THE SAnnotations
 						if (sRelation.getSAnnotations() != null)
@@ -376,6 +390,44 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 		
 		
 	}
+  
+  protected void addTuple(OutputTable table, Collection<String> tuple)
+  {
+    try
+    {
+      TupleWriter w = writers.get(table);
+      if(w != null)
+      {
+        Long txId = transactionIds.get(table);
+        if(txId == null)
+        {
+          w.addTuple(tuple);
+        }
+        else
+        {
+          w.addTuple(txId, tuple);
+          Long oldCount = numberOfUncommitedTuples.get(table);
+          if(oldCount != null)
+          {
+            long newCount = oldCount+1;
+            if(newCount > MAX_UNCOMMITED_TUPLES)
+            {
+              w.commitTA(txId);
+              newCount = 0;
+              transactionIds.put(table, w.beginTA());
+            }
+            numberOfUncommitedTuples.put(table, newCount);
+          }
+        }
+      }      
+    }
+    catch (FileNotFoundException e)
+    {
+      throw new PepperModuleException(
+        "Could not write to the " + table.name() + " tab TupleWriter. Exception is: " + e.
+        getMessage(), e);
+    }
+  }
 
 	@Override
 	public boolean checkConstraint(GRAPH_TRAVERSE_TYPE traversalType,
@@ -404,12 +456,7 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 		componentEntry.add(currentComponentLayer);
 		componentEntry.add(currentComponentName);
 		// add the tuple
-    Preconditions.checkNotNull(transactionIdComponent, "transaction for component table was not started");
-		try {
-			this.componentTabWriter.addTuple(transactionIdComponent, componentEntry);
-		} catch (FileNotFoundException e) {
-			throw new PepperModuleException("Could not write to the component tab TupleWriter. Exception is: "+e.getMessage(),e);
-		}
+    addTuple(OutputTable.COMPONENT, componentEntry);
 		
 	}
 	
@@ -448,14 +495,9 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 		}
 		
 		rankEntry.add(level.toString());
-    
-    Preconditions.checkNotNull(transactionIdRank, "transaction for rank table was not started");
-		
-		try {
-			this.rankTabWriter.addTuple(transactionIdRank, rankEntry);
-		} catch (FileNotFoundException e) {
-			throw new PepperModuleException("Could not write to the rank tab TupleWriter. Exception is: "+e.getMessage(),e);
-		}
+ 
+    addTuple(OutputTable.RANK, rankEntry);
+
 	}
 	
 	protected void mapSAnnotation2RelANNIS(Long rankId, SAnnotation sAnnotation){
@@ -475,23 +517,11 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 		edgeAnnotationEntry.add(sAnnotation.getSName());
 		edgeAnnotationEntry.add(sAnnotation.getSValueSTEXT());
 		
-    Preconditions.checkNotNull(transactionIdEdgeAnno, "transaction for edge_annotation table was not started");
-		
-		try {
-			this.edgeAnnoTabWriter.addTuple(transactionIdEdgeAnno, edgeAnnotationEntry);
-		} catch (FileNotFoundException e) {
-			throw new PepperModuleException("Could not write to the edge annotation TupleWriter. Exception is: "+e.getMessage(),e);
-		}
+    addTuple(OutputTable.EDGE_ANNO, edgeAnnotationEntry);
 		
 	}
 		
 // =============================== Data for Node Mapping ======================
-	
-	private final TupleWriter nodeTabWriter;
-	private final TupleWriter nodeAnnoTabWriter;
-  
-  private Long transactionIdNode;
-  private Long  transactionIdNodeAnno;
 	
 	protected final EList<SToken> tokenSortedByLeft;
   protected final Map<SToken, Long> token2Index;
@@ -687,7 +717,6 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 			Long seg_index, String seg_name, String span,
       boolean isRoot){
 		
-    Preconditions.checkNotNull(transactionIdNode, "transaction for node table was not started");
     
 		EList<String> tableEntry = new BasicEList<String>();
 		tableEntry.add(id.toString());
@@ -722,11 +751,8 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
     
     tableEntry.add(isRoot ? "TRUE" : "FALSE");
     
-		try {
-			this.nodeTabWriter.addTuple(transactionIdNode, tableEntry);
-		} catch (FileNotFoundException e) {
-			throw new PepperModuleException("Could not write to the node tab TupleWriter. Exception is: "+e.getMessage(),e);
-		}
+    addTuple(OutputTable.NODE, tableEntry);
+    
 		
 	}
 	
@@ -740,18 +766,14 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 	
 	protected void mapSNodeAnnotation(Long node_ref, String namespace, String name, String value){
 		
-    Preconditions.checkNotNull(transactionIdNodeAnno, "transaction for node_annotation table was not started");
     
 		EList<String> tableEntry = new BasicEList<String>();
 		tableEntry.add(node_ref.toString());
 		tableEntry.add(namespace);
 		tableEntry.add(name);
 		tableEntry.add(value);
-		try {
-			this.nodeAnnoTabWriter.addTuple(transactionIdNodeAnno, tableEntry);
-		} catch (FileNotFoundException e) {
-			throw new PepperModuleException("Could not write to the node annotation tab TupleWriter. Exception is: "+e.getMessage(),e);
-		}
+    
+    addTuple(OutputTable.NODE_ANNOTATION, tableEntry);
 	}
 	
 	protected void mapSNodeAnnotation(SNode node, Long node_ref, SAnnotation annotation){
