@@ -269,7 +269,7 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
       
 		} else {
 			Long rankId = null;
-			EList<Long> virtualTokenIds = this.idManager.getVirtualisedTokenId(currNode.getSElementId());
+			EList<Long> virtualTokenIds = this.idManager.getVirtualisedTokenId(currNode.getSId());
 			// if there are virtual token ids, the virtual tokens were already mapped into the node.tab
 			// We have to create n ranks where n is the count of virtual token ids.
 			// all ranks have the same annotations
@@ -279,7 +279,7 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 				{ // HANDLE POINTING RELATIONS
 					// They are redirected to the virtual spans
 					virtualTokenIds = new BasicEList<Long>();
-					virtualTokenIds.add(this.idManager.getVirtualisedSpanId(currNode.getSElementId()));
+					virtualTokenIds.add(this.idManager.getVirtualisedSpanId(currNode.getSId()));
 					//System.out.println("Mapping pointing relations concerning a virtual token/span");
 				} // HANDLE POINTING RELATIONS
 				// set virtual token rank mapping
@@ -486,7 +486,7 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 		rankEntry.add(rankId.toString());
 		rankEntry.add(this.preorderTable.get(targetNode).toString());
 		rankEntry.add(postOrder.toString());
-		rankEntry.add(this.idManager.getNewNodeId(targetNode.getSElementId()).getLeft().toString());
+		rankEntry.add(this.idManager.getNewNodeId(targetNode.getSId()).getLeft().toString());
 		rankEntry.add(this.currentComponentId.toString());
 		if (parentRank == null){
 			rankEntry.add(new String("NULL"));
@@ -536,7 +536,7 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 	}
 	
 	public void mapSNode(SNode sNode){
-		SegmentationInfo segInfo = this.idManager.getSegmentInformation(sNode.getSElementId());
+		SegmentationInfo segInfo = this.idManager.getSegmentInformation(sNode.getSId());
 		if (segInfo != null){
 			this.mapSNode(sNode, segInfo.getRelANNISId(), segInfo.getSegmentationName(), segInfo.getSpan());
 		} else {
@@ -547,7 +547,7 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 	
 	public void mapSNode(SNode node, Long seg_index, String seg_name, String span){
 		/// get the SElementId of the node since we will need it many times
-		SElementId nodeSElementId = node.getSElementId();
+		String nodeSElementId = node.getSId();
 		
 		/// if the node already has a nodeId, it was already mapped
 		Pair<Long,Boolean> idPair = this.idManager.getNewNodeId(nodeSElementId);
@@ -565,7 +565,7 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 		// get the text ref
 		Long text_ref = null;
 		// get the document ref
-		Long corpus_ref = this.idManager.getNewCorpusTabId(this.documentGraph.getSDocument().getSElementId());
+		Long corpus_ref = this.idManager.getNewCorpusTabId(this.documentGraph.getSDocument().getSId());
 		// get the layer if there is one
 		//@ TODO: Change this to DEFAULT_LAYER
 		String layer = DEFAULT_NS;
@@ -617,7 +617,7 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 					// set the right value which is end -1 since SEnd points to the index of the last char +1
 					right = new Long(sTextualRelation.getSEnd()-1);
 					// set the reference to the text
-					text_ref = new Long(idManager.getNewTextId(sTextualRelation.getSTextualDS().getSElementId()));
+					text_ref = new Long(idManager.getNewTextId(sTextualRelation.getSTextualDS().getSId()));
 					// set the overlapped text
 					span = sTextualRelation.getSTextualDS().getSText().substring(left.intValue(),sTextualRelation.getSEnd());
 					break;
@@ -654,7 +654,7 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 						// set the left value
 						left = new Long(sTextualRelation.getSStart());
 						
-						text_ref = new Long(idManager.getNewTextId(sTextualRelation.getSTextualDS().getSElementId()));
+						text_ref = new Long(idManager.getNewTextId(sTextualRelation.getSTextualDS().getSId()));
 						//System.out.println("Setting text_ref to"+ text_ref.toString());
 						break;
 					}
@@ -671,7 +671,7 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 						STextualRelation sTextualRelation = ((STextualRelation)edge);
 						// set the left value
 						right = new Long(sTextualRelation.getSEnd()-1);
-						text_ref = new Long(idManager.getNewTextId(sTextualRelation.getSTextualDS().getSElementId()));
+						text_ref = new Long(idManager.getNewTextId(sTextualRelation.getSTextualDS().getSId()));
 						break;
 					}
 				}
@@ -683,7 +683,7 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 			// the node is a span or structure
 		}
 		if (this.idManager.hasVirtualTokenization()){
-			EList<Long> virtualisedTokenIds = this.idManager.getVirtualisedTokenId(node.getSElementId());
+			EList<Long> virtualisedTokenIds = this.idManager.getVirtualisedTokenId(node.getSId());
 			if (virtualisedTokenIds != null){
 				left = 0l;
 				right = 0l;

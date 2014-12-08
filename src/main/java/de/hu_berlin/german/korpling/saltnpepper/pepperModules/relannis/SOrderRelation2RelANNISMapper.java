@@ -62,7 +62,7 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 		this.mapComponent2RelANNIS();
 		
 		// set the corpus reference
-		Long corpus_ref = this.idManager.getNewCorpusTabId(this.documentGraph.getSDocument().getSElementId());
+		Long corpus_ref = this.idManager.getNewCorpusTabId(this.documentGraph.getSDocument().getSId());
 		Long token_left = null;
 		Long token_right = null;
 		
@@ -133,7 +133,7 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 		} // map a timeline which has more than one virtual token
 		
 		// register the mapping
-		this.idManager.registerTokenVirtMapping(tok.getSElementId(), virtualSpanId.getNodeID(), virtualTokenIds);
+		this.idManager.registerTokenVirtMapping(tok.getSId(), virtualSpanId.getNodeID(), virtualTokenIds);
 		
 		if (virtualSpanId.isFresh())
 		{ // map the virtual span and the Token annotations
@@ -141,7 +141,7 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 			Long segId = null;
 			String segName = null;
 			String span = null;
-			SegmentationInfo segmentInfo = this.idManager.getSegmentInformation(tok.getSElementId());
+			SegmentationInfo segmentInfo = this.idManager.getSegmentInformation(tok.getSId());
 			if (segmentInfo != null){
 				segId = segmentInfo.getRelANNISId();
 				segName = segmentInfo.getSegmentationName();
@@ -315,7 +315,7 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 					}
 				}
 				for (STimelineRelation tr : sortedMinimalTimelineRelationList){
-					EList<Long> tr_IdS = this.idManager.getVirtualisedTokenId(tr.getSToken().getSElementId());
+					EList<Long> tr_IdS = this.idManager.getVirtualisedTokenId(tr.getSToken().getSId());
 					if (tr_IdS.size() > 1){
 						log.warn("minimal timeline relation has more than one virtual token id");
 					}
@@ -412,7 +412,7 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
               }
             }
           }
-					this.idManager.addSegmentInformation(currNode.getSElementId(), segIndex, name, segSpan);
+					this.idManager.addSegmentInformation(currNode.getSId(), segIndex, name, segSpan);
 					
 					//System.out.println("SType is "+this.currentComponentName);
 				//}

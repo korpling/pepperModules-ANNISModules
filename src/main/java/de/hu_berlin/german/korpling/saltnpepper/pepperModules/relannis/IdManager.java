@@ -11,16 +11,15 @@ import org.eclipse.emf.common.util.EList;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpus;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualDS;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
 
 public class IdManager {
 
-	private ConcurrentHashMap<SElementId,Long> nodeIdMap;
+	private ConcurrentHashMap<String,Long> nodeIdMap;
 	private ConcurrentHashMap<String,Long> virtualNodeIdMap;
-	private ConcurrentHashMap<SElementId,Long> corpusTabIdMap;
-	private ConcurrentHashMap<SElementId,Long> textIdMap;
-	private ConcurrentHashMap<SElementId,EList<Long>> tokenVirtualisationMapping;
-	private ConcurrentHashMap<SElementId,Long> spanVirtualisationMapping;
+	private ConcurrentHashMap<String,Long> corpusTabIdMap;
+	private ConcurrentHashMap<String,Long> textIdMap;
+	private ConcurrentHashMap<String,EList<Long>> tokenVirtualisationMapping;
+	private ConcurrentHashMap<String,Long> spanVirtualisationMapping;
 	
 	private Long nodeId = 0l;
 	private Long componentId = 0l;
@@ -33,16 +32,16 @@ public class IdManager {
 	// the virtual tokens which are sorted by their point of time
 	private EList<Long> virtualTokenIdList = null;
 	
-	protected Hashtable<SElementId,SegmentationInfo> segmentationInfoTable = null;
+	protected Hashtable<String,SegmentationInfo> segmentationInfoTable = null;
 	
 	public IdManager() {
 		this.nodeId = 0l;
-		this.nodeIdMap = new ConcurrentHashMap<SElementId, Long>();
-		this.corpusTabIdMap = new ConcurrentHashMap<SElementId, Long>();
-		this.textIdMap = new ConcurrentHashMap<SElementId, Long>();
+		this.nodeIdMap = new ConcurrentHashMap<String, Long>();
+		this.corpusTabIdMap = new ConcurrentHashMap<String, Long>();
+		this.textIdMap = new ConcurrentHashMap<String, Long>();
 		this.virtualNodeIdMap = new ConcurrentHashMap<String, Long>();
-		this.tokenVirtualisationMapping = new ConcurrentHashMap<SElementId, EList<Long>>();
-		this.spanVirtualisationMapping = new ConcurrentHashMap<SElementId, Long>();
+		this.tokenVirtualisationMapping = new ConcurrentHashMap<String, EList<Long>>();
+		this.spanVirtualisationMapping = new ConcurrentHashMap<String, Long>();
 		
 		this.virtualTokenIdList = new BasicEList<Long>();
 		
@@ -51,7 +50,7 @@ public class IdManager {
 		this.corpusId = 0l;
 		this.textId = 0l;
 		
-		this.segmentationInfoTable = new Hashtable<SElementId, SegmentationInfo>();
+		this.segmentationInfoTable = new Hashtable<String, SegmentationInfo>();
 	}
 	
 	/**
@@ -82,7 +81,7 @@ public class IdManager {
 	 * @return a pair <Long,Boolean> which is the RelANNIS node tab id and
 	 * 		a boolean which specifies whether the id is fresh.
 	 */
-	public Pair<Long,Boolean> getNewNodeId(SElementId sElementId){
+	public Pair<Long,Boolean> getNewNodeId(String sElementId){
 		boolean isNew = false;
 		Long newId = this.nodeIdMap.get(sElementId);
 		if (newId == null){
@@ -131,7 +130,7 @@ public class IdManager {
 	 * @param segName the segment name
 	 * @param segSpan the segment span
 	 */
-	public synchronized void addSegmentInformation(SElementId node, Long segIndex, String segName, String segSpan){
+	public synchronized void addSegmentInformation(String node, Long segIndex, String segName, String segSpan){
 		this.segmentationInfoTable.put(node, new SegmentationInfo(segIndex, segName, segSpan));
 	}
 	
@@ -140,7 +139,7 @@ public class IdManager {
 	 * @param node The {@link SElementId} of the node
 	 * @return the segmentation info or null if the node has no segment property
 	 */
-	public synchronized SegmentationInfo getSegmentInformation(SElementId node){
+	public synchronized SegmentationInfo getSegmentInformation(String node){
 		SegmentationInfo returnVal = this.segmentationInfoTable.get(node);
 		return returnVal;
 	}
@@ -161,7 +160,7 @@ public class IdManager {
 	 * @param virtualSpanId The RelANNIS id of the virtual span
 	 * @param virtualTokenIds The RelANNIS ids of the virtual tokens
 	 */
-	public synchronized void registerTokenVirtMapping(SElementId tokenId, Long virtualSpanId, EList<Long> virtualTokenIds){
+	public synchronized void registerTokenVirtMapping(String tokenId, Long virtualSpanId, EList<Long> virtualTokenIds){
 		this.containsVirtualTokens = true;
 		if (! this.tokenVirtualisationMapping.contains(tokenId)){
 			this.tokenVirtualisationMapping.put(tokenId, virtualTokenIds);
@@ -176,7 +175,7 @@ public class IdManager {
 	 * @param tokenId The {@link SElementId} of the node
 	 * @return The list of RelANNIS ids of the virtual tokens or null, if the token was not virtualised.
 	 */
-	public synchronized EList<Long> getVirtualisedTokenId(SElementId tokenId){
+	public synchronized EList<Long> getVirtualisedTokenId(String tokenId){
 		return this.tokenVirtualisationMapping.get(tokenId);
 	}
   
@@ -189,7 +188,7 @@ public class IdManager {
 	 * @param tokenId The {@link SElementId} of the node
 	 * @return The RelANNIS id of the virtual Span or null, if the token was not virtualised.
 	 */
-	public synchronized Long getVirtualisedSpanId(SElementId tokenId){
+	public synchronized Long getVirtualisedSpanId(String tokenId){
 		return this.spanVirtualisationMapping.get(tokenId);
 	}
 	
@@ -224,7 +223,7 @@ public class IdManager {
 	 * @param sElementId The {@link SElementId} of the {@link SCorpus} or {@link SDocument}
 	 * @return The corpus tab id.
 	 */
-	public Long getNewCorpusTabId(SElementId sElementId){
+	public Long getNewCorpusTabId(String sElementId){
 		Long newId = this.corpusTabIdMap.get(sElementId);
 		if (newId == null){
 			synchronized (this) {
@@ -246,7 +245,7 @@ public class IdManager {
 	 * @param sElementId The {@link SElementId} of the {@link STextualDS}
 	 * @return The text tab id which is 0, if this class currently manages virtual tokens.
 	 */
-	public Long getNewTextId(SElementId sElementId){
+	public Long getNewTextId(String sElementId){
 		if (this.containsVirtualTokens)
 		{
 			return 0l;

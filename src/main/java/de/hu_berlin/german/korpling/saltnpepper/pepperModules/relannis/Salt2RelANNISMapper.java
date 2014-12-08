@@ -276,12 +276,12 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
         {
           Long sDocID = null;
           Long textId = 0l;
-          SElementId sDocumentElementId = this.getSDocument().getSElementId();
+          String sDocumentElementId = this.getSDocument().getSId();
 
           if (sDocumentElementId == null)
           {
             throw new PepperModuleException(this,
-              "SElement Id of the document '" + this.getSDocument().getSName()
+              "SId Id of the document '" + this.getSDocument().getSName()
               + "' is NULL!");
           }
           sDocID = this.idManager.getNewCorpusTabId(sDocumentElementId);
@@ -431,7 +431,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
             getSDocument().getSDocumentGraph(), 
             tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component, this);
 				for (SNode node : getSDocument().getSDocumentGraph().getSTokens()){
-					if (this.idManager.getVirtualisedSpanId(node.getSElementId()) == null){
+					if (this.idManager.getVirtualisedSpanId(node.getSId()) == null){
 						mapper.mapSNode(node);
 					}
 					
@@ -464,7 +464,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 		Long textId = 0l;
 		//System.out.println("Count of textual DS: "+sDoc.getSTextualDSs().size());
 		for (STextualDS text : sDoc.getSTextualDSs()){
-			SElementId sDocumentElementId = this.getSDocument().getSElementId();
+			String sDocumentElementId = this.getSDocument().getSId();
 			//System.out.println("Found text \""+text.getSText()+"\"");
 			//System.out.println("The text has a length of "+text.getSText().length());
 			//for (STextualRelation sTextRel : this.getSDocument().getSDocumentGraph().getSTextualRelations()){
@@ -483,7 +483,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 			String textContent = text.getSText();
 			Vector<String> tuple = new Vector<String>();
 			tuple.add(sDocID.toString());
-			tuple.add(manager.getNewTextId(text.getSElementId()).toString());
+			tuple.add(manager.getNewTextId(text.getSId()).toString());
 			tuple.add(textName);
 			tuple.add(textContent);
 			
@@ -637,7 +637,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 		{//traversing corpus structure	
 			if (currNode instanceof SCorpus || currNode instanceof SDocument){
 				
-				this.idManager.getNewCorpusTabId(currNode.getSElementId());
+				this.idManager.getNewCorpusTabId(currNode.getSId());
 				
 				/**
 				 * Initialize a new entry for this node in the preorder table,
@@ -677,11 +677,11 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 						Long iD = null;
 						if (currNode instanceof SDocument){
 							SDocument sd = (SDocument)currNode;
-							iD = getIdManager().getNewCorpusTabId(sd.getSElementId());
+							iD = getIdManager().getNewCorpusTabId(sd.getSId());
 						}
 						if (currNode instanceof SCorpus){
 							SCorpus sc = (SCorpus)currNode;
-							iD = getIdManager().getNewCorpusTabId(sc.getSElementId());
+							iD = getIdManager().getNewCorpusTabId(sc.getSId());
 						}
 						
 						// map the the node to the corpus tab
