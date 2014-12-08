@@ -38,16 +38,12 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STYPE_NAME;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualDS;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SGraphTraverseHandler;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SMetaAnnotatableElement;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SMetaAnnotation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
 import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -139,12 +135,12 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 	@Override
 	public DOCUMENT_STATUS mapSCorpus()
 	{   
-		
 		//this.setSCorpusGraph(sCorpusGraph);
 		if (this.getSCorpusGraph() == null)
 			throw new PepperModuleException(this, "Cannot map sCorpusGraph, because sCorpusGraph is null.");
 		
-		{//start traversion of corpus structure
+		{
+      //start traversion of corpus structure
 			/// initialize preOrder and postOrder:
 			this.preorderTable = new Hashtable<SNode,Long>();
 			this.postorderTable = new Hashtable<SNode, Long>();
@@ -202,7 +198,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 	
 	@Override
 	public DOCUMENT_STATUS mapSDocument(){
-
+    
 		this.preorderTable = new Hashtable<SNode, Long>();
 		this.postorderTable = new Hashtable<SNode, Long>();
 		prePostOrder = 0l;

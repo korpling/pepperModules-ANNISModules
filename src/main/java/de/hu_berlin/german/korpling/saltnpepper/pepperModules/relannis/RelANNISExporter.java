@@ -17,6 +17,8 @@
  */
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis;
 
+import com.google.common.base.Charsets;
+import com.google.common.io.Files;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -37,11 +39,17 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SMetaAnnotation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 
 @Component(name="RelANNISExporterComponent", factory="PepperExporterComponentFactory")
 public class RelANNISExporter extends PepperExporterImpl implements PepperExporter, RelANNIS
 {
+  
+  private static final Logger log = LoggerFactory.getLogger(RelANNISExporter.class);
+  
 	// =================================================== mandatory ===================================================
 		public RelANNISExporter()
 		{
@@ -187,6 +195,17 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 			}
 			
 			this.idManager = new IdManager();
+      
+      // write versions file
+      File versionFile = new File(getCorpusDesc().getCorpusPath().toFileString(), "relannis.version");      
+      try
+      {
+        Files.write("4.0", versionFile, Charsets.UTF_8);
+      }
+      catch (IOException ex)
+      {
+        log.error("Can't write relannis.version file", ex);
+      }
 			
 			return(super.isReadyToStart());
 		}
