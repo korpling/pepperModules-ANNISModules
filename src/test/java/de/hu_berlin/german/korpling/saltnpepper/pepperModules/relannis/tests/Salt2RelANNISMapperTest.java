@@ -48,6 +48,9 @@ public class Salt2RelANNISMapperTest
   public TestName name = new TestName();
 
   private Salt2RelANNISMapper fixture = null;
+  
+  private SCorpus rootCorpus = null;
+  private SDocument sDocument = null;
 
   public Salt2RelANNISMapper getFixture()
   {
@@ -79,14 +82,14 @@ public class Salt2RelANNISMapperTest
     }
 
     SCorpusGraph sCorpGraph = SaltFactory.eINSTANCE.createSCorpusGraph();
-    SCorpus sCorpus1 = SaltFactory.eINSTANCE.createSCorpus();
-    sCorpus1.setSName("mainCorp");
-    sCorpGraph.addSNode(sCorpus1);
+    rootCorpus = SaltFactory.eINSTANCE.createSCorpus();
+    rootCorpus.setSName("mainCorp");
+    sCorpGraph.addSNode(rootCorpus);
 
     fixture.setSCorpusGraph(sCorpGraph);
 
-    SDocument sDocument = SaltFactory.eINSTANCE.createSDocument();
-    sCorpGraph.addSDocument(sCorpus1, sDocument);
+    sDocument = SaltFactory.eINSTANCE.createSDocument();
+    sCorpGraph.addSDocument(rootCorpus, sDocument);
 
     sDocument.setSDocumentGraph(SaltFactory.eINSTANCE.createSDocumentGraph());
     getFixture().setSDocument(sDocument);
@@ -101,6 +104,14 @@ public class Salt2RelANNISMapperTest
       getMethodName());
     testPath = new File(getTestPath() + name.getMethodName());
     createTupleWriters(tmpPath);
+  }
+  
+  private void doMapping()
+  {
+	  getFixture().setSCorpus(rootCorpus);
+	  getFixture().mapSCorpus();
+	  getFixture().setSDocument(sDocument);
+	  getFixture().mapSDocument();
   }
 
   private void createTupleWriters(File path)
@@ -153,9 +164,8 @@ public class Salt2RelANNISMapperTest
     SaltSample.createPrimaryData(getFixture().getSDocument());
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 
-    getFixture().mapSCorpus();
-    getFixture().mapSDocument();
-
+    doMapping();
+	
     assertFalse("There was no file to be compared in folder '" + testPath.
       getAbsolutePath() + "' and folder '" + tmpPath.getAbsolutePath() + "'.",
       new Integer(0).equals(compareFiles(testPath, tmpPath)));
@@ -177,8 +187,7 @@ public class Salt2RelANNISMapperTest
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 
     getFixture().individualCorpusName = "NewTopLevelCorpus";
-    getFixture().mapSCorpus();
-    getFixture().mapSDocument();
+    doMapping();
 
     assertFalse("There was no file to be compared in folder '" + testPath.
       getAbsolutePath() + "' and folder '" + tmpPath.getAbsolutePath() + "'.",
@@ -202,8 +211,7 @@ public class Salt2RelANNISMapperTest
     SaltSample.createTokens(getFixture().getSDocument());
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 
-    getFixture().mapSCorpus();
-    getFixture().mapSDocument();
+    doMapping();
 
     assertFalse("There was no file to be compared in folder '" + testPath.
       getAbsolutePath() + "' and folder '" + tmpPath.getAbsolutePath() + "'.",
@@ -233,8 +241,7 @@ public class Salt2RelANNISMapperTest
     SaltSample.createTokens(getFixture().getSDocument(), primaryData_DE);
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 
-    getFixture().mapSCorpus();
-    getFixture().mapSDocument();
+    doMapping();
 
     assertFalse("There was no file to be compared in folder '" + testPath.
       getAbsolutePath() + "' and folder '" + tmpPath.getAbsolutePath() + "'.",
@@ -261,8 +268,7 @@ public class Salt2RelANNISMapperTest
     SaltSample.createParallelData(getFixture().getSDocument());
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 
-    getFixture().mapSCorpus();
-    getFixture().mapSDocument();
+    doMapping();
 
     assertFalse("There was no file to be compared in folder '" + testPath.
       getAbsolutePath() + "' and folder '" + tmpPath.getAbsolutePath() + "'.",
@@ -290,8 +296,7 @@ public class Salt2RelANNISMapperTest
     SaltSample.createParallelData(getFixture().getSDocument(), false);
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 
-    getFixture().mapSCorpus();
-    getFixture().mapSDocument();
+    doMapping();
 
     assertFalse("There was no file to be compared in folder '" + testPath.
       getAbsolutePath() + "' and folder '" + tmpPath.getAbsolutePath() + "'.",
@@ -317,8 +322,7 @@ public class Salt2RelANNISMapperTest
     SaltSample.createMorphologyAnnotations(getFixture().getSDocument());
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 
-    getFixture().mapSCorpus();
-    getFixture().mapSDocument();
+    doMapping();
 
     assertFalse("There was no file to be compared in folder '" + testPath.
       getAbsolutePath() + "' and folder '" + tmpPath.getAbsolutePath() + "'.",
@@ -347,8 +351,7 @@ public class Salt2RelANNISMapperTest
       createInformationStructureAnnotations(getFixture().getSDocument());
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 
-    getFixture().mapSCorpus();
-    getFixture().mapSDocument();
+    doMapping();
 
     assertFalse("There was no file to be compared in folder '" + testPath.
       getAbsolutePath() + "' and folder '" + tmpPath.getAbsolutePath() + "'.",
@@ -376,8 +379,7 @@ public class Salt2RelANNISMapperTest
     SaltSample.createSyntaxAnnotations(getFixture().getSDocument());
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 
-    getFixture().mapSCorpus();
-    getFixture().mapSDocument();
+    doMapping();
 
     assertFalse("There was no file to be compared in folder '" + testPath.
       getAbsolutePath() + "' and folder '" + tmpPath.getAbsolutePath() + "'.",
@@ -420,8 +422,7 @@ public class Salt2RelANNISMapperTest
     struct1Targets.add(struct3);
     SStructuredNode struct1 = graph.createSStructure(struct1Targets);
 
-    getFixture().mapSCorpus();
-    getFixture().mapSDocument();
+    doMapping();
     
     // check the pre/post-order and level
     TabFileComparator.checkEqual(testPath.getAbsolutePath() + "/rank.relannis", 
@@ -447,8 +448,7 @@ public class Salt2RelANNISMapperTest
     SaltSample.createAnaphoricAnnotations(getFixture().getSDocument());
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 
-    getFixture().mapSCorpus();
-    getFixture().mapSDocument();
+    doMapping();
 
     assertFalse("There was no file to be compared in folder '" + testPath.
       getAbsolutePath() + "' and folder '" + tmpPath.getAbsolutePath() + "'.",
@@ -477,8 +477,7 @@ public class Salt2RelANNISMapperTest
     SaltSample.createSDocumentStructure(getFixture().getSDocument());
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 
-    getFixture().mapSCorpus();
-    getFixture().mapSDocument();
+    doMapping();
 
     assertFalse("There was no file to be compared in folder '" + testPath.
       getAbsolutePath() + "' and folder '" + tmpPath.getAbsolutePath() + "'.",
@@ -492,6 +491,7 @@ public class Salt2RelANNISMapperTest
     SaltSample.createSDocumentStructure(getFixture().getSDocument());
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 
+	getFixture().setSCorpus(rootCorpus);
     getFixture().mapSCorpus();
 
     long startTime = 0l;
@@ -555,8 +555,7 @@ public class Salt2RelANNISMapperTest
 
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 
-    getFixture().mapSCorpus();
-    getFixture().mapSDocument();
+    doMapping();
 
     assertFalse("There was no file to be compared in folder '" + testPath.
       getAbsolutePath() + "' and folder '" + tmpPath.getAbsolutePath() + "'.",
@@ -593,8 +592,7 @@ public class Salt2RelANNISMapperTest
 
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 
-    getFixture().mapSCorpus();
-    getFixture().mapSDocument();
+    doMapping();
 
     assertFalse("There was no file to be compared in folder '" + testPath.
       getAbsolutePath() + "' and folder '" + tmpPath.getAbsolutePath() + "'.",
@@ -627,8 +625,7 @@ public class Salt2RelANNISMapperTest
 
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 
-    getFixture().mapSCorpus();
-    getFixture().mapSDocument();
+    doMapping();
 
     // check output files that only "order" is used as segmentation name
     Set<String> segNames = Files.readLines(new File(tmpPath, "node.relannis"),
@@ -677,8 +674,7 @@ public class Salt2RelANNISMapperTest
       expectedNames.add("order" + i);
     }
 
-    getFixture().mapSCorpus();
-    getFixture().mapSDocument();
+    doMapping();
 
     // check output files that only "order" is used as segmentation name
     Set<String> segNames = Files.readLines(new File(tmpPath, "node.relannis"),
