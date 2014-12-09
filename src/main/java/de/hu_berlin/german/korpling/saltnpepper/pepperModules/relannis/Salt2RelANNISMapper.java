@@ -528,7 +528,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 	 * @param preOrder
 	 * @param postOrder
 	 */
-	private void mapToCorpusTab(SNode sNode,Long id, Long preOrder, Long postOrder ){
+	private void mapToCorpusTab(SNode sNode,Long id, Long preOrder, Long postOrder){
 		TupleWriter corpusTabWriter = tw_corpus;
 		String idString = id.toString();
 		
@@ -544,6 +544,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 		String version = "NULL";
 		String pre = preOrder.toString();
 		String post = postOrder.toString();
+		String toplevel = preOrder == 0 ? "TRUE" : "FALSE";
 		if (sNode instanceof SDocument){
 			type = "DOCUMENT";
 		} else {
@@ -559,6 +560,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 		tuple.add(version);
 		tuple.add(pre);
 		tuple.add(post);
+		tuple.add(toplevel);
 		
 		long transactionId = corpusTabWriter.beginTA();
 		try {
