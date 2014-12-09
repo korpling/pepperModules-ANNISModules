@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.hu_berlin.german.korpling.saltnpepper.misc.tupleconnector.TupleWriter;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperMapper;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleException;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.Salt2RelANNISMapper.TRAVERSION_TYPE;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.GRAPH_TRAVERSE_TYPE;
@@ -55,7 +54,7 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 	private void mapSTimeline(STimelineRelation timelineRelation, Hashtable<String,STimelineRelation> minimalTimelineRelations,EList<STimelineRelation> minimalTimelineRelationList,boolean minimal){
 		
 		// define a new component
-		this.currentComponentId = idManager.getNewComponentId();
+		this.currentComponentId = idManager.getGlobal().getNewComponentId();
 		this.currentComponentType = "c";
 		this.currentComponentLayer = "VIRTUAL";
 		this.currentComponentName = "timelineRelationMapping";
@@ -71,14 +70,14 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 		virtualSpanSId = virtualSpanSId+"_virtualSpan";
 		String virtualSpanName = tok.getSName()+"_virtualSpan";
 		
-		IdManager.VirtualNodeID virtualSpanId = this.idManager.getVirtualNodeId(virtualSpanSId);
+		VirtualNodeID virtualSpanId = idManager.getVirtualNodeId(virtualSpanSId);
 		EList<Long> virtualTokenIds = new BasicEList<Long>();
 		
 		if (minimal)
 		{ // map a timeline which has only one virtual token
 			String virtualTokenName = tok.getSName() + "_virtualToken";
 			
-			IdManager.VirtualNodeID virtualTokenId = this.idManager.getVirtualNodeId(virtualTokenName);
+			VirtualNodeID virtualTokenId = idManager.getVirtualNodeId(virtualTokenName);
 
 			virtualTokenIds.add(virtualTokenId.getNodeID());
 			Long tokenIndex = (long)minimalTimelineRelationList.indexOf(timelineRelation);
@@ -127,7 +126,7 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 				String virtualTokenName = overlappedToken.getSName() + "_virtualToken";//+ virtualTokenPostfix;
 				//virtualTokenPostfix = virtualTokenPostfix + 1;
 				
-				IdManager.VirtualNodeID virtualTokenId = this.idManager.getVirtualNodeId(virtualTokenName);
+				VirtualNodeID virtualTokenId = idManager.getVirtualNodeId(virtualTokenName);
 				virtualTokenIds.add(virtualTokenId.getNodeID());
 			} // create the list of virtual token ids
 		} // map a timeline which has more than one virtual token
@@ -171,12 +170,12 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 			 *  virtSpan -> virtTokn
 			 */
 			this.prePostOrder = (long) 1;
-			Long parentRank = this.idManager.getNewRankId();
+			Long parentRank = idManager.getGlobal().getNewRankId();
 			{// Step 1: map all virtSpan -> virtTok_i
 				for (Long tokId : virtualTokenIds){
 					EList<String> rankEntry = new BasicEList<String>();
 
-					rankEntry.add(this.idManager.getNewRankId().toString());
+					rankEntry.add(Long.toString(idManager.getGlobal().getNewRankId()));
 					rankEntry.add(this.getNewPPOrder().toString());
 					rankEntry.add(this.getNewPPOrder().toString());
 					rankEntry.add(tokId.toString());

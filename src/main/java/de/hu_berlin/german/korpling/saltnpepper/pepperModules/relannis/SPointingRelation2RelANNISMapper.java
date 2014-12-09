@@ -22,7 +22,8 @@ public class SPointingRelation2RelANNISMapper extends SRelation2RelANNISMapper  
 			TupleWriter edgeAnnoTabWriter, TupleWriter componentTabWriter,
       Salt2RelANNISMapper parentMapper) {
 		
-		super(idManager, documentGraph, nodeTabWriter, nodeAnnoTabWriter,
+		super(idManager,
+				documentGraph, nodeTabWriter, nodeAnnoTabWriter,
 				rankTabWriter, edgeAnnoTabWriter, componentTabWriter,
         parentMapper);
 		

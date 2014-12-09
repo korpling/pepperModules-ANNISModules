@@ -3,6 +3,7 @@ package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.tests;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import com.google.common.io.LineProcessor;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.GlobalIdManager;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.IdManager;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.RelANNIS;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.RelANNISExporter;
@@ -92,7 +93,8 @@ public class Salt2RelANNISMapperTest
 
     getFixture().isTestMode = true;
 
-    IdManager idManager = new IdManager();
+	GlobalIdManager globalIdManager = new GlobalIdManager();
+    IdManager idManager = new IdManager(globalIdManager);
     getFixture().setIdManager(idManager);
 
     tmpPath = new File(globalTmpPath.getAbsoluteFile() + File.separator + name.

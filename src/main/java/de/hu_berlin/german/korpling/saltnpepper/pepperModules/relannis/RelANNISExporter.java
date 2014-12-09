@@ -69,7 +69,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 		public PepperMapper createPepperMapper(SElementId sElementId)
 		{
 			Salt2RelANNISMapper mapper  = new Salt2RelANNISMapper();
-			mapper.setIdManager(getIdManager());
+			mapper.setIdManager(new IdManager(globalIdManager));
 			mapper.tw_text= tw_text;
 			mapper.tw_node= tw_node;
 			mapper.tw_nodeAnno= tw_nodeAnno;
@@ -194,7 +194,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 				}
 			}
 			
-			this.idManager = new IdManager();
+			this.globalIdManager = new GlobalIdManager();
       
       // write versions file
       File versionFile = new File(getCorpusDesc().getCorpusPath().toFileString(), "relannis.version");      
@@ -319,10 +319,10 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 		
 		// ------------------------- IdManager
 		/** object to manage relANNIS ids**/
-		private IdManager idManager;
+		private GlobalIdManager globalIdManager;
 		/** returns singleton object to manage relANNIS ids**/
-		public IdManager getIdManager(){
-			return this.idManager;
+		public GlobalIdManager getGlobalIdManager(){
+			return this.globalIdManager;
 		}
 
 }

@@ -11,43 +11,45 @@ import org.eclipse.emf.common.util.EList;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpus;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualDS;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class IdManager {
 
-	private ConcurrentHashMap<String,Long> nodeIdMap;
-	private ConcurrentHashMap<String,Long> virtualNodeIdMap;
+	private final GlobalIdManager globalIdManager;
+	
 	private ConcurrentHashMap<String,Long> corpusTabIdMap;
 	private ConcurrentHashMap<String,Long> textIdMap;
 	private ConcurrentHashMap<String,EList<Long>> tokenVirtualisationMapping;
 	private ConcurrentHashMap<String,Long> spanVirtualisationMapping;
 	
-	private Long nodeId = 0l;
-	private Long componentId = 0l;
-	private Long rankId = 0l;
-	private Long corpusId = 0l;
+	private final Lock lockNodeIdMap = new ReentrantLock();
+	private final Map<String,Long> nodeIdMap = new HashMap<String, Long>();
+	
+	private final Lock lockVirtualNodeIdMap = new ReentrantLock();
+	private final Map<String,Long> virtualNodeIdMap = new HashMap<String, Long>();
+	
 	private Long textId = 0l;
 	
-	// states whether virtual tokens and spans are managed
-	private boolean containsVirtualTokens = false;
+	
 	// the virtual tokens which are sorted by their point of time
 	private EList<Long> virtualTokenIdList = null;
 	
 	protected Hashtable<String,SegmentationInfo> segmentationInfoTable = null;
 	
-	public IdManager() {
-		this.nodeId = 0l;
-		this.nodeIdMap = new ConcurrentHashMap<String, Long>();
+	public IdManager(GlobalIdManager globalIdManager) {
+
+		this.globalIdManager = globalIdManager;
+		
 		this.corpusTabIdMap = new ConcurrentHashMap<String, Long>();
 		this.textIdMap = new ConcurrentHashMap<String, Long>();
-		this.virtualNodeIdMap = new ConcurrentHashMap<String, Long>();
 		this.tokenVirtualisationMapping = new ConcurrentHashMap<String, EList<Long>>();
 		this.spanVirtualisationMapping = new ConcurrentHashMap<String, Long>();
 		
 		this.virtualTokenIdList = new BasicEList<Long>();
 		
-		this.componentId = 0l;
-		this.rankId = 0l;
-		this.corpusId = 0l;
 		this.textId = 0l;
 		
 		this.segmentationInfoTable = new Hashtable<String, SegmentationInfo>();
@@ -58,7 +60,7 @@ public class IdManager {
 	 * @return true, if virtual tokens are existent and false, else
 	 */
 	public synchronized boolean hasVirtualTokenization(){
-		return this.containsVirtualTokens;
+		return getGlobal().containsVirtualTokens();
 	}
 	
 	/**
@@ -72,56 +74,8 @@ public class IdManager {
 		returnVal = new ImmutablePair<Long, Long>((long)virtualTokenIdList.indexOf(leftTokenRAId), (long)virtualTokenIdList.indexOf(rightTokenRAId));
 		return returnVal;
 	}
-	
-	/**
-	 * This method returns an unique node tab RelANNIS id for the 
-	 * node with the specified {@link SElementId}. Also, the method returns a boolean
-	 * which specifies whether the RelANNIS id is fresh.
-	 * @param sElementId the {@link SElementId} of the node
-	 * @return a pair <Long,Boolean> which is the RelANNIS node tab id and
-	 * 		a boolean which specifies whether the id is fresh.
-	 */
-	public Pair<Long,Boolean> getNewNodeId(String sElementId){
-		boolean isNew = false;
-		Long newId = this.nodeIdMap.get(sElementId);
-		if (newId == null){
-			synchronized (this) {
-				if (newId == null){
-					// no Id found. Create a new one
-					isNew = true;
-					newId = this.nodeId;
-					this.nodeIdMap.put(sElementId, nodeId);
-					this.nodeId += 1;
 
-				}
-			}
-		}
-		return new ImmutablePair<Long,Boolean>(newId,isNew);
-	}
 	
-	/**
-	 * This method returns a RelANNIS id for a virtual node specified by the given string parameter.
-	 * @param sElementId The element id
-	 * @return a pair <Long,Boolean> which is the RelANNIS node tab id and
-	 * 		a boolean which specifies whether the id is fresh.
-	 */
-	public VirtualNodeID getVirtualNodeId(String sElementId){
-		boolean isNew = false;
-		Long newId = this.virtualNodeIdMap.get(sElementId);
-		if (newId == null){
-			synchronized (this) {
-				if (newId == null){
-					// no Id found. Create a new one
-					isNew = true;
-					newId = this.nodeId;
-					this.virtualNodeIdMap.put(sElementId, nodeId);
-					this.nodeId += 1;
-
-				}
-			}
-		}
-		return new VirtualNodeID(newId, isNew);
-	}
 	
 	/**
 	 * This method registers a segment index, segment name and segment span for the node specified by the {@link SElementId}
@@ -161,7 +115,7 @@ public class IdManager {
 	 * @param virtualTokenIds The RelANNIS ids of the virtual tokens
 	 */
 	public synchronized void registerTokenVirtMapping(String tokenId, Long virtualSpanId, EList<Long> virtualTokenIds){
-		this.containsVirtualTokens = true;
+		globalIdManager.setContainsVirtualTokens(true);
 		if (! this.tokenVirtualisationMapping.contains(tokenId)){
 			this.tokenVirtualisationMapping.put(tokenId, virtualTokenIds);
 		}
@@ -192,31 +146,6 @@ public class IdManager {
 		return this.spanVirtualisationMapping.get(tokenId);
 	}
 	
-	/**
-	 * This method returns a new component id.
-	 * @return The component id
-	 */
-	public Long getNewComponentId(){
-		Long newId = null;
-		synchronized (this) {
-			newId = this.componentId;
-			this.componentId += 1;
-		}
-		return newId;
-	}
-	
-	/**
-	 * This method returns a new rank id.
-	 * @return The new rank id
-	 */
-	public Long getNewRankId(){
-		Long newId = null;
-		synchronized (this) {
-			newId = this.rankId;
-			this.rankId += 1;
-		}
-		return newId;
-	}
 	
 	/**
 	 * This method returns the corpus tab id of the {@link SCorpus} or {@link SDocument} specified by the {@link SElementId} sElementId
@@ -229,15 +158,72 @@ public class IdManager {
 			synchronized (this) {
 				if (newId == null){
 					// no Id found. Create a new one
-					newId = this.corpusId;
+					newId = getGlobal().getNewCorpusId();
 					//System.out.println("Added new Element "+sElementId.getValueString()+" with id "+newId.toString());
-					this.corpusTabIdMap.put(sElementId, corpusId);
-					this.corpusId += 1;
+					this.corpusTabIdMap.put(sElementId, newId);
 
 				}
 			}
 		}
 		return newId;
+	}
+	
+	
+	/**
+	 * This method returns a RelANNIS id for a virtual node specified by the given string parameter.
+	 * @param sElementId The element id
+	 * @return a pair <Long,Boolean> which is the RelANNIS node tab id and
+	 * 		a boolean which specifies whether the id is fresh.
+	 */
+	public VirtualNodeID getVirtualNodeId(String sElementId){
+		boolean isNew = false;
+		Long id = null;
+		
+		lockVirtualNodeIdMap.lock();
+		try
+		{
+			id = this.virtualNodeIdMap.get(sElementId);
+			if(id == null) {
+				id = getGlobal().getNewNodeId();
+				virtualNodeIdMap.put(sElementId, id);
+				isNew = true;
+			}
+		}
+		finally {
+			lockVirtualNodeIdMap.unlock();
+		}
+		return new VirtualNodeID(id, isNew);
+	}
+	
+	/**
+	 * This method returns an unique node tab RelANNIS id for the 
+	 * node with the specified {@link SElementId}. Also, the method returns a boolean
+	 * which specifies whether the RelANNIS id is fresh.
+	 * @param sElementId the {@link SElementId} of the node
+	 * @return a pair <Long,Boolean> which is the RelANNIS node tab id and
+	 * 		a boolean which specifies whether the id is fresh.
+	 */
+	public Pair<Long,Boolean> getNewNodeId(String sElementId){
+		
+		
+		boolean isNew = false;
+		Long id = null;
+		
+		lockNodeIdMap.lock();
+		try
+		{
+			id = nodeIdMap.get(sElementId);
+			if(id == null)
+			{
+				id = getGlobal().getNewNodeId();
+				nodeIdMap.put(sElementId, id);
+				isNew = true;
+			}
+		}
+		finally {
+			lockNodeIdMap.unlock();
+		}
+		return new ImmutablePair<Long,Boolean>(id,isNew);
 	}
 	
 	/**
@@ -246,7 +232,7 @@ public class IdManager {
 	 * @return The text tab id which is 0, if this class currently manages virtual tokens.
 	 */
 	public Long getNewTextId(String sElementId){
-		if (this.containsVirtualTokens)
+		if (getGlobal().containsVirtualTokens())
 		{
 			return 0l;
 		}
@@ -255,7 +241,7 @@ public class IdManager {
 			Long newId = this.textIdMap.get(sElementId);
 			if (newId == null){
 				synchronized (this) {
-					if (this.containsVirtualTokens){
+					if (getGlobal().containsVirtualTokens()){
 						return 0l;
 					}
 					if (newId == null){
@@ -271,25 +257,8 @@ public class IdManager {
 		}	
 	}
 	
-	
-	public static class VirtualNodeID
-	{
-		private long nodeID;
-		private boolean fresh;
-		
-		
-		public VirtualNodeID(long nodeID, boolean fresh) {
-			super();
-			this.nodeID = nodeID;
-			this.fresh = fresh;
-		}
-		public long getNodeID() {
-			return nodeID;
-		}
-		public boolean isFresh() {
-			return fresh;
-		}
-		
-		
+	public GlobalIdManager getGlobal() {
+		return globalIdManager;
 	}
+	
 }
