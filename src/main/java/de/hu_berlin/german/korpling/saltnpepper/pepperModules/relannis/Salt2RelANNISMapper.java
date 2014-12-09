@@ -153,15 +153,24 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 				{
 					throw new PepperModuleException(this, "Cannot traverse through corpus structure, because there is no Corpus-object as root.");
 				}
-				
-				// set the SName of the corpus graph root to the individual one
-				if (this.individualCorpusName != null){
-					this.individualCorpusNameReplacement = new ImmutablePair<String, String>(roots.get(0).getSName(), this.individualCorpusName);
-					//roots.get(0).setSName(this.individualCorpusName);
-				}
-				//set traversion type to corpus structure
-				this.currTraversionType= TRAVERSION_TYPE.CORPUS_STRUCTURE;
-				sCorpusGraph.traverse(roots, GRAPH_TRAVERSE_TYPE.TOP_DOWN_DEPTH_FIRST, "compute_corpus_structure", this);
+        
+        if(roots.size() > 1)
+        {
+          throw new PepperModuleException(this, "Only one root corpus is allowed for relANNIS export");
+        }
+        
+        // check if we are called for the root corpus
+        if(getSCorpus() != null && roots.contains(getSCorpus()))
+        {
+          // set the SName of the corpus graph root to the individual one
+          if (this.individualCorpusName != null){
+            this.individualCorpusNameReplacement = new ImmutablePair<String, String>(roots.get(0).getSName(), this.individualCorpusName);
+            //roots.get(0).setSName(this.individualCorpusName);
+          }
+          //set traversion type to corpus structure
+          this.currTraversionType= TRAVERSION_TYPE.CORPUS_STRUCTURE;
+          sCorpusGraph.traverse(roots, GRAPH_TRAVERSE_TYPE.TOP_DOWN_DEPTH_FIRST, "compute_corpus_structure", this);
+        }
 			}catch (Exception e) {
 				throw new PepperModuleException(this, "Some error occurs while traversing corpus structure graph.", e);
 			}
