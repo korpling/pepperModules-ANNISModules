@@ -38,7 +38,7 @@ public class SSpanningRelation2RelANNISMapper extends SRelation2RelANNISMapper  
 	@Override
 	public void run(){
 
-    beginTransaction();
+		beginTransaction();
 		if (sRelationRoots != null && sRelationRoots.size() != 0){
 			for (SNode node : sRelationRoots){
 				
@@ -71,7 +71,7 @@ public class SSpanningRelation2RelANNISMapper extends SRelation2RelANNISMapper  
 			}
 		}
     
-    commitTransaction();
+		commitTransaction();
 	}
 	
 	@Override
@@ -89,7 +89,7 @@ public class SSpanningRelation2RelANNISMapper extends SRelation2RelANNISMapper  
     Long rankId, Long preOrder, Long postOrder, Long parentRank, Long level)
   {
     boolean doMapping = true;
-    if(sRelation != null && targetNode instanceof SToken)
+    if(sRelation instanceof SSpanningRelation && targetNode instanceof SToken)
     {
       if(sRelation.getSAnnotations() != null && !sRelation.getSAnnotations().isEmpty())
       {

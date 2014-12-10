@@ -11,6 +11,8 @@ import org.eclipse.emf.common.util.EList;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpus;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualDS;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
@@ -224,6 +226,31 @@ public class IdManager {
 			lockNodeIdMap.unlock();
 		}
 		return new ImmutablePair<Long,Boolean>(id,isNew);
+	}
+	
+	/**
+	 * This method returns the unique node tab RelANNIS id for the 
+	 * node with the specified {@link SElementId}. 
+	 * @param node the node
+	 * @return the ID if an ID was already given, NULL otherwise
+	 */
+	public Long getNodeId(SNode node){
+		
+		if(node == null)
+		{
+			return null;
+		}
+		Long id = null;
+		
+		lockNodeIdMap.lock();
+		try
+		{
+			id = nodeIdMap.get(node.getSId());
+		}
+		finally {
+			lockNodeIdMap.unlock();
+		}
+		return id;
 	}
 	
 	/**

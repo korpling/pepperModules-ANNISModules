@@ -120,7 +120,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 		return sCorpusGraph;
 	}
 // -------------------------end: SCorpusGraph
-	enum TRAVERSION_TYPE {	CORPUS_STRUCTURE, 
+	public enum TRAVERSION_TYPE {	CORPUS_STRUCTURE, 
 							DOCUMENT_STRUCTURE_TOKEN,
 							DOCUMENT_STRUCTURE_CR, 
 							DOCUMENT_STRUCTURE_DR, 

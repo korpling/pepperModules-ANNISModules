@@ -81,8 +81,8 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 
 			virtualTokenIds.add(virtualTokenId.getNodeID());
 			Long tokenIndex = (long)minimalTimelineRelationList.indexOf(timelineRelation);
-      token_left = tokenIndex;
-      token_right = tokenIndex;
+			token_left = tokenIndex;
+			token_right = tokenIndex;
         
 			if (virtualTokenId.isFresh())
 			{ // this is a new virtual token
@@ -171,30 +171,22 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 			 */
 			this.prePostOrder = (long) 1;
 			Long parentRank = idManager.getGlobal().getNewRankId();
+			
 			{// Step 1: map all virtSpan -> virtTok_i
-				for (Long tokId : virtualTokenIds){
-					EList<String> rankEntry = new BasicEList<String>();
-
-					rankEntry.add(Long.toString(idManager.getGlobal().getNewRankId()));
-					rankEntry.add(this.getNewPPOrder().toString());
-					rankEntry.add(this.getNewPPOrder().toString());
-					rankEntry.add(tokId.toString());
-					rankEntry.add(this.currentComponentId.toString());
-					rankEntry.add(parentRank.toString());
-					rankEntry.add("1");
-          
-          TupleWriter rankTabWriter = writers.get(SRelation2RelANNISMapper.OutputTable.RANK);
-          
-					Long transactionId = rankTabWriter.beginTA();
-					try {
-						rankTabWriter.addTuple(transactionId, rankEntry);
-						rankTabWriter.commitTA(transactionId);
-					} catch (FileNotFoundException e) {
-						throw new PepperModuleException("Could not write to the rank tab TupleWriter. Exception is: "+e.getMessage(),e);
-					}
+				for (Long tokId : virtualTokenIds) {
+					// mapping of rank entry from virtSpan -> virtTok_i is omitted
+					// thus we don't output the rankEntry but only
+					// update the pre/post order values
+					
+					// pre
+					this.getNewPPOrder();
+					// post
+					this.getNewPPOrder();
+					
 				}
 			}
-			{// step 2: map NULL -> virtSpan
+			
+			{// map NULL -> virtSpan
 				EList<String> rankEntry = new BasicEList<String>();
 
 				rankEntry.add(parentRank.toString());
@@ -202,16 +194,10 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 				rankEntry.add(this.getNewPPOrder().toString());
 				rankEntry.add("" + virtualSpanId.getNodeID());
 				rankEntry.add(this.currentComponentId.toString());
-				rankEntry.add(new String("NULL"));
+				rankEntry.add("NULL");
 				rankEntry.add("0");
-        TupleWriter rankTabWriter = writers.get(SRelation2RelANNISMapper.OutputTable.RANK);
-				Long transactionId = rankTabWriter.beginTA();
-				try {
-					rankTabWriter.addTuple(transactionId, rankEntry);
-					rankTabWriter.commitTA(transactionId);
-				} catch (FileNotFoundException e) {
-					throw new PepperModuleException("Could not write to the rank tab TupleWriter. Exception is: "+e.getMessage(),e);
-				}
+				
+				addTuple(OutputTable.RANK, rankEntry);
 			}
 		}
 	}
@@ -345,30 +331,30 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
     
     beginTransaction();
 		
-		if (sRelationRoots != null && sRelationRoots.size() != 0){
-			
-      appendIndex = sRelationRoots.size() > 1;
-      
+		if (sRelationRoots != null && sRelationRoots.size() != 0) {
+
+			appendIndex = sRelationRoots.size() > 1;
+
 			// Step 1: traverse the SOrderRelations
-			for (SNode node : sRelationRoots){
+			for (SNode node : sRelationRoots) {
 				EList<SNode> singleRootList = new BasicEList<SNode>();
 				singleRootList.add(node);
-						
-				this.documentGraph.traverse(singleRootList, GRAPH_TRAVERSE_TYPE.TOP_DOWN_DEPTH_FIRST,"", this);
+
+				this.documentGraph.traverse(singleRootList, GRAPH_TRAVERSE_TYPE.TOP_DOWN_DEPTH_FIRST, "", this);
 				this.segPathCounter = this.segPathCounter + 1;
 				this.seg_index = 0l;
 			}
-			
+
 			// Step 2: map the timeline relations, if existent
-			if (this.documentGraph.getSTimelineRelations() != null){
-				if (this.documentGraph.getSTimelineRelations().size() > 0){
+			if (this.documentGraph.getSTimelineRelations() != null) {
+				if (this.documentGraph.getSTimelineRelations().size() > 0) {
 					this.createVirtualTokenization();
 				}
-			} 
-			
+			}
+
 		}
-    
-    commitTransaction();
+
+		commitTransaction();
 		
 	}
 	
@@ -381,44 +367,41 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 		
 		
 		//if (sRelation != null & sRelation instanceof SOrderRelation){
-			//System.out.println("found relation "+ fromNode.getSName() +" ->["+sRelation.getSId()+"] "+currNode.getSName());
-			//System.out.println("Traversal id is: "+traversalId);
-			//if (sRelation.getSTypes() != null){
-				//if (sRelation.getSTypes().size() > 0){
-					// set the segName, segIndex and segSpan
-					String name;
-					if (appendIndex)
-          {
-						name = this.currentTraversionSType + segPathCounter;
-					} else
-          {
-						name = this.currentTraversionSType;
+		//System.out.println("found relation "+ fromNode.getSName() +" ->["+sRelation.getSId()+"] "+currNode.getSName());
+		//System.out.println("Traversal id is: "+traversalId);
+		//if (sRelation.getSTypes() != null){
+		//if (sRelation.getSTypes().size() > 0){
+		// set the segName, segIndex and segSpan
+		String name;
+		if (appendIndex) {
+			name = this.currentTraversionSType + segPathCounter;
+		} else {
+			name = this.currentTraversionSType;
+		}
+
+		Long segIndex = this.seg_index;
+		this.seg_index = this.seg_index + 1;
+		String segSpan = "NULL";
+		if(currNode instanceof SToken)
+		{
+			SDocumentGraph g = ((SToken) currNode).getSDocumentGraph();
+			if(g != null)
+			{
+				segSpan = g.getSText((SToken) currNode);
+			}
+		} else	{
+			// find the annotation value with the same name as the segmentation chain
+			EList<SAnnotation> annos = currNode.getSAnnotations();
+			if (annos != null) {
+				for (SAnnotation a : annos) {
+					if (name.equals(a.getSName())) {
+						segSpan = a.getSValueSTEXT();
+						break;
 					}
-          
-					Long segIndex = this.seg_index;
-					this.seg_index = this.seg_index + 1;
-					String segSpan = "NULL";
-          // find the annotation value with the same name as the segmentation chain
-          EList<SAnnotation> annos = currNode.getSAnnotations();
-          if(annos != null)
-          {
-            for(SAnnotation a : annos)
-            {
-              if(name.equals(a.getSName()))
-              {
-                segSpan = a.getSValueSTEXT();
-                break;
-              }
-            }
-          }
-					this.idManager.addSegmentInformation(currNode.getSId(), segIndex, name, segSpan);
-					
-					//System.out.println("SType is "+this.currentComponentName);
-				//}
-			//}
-		//}
-		
-		
+				}
+			}
+		}
+		this.idManager.addSegmentInformation(currNode.getSId(), segIndex, name, segSpan);
 	}
 
 	@Override

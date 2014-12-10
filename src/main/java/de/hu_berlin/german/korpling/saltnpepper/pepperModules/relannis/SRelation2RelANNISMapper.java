@@ -1,6 +1,5 @@
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis;
 
-import com.google.common.base.Preconditions;
 import java.io.FileNotFoundException;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -10,7 +9,6 @@ import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 
 import de.hu_berlin.german.korpling.saltnpepper.misc.tupleconnector.TupleWriter;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperMapper;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleException;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.Salt2RelANNISMapper.TRAVERSION_TYPE;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.Edge;
@@ -22,7 +20,6 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructu
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SGraphTraverseHandler;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
@@ -58,7 +55,6 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 // =================================== Constructor ============================ 
 	/**
 	 * @param idManager
-	 * @param globalIdManager 
 	 * @param documentGraph
 	 * @param nodeTabWriter
 	 * @param nodeAnnoTabWriter
@@ -123,7 +119,7 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 		rankLevel = 0l;
 
 		// initialise the pre and post order table
-		preorderTable = new Hashtable<SNode, Long>();
+		preorderTable = new Hashtable<Long, Long>();
 
 		// initialise the preorder
 		prePostOrder = 0l;
@@ -131,7 +127,7 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 		this.virtualNodes = new HashSet<SNode>();
 
 		// initialise rank Hashtable
-		this.rankTable = new Hashtable<SNode, Long>();
+		this.rankTable = new Hashtable<Long, Long>();
 	}
 
 	protected void commitTransaction() {
@@ -196,14 +192,14 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 	protected Long prePostOrder = null;
 
 	/**
-	 * These tables contain the SNodes as key and the preorder as value.
+	 * These tables contain the internal node IDs as key and the preorder as value.
 	 */
-	protected Hashtable<SNode, Long> preorderTable;
+	private Hashtable<Long, Long> preorderTable;
 
 	/**
-	 * Every SNode is a target of a rank and the Long is the id of the Rank
+	 * Every internal node iD is a target of a rank and the Long is the id of the Rank
 	 */
-	protected Hashtable<SNode, Long> rankTable;
+	protected Hashtable<Long, Long> rankTable;
 
 	/**
 	 * returns a new and unique ppOrder
@@ -241,77 +237,43 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 			}
 		}
 
-		if (this.preorderTable.contains(currNode)) {
-			// this should NOT happen
-			throw new RuntimeException("Impossible traversal state");
+		
+		Long rankId;
+		EList<Long> virtualTokenIds = this.idManager.getVirtualisedTokenId(currNode.getSId());
 
-		} else {
-			Long rankId = null;
-			EList<Long> virtualTokenIds = this.idManager.getVirtualisedTokenId(currNode.getSId());
-			// if there are virtual token ids, the virtual tokens were already mapped into the node.tab
-			// We have to create n ranks where n is the count of virtual token ids.
-			// all ranks have the same annotations
-			if (virtualTokenIds != null) { // THERE ARE VIRTUAL TOKEN IDS
-				if (this.traversionType.equals(TRAVERSION_TYPE.DOCUMENT_STRUCTURE_PR)) { // HANDLE POINTING RELATIONS
-					// They are redirected to the virtual spans
-					virtualTokenIds = new BasicEList<Long>();
-					virtualTokenIds.add(this.idManager.getVirtualisedSpanId(currNode.getSId()));
-					//System.out.println("Mapping pointing relations concerning a virtual token/span");
-				} // HANDLE POINTING RELATIONS
-				// set virtual token rank mapping
-				this.virtualNodes.add(currNode);
-
-				for (Long virtualTokenId : virtualTokenIds) {
-					// get a rank id
-					rankId = idManager.getGlobal().getNewRankId();
-
-					Long parentRank = null;
-					if (fromNode != null) {
-						parentRank = this.rankTable.get(fromNode);
-					}
-					Long pre = this.getNewPPOrder();
-					Long post = this.getNewPPOrder();
-
-					if (this.traversionType.equals(TRAVERSION_TYPE.DOCUMENT_STRUCTURE_PR)) {
-						//System.out.println("Mapping PointingRelation rank to node with Id "+virtualTokenId);
-						this.preorderTable.put(currNode, pre);
-						this.rankTable.put(currNode, rankId);
-					}
-
-					{ // map the rank
-						EList<String> rankEntry = new BasicEList<String>();
-						rankEntry.add(rankId.toString());
-						rankEntry.add(pre.toString());
-						rankEntry.add(post.toString());
-						rankEntry.add(virtualTokenId.toString());
-						rankEntry.add(this.currentComponentId.toString());
-						if (parentRank == null) {
-							rankEntry.add(new String("NULL"));
-						} else {
-							rankEntry.add(parentRank.toString());
-						}
-						rankEntry.add(this.rankLevel.toString());
-
-						addTuple(OutputTable.RANK, rankEntry);
-					} // map the rank
-					if (sRelation != null) { // MAP THE SAnnotations
-						if (sRelation.getSAnnotations() != null) {
-							for (SAnnotation sAnnotation : sRelation.getSAnnotations()) {
-								this.mapSAnnotation2RelANNIS(rankId, sAnnotation);
-							}
-						}
-					} // MAP THE SAnnotations
-				} // MAP VIRTUAL RANK 
-			} // THERE ARE NO VIRTUAL TOKEN IDs	
-			else { // MAP NORMAL RANK
-				// set the rank id
+		// If there are virtual token IDs for a node and we are handling the 
+		// mapping of spans, we need map each span relation to potentially several token.
+		// Thus we need a special handling for this case. Good thing is, 
+		// that since these are spans we already now the post-order and don't
+		// have to make a very special handling in nodeLeft()
+		if(virtualTokenIds != null && traversionType.equals(TRAVERSION_TYPE.DOCUMENT_STRUCTURE_CR)) {
+			
+			for (Long virtualTokenId : virtualTokenIds) {
+				// get a rank id
 				rankId = idManager.getGlobal().getNewRankId();
-				// It does not have a pre-order. Set it.
-				this.preorderTable.put(currNode, this.getNewPPOrder());
-				//System.out.println("Reached node: "+currNode.getSName()+ " with pre "+this.preorderTable.get(currNode));
-				// map the target node
-				this.mapSNode(currNode);
-				this.rankTable.put(currNode, rankId);
+
+				Long parentRank = null;
+				if (fromNode != null) {
+					parentRank = this.rankTable.get(idManager.getNodeId(fromNode));
+				}
+				Long pre = this.getNewPPOrder();
+				Long post = this.getNewPPOrder();
+				
+				EList<String> rankEntry = new BasicEList<String>();
+				rankEntry.add(rankId.toString());
+				rankEntry.add(pre.toString());
+				rankEntry.add(post.toString());
+				rankEntry.add(virtualTokenId.toString());
+				rankEntry.add(this.currentComponentId.toString());
+				if (parentRank == null) {
+					rankEntry.add("NULL");
+				} else {
+					rankEntry.add(parentRank.toString());
+				}
+				rankEntry.add(this.rankLevel.toString());
+
+				addTuple(OutputTable.RANK, rankEntry);
+				
 				// map the SAnnotations
 				if (sRelation != null) {
 					if (sRelation.getSAnnotations() != null) {
@@ -320,10 +282,34 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 						}
 					}
 				}
-			}// MAP NORMAL RANK
-
-			this.rankLevel += 1;
+			}
+			
 		}
+		else {
+			// replace the current node with the virtual span if necessary
+			Long currentNodeID;
+			if(virtualTokenIds != null) {
+				currentNodeID = idManager.getVirtualisedSpanId(currNode.getSId());
+			}
+			else {
+				// map the target node
+				currentNodeID = this.mapSNode(currNode);
+			}
+//			if (this.preorderTable.containsKey(currentNodeID)) {
+//				// this should NOT happen
+//				throw new RuntimeException("Impossible traversal state, ID " + currentNodeID + " traversed twice");
+//
+//			}
+			// set the rank id
+			rankId = idManager.getGlobal().getNewRankId();
+			// It does not have a pre-order. Set it.
+			this.preorderTable.put(currentNodeID, this.getNewPPOrder());
+
+			this.rankTable.put(currentNodeID, rankId);
+			
+		}
+
+		this.rankLevel += 1;
 	}
 
 	@Override
@@ -332,28 +318,31 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 
 		// We've got the rank
 		// fromNode -> edge -> currNode
-		// only do something if we are not mapping a rank to a virtual token
-		if (!this.virtualNodes.contains(currNode)) {
-			Long parentRank = null;
-			if (fromNode != null) {
-				parentRank = this.rankTable.get(fromNode);
-			}
-			Long rankId = this.rankTable.get(currNode);
-			Long pre = this.preorderTable.get(currNode);
+		Long currNodeID = idManager.getNodeId(currNode);
+		if(virtualNodes.contains(currNode))
+		{
+			currNodeID = idManager.getVirtualisedSpanId(currNode.getSId());
+		}
+		
+		Long parentRank = null;
+		if (fromNode != null) {
+			parentRank = this.rankTable.get(idManager.getNodeId(fromNode));
+		}
+		Long rankId = this.rankTable.get(currNodeID);
+		Long pre = this.preorderTable.get(currNodeID);
+		if(rankId != null && pre != null)
+		{
 			Long post = this.getNewPPOrder();
-				//System.out.println("Leaving node: "+currNode.getSName()+ " with post "+post);
-
+		
 			// decrease the rank level
 			this.rankLevel -= 1;
-
+		
 			this.mapRank2RelANNIS(edge, currNode, rankId, pre, post, parentRank, rankLevel);
-		} else {
-			// decrease the rank level
+		}
+		else {
 			this.rankLevel -= 1;
 		}
-
-			//}
-		//}
+		
 	}
 
 	protected void addTuple(OutputTable table, Collection<String> tuple) {
@@ -440,12 +429,12 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 		EList<String> rankEntry = new BasicEList<String>();
 
 		rankEntry.add(rankId.toString());
-		rankEntry.add(this.preorderTable.get(targetNode).toString());
+		rankEntry.add(this.preorderTable.get(idManager.getNodeId(targetNode)).toString());
 		rankEntry.add(postOrder.toString());
 		rankEntry.add(idManager.getNewNodeId(targetNode.getSId()).getLeft().toString());
 		rankEntry.add(this.currentComponentId.toString());
 		if (parentRank == null) {
-			rankEntry.add(new String("NULL"));
+			rankEntry.add("NULL");
 		} else {
 			rankEntry.add(parentRank.toString());
 		}
@@ -470,7 +459,7 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 		if (sAnnotation.getSNS() != null) {
 			edgeAnnotationEntry.add(sAnnotation.getSNS());
 		} else {
-			edgeAnnotationEntry.add(new String("default_ns"));
+			edgeAnnotationEntry.add("default_ns");
 		}
 		edgeAnnotationEntry.add(sAnnotation.getSName());
 		edgeAnnotationEntry.add(sAnnotation.getSValueSTEXT());
@@ -490,29 +479,29 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 		}
 	}
 
-	public void mapSNode(SNode sNode) {
+	public Long mapSNode(SNode sNode) {
 		SegmentationInfo segInfo = this.idManager.getSegmentInformation(sNode.getSId());
 		if (segInfo != null) {
-			this.mapSNode(sNode, segInfo.getRelANNISId(), segInfo.getSegmentationName(), segInfo.getSpan());
+			return this.mapSNode(sNode, segInfo.getRelANNISId(), segInfo.getSegmentationName(), segInfo.getSpan());
 		} else {
-			this.mapSNode(sNode, null, null, null);
+			return this.mapSNode(sNode, null, null, null);
 		}
-
 	}
 
-	public void mapSNode(SNode node, Long seg_index, String seg_name, String span) {
+	public Long mapSNode(SNode node, Long seg_index, String seg_name, String span) {
 		/// get the SElementId of the node since we will need it many times
 		String nodeSElementId = node.getSId();
 
 		/// if the node already has a nodeId, it was already mapped
 		Pair<Long, Boolean> idPair = idManager.getNewNodeId(nodeSElementId);
-		if (idPair.getRight().booleanValue() == false) {
+		if (idPair.getRight() == false) {
 			// the node is not new
-			return;
+			return idPair.getLeft();
 		}
-		if (this.idManager.getVirtualisedSpanId(nodeSElementId) != null) {
+		Long virtualSpanID = idManager.getVirtualisedSpanId(nodeSElementId);
+		if (virtualSpanID != null) {
 			// the node is not new
-			return;
+			return virtualSpanID;
 		}
 		// initialise all variables which will be used for the node.tab 
 		// get the RAId
@@ -572,7 +561,7 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 					// set the right value which is end -1 since SEnd points to the index of the last char +1
 					right = new Long(sTextualRelation.getSEnd() - 1);
 					// set the reference to the text
-					text_ref = new Long(idManager.getNewTextId(sTextualRelation.getSTextualDS().getSId()));
+					text_ref = idManager.getNewTextId(sTextualRelation.getSTextualDS().getSId());
 					// set the overlapped text
 					span = sTextualRelation.getSTextualDS().getSText().substring(left.intValue(), sTextualRelation.getSEnd());
 					break;
@@ -610,7 +599,7 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 						// set the left value
 						left = new Long(sTextualRelation.getSStart());
 
-						text_ref = new Long(idManager.getNewTextId(sTextualRelation.getSTextualDS().getSId()));
+						text_ref = idManager.getNewTextId(sTextualRelation.getSTextualDS().getSId());
 						//System.out.println("Setting text_ref to"+ text_ref.toString());
 						break;
 					}
@@ -628,7 +617,7 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 						STextualRelation sTextualRelation = ((STextualRelation) edge);
 						// set the left value
 						right = new Long(sTextualRelation.getSEnd() - 1);
-						text_ref = new Long(idManager.getNewTextId(sTextualRelation.getSTextualDS().getSId()));
+						text_ref = idManager.getNewTextId(sTextualRelation.getSTextualDS().getSId());
 						break;
 					}
 				}
@@ -661,6 +650,7 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 		// report progress
 		parentMapper.notifiyNewNodeMapped();
 
+		return id;
 	}
 
 	protected void writeNodeTabEntry(
