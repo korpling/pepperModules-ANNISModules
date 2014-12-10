@@ -241,12 +241,17 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 		Long rankId;
 		EList<Long> virtualTokenIds = this.idManager.getVirtualisedTokenId(currNode.getSId());
 
+		if(virtualTokenIds != null) {
+			virtualNodes.add(currNode);
+		}
+		
 		// If there are virtual token IDs for a node and we are handling the 
 		// mapping of spans, we need map each span relation to potentially several token.
 		// Thus we need a special handling for this case. Good thing is, 
 		// that since these are spans we already now the post-order and don't
 		// have to make a very special handling in nodeLeft()
 		if(virtualTokenIds != null && traversionType.equals(TRAVERSION_TYPE.DOCUMENT_STRUCTURE_CR)) {
+			
 			
 			for (Long virtualTokenId : virtualTokenIds) {
 				// get a rank id
@@ -318,16 +323,27 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 
 		// We've got the rank
 		// fromNode -> edge -> currNode
-		Long currNodeID = idManager.getNodeId(currNode);
+		Long currNodeID;
 		if(virtualNodes.contains(currNode))
 		{
 			currNodeID = idManager.getVirtualisedSpanId(currNode.getSId());
 		}
+		else {
+			currNodeID = idManager.getNodeId(currNode);
+		}
 		
 		Long parentRank = null;
 		if (fromNode != null) {
-			parentRank = this.rankTable.get(idManager.getNodeId(fromNode));
+			Long fromNodeID;
+			if (virtualNodes.contains(fromNode)) {
+				fromNodeID = idManager.getVirtualisedSpanId(fromNode.getSId());
+			} else {
+				fromNodeID = idManager.getNodeId(fromNode);
+			}
+			parentRank = this.rankTable.get(fromNodeID);
 		}
+		
+		
 		Long rankId = this.rankTable.get(currNodeID);
 		Long pre = this.preorderTable.get(currNodeID);
 		if(rankId != null && pre != null)
@@ -337,7 +353,7 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 			// decrease the rank level
 			this.rankLevel -= 1;
 		
-			this.mapRank2RelANNIS(edge, currNode, rankId, pre, post, parentRank, rankLevel);
+			this.mapRank2RelANNIS(edge, currNodeID, rankId, pre, post, parentRank, rankLevel);
 		}
 		else {
 			this.rankLevel -= 1;
@@ -401,9 +417,9 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 
 	}
 
-	protected void mapRank2RelANNIS(SRelation sRelation, SNode targetNode, Long rankId, Long preOrder, Long postOrder, Long parentRank, Long level) {
+	protected void mapRank2RelANNIS(SRelation sRelation, Long targetNodeID, Long rankId, Long preOrder, Long postOrder, Long parentRank, Long level) {
 		// check all needed params
-		if (targetNode == null) {
+		if (targetNodeID == null) {
 			throw new PepperModuleException("The given target node for the rank is null");
 		}
 		if (rankId == null) {
@@ -429,9 +445,9 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 		EList<String> rankEntry = new BasicEList<String>();
 
 		rankEntry.add(rankId.toString());
-		rankEntry.add(this.preorderTable.get(idManager.getNodeId(targetNode)).toString());
+		rankEntry.add(this.preorderTable.get(targetNodeID).toString());
 		rankEntry.add(postOrder.toString());
-		rankEntry.add(idManager.getNewNodeId(targetNode.getSId()).getLeft().toString());
+		rankEntry.add(Long.toString(targetNodeID));
 		rankEntry.add(this.currentComponentId.toString());
 		if (parentRank == null) {
 			rankEntry.add("NULL");

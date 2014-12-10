@@ -85,11 +85,11 @@ public class SSpanningRelation2RelANNISMapper extends SRelation2RelANNISMapper  
 	}
 
   @Override
-  protected void mapRank2RelANNIS(SRelation sRelation, SNode targetNode,
+  protected void mapRank2RelANNIS(SRelation sRelation, Long targetNodeID,
     Long rankId, Long preOrder, Long postOrder, Long parentRank, Long level)
   {
     boolean doMapping = true;
-    if(sRelation instanceof SSpanningRelation && targetNode instanceof SToken)
+    if(sRelation instanceof SSpanningRelation)
     {
       if(sRelation.getSAnnotations() != null && !sRelation.getSAnnotations().isEmpty())
       {
@@ -106,7 +106,7 @@ public class SSpanningRelation2RelANNISMapper extends SRelation2RelANNISMapper  
     } // end if non-null relation and target node is token
     if(doMapping)
     {
-      super.mapRank2RelANNIS(sRelation, targetNode, rankId, preOrder,
+      super.mapRank2RelANNIS(sRelation, targetNodeID, rankId, preOrder,
         postOrder,
         parentRank, level);
     }
