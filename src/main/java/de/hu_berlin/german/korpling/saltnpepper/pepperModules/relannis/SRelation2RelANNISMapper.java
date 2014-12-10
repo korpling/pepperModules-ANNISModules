@@ -255,7 +255,6 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 		// have to make a very special handling in nodeLeft()
 		if(virtualTokenIds != null && traversionType.equals(TRAVERSION_TYPE.DOCUMENT_STRUCTURE_CR)) {
 			
-			
 			for (Long virtualTokenId : virtualTokenIds) {
 				// get a rank id
 				rankId = idManager.getGlobal().getNewRankId();
@@ -280,15 +279,19 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 				}
 				rankEntry.add(this.rankLevel.toString());
 
-				addTuple(OutputTable.RANK, rankEntry);
 				
 				// map the SAnnotations
+				boolean hasAnnotations = false;
 				if (sRelation != null) {
 					if (sRelation.getSAnnotations() != null) {
 						for (SAnnotation sAnnotation : sRelation.getSAnnotations()) {
 							this.mapSAnnotation2RelANNIS(rankId, sAnnotation);
+							hasAnnotations = true;
 						}
 					}
+				}
+				if(hasAnnotations || fromNode == null) {
+					addTuple(OutputTable.RANK, rankEntry);
 				}
 			}
 			
@@ -314,6 +317,14 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 			this.preorderTable.put(currentNodeID, this.getNewPPOrder());
 
 			this.rankTable.put(currentNodeID, rankId);
+			
+			if (sRelation != null) {
+				if (sRelation.getSAnnotations() != null) {
+					for (SAnnotation sAnnotation : sRelation.getSAnnotations()) {
+						this.mapSAnnotation2RelANNIS(rankId, sAnnotation);
+					}
+				}
+			}
 			
 		}
 
@@ -756,23 +767,23 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 	}
 
 	protected boolean isRoot(SNode n) {
-		boolean isRoot = false;
-		if (n != null) {
-			isRoot = true;
-			EList<Edge> inEdges = documentGraph.getInEdges(n.getSId());
-			if(inEdges != null) {
-				for(Edge e : inEdges) {
-					if(e instanceof SDominanceRelation 
-							|| e instanceof SPointingRelation
-							|| e instanceof SSpanningRelation)
-					{
-						isRoot = false;
-						break;
-					}
+		
+		if(n == null) {
+			return false;
+		}
+		
+		EList<Edge> inEdges = documentGraph.getInEdges(n.getSId());
+		if (inEdges != null) {
+			for (Edge e : inEdges) {
+				if (e instanceof SDominanceRelation
+						|| e instanceof SPointingRelation
+						|| e instanceof SSpanningRelation) {
+					return false;
 				}
 			}
 		}
-		return isRoot;
+
+		return true;
 	}
 
 }
