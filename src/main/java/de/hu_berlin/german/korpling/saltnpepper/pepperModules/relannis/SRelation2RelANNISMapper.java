@@ -14,7 +14,10 @@ import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.Salt2RelA
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.Edge;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.GRAPH_TRAVERSE_TYPE;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDominanceRelation;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SPointingRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpan;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpanningRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SStructure;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STYPE_NAME;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualRelation;
@@ -755,8 +758,19 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 	protected boolean isRoot(SNode n) {
 		boolean isRoot = false;
 		if (n != null) {
+			isRoot = true;
 			EList<Edge> inEdges = documentGraph.getInEdges(n.getSId());
-			isRoot = inEdges == null || inEdges.isEmpty();
+			if(inEdges != null) {
+				for(Edge e : inEdges) {
+					if(e instanceof SDominanceRelation 
+							|| e instanceof SPointingRelation
+							|| e instanceof SSpanningRelation)
+					{
+						isRoot = false;
+						break;
+					}
+				}
+			}
 		}
 		return isRoot;
 	}
