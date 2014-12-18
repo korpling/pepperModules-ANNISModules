@@ -1,6 +1,7 @@
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis;
 
 
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -12,6 +13,8 @@ public class GlobalIdManager {
 	private final AtomicLong corpusId = new AtomicLong(0l);
 	
 	private final AtomicLong nodeId = new AtomicLong(0l);
+	
+	private final ConcurrentHashMap<String,Long> corpusTabIdMap = new ConcurrentHashMap<String, Long>();
 	
 	// states whether virtual tokens and spans are managed
 	private final AtomicBoolean containsVirtualTokens = new AtomicBoolean(false);
@@ -51,6 +54,10 @@ public class GlobalIdManager {
 	
 	public void setContainsVirtualTokens(boolean val) {
 		containsVirtualTokens.set(val);
+	}
+
+	public ConcurrentHashMap<String, Long> getCorpusTabIdMap() {
+		return corpusTabIdMap;
 	}
 	
 }

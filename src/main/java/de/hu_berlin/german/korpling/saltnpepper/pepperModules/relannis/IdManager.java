@@ -22,7 +22,6 @@ public class IdManager {
 
 	private final GlobalIdManager globalIdManager;
 	
-	private ConcurrentHashMap<String,Long> corpusTabIdMap;
 	private ConcurrentHashMap<String,Long> textIdMap;
 	private ConcurrentHashMap<String,EList<Long>> tokenVirtualisationMapping;
 	private ConcurrentHashMap<String,Long> spanVirtualisationMapping;
@@ -45,7 +44,6 @@ public class IdManager {
 
 		this.globalIdManager = globalIdManager;
 		
-		this.corpusTabIdMap = new ConcurrentHashMap<String, Long>();
 		this.textIdMap = new ConcurrentHashMap<String, Long>();
 		this.tokenVirtualisationMapping = new ConcurrentHashMap<String, EList<Long>>();
 		this.spanVirtualisationMapping = new ConcurrentHashMap<String, Long>();
@@ -155,14 +153,14 @@ public class IdManager {
 	 * @return The corpus tab id.
 	 */
 	public Long getNewCorpusTabId(String sElementId){
-		Long newId = this.corpusTabIdMap.get(sElementId);
+		Long newId = globalIdManager.getCorpusTabIdMap().get(sElementId);
 		if (newId == null){
 			synchronized (this) {
 				if (newId == null){
 					// no Id found. Create a new one
 					newId = getGlobal().getNewCorpusId();
 					//System.out.println("Added new Element "+sElementId.getValueString()+" with id "+newId.toString());
-					this.corpusTabIdMap.put(sElementId, newId);
+					globalIdManager.getCorpusTabIdMap().put(sElementId, newId);
 
 				}
 			}
