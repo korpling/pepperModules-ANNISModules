@@ -112,7 +112,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 					throw new PepperModuleException("Could not create the corpus tab file "+ outFile.getAbsolutePath()+ " Exception:"+e.getMessage());
 				}
 			}
-			TupleWriter tWriter= TupleConnectorFactory.fINSTANCE.createTupleWriter();
+			TupleWriter tWriter= TupleConnectorFactory.fINSTANCE.createTupleWriter(true);
 			
 			tWriter.setEscaping(escapeCharacters);
 			if (characterEscapeTable != null){
@@ -139,7 +139,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 					throw new PepperModuleException("Could not create the corpus tab file "+ outFile.getAbsolutePath()+ " Exception:"+e.getMessage());
 				}
 			}
-			TupleWriter tWriter= TupleConnectorFactory.fINSTANCE.createTupleWriter();
+			TupleWriter tWriter= TupleConnectorFactory.fINSTANCE.createTupleWriter(true);
 			tWriter.setFile(outFile);
 			return(tWriter);
 		}

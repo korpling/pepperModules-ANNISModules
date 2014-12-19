@@ -38,8 +38,6 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 // =============================== Globally used objects ======================
 	private final static Logger log = LoggerFactory.getLogger(SRelation2RelANNISMapper.class);
 
-	private final static long MAX_UNCOMMITED_TUPLES = 100l;
-
 	protected IdManager idManager;
 	private final Salt2RelANNISMapper parentMapper;
 
@@ -101,10 +99,8 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 
 	protected void beginTransaction() {
 		transactionIds.clear();
-		numberOfUncommitedTuples.clear();
 		for (Map.Entry<OutputTable, TupleWriter> e : writers.entrySet()) {
 			transactionIds.put(e.getKey(), e.getValue().beginTA());
-			numberOfUncommitedTuples.put(e.getKey(), 0l);
 		}
 	}
 
@@ -148,7 +144,6 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 			abortTransaction();
 		}
 		transactionIds.clear();
-		numberOfUncommitedTuples.clear();
 	}
 
 	protected void abortTransaction() {
@@ -159,7 +154,6 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 			}
 		}
 		transactionIds.clear();
-		numberOfUncommitedTuples.clear();
 	}
 
 	public enum OutputTable {
@@ -173,8 +167,6 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 	private final Map<OutputTable, Long> transactionIds
 			= new EnumMap<OutputTable, Long>(OutputTable.class);
 
-	private final Map<OutputTable, Long> numberOfUncommitedTuples
-			= new EnumMap<OutputTable, Long>(OutputTable.class);
 
 // ============================ Data for SRelation Mapping ====================
 	protected TRAVERSION_TYPE traversionType;
@@ -384,16 +376,6 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 					w.addTuple(tuple);
 				} else {
 					w.addTuple(txId, tuple);
-					Long oldCount = numberOfUncommitedTuples.get(table);
-					if (oldCount != null) {
-						long newCount = oldCount + 1;
-						if (newCount > MAX_UNCOMMITED_TUPLES) {
-							w.commitTA(txId);
-							newCount = 0;
-							transactionIds.put(table, w.beginTA());
-						}
-						numberOfUncommitedTuples.put(table, newCount);
-					}
 				}
 			}
 		} catch (FileNotFoundException e) {
