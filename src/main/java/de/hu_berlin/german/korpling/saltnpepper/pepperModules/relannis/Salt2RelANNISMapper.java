@@ -324,104 +324,103 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
         {
           exec = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
         }
-        
-				
-				subComponentRoots = getSDocument().getSDocumentGraph().getRootsBySRelationSType(STYPE_NAME.SPOINTING_RELATION);
-				if (subComponentRoots != null){
-					//System.out.println("The Pointing relation graphs have "+ subComponentRoots.size() + " STypes.");
-					if (subComponentRoots.size() > 0){
-						
-						for (String key : subComponentRoots.keySet()){
-							//System.out.println("Count of PR roots for key "+key+" : "+subComponentRoots.get(key).size());
-							//System.out.println("Mapping PointingRelation subcomponents with sType: "+key);
-							SRelation2RelANNISMapper sPointingSubRelationMapper = 
-                new SPointingRelation2RelANNISMapper(getIdManager(),
-                  getSDocument().getSDocumentGraph(), 
-                  tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component,
-                  this
-                );
-							sPointingSubRelationMapper.mapSRelations2RelANNIS(subComponentRoots.get(key), STYPE_NAME.SPOINTING_RELATION, TRAVERSION_TYPE.DOCUMENT_STRUCTURE_PR);
-							sPointingSubRelationMapper.setTraversionSType(key);
-							if (exec != null ){
-                exec.execute(sPointingSubRelationMapper);
-							} else {
-								sPointingSubRelationMapper.run();
-							}
-						}
+
+		subComponentRoots = getSDocument().getSDocumentGraph().getRootsBySRelationSType(STYPE_NAME.SPOINTING_RELATION);
+		if (subComponentRoots != null) {
+			//System.out.println("The Pointing relation graphs have "+ subComponentRoots.size() + " STypes.");
+			if (subComponentRoots.size() > 0) {
+
+				for (String key : subComponentRoots.keySet()) {
+					//System.out.println("Count of PR roots for key "+key+" : "+subComponentRoots.get(key).size());
+					//System.out.println("Mapping PointingRelation subcomponents with sType: "+key);
+					SRelation2RelANNISMapper sPointingSubRelationMapper
+							= new SPointingRelation2RelANNISMapper(getIdManager(),
+									getSDocument().getSDocumentGraph(),
+									tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component,
+									this
+							);
+					sPointingSubRelationMapper.mapSRelations2RelANNIS(subComponentRoots.get(key), STYPE_NAME.SPOINTING_RELATION, TRAVERSION_TYPE.DOCUMENT_STRUCTURE_PR);
+					sPointingSubRelationMapper.setTraversionSType(key);
+					if (exec != null) {
+						exec.execute(sPointingSubRelationMapper);
 					} else {
-						//System.out.println("No PointingRelation components found (null map)");
+						sPointingSubRelationMapper.run();
 					}
+				}
+			} else {
+				//System.out.println("No PointingRelation components found (null map)");
+			}
+		} else {
+			//System.out.println("No PointingRelation components found (empty map)");
+		}
+		// END Step 2: map SPointingRelations
+
+		// START Step 3: map SDominanceRelations
+		sRelationRoots = this.getSDocument().getSDocumentGraph().getRootsBySRelation(STYPE_NAME.SDOMINANCE_RELATION);
+		if (sRelationRoots != null) {
+			if (sRelationRoots.size() > 0) {
+				SRelation2RelANNISMapper sDominanceRelationMapper
+						= new SDominanceRelation2RelANNISMapper(getIdManager(),
+								getSDocument().getSDocumentGraph(),
+								tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component,
+								this
+						);
+				sDominanceRelationMapper.mapSRelations2RelANNIS(sRelationRoots, STYPE_NAME.SDOMINANCE_RELATION, TRAVERSION_TYPE.DOCUMENT_STRUCTURE_DR);
+				if (exec != null) {
+					exec.execute(sDominanceRelationMapper);
 				} else {
-					//System.out.println("No PointingRelation components found (empty map)");
+					sDominanceRelationMapper.run();
 				}
-				// END Step 2: map SPointingRelations
-				
-				// START Step 3: map SDominanceRelations
-				sRelationRoots = this.getSDocument().getSDocumentGraph().getRootsBySRelation(STYPE_NAME.SDOMINANCE_RELATION);
-				if (sRelationRoots != null){
-					if (sRelationRoots.size() > 0){
-						SRelation2RelANNISMapper sDominanceRelationMapper
-              = new SDominanceRelation2RelANNISMapper(getIdManager(),
-                getSDocument().getSDocumentGraph(),
-                tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component,
-                this
-              );
-						sDominanceRelationMapper.mapSRelations2RelANNIS(sRelationRoots, STYPE_NAME.SDOMINANCE_RELATION, TRAVERSION_TYPE.DOCUMENT_STRUCTURE_DR);
-						if (exec != null){
-              exec.execute(sDominanceRelationMapper);
-            } else {
-							sDominanceRelationMapper.run();
-						}
-					}
-				}
-				// END Step 3: map SDominanceRelations
-				
-				// START Step 3.1 : map the subComponents of the SDominanceRelations
-				subComponentRoots = getSDocument().getSDocumentGraph().getRootsBySRelationSType(STYPE_NAME.SDOMINANCE_RELATION);
-				if (subComponentRoots != null){
-					//System.out.println("The Dominance relation graphs have "+ subComponentRoots.size() + " STypes.");
-					if (subComponentRoots.size() > 0){
-						for (String key : subComponentRoots.keySet()){
-							//System.out.println("Mapping DominanceRelation subcomponents with sType: "+key);
-							
-							SRelation2RelANNISMapper sDominanceSubRelationMapper = 
-                new SDominanceRelation2RelANNISMapper(getIdManager(),
-                  getSDocument().getSDocumentGraph(), 
-                  tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component, this);
-							sDominanceSubRelationMapper.setTraversionSType(key);
-							sDominanceSubRelationMapper.mapSRelations2RelANNIS(subComponentRoots.get(key), STYPE_NAME.SDOMINANCE_RELATION, TRAVERSION_TYPE.DOCUMENT_STRUCTURE_DR);
-							if (exec != null){
-                exec.execute(sDominanceSubRelationMapper);
-							} else {
-								sDominanceSubRelationMapper.run();
-							}
-						}
+			}
+		}
+		// END Step 3: map SDominanceRelations
+
+		// START Step 3.1 : map the subComponents of the SDominanceRelations
+		subComponentRoots = getSDocument().getSDocumentGraph().getRootsBySRelationSType(STYPE_NAME.SDOMINANCE_RELATION);
+		if (subComponentRoots != null) {
+			//System.out.println("The Dominance relation graphs have "+ subComponentRoots.size() + " STypes.");
+			if (subComponentRoots.size() > 0) {
+				for (String key : subComponentRoots.keySet()) {
+					//System.out.println("Mapping DominanceRelation subcomponents with sType: "+key);
+
+					SRelation2RelANNISMapper sDominanceSubRelationMapper
+							= new SDominanceRelation2RelANNISMapper(getIdManager(),
+									getSDocument().getSDocumentGraph(),
+									tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component, this);
+					sDominanceSubRelationMapper.setTraversionSType(key);
+					sDominanceSubRelationMapper.mapSRelations2RelANNIS(subComponentRoots.get(key), STYPE_NAME.SDOMINANCE_RELATION, TRAVERSION_TYPE.DOCUMENT_STRUCTURE_DR);
+					if (exec != null) {
+						exec.execute(sDominanceSubRelationMapper);
 					} else {
-						//System.out.println("No DominanceRelation subcomponents found (null map)");
+						sDominanceSubRelationMapper.run();
 					}
+				}
+			} else {
+				//System.out.println("No DominanceRelation subcomponents found (null map)");
+			}
+		} else {
+			//System.out.println("No DominanceRelation subcomponents found (empty map)");
+		}
+		// END Step 3.1 : map the subComponents of the SDominanceRelations
+
+		// START Step 4: map SSpanningrelations
+		sRelationRoots = this.getSDocument().getSDocumentGraph().getRootsBySRelation(STYPE_NAME.SSPANNING_RELATION);
+		if (sRelationRoots != null) {
+			if (sRelationRoots.size() > 0) {
+				SRelation2RelANNISMapper spanningRelationMapper
+						= new SSpanningRelation2RelANNISMapper(getIdManager(),
+								getSDocument().getSDocumentGraph(),
+								tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component, this);
+				spanningRelationMapper.mapSRelations2RelANNIS(sRelationRoots, STYPE_NAME.SSPANNING_RELATION, TRAVERSION_TYPE.DOCUMENT_STRUCTURE_CR);
+				if (exec != null) {
+					exec.execute(spanningRelationMapper);
 				} else {
-					//System.out.println("No DominanceRelation subcomponents found (empty map)");
+					spanningRelationMapper.run();
 				}
-				// END Step 3.1 : map the subComponents of the SDominanceRelations
-				
-				// START Step 4: map SSpanningrelations
-				sRelationRoots = this.getSDocument().getSDocumentGraph().getRootsBySRelation(STYPE_NAME.SSPANNING_RELATION);
-				if (sRelationRoots != null){
-					if (sRelationRoots.size() > 0){
-						SRelation2RelANNISMapper spanningRelationMapper = 
-              new SSpanningRelation2RelANNISMapper(getIdManager(),
-                getSDocument().getSDocumentGraph(), 
-                tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component, this);
-						spanningRelationMapper.mapSRelations2RelANNIS(sRelationRoots, STYPE_NAME.SSPANNING_RELATION, TRAVERSION_TYPE.DOCUMENT_STRUCTURE_CR);
-						if (exec != null){
-              exec.execute(spanningRelationMapper);
-						} else {
-							spanningRelationMapper.run();
-						}
-					}
-				}
-				// END Step 4: map SSpanningrelations
-				
+			}
+		}
+		// END Step 4: map SSpanningrelations
+
         if(exec != null)
         {
           exec.shutdown();
