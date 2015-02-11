@@ -378,11 +378,6 @@ public class Salt2RelANNISMapperTest
     SampleGenerator.createSyntaxStructure(getFixture().getSDocument());
     SampleGenerator.createSyntaxAnnotations(getFixture().getSDocument());
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
-    
-//    SDocumentGraphDOTWriter dot = new SDocumentGraphDOTWriter();
-//    dot.setSDocumentGraph(getFixture().getSDocument().getSDocumentGraph());
-//    dot.setOutputURI(URI.createFileURI("/tmp/testMapSSyntax.dot"));
-//    dot.save();
 
     doMapping();
 
