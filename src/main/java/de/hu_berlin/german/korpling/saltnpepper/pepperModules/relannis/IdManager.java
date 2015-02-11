@@ -1,6 +1,5 @@
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis;
 
-import java.util.Hashtable;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -15,6 +14,7 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -22,9 +22,9 @@ public class IdManager {
 
 	private final GlobalIdManager globalIdManager;
 	
-	private ConcurrentHashMap<String,Long> textIdMap;
-	private ConcurrentHashMap<String,EList<Long>> tokenVirtualisationMapping;
-	private ConcurrentHashMap<String,Long> spanVirtualisationMapping;
+	private final ConcurrentHashMap<String,Long> textIdMap;
+	private final ConcurrentHashMap<String,EList<Long>> tokenVirtualisationMapping;
+	private final ConcurrentHashMap<String,Long> spanVirtualisationMapping;
 	
 	private final Lock lockNodeIdMap = new ReentrantLock();
 	private final Map<String,Long> nodeIdMap = new HashMap<String, Long>();
@@ -38,7 +38,7 @@ public class IdManager {
 	// the virtual tokens which are sorted by their point of time
 	private EList<Long> virtualTokenIdList = null;
 	
-	protected Hashtable<String,SegmentationInfo> segmentationInfoTable = null;
+	protected ConcurrentMap<String,SegmentationInfo> segmentationInfoTable = null;
 	
 	public IdManager(GlobalIdManager globalIdManager) {
 
@@ -52,7 +52,7 @@ public class IdManager {
 		
 		this.textId = 0l;
 		
-		this.segmentationInfoTable = new Hashtable<String, SegmentationInfo>();
+		this.segmentationInfoTable = new ConcurrentHashMap<String, SegmentationInfo>();
 	}
 	
 	/**
@@ -70,7 +70,7 @@ public class IdManager {
 	 * @return A pair of token ids
 	 */
 	public synchronized Pair<Long,Long> getLeftRightVirtualToken(Long leftTokenRAId, Long rightTokenRAId){
-		Pair<Long,Long> returnVal = null;
+		Pair<Long,Long> returnVal;
 		returnVal = new ImmutablePair<Long, Long>((long)virtualTokenIdList.indexOf(leftTokenRAId), (long)virtualTokenIdList.indexOf(rightTokenRAId));
 		return returnVal;
 	}
@@ -154,15 +154,13 @@ public class IdManager {
 	 */
 	public Long getNewCorpusTabId(String sElementId){
 		Long newId = globalIdManager.getCorpusTabIdMap().get(sElementId);
-		if (newId == null){
-			synchronized (this) {
-				if (newId == null){
-					// no Id found. Create a new one
-					newId = getGlobal().getNewCorpusId();
-					//System.out.println("Added new Element "+sElementId.getValueString()+" with id "+newId.toString());
-					globalIdManager.getCorpusTabIdMap().put(sElementId, newId);
-
-				}
+		synchronized (this) {
+			if (newId == null){
+				// no Id found. Create a new one
+				newId = getGlobal().getNewCorpusId();
+				//System.out.println("Added new Element "+sElementId.getValueString()+" with id "+newId.toString());
+				globalIdManager.getCorpusTabIdMap().put(sElementId, newId);
+				
 			}
 		}
 		return newId;
@@ -264,18 +262,16 @@ public class IdManager {
 		else
 		{
 			Long newId = this.textIdMap.get(sElementId);
-			if (newId == null){
-				synchronized (this) {
-					if (getGlobal().containsVirtualTokens()){
-						return 0l;
-					}
-					if (newId == null){
-						// no Id found. Create a new one
-						newId = this.textId;
-						this.textIdMap.put(sElementId, textId);
-						this.textId += 1;
-
-					}
+			synchronized (this) {
+				if (getGlobal().containsVirtualTokens()){
+					return 0l;
+				}
+				if (newId == null){
+					// no Id found. Create a new one
+					newId = this.textId;
+					this.textIdMap.put(sElementId, textId);
+					this.textId += 1;
+					
 				}
 			}
 			return newId;

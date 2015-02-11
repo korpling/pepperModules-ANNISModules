@@ -19,7 +19,6 @@ package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis;
 
 import com.google.common.base.Strings;
 import java.io.FileNotFoundException;
-import java.util.Hashtable;
 import java.util.Map;
 import java.util.Vector;
 
@@ -43,7 +42,10 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SMetaAnnotatableEl
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SMetaAnnotation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -164,8 +166,8 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 		{
 			//start traversion of corpus structure
 			/// initialize preOrder and postOrder:
-			this.preorderTable = new Hashtable<SNode, Long>();
-			this.postorderTable = new Hashtable<SNode, Long>();
+			this.preorderTable = new ConcurrentHashMap<SNode, Long>();
+			this.postorderTable = new ConcurrentHashMap<SNode, Long>();
 			prePostOrder = 0l;
 
 			try {
@@ -225,8 +227,8 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 	@Override
 	public DOCUMENT_STATUS mapSDocument() {
 
-		this.preorderTable = new Hashtable<SNode, Long>();
-		this.postorderTable = new Hashtable<SNode, Long>();
+		this.preorderTable = new ConcurrentHashMap<SNode, Long>();
+		this.postorderTable = new ConcurrentHashMap<SNode, Long>();
 		prePostOrder = 0l;
 
 		numberOfMappedNodes.set(0);
@@ -258,8 +260,8 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 				 * post order needs to be 0 for the root node. You need to
 				 * handle this.
 				 */
-				EList<SNode> sRelationRoots = null;
-				Map<String, EList<SNode>> subComponentRoots = null;
+				EList<SNode> sRelationRoots;
+				Map<String, EList<SNode>> subComponentRoots;
 
 				// START Step 1: map SOrderRelation
 				subComponentRoots = this.getSDocument().getSDocumentGraph().getRootsBySRelationSType(STYPE_NAME.SORDER_RELATION);
@@ -290,7 +292,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 
 				// START Step 2: map SText
 				if (idManager.hasVirtualTokenization()) {
-					Long sDocID = null;
+					Long sDocID;
 					Long textId = 0l;
 					String sDocumentElementId = this.getSDocument().getSId();
 
@@ -302,7 +304,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 					sDocID = this.idManager.getNewCorpusTabId(sDocumentElementId);
 					String textName = "sText0";
 					String textContent = Strings.repeat(" ", idManager.getNumberOfVirtualToken());
-					Vector<String> tuple = new Vector<String>();
+					ArrayList<String> tuple = new ArrayList<String>();
 					tuple.add(sDocID.toString());
 					tuple.add(textId.toString());
 					tuple.add(textName);
@@ -444,7 +446,9 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 				}
 				// END Step 5: map all SToken which were not mapped, yet
 
-			} catch (Exception e) {
+			} catch (PepperModuleException e) {
+				throw new PepperModuleException(this, "Some error occurs while traversing document structure graph.", e);
+			} catch (InterruptedException e) {
 				throw new PepperModuleException(this, "Some error occurs while traversing document structure graph.", e);
 			}
 		}//start traversion of corpus structure
@@ -454,14 +458,14 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 	}
 
 	/**
-	 * <pre corpus_ref integer X foreign key to corpus.id id integer X restart
+	 * <pre> corpus_ref integer X foreign key to corpus.id id integer X restart
 	 * from 0 for every corpus_ref name text name of the text text text content
 	 * of the text </pre>
 	 */
 	protected void mapSText() {
 		//System.out.println("MAPPING TEXT ****************************************");
 		SDocumentGraph sDoc = this.getSDocument().getSDocumentGraph();
-		Long sDocID = null;
+		Long sDocID;
 		Long textId = 0l;
 		//System.out.println("Count of textual DS: "+sDoc.getSTextualDSs().size());
 		for (STextualDS text : sDoc.getSTextualDSs()) {
@@ -482,7 +486,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 			sDocID = manager.getNewCorpusTabId(sDocumentElementId);
 			String textName = text.getSName();
 			String textContent = text.getSText();
-			Vector<String> tuple = new Vector<String>();
+			ArrayList<String> tuple = new ArrayList<String>();
 			tuple.add(sDocID.toString());
 			tuple.add(manager.getNewTextId(text.getSId()).toString());
 			tuple.add(textName);
@@ -506,8 +510,8 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 	 * These tables contain the SNodes as key and the preorder/postorder as
 	 * value.
 	 */
-	private Hashtable<SNode, Long> preorderTable;
-	private Hashtable<SNode, Long> postorderTable;
+	private ConcurrentMap<SNode, Long> preorderTable;
+	private ConcurrentMap<SNode, Long> postorderTable;
 
 	/**
 	 * This method maps a SDocument or SCorpus to a corpus.tab entry and all
@@ -547,7 +551,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 
 			}
 		}
-		Vector<String> tuple = new Vector<String>();
+		ArrayList<String> tuple = new ArrayList<String>();
 		tuple.add(idString);
 		tuple.add(name);
 		tuple.add(type);

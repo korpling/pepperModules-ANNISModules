@@ -36,6 +36,7 @@ import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperModulePrope
 import de.hu_berlin.german.korpling.saltnpepper.pepper.testFramework.PepperExporterTest;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.RelANNISExporter;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.RelANNISExporterProperties;
+import java.util.Map;
  
  
 public class RelANNISExporterTest extends PepperExporterTest{ 
@@ -67,7 +68,7 @@ public class RelANNISExporterTest extends PepperExporterTest{
 		boolean clobberCorpusAnno = ((RelANNISExporterProperties) props).getClobberCorpusAnnotations();
 		String individualCorpName = ((RelANNISExporterProperties) props).getIndividualCorpusName();
 		boolean escapeCharacters = ((RelANNISExporterProperties) props).getEscapeCharacters();
-		Hashtable<Character, String> escapeCharactersList = ((RelANNISExporterProperties) props).getEscapeCharactersSet();
+		Map<Character, String> escapeCharactersList = ((RelANNISExporterProperties) props).getEscapeCharactersSet();
 		
 		
 		assertFalse(clobberVisMap);
@@ -90,7 +91,7 @@ public class RelANNISExporterTest extends PepperExporterTest{
 		boolean clobberCorpusAnno = ((RelANNISExporterProperties) props).getClobberCorpusAnnotations();
 		String individualCorpName = ((RelANNISExporterProperties) props).getIndividualCorpusName();
 		boolean escapeCharacters = ((RelANNISExporterProperties) props).getEscapeCharacters();
-		Hashtable<Character, String> escapeCharactersList = ((RelANNISExporterProperties) props).getEscapeCharactersSet();
+		Map<Character, String> escapeCharactersList = ((RelANNISExporterProperties) props).getEscapeCharactersSet();
 		
 		
 		assertTrue(clobberVisMap);

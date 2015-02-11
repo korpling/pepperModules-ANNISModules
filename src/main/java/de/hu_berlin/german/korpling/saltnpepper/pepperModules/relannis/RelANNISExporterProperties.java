@@ -18,13 +18,14 @@
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis;
 
 
-import java.util.Hashtable;
-import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperModuleProperties;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperModuleProperty;
+import java.util.ArrayList;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Defines the properties to be used for the {@link RelANNISExporter}. 
@@ -80,17 +81,17 @@ public class RelANNISExporterProperties extends PepperModuleProperties
 	 * Returns which characters should be replaced by which character.
 	 * @return
 	 */
-	public Hashtable<Character,String> getEscapeCharactersSet(){
-		Hashtable<Character,String> characterEscapeTable= null;
+	public ConcurrentMap<Character,String> getEscapeCharactersSet(){
+		ConcurrentMap<Character,String> characterEscapeTable= null;
 		String escapeString = ((String)this.getProperty(PROP_ESCAPE_CHARACTERS_LIST).getValue());
 		if (escapeString != null){
 			if (!escapeString.isEmpty()){
-				characterEscapeTable = new Hashtable<Character, String>();
+				characterEscapeTable = new ConcurrentHashMap<Character, String>();
 				// \(FIND_CHAR=REPLACE_CHAR\) (,\(FIND_CHAR=REPLACE_CHAR\))*
 				Pattern pattern = Pattern.compile("(\\()(.*?=.*?)(\\))");
 		        Matcher matcher = pattern.matcher(escapeString);
 
-		        Vector<String> listMatches = new Vector<String>();
+		        ArrayList<String> listMatches = new ArrayList<String>();
 
 		        while(matcher.find())
 		        {
@@ -99,7 +100,7 @@ public class RelANNISExporterProperties extends PepperModuleProperties
 		        for (String escapePair : listMatches){
 					String[] valuePair = escapePair.split("=");
 					if (valuePair.length == 2){
-						char key = ' ';
+						char key;
 						if (valuePair[0].equals("\\t")){
 							key = '\t';
 						} else if (valuePair[0].equals("\\n")){

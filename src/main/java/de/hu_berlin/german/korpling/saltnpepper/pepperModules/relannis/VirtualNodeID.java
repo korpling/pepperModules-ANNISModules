@@ -21,8 +21,8 @@ package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis;
  */
 public class VirtualNodeID
 {
-	private long nodeID;
-	private boolean fresh;
+	private final long nodeID;
+	private final boolean fresh;
 
 	public VirtualNodeID(long nodeID, boolean fresh) {
 		super();

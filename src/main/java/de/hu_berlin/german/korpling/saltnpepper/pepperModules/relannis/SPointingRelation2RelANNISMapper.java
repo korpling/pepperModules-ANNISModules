@@ -4,7 +4,6 @@ import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 
 import de.hu_berlin.german.korpling.saltnpepper.misc.tupleconnector.TupleWriter;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperMapper;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.Salt2RelANNISMapper.TRAVERSION_TYPE;
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.GRAPH_TRAVERSE_TYPE;
@@ -48,9 +47,9 @@ public class SPointingRelation2RelANNISMapper extends SRelation2RelANNISMapper {
 				 }*/
 
 				if (this.currentTraversionSType == null) {
-					super.initialiseTraversion(new String("p"), componentLayer, new String("NULL"));
+					super.initialiseTraversion("p", componentLayer, "NULL");
 				} else {
-					super.initialiseTraversion(new String("p"), componentLayer, this.currentTraversionSType);
+					super.initialiseTraversion("p", componentLayer, this.currentTraversionSType);
 
 				}
 				//System.out.println("[DEBUG] Mapping pointingRelation with sType "+ this.currentTraversionSType);

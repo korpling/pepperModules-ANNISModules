@@ -1,8 +1,6 @@
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis;
 
-import java.io.FileNotFoundException;
 import java.util.HashSet;
-import java.util.Hashtable;
 
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
@@ -10,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.hu_berlin.german.korpling.saltnpepper.misc.tupleconnector.TupleWriter;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleException;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.Salt2RelANNISMapper.TRAVERSION_TYPE;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.GRAPH_TRAVERSE_TYPE;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
@@ -21,6 +18,8 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructu
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 	
@@ -51,7 +50,7 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 	 * @param minimalTimelineRelationList A list of minimal timeline relations
 	 * @param minimal States whether the given {@link STimelineRelation} is minimal, i.e. there is no other timeline which is contained in the given one.
 	 */
-	private void mapSTimeline(STimelineRelation timelineRelation, Hashtable<String,STimelineRelation> minimalTimelineRelations,EList<STimelineRelation> minimalTimelineRelationList,boolean minimal){
+	private void mapSTimeline(STimelineRelation timelineRelation, Map<String,STimelineRelation> minimalTimelineRelations,EList<STimelineRelation> minimalTimelineRelationList,boolean minimal){
 		
 		// define a new component
 		this.currentComponentId = idManager.getGlobal().getNewComponentId();
@@ -62,8 +61,8 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 		
 		// set the corpus reference
 		Long corpus_ref = this.idManager.getNewCorpusTabId(this.documentGraph.getSDocument().getSId());
-		Long token_left = null;
-		Long token_right = null;
+		Long token_left;
+		Long token_right;
 		
 		SToken tok = timelineRelation.getSToken();
 		String virtualSpanSId = tok.getSId();
@@ -207,14 +206,16 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 	 * @param sTimelineRelations the {@link STimelineRelation} objects to sort
 	 * @return The sorted {@link STimelineRelation} objects
 	 */
-	private Hashtable<String,STimelineRelation> sortTimelineRelationsByStart(EList<STimelineRelation> sTimelineRelations){
-		Hashtable<String,STimelineRelation> retVal = new Hashtable<String, STimelineRelation>();
+	private Map<String,STimelineRelation> sortTimelineRelationsByStart(EList<STimelineRelation> sTimelineRelations){
+		HashMap<String,STimelineRelation> retVal = new HashMap<String, STimelineRelation>();
 		for (STimelineRelation t : sTimelineRelations){
-			if (retVal.contains(t.getSStart()))
+			String startTime = t.getSStart().toString();
+			if (retVal.containsKey(startTime))
 			{
-				log.warn("sortTimelineRelationsByStart: Both the timeline for Token "+t.getSToken().getSId()+ " and "+retVal.get(t).getSToken().getSId()+ " is "+t.getSStart());
+				log.warn("sortTimelineRelationsByStart: Both the timeline for Token "+t.getSToken().getSId()+ " and "
+						+retVal.get(startTime).getSToken().getSId()+ " is "+t.getSStart());
 			}
-			retVal.put(t.getSStart().toString(), t);
+			retVal.put(startTime, t);
 		}
 		return retVal;
 	}
@@ -243,9 +244,7 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 					boolean relationIsMinimal = true;
 					for (STimelineRelation timelineRel2 : timelineRelations)
 					{ // for all other timeline relations
-						if (timelineRel1.equals(timelineRel2)){
-							continue;
-						} else {
+						if (!timelineRel1.equals(timelineRel2)) {
 							// ------------------ start(t2) >= start(t1) & end(t2) < end(t1)
 							// t1 :      |        |
 							// t2 :      |     |
@@ -276,7 +275,7 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 					}
 				}
 			}// get minimal and non-minimal timelines
-			Hashtable<String,STimelineRelation> minimalTimelineRelationsSortedByStart = this.sortTimelineRelationsByStart(minimalTimelineRelationList);
+			Map<String,STimelineRelation> minimalTimelineRelationsSortedByStart = this.sortTimelineRelationsByStart(minimalTimelineRelationList);
 			
 			for (STimelineRelation t : minimalTimelineRelations)
 			{// map the token to a virtual tokenization

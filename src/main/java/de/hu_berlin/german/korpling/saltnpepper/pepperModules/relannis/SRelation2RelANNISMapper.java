@@ -2,7 +2,6 @@ package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis;
 
 import java.io.FileNotFoundException;
 import java.util.HashSet;
-import java.util.Hashtable;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.emf.common.util.BasicEList;
@@ -30,6 +29,8 @@ import java.util.Collection;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -118,7 +119,7 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 		rankLevel = 0l;
 
 		// initialise the pre and post order table
-		preorderTable = new Hashtable<Long, Long>();
+		preorderTable = new ConcurrentHashMap<Long, Long>();
 
 		// initialise the preorder
 		prePostOrder = 0l;
@@ -126,7 +127,7 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 		this.virtualNodes = new HashSet<SNode>();
 
 		// initialise rank Hashtable
-		this.rankTable = new Hashtable<Long, Long>();
+		this.rankTable = new ConcurrentHashMap<Long, Long>();
 	}
 
 	protected void commitTransaction() {
@@ -189,12 +190,12 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 	/**
 	 * These tables contain the internal node IDs as key and the preorder as value.
 	 */
-	private Hashtable<Long, Long> preorderTable;
+	private ConcurrentMap<Long, Long> preorderTable;
 
 	/**
 	 * Every internal node iD is a target of a rank and the Long is the id of the Rank
 	 */
-	protected Hashtable<Long, Long> rankTable;
+	protected ConcurrentMap<Long, Long> rankTable;
 
 	/**
 	 * returns a new and unique ppOrder

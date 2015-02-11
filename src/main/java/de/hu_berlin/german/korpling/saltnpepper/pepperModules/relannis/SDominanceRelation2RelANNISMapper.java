@@ -4,7 +4,6 @@ import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 
 import de.hu_berlin.german.korpling.saltnpepper.misc.tupleconnector.TupleWriter;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperMapper;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.Salt2RelANNISMapper.TRAVERSION_TYPE;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.GRAPH_TRAVERSE_TYPE;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
@@ -45,9 +44,9 @@ public class SDominanceRelation2RelANNISMapper extends SRelation2RelANNISMapper 
 				}*/
 				
 				if (this.currentTraversionSType== null){
-					super.initialiseTraversion(new String("d"), componentLayer, new String("NULL"));
+					super.initialiseTraversion("d", componentLayer, "NULL");
 				} else {
-					super.initialiseTraversion(new String("d"), componentLayer, this.currentTraversionSType);
+					super.initialiseTraversion("d", componentLayer, this.currentTraversionSType);
 				}
 				
 				

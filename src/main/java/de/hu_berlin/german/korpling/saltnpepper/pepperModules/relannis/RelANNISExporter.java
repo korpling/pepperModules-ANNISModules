@@ -39,6 +39,7 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SMetaAnnotation;
+import java.util.concurrent.ConcurrentMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,6 +64,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 	 * that all {@link Salt2RelANNISMapper} object can access the
 	 * {@link IdManager} etc..
 	 */
+	@Override
 	public PepperMapper createPepperMapper(SElementId sElementId) {
 		Salt2RelANNISMapper mapper = new Salt2RelANNISMapper();
 		mapper.setIdManager(new IdManager(globalIdManager));
@@ -98,7 +100,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 	 * @param characterEscapeTable contains the character-escape-mapping
 	 * @return
 	 */
-	public static synchronized TupleWriter createTupleWRiter(File outFile, boolean escapeCharacters, Hashtable<Character, String> characterEscapeTable) {
+	public static synchronized TupleWriter createTupleWRiter(File outFile, boolean escapeCharacters, ConcurrentMap<Character, String> characterEscapeTable) {
 		if (!outFile.getParentFile().exists()) {
 			outFile.getParentFile().mkdirs();
 		}
@@ -113,7 +115,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 
 		tWriter.setEscaping(escapeCharacters);
 		if (characterEscapeTable != null) {
-			tWriter.setEscapeTable(characterEscapeTable);
+			tWriter.setEscapeTable(new Hashtable<Character, String>(characterEscapeTable));
 		}
 
 		tWriter.setFile(outFile);
@@ -324,7 +326,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 
 	public String individualCorpusName = null;
 
-	private Hashtable<Character, String> characterEscapeTable = null;
+	private ConcurrentMap<Character, String> characterEscapeTable = null;
 	private boolean escapeCharacters = true;
 
 	// ------------------------- IdManager
@@ -335,6 +337,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 
 	/**
 	 * returns singleton object to manage relANNIS ids*
+	 * @return 
 	 */
 	public GlobalIdManager getGlobalIdManager() {
 		return this.globalIdManager;
