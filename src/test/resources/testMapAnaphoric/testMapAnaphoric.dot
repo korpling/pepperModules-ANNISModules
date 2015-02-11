@@ -1,37 +1,39 @@
 digraph G {
 ordering=out;
-<null/null_graph#sTok1> -> <null/null_graph#sText1>[color=yellow,style=filled];
-<null/null_graph#sTok4> -> <null/null_graph#sText1>[color=yellow,style=filled];
-<null/null_graph#sTok5> -> <null/null_graph#sText1>[color=yellow,style=filled];
-<null/null_graph#sTok6> -> <null/null_graph#sText1>[color=yellow,style=filled];
-<null/null_graph#sTok7> -> <null/null_graph#sText1>[color=yellow,style=filled];
-<null/null_graph#sTok7> -> <null/null_graph#sSpan1>[color=blue,style=filled,label="sTypes= [anaphoric]"];
-<null/null_graph#sSpan1> -> <null/null_graph#sTok2>[color=dodgerblue3,style=filled];
-<null/null_graph#sTok2> -> <null/null_graph#sText1>[color=yellow,style=filled];
-<null/null_graph#sSpan1> -> <null/null_graph#sTok3>[color=dodgerblue3,style=filled];
-<null/null_graph#sTok3> -> <null/null_graph#sText1>[color=yellow,style=filled];
-<null/null_graph#sTok8> -> <null/null_graph#sText1>[color=yellow,style=filled];
-<null/null_graph#sTok9> -> <null/null_graph#sText1>[color=yellow,style=filled];
-<null/null_graph#sTok10> -> <null/null_graph#sText1>[color=yellow,style=filled];
+<salt:/mainCorp/doc_1/doc1_graph#sTok1> -> <salt:/mainCorp/doc_1/doc1_graph#sText1>[color=yellow,style=filled];
+<salt:/mainCorp/doc_1/doc1_graph#sTok4> -> <salt:/mainCorp/doc_1/doc1_graph#sText1>[color=yellow,style=filled];
+<salt:/mainCorp/doc_1/doc1_graph#sTok5> -> <salt:/mainCorp/doc_1/doc1_graph#sText1>[color=yellow,style=filled];
+<salt:/mainCorp/doc_1/doc1_graph#sTok6> -> <salt:/mainCorp/doc_1/doc1_graph#sText1>[color=yellow,style=filled];
+<salt:/mainCorp/doc_1/doc1_graph#sTok7> -> <salt:/mainCorp/doc_1/doc1_graph#sText1>[color=yellow,style=filled];
+<salt:/mainCorp/doc_1/doc1_graph#sTok7> -> <salt:/mainCorp/doc_1/doc1_graph#sSpan1>[color=blue,style=filled,label="sTypes= [anaphoric]"];
+<salt:/mainCorp/doc_1/doc1_graph#sSpan1> -> <salt:/mainCorp/doc_1/doc1_graph#sTok2>[color=dodgerblue3,style=filled];
+<salt:/mainCorp/doc_1/doc1_graph#sTok2> -> <salt:/mainCorp/doc_1/doc1_graph#sText1>[color=yellow,style=filled];
+<salt:/mainCorp/doc_1/doc1_graph#sSpan1> -> <salt:/mainCorp/doc_1/doc1_graph#sTok3>[color=dodgerblue3,style=filled];
+<salt:/mainCorp/doc_1/doc1_graph#sTok3> -> <salt:/mainCorp/doc_1/doc1_graph#sText1>[color=yellow,style=filled];
+<salt:/mainCorp/doc_1/doc1_graph#sTok8> -> <salt:/mainCorp/doc_1/doc1_graph#sText1>[color=yellow,style=filled];
+<salt:/mainCorp/doc_1/doc1_graph#sTok9> -> <salt:/mainCorp/doc_1/doc1_graph#sText1>[color=yellow,style=filled];
+<salt:/mainCorp/doc_1/doc1_graph#sTok10> -> <salt:/mainCorp/doc_1/doc1_graph#sText1>[color=yellow,style=filled];
+<salt:/mainCorp/doc_1/doc1_graph#sTok11> -> <salt:/mainCorp/doc_1/doc1_graph#sText1>[color=yellow,style=filled];
 {
 rank=max;
-<null/null_graph#sText1>[shape=Mrecord,color=yellow,style=filled,label="{{null/null_graph#sText1}|{sName= sText1}|{text=Is this example more complicated than it appears to be?}}"];
+<salt:/mainCorp/doc_1/doc1_graph#sText1>[shape=Mrecord,color=yellow,style=filled,label="{{salt:/mainCorp/doc_1/doc1_graph#sText1}|{sName= sText1}|{text=Is this example more complicated than it appears to be?}}"];
 }
 {
 rank=same;
-<null/null_graph#sTok1>[shape=Mrecord,color=turquoise,style=filled,label="{{null/null_graph#sTok1}|{sName= sTok1}}"];
-<null/null_graph#sTok4>[shape=Mrecord,color=turquoise,style=filled,label="{{null/null_graph#sTok4}|{sName= sTok4}}"];
-<null/null_graph#sTok5>[shape=Mrecord,color=turquoise,style=filled,label="{{null/null_graph#sTok5}|{sName= sTok5}}"];
-<null/null_graph#sTok6>[shape=Mrecord,color=turquoise,style=filled,label="{{null/null_graph#sTok6}|{sName= sTok6}}"];
-<null/null_graph#sTok7>[shape=Mrecord,color=turquoise,style=filled,label="{{null/null_graph#sTok7}|{sName= sTok7}}"];
-<null/null_graph#sTok2>[shape=Mrecord,color=turquoise,style=filled,label="{{null/null_graph#sTok2}|{sName= sTok2}}"];
-<null/null_graph#sTok3>[shape=Mrecord,color=turquoise,style=filled,label="{{null/null_graph#sTok3}|{sName= sTok3}}"];
-<null/null_graph#sTok8>[shape=Mrecord,color=turquoise,style=filled,label="{{null/null_graph#sTok8}|{sName= sTok8}}"];
-<null/null_graph#sTok9>[shape=Mrecord,color=turquoise,style=filled,label="{{null/null_graph#sTok9}|{sName= sTok9}}"];
-<null/null_graph#sTok10>[shape=Mrecord,color=turquoise,style=filled,label="{{null/null_graph#sTok10}|{sName= sTok10}}"];
+<salt:/mainCorp/doc_1/doc1_graph#sTok1>[shape=Mrecord,color=turquoise,style=filled,label="{{salt:/mainCorp/doc_1/doc1_graph#sTok1}|{sName= sTok1}}"];
+<salt:/mainCorp/doc_1/doc1_graph#sTok4>[shape=Mrecord,color=turquoise,style=filled,label="{{salt:/mainCorp/doc_1/doc1_graph#sTok4}|{sName= sTok4}}"];
+<salt:/mainCorp/doc_1/doc1_graph#sTok5>[shape=Mrecord,color=turquoise,style=filled,label="{{salt:/mainCorp/doc_1/doc1_graph#sTok5}|{sName= sTok5}}"];
+<salt:/mainCorp/doc_1/doc1_graph#sTok6>[shape=Mrecord,color=turquoise,style=filled,label="{{salt:/mainCorp/doc_1/doc1_graph#sTok6}|{sName= sTok6}}"];
+<salt:/mainCorp/doc_1/doc1_graph#sTok7>[shape=Mrecord,color=turquoise,style=filled,label="{{salt:/mainCorp/doc_1/doc1_graph#sTok7}|{sName= sTok7}}"];
+<salt:/mainCorp/doc_1/doc1_graph#sTok2>[shape=Mrecord,color=turquoise,style=filled,label="{{salt:/mainCorp/doc_1/doc1_graph#sTok2}|{sName= sTok2}}"];
+<salt:/mainCorp/doc_1/doc1_graph#sTok3>[shape=Mrecord,color=turquoise,style=filled,label="{{salt:/mainCorp/doc_1/doc1_graph#sTok3}|{sName= sTok3}}"];
+<salt:/mainCorp/doc_1/doc1_graph#sTok8>[shape=Mrecord,color=turquoise,style=filled,label="{{salt:/mainCorp/doc_1/doc1_graph#sTok8}|{sName= sTok8}}"];
+<salt:/mainCorp/doc_1/doc1_graph#sTok9>[shape=Mrecord,color=turquoise,style=filled,label="{{salt:/mainCorp/doc_1/doc1_graph#sTok9}|{sName= sTok9}}"];
+<salt:/mainCorp/doc_1/doc1_graph#sTok10>[shape=Mrecord,color=turquoise,style=filled,label="{{salt:/mainCorp/doc_1/doc1_graph#sTok10}|{sName= sTok10}}"];
+<salt:/mainCorp/doc_1/doc1_graph#sTok11>[shape=Mrecord,color=turquoise,style=filled,label="{{salt:/mainCorp/doc_1/doc1_graph#sTok11}|{sName= sTok11}}"];
 }
 {
 rank=same;
-<null/null_graph#sSpan1>[shape=Mrecord,color=dodgerblue3,style=filled,label="{{null/null_graph#sSpan1}|{sName= sSpan1}}"];
+<salt:/mainCorp/doc_1/doc1_graph#sSpan1>[shape=Mrecord,color=dodgerblue3,style=filled,label="{{salt:/mainCorp/doc_1/doc1_graph#sSpan1}|{sName= sSpan1}}"];
 }
 }

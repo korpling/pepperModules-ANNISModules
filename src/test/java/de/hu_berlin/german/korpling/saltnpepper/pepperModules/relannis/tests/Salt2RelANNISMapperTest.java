@@ -446,7 +446,7 @@ public class Salt2RelANNISMapperTest
     SampleGenerator.createTokens(getFixture().getSDocument());
     SampleGenerator.createAnaphoricAnnotations(getFixture().getSDocument());
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
-
+    
     doMapping();
 
     assertFalse("There was no file to be compared in folder '" + testPath.
