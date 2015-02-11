@@ -350,6 +350,11 @@ public class Salt2RelANNISMapperTest
     SampleGenerator.
       createInformationStructureAnnotations(getFixture().getSDocument());
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
+      
+//    SDocumentGraphDOTWriter dot = new SDocumentGraphDOTWriter();
+//    dot.setSDocumentGraph(getFixture().getSDocument().getSDocumentGraph());
+//    dot.setOutputURI(URI.createFileURI("/tmp/testMapSSpans.dot"));
+//    dot.save();
 
     doMapping();
 
@@ -555,11 +560,6 @@ public class Salt2RelANNISMapperTest
     SampleGenerator.createDialogue(getFixture().getSDocument());
 
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
-  
-//    SDocumentGraphDOTWriter dot = new SDocumentGraphDOTWriter();
-//    dot.setSDocumentGraph(getFixture().getSDocument().getSDocumentGraph());
-//    dot.setOutputURI(URI.createFileURI("/tmp/testMapSOrderRelation.dot"));
-//    dot.save();
     
     doMapping();
 
