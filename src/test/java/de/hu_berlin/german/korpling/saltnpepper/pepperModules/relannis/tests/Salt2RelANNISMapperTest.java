@@ -9,6 +9,7 @@ import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.RelANNIS;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.RelANNISExporter;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.Salt2RelANNISMapper;
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.resources.dot.SDocumentGraphDOTWriter;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpus;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
@@ -263,6 +264,12 @@ public class Salt2RelANNISMapperTest
   {
     // create the primary text
     SampleGenerator.createParallelData(getFixture().getSDocument());
+	SDocumentGraphDOTWriter dot = new SDocumentGraphDOTWriter();
+	dot.setSDocumentGraph(getFixture().getSDocument().getSDocumentGraph());
+	dot.setOutputURI(URI.createFileURI("/tmp/testMapParallelData.dot"));
+	dot.save();
+	
+	  
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 
     doMapping();
