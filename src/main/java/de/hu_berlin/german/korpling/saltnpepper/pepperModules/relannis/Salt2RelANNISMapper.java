@@ -18,9 +18,9 @@
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis;
 
 import com.google.common.base.Strings;
+import com.google.common.io.Files;
 import java.io.FileNotFoundException;
 import java.util.Map;
-import java.util.Vector;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -34,6 +34,7 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.graph.GRAPH_TRAVERSE_TYPE;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpus;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SAudioDataSource;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STYPE_NAME;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualDS;
@@ -42,6 +43,8 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SMetaAnnotatableEl
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SMetaAnnotation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
@@ -50,6 +53,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,9 +61,10 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 
 	private final AtomicInteger numberOfMappedNodes = new AtomicInteger();
 	private int numberOfDocumentNodes;
+  private File outputDir;
 
-	public Salt2RelANNISMapper() {
-		this.init();
+	public Salt2RelANNISMapper() {    
+    this.init();
 	}
 
 	private void init() {
@@ -76,6 +81,15 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 	public void setIdManager(IdManager idManager) {
 		this.idManager = idManager;
 	}
+
+  public File getOutputDir() {
+    return outputDir;
+  }
+
+  public void setOutputDir(File outputDir) {
+    this.outputDir = outputDir;
+  }
+  
 
 	/**
 	 * tuple writer to write {@link RelANNIS#FILE_TEXT} *
@@ -439,6 +453,10 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 
 				}
 				// END Step 5: map all SToken which were not mapped, yet
+        
+        // START Step 6: copy all linked files
+       copyLinkedFiles();
+        // END Step 6: copy all linked files
 
 			} catch (PepperModuleException e) {
 				throw new PepperModuleException(this, "Some error occurs while traversing document structure graph.", e);
@@ -450,6 +468,37 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 		setProgress(1.0);
 		return DOCUMENT_STATUS.COMPLETED;
 	}
+
+  protected void copyLinkedFiles() {
+
+    EList<SAudioDataSource> audioDSList
+            = getSDocument().getSDocumentGraph().getSAudioDataSources();
+    if (audioDSList != null && outputDir != null) {
+      for (SAudioDataSource ds : audioDSList) {
+        if (ds.getSAudioReference() != null) {
+          File sourceFile = new File(ds.getSAudioReference().toFileString());
+          if (sourceFile.isFile()) {
+
+            File extData = new File(outputDir, "ExtData");
+            File docDir = new File(extData, getSDocument().getSName());
+            if (!docDir.isDirectory()) {
+              if (!docDir.mkdirs()) {
+                log.error("Could not create directory " + docDir.getAbsolutePath());
+              }
+            }
+            
+            File targetFile = new File(docDir, sourceFile.getName());
+            try {
+              Files.copy(sourceFile, targetFile);
+            } catch (IOException ex) {
+              log.error("Could not copy file " + sourceFile.getAbsolutePath(), ex);
+            }
+            
+          }
+        }
+      }
+    }
+  }
 
 	/**
 	 * <pre> corpus_ref integer X foreign key to corpus.id id integer X restart

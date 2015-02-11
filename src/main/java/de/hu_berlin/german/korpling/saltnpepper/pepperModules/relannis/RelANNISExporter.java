@@ -68,6 +68,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 	public PepperMapper createPepperMapper(SElementId sElementId) {
 		Salt2RelANNISMapper mapper = new Salt2RelANNISMapper();
 		mapper.setIdManager(new IdManager(globalIdManager));
+    mapper.setOutputDir(new File(getCorpusDesc().getCorpusPath().toFileString()));
 		mapper.tw_text = tw_text;
 		mapper.tw_node = tw_node;
 		mapper.tw_nodeAnno = tw_nodeAnno;
