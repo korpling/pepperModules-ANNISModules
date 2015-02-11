@@ -18,7 +18,7 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructu
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STYPE_NAME;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualDS;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltSample.SaltSample;
+import de.hu_berlin.german.korpling.saltnpepper.salt.samples.SampleGenerator;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -158,7 +158,7 @@ public class Salt2RelANNISMapperTest
   public void testMapSText() throws IOException
   {
     // create the primary text
-    SaltSample.createPrimaryData(getFixture().getSDocument());
+    SampleGenerator.createPrimaryData(getFixture().getSDocument());
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 
     doMapping();
@@ -180,7 +180,7 @@ public class Salt2RelANNISMapperTest
   public void testMapIndividualCorpusName() throws IOException
   {
     // create the primary text
-    SaltSample.createPrimaryData(getFixture().getSDocument());
+	SampleGenerator.createPrimaryData(getFixture().getSDocument());
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 
     getFixture().individualCorpusName = "NewTopLevelCorpus";
@@ -204,8 +204,8 @@ public class Salt2RelANNISMapperTest
   public void testMapSToken() throws IOException
   {
     // create the primary text
-    SaltSample.createPrimaryData(getFixture().getSDocument());
-    SaltSample.createTokens(getFixture().getSDocument());
+    SampleGenerator.createPrimaryData(getFixture().getSDocument());
+    SampleGenerator.createTokens(getFixture().getSDocument());
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 
     doMapping();
@@ -231,11 +231,11 @@ public class Salt2RelANNISMapperTest
   public void testMapSeveralTokenizations() throws IOException
   {
     // create the primary text
-    SaltSample.createPrimaryData(getFixture().getSDocument());
-    SaltSample.createTokens(getFixture().getSDocument());
-    STextualDS primaryData_DE = SaltSample.createPrimaryData(getFixture().
-      getSDocument(), SaltSample.LANG_DE);
-    SaltSample.createTokens(getFixture().getSDocument(), primaryData_DE);
+    SampleGenerator.createPrimaryData(getFixture().getSDocument());
+    SampleGenerator.createTokens(getFixture().getSDocument());
+    STextualDS primaryData_DE = SampleGenerator.createPrimaryData(getFixture().
+      getSDocument(), SampleGenerator.LANG_DE);
+    SampleGenerator.createTokens(getFixture().getSDocument(), primaryData_DE);
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 
     doMapping();
@@ -262,7 +262,7 @@ public class Salt2RelANNISMapperTest
   public void testMapParallelData() throws IOException
   {
     // create the primary text
-    SaltSample.createParallelData(getFixture().getSDocument());
+    SampleGenerator.createParallelData(getFixture().getSDocument());
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 
     doMapping();
@@ -290,7 +290,7 @@ public class Salt2RelANNISMapperTest
   public void testMapUntypedPointingRelation() throws IOException
   {
     // create the primary text
-    SaltSample.createParallelData(getFixture().getSDocument(), false);
+    SampleGenerator.createParallelData(getFixture().getSDocument(), false);
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 
     doMapping();
@@ -314,9 +314,9 @@ public class Salt2RelANNISMapperTest
   public void testMapSTokenAnnotation() throws IOException
   {
     // create the primary text
-    SaltSample.createPrimaryData(getFixture().getSDocument());
-    SaltSample.createTokens(getFixture().getSDocument());
-    SaltSample.createMorphologyAnnotations(getFixture().getSDocument());
+    SampleGenerator.createPrimaryData(getFixture().getSDocument());
+    SampleGenerator.createTokens(getFixture().getSDocument());
+    SampleGenerator.createMorphologyAnnotations(getFixture().getSDocument());
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 
     doMapping();
@@ -341,10 +341,10 @@ public class Salt2RelANNISMapperTest
   public void testMapSSpans() throws IOException
   {
     // create the primary text
-    SaltSample.createPrimaryData(getFixture().getSDocument());
-    SaltSample.createTokens(getFixture().getSDocument());
-    SaltSample.createInformationStructureSpan(getFixture().getSDocument());
-    SaltSample.
+    SampleGenerator.createPrimaryData(getFixture().getSDocument());
+    SampleGenerator.createTokens(getFixture().getSDocument());
+    SampleGenerator.createInformationStructureSpan(getFixture().getSDocument());
+    SampleGenerator.
       createInformationStructureAnnotations(getFixture().getSDocument());
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 
@@ -370,10 +370,10 @@ public class Salt2RelANNISMapperTest
   public void testMapSSyntax() throws IOException
   {
     // create the primary text
-    SaltSample.createPrimaryData(getFixture().getSDocument());
-    SaltSample.createTokens(getFixture().getSDocument());
-    SaltSample.createSyntaxStructure(getFixture().getSDocument());
-    SaltSample.createSyntaxAnnotations(getFixture().getSDocument());
+    SampleGenerator.createPrimaryData(getFixture().getSDocument());
+    SampleGenerator.createTokens(getFixture().getSDocument());
+    SampleGenerator.createSyntaxStructure(getFixture().getSDocument());
+    SampleGenerator.createSyntaxAnnotations(getFixture().getSDocument());
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 
     doMapping();
@@ -440,9 +440,9 @@ public class Salt2RelANNISMapperTest
   public void testMapAnaphoric() throws IOException
   {
     // create the primary text
-    SaltSample.createPrimaryData(getFixture().getSDocument());
-    SaltSample.createTokens(getFixture().getSDocument());
-    SaltSample.createAnaphoricAnnotations(getFixture().getSDocument());
+    SampleGenerator.createPrimaryData(getFixture().getSDocument());
+    SampleGenerator.createTokens(getFixture().getSDocument());
+    SampleGenerator.createAnaphoricAnnotations(getFixture().getSDocument());
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 
     doMapping();
@@ -471,7 +471,7 @@ public class Salt2RelANNISMapperTest
   public void testMapFullGraph() throws IOException
   {
     // create the primary text
-    SaltSample.createSDocumentStructure(getFixture().getSDocument());
+    SampleGenerator.createSDocumentStructure(getFixture().getSDocument());
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 
     doMapping();
@@ -485,7 +485,7 @@ public class Salt2RelANNISMapperTest
   public void testMultiThreadingSpeed()
   {
     // create the primary text
-    SaltSample.createSDocumentStructure(getFixture().getSDocument());
+    SampleGenerator.createSDocumentStructure(getFixture().getSDocument());
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 
 	getFixture().setSCorpus(rootCorpus);
@@ -549,7 +549,7 @@ public class Salt2RelANNISMapperTest
   public void testMapSOrderRelation() throws IOException
   {
     // create the primary text
-    SaltSample.createDialogue(getFixture().getSDocument());
+    SampleGenerator.createDialogue(getFixture().getSDocument());
 
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 
@@ -579,7 +579,7 @@ public class Salt2RelANNISMapperTest
   public void testComplexMapSOrderRelation() throws IOException
   {
     // create the primary text
-    SaltSample.createDialogue(getFixture().getSDocument());
+    SampleGenerator.createDialogue(getFixture().getSDocument());
     EList<SToken> sDocumentTokens = getFixture().getSDocument().
       getSDocumentGraph().getSTokens();
     getFixture().getSDocument().getSDocumentGraph().createSRelation(
@@ -601,8 +601,8 @@ public class Salt2RelANNISMapperTest
   public void testReuseExistingSOrderName() throws IOException
   {
     // create the primary text
-    SaltSample.createPrimaryData(getFixture().getSDocument());
-    SaltSample.createTokens(getFixture().getSDocument());
+    SampleGenerator.createPrimaryData(getFixture().getSDocument());
+    SampleGenerator.createTokens(getFixture().getSDocument());
 
     // create a single SOrderRelation chain
     SToken previousToken = null;
@@ -653,8 +653,8 @@ public class Salt2RelANNISMapperTest
   public void testAppendIndexForSOrderWithMultipleRoots() throws IOException
   {
     // create the primary text
-    SaltSample.createPrimaryData(getFixture().getSDocument());
-    SaltSample.createTokens(getFixture().getSDocument());
+    SampleGenerator.createPrimaryData(getFixture().getSDocument());
+    SampleGenerator.createTokens(getFixture().getSDocument());
 
     // create a several SOrderRelation chains (pairwise)
     EList<SToken> tokens = getFixture().getSDocument().getSDocumentGraph().
