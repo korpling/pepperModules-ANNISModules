@@ -652,24 +652,31 @@ public class Salt2RelANNISMapperTest
   }
 
   @Test
-  public void testAppendIndexForSOrderWithMultipleRoots() throws IOException
-  {
+  public void testAppendIndexForSOrderWithMultipleRoots() throws IOException {
     // create the primary text
     SampleGenerator.createPrimaryData(getFixture().getSDocument());
     SampleGenerator.createTokens(getFixture().getSDocument());
 
     // create a several SOrderRelation chains (pairwise)
     EList<SToken> tokens = getFixture().getSDocument().getSDocumentGraph().
-      getSortedSTokenByText();
-    int numberOfChains = tokens.size() / 2;
+            getSortedSTokenByText();
+    int remainder = tokens.size() % 2;
+    int numberOfChains = (tokens.size() - remainder) / 2;
     LinkedList<String> expectedNames = new LinkedList<String>();
-    for (int i = 0; i < numberOfChains; i++)
-    {
+    for (int i = 0; i < numberOfChains; i++) {
       SOrderRelation r = SaltFactory.eINSTANCE.createSOrderRelation();
       r.addSType("order");
       r.setSSource(tokens.get(i * 2));
       r.setSTarget(tokens.get((i * 2) + 1));
       getFixture().getSDocument().getSDocumentGraph().addSRelation(r);
+
+      if (i == numberOfChains - 1 && remainder == 1) {
+        SOrderRelation additionalRel = SaltFactory.eINSTANCE.createSOrderRelation();
+        additionalRel.addSType("order");
+        additionalRel.setSSource(tokens.get((i * 2) + 1));
+        additionalRel.setSTarget(tokens.get((i * 2) + 2));
+        getFixture().getSDocument().getSDocumentGraph().addSRelation(additionalRel);
+      }
 
       expectedNames.add("order" + i);
     }
@@ -678,24 +685,21 @@ public class Salt2RelANNISMapperTest
 
     // check output files that only "order" is used as segmentation name
     Set<String> segNames = Files.readLines(new File(tmpPath, "node.relannis"),
-      Charsets.UTF_8, new LineProcessor<Set<String>>()
-      {
-        private final Set<String> result = new TreeSet<String>();
+            Charsets.UTF_8, new LineProcessor<Set<String>>() {
+              private final Set<String> result = new TreeSet<String>();
 
-        @Override
-        public boolean processLine(String line) throws IOException
-        {
-          String[] split = line.split("\t");
-          result.add(split[11]);
-          return true;
-        }
+              @Override
+              public boolean processLine(String line) throws IOException {
+                String[] split = line.split("\t");
+                result.add(split[11]);
+                return true;
+              }
 
-        @Override
-        public Set<String> getResult()
-        {
-          return result;
-        }
-      });
+              @Override
+              public Set<String> getResult() {
+                return result;
+              }
+            });
 
     assertEquals(expectedNames, new LinkedList(segNames));
   }
