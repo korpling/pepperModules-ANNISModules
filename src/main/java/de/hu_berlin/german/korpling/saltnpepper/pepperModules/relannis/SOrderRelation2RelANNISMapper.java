@@ -150,7 +150,7 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 					corpus_ref, DEFAULT_LAYER, virtualSpanName, token_left, token_right, 
 					null, token_left, token_right, segId, segName, span, isRoot(tok));
 			// map the virtual anno
-			this.mapSNodeAnnotation(virtualSpanId.getNodeID(), DEFAULT_LAYER+"_virtual", "anno1", span);
+			this.mapSNodeAnnotation(virtualSpanId.getNodeID(), DEFAULT_LAYER+"_virtual", segName, span);
 			// map the token annotations
 			if (tok.getSAnnotations() != null){
 				for (SAnnotation anno : tok.getSAnnotations()){

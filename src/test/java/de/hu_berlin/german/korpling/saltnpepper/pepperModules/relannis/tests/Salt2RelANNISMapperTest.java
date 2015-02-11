@@ -9,7 +9,6 @@ import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.RelANNIS;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.RelANNISExporter;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.Salt2RelANNISMapper;
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.resources.dot.SDocumentGraphDOTWriter;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpus;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
@@ -19,6 +18,7 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructu
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STYPE_NAME;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualDS;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.samples.SampleGenerator;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -584,12 +584,13 @@ public class Salt2RelANNISMapperTest
     SampleGenerator.createDialogue(getFixture().getSDocument());
     EList<SToken> sDocumentTokens = getFixture().getSDocument().
       getSDocumentGraph().getSTokens();
-    getFixture().getSDocument().getSDocumentGraph().createSRelation(
+    SRelation pointing = getFixture().getSDocument().getSDocumentGraph().createSRelation(
       sDocumentTokens.get(0), sDocumentTokens.get(1),
       STYPE_NAME.SPOINTING_RELATION, "anno=test");
+    pointing.addSType("dep");
     getFixture().getSDocument().getSDocumentGraph().createSSpan(sDocumentTokens.
       get(0));
-
+    
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 
     doMapping();

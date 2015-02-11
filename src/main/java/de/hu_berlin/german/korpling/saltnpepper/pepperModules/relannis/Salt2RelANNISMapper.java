@@ -276,12 +276,6 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 											tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component,
 											this);
 
-							String segChainName = entry.getKey();
-							// append an index to the segmentation chain name if it has several roots
-							if (entry.getValue() != null && entry.getValue().size() > 1) {
-
-							}
-
 							sOrderRelationMapper.setTraversionSType(entry.getKey());
 							sOrderRelationMapper.mapSRelations2RelANNIS(subComponentRoots.get(entry.getKey()), STYPE_NAME.SORDER_RELATION, null);
 
