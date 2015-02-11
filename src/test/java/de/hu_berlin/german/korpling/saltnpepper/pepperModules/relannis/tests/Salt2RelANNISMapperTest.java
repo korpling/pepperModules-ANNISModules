@@ -264,11 +264,6 @@ public class Salt2RelANNISMapperTest
   {
     // create the primary text
     SampleGenerator.createParallelData(getFixture().getSDocument());
-	SDocumentGraphDOTWriter dot = new SDocumentGraphDOTWriter();
-	dot.setSDocumentGraph(getFixture().getSDocument().getSDocumentGraph());
-	dot.setOutputURI(URI.createFileURI("/tmp/testMapParallelData.dot"));
-	dot.save();
-	
 	  
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 
