@@ -555,7 +555,12 @@ public class Salt2RelANNISMapperTest
     SampleGenerator.createDialogue(getFixture().getSDocument());
 
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
-
+  
+//    SDocumentGraphDOTWriter dot = new SDocumentGraphDOTWriter();
+//    dot.setSDocumentGraph(getFixture().getSDocument().getSDocumentGraph());
+//    dot.setOutputURI(URI.createFileURI("/tmp/testMapSOrderRelation.dot"));
+//    dot.save();
+    
     doMapping();
 
     assertFalse("There was no file to be compared in folder '" + testPath.
