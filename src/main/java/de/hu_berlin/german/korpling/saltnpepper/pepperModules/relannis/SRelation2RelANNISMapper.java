@@ -1,5 +1,6 @@
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis;
 
+import com.google.common.io.Files;
 import java.io.FileNotFoundException;
 import java.util.HashSet;
 
@@ -12,6 +13,7 @@ import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.Pepper
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.Salt2RelANNISMapper.TRAVERSION_TYPE;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.Edge;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.GRAPH_TRAVERSE_TYPE;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SAudioDataSource;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDominanceRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SPointingRelation;
@@ -22,9 +24,12 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructu
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SDATATYPE;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SGraphTraverseHandler;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
+import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -739,8 +744,14 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 			namespace = DEFAULT_NS;
 		}
 
+    if(annotation.getSValueType() == SDATATYPE.SURI)
+    {
+      // copy the linked file
+      copyLinkedFile(annotation);
+    }
 		String name = annotation.getSName();
 		String value = annotation.getSValueSTEXT();
+    
 		mapSNodeAnnotation(node_ref, namespace, name, value);
 
 	}
@@ -768,5 +779,29 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 
 		return true;
 	}
+  
+  protected void copyLinkedFile(SAnnotation anno) {
 
+    if (anno != null && parentMapper != null && parentMapper.getOutputDir() != null) {
+      File outputDir = parentMapper.getOutputDir();
+      File sourceFile = new File(anno.getSValueSURI().toFileString());
+      if (sourceFile.isFile()) {
+
+        File extData = new File(outputDir, "ExtData");
+        File docDir = new File(extData, documentGraph.getSDocument().getSName());
+        if (!docDir.isDirectory()) {
+          if (!docDir.mkdirs()) {
+            log.error("Could not create directory " + docDir.getAbsolutePath());
+          }
+        }
+
+        File targetFile = new File(docDir, sourceFile.getName());
+        try {
+          Files.copy(sourceFile, targetFile);
+        } catch (IOException ex) {
+          log.error("Could not copy file " + sourceFile.getAbsolutePath(), ex);
+        }
+      }
+    }
+  }
 }

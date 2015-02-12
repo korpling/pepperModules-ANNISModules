@@ -455,7 +455,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 				// END Step 5: map all SToken which were not mapped, yet
         
         // START Step 6: copy all linked files
-       copyLinkedFiles();
+       copyLinkedAudioFiles();
         // END Step 6: copy all linked files
 
 			} catch (PepperModuleException e) {
@@ -469,7 +469,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 		return DOCUMENT_STATUS.COMPLETED;
 	}
 
-  protected void copyLinkedFiles() {
+  protected void copyLinkedAudioFiles() {
 
     EList<SAudioDataSource> audioDSList
             = getSDocument().getSDocumentGraph().getSAudioDataSources();
@@ -493,6 +493,8 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
             } catch (IOException ex) {
               log.error("Could not copy file " + sourceFile.getAbsolutePath(), ex);
             }
+            
+            // TODO: add "annis:time" annotation
             
           }
         }
