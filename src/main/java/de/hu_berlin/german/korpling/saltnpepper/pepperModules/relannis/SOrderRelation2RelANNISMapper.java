@@ -324,7 +324,7 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
   
 
 	@Override
-	public void mapSRelations2RelANNIS(EList<SNode> sRelationRoots,
+	public void mapSRelations2RelANNIS(EList<? extends SNode> sRelationRoots,
 			STYPE_NAME relationTypeName, TRAVERSION_TYPE traversionType) {
 		
     

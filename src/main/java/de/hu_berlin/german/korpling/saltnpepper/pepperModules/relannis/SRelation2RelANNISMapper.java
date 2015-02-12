@@ -13,7 +13,6 @@ import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.Pepper
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.Salt2RelANNISMapper.TRAVERSION_TYPE;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.Edge;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.GRAPH_TRAVERSE_TYPE;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SAudioDataSource;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDominanceRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SPointingRelation;
@@ -36,6 +35,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import org.eclipse.emf.common.util.URI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +56,7 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 	protected final static String DEFAULT_NS = "default_ns";
 	protected final static String DEFAULT_LAYER = "default_layer";
 
-	EList<SNode> sRelationRoots = null;
+	EList<? extends SNode> sRelationRoots = null;
 	STYPE_NAME relationTypeName = null;
 
 // =================================== Constructor ============================ 
@@ -400,7 +400,7 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 	}
 
 // =============================== Mapping of SRelations ======================
-	public abstract void mapSRelations2RelANNIS(EList<SNode> sRelationRoots, STYPE_NAME relationTypeName, TRAVERSION_TYPE traversionType);
+	public abstract void mapSRelations2RelANNIS(EList<? extends SNode> sRelationRoots, STYPE_NAME relationTypeName, TRAVERSION_TYPE traversionType);
 
 	/**
 	 * This method maps the currently processed component to the relANNIS
@@ -747,7 +747,7 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
     if(annotation.getSValueType() == SDATATYPE.SURI)
     {
       // copy the linked file
-      copyLinkedFile(annotation);
+      copyLinkedFile(annotation.getSValueSURI());
     }
 		String name = annotation.getSName();
 		String value = annotation.getSValueSTEXT();
@@ -780,11 +780,11 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 		return true;
 	}
   
-  protected void copyLinkedFile(SAnnotation anno) {
+  protected void copyLinkedFile(URI uri) {
 
-    if (anno != null && parentMapper != null && parentMapper.getOutputDir() != null) {
+    if (uri != null && parentMapper != null && parentMapper.getOutputDir() != null) {
       File outputDir = parentMapper.getOutputDir();
-      File sourceFile = new File(anno.getSValueSURI().toFileString());
+      File sourceFile = new File(uri.toFileString());
       if (sourceFile.isFile()) {
 
         File extData = new File(outputDir, "ExtData");

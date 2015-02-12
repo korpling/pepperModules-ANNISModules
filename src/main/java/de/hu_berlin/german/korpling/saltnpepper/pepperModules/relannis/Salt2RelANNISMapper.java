@@ -53,7 +53,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -162,7 +161,8 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 		DOCUMENT_STRUCTURE_DR,
 		DOCUMENT_STRUCTURE_DR_SUB,
 		DOCUMENT_STRUCTURE_PR,
-		DOCUMENT_STRUCTURE_PR_SUB
+		DOCUMENT_STRUCTURE_PR_SUB,
+    DOCUMENT_STRUCTURE_AUDIO
 	};
 	/**
 	 * stores the current type of traversion
@@ -274,7 +274,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 				 * post order needs to be 0 for the root node. You need to
 				 * handle this.
 				 */
-				EList<SNode> sRelationRoots;
+				EList<? extends SNode> sRelationRoots;
 				Map<String, EList<SNode>> subComponentRoots;
 
 				// START Step 1: map SOrderRelation
@@ -433,6 +433,26 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 					}
 				}
 				// END Step 4: map SSpanningrelations
+        
+        // START Step 5: map SAudioDSRelations
+        sRelationRoots = this.getSDocument().getSDocumentGraph().getSTokens();
+				if (sRelationRoots != null) {
+					if (sRelationRoots.size() > 0) {
+						SRelation2RelANNISMapper audioRelationMapper
+								= new Audio2RelANNISMapper(getIdManager(),
+										getSDocument().getSDocumentGraph(),
+										tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component, this);
+						audioRelationMapper.mapSRelations2RelANNIS(sRelationRoots, 
+                    STYPE_NAME.STIME_OVERLAPPING_RELATION, 
+                    TRAVERSION_TYPE.DOCUMENT_STRUCTURE_AUDIO);
+						if (exec != null) {
+							exec.execute(audioRelationMapper);
+						} else {
+							audioRelationMapper.run();
+						}
+					}
+				}
+				// END Step 5: map SAudioDSRelations
 
 				if (exec != null) {
 					exec.shutdown();
@@ -441,7 +461,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 					}
 				}
 
-				// START Step 5: map all SToken which were not mapped, yet
+				// START Step 6: map all SToken which were not mapped, yet
 				SRelation2RelANNISMapper mapper
 						= new SSpanningRelation2RelANNISMapper(getIdManager(),
 								getSDocument().getSDocumentGraph(),
@@ -452,12 +472,8 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 					}
 
 				}
-				// END Step 5: map all SToken which were not mapped, yet
+				// END Step 6: map all SToken which were not mapped, yet
         
-        // START Step 6: copy all linked files
-       copyLinkedAudioFiles();
-        // END Step 6: copy all linked files
-
 			} catch (PepperModuleException e) {
 				throw new PepperModuleException(this, "Some error occurs while traversing document structure graph.", e);
 			} catch (InterruptedException e) {
@@ -468,39 +484,6 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 		setProgress(1.0);
 		return DOCUMENT_STATUS.COMPLETED;
 	}
-
-  protected void copyLinkedAudioFiles() {
-
-    EList<SAudioDataSource> audioDSList
-            = getSDocument().getSDocumentGraph().getSAudioDataSources();
-    if (audioDSList != null && outputDir != null) {
-      for (SAudioDataSource ds : audioDSList) {
-        if (ds.getSAudioReference() != null) {
-          File sourceFile = new File(ds.getSAudioReference().toFileString());
-          if (sourceFile.isFile()) {
-
-            File extData = new File(outputDir, "ExtData");
-            File docDir = new File(extData, getSDocument().getSName());
-            if (!docDir.isDirectory()) {
-              if (!docDir.mkdirs()) {
-                log.error("Could not create directory " + docDir.getAbsolutePath());
-              }
-            }
-            
-            File targetFile = new File(docDir, sourceFile.getName());
-            try {
-              Files.copy(sourceFile, targetFile);
-            } catch (IOException ex) {
-              log.error("Could not copy file " + sourceFile.getAbsolutePath(), ex);
-            }
-            
-            // TODO: add "annis:time" annotation
-            
-          }
-        }
-      }
-    }
-  }
 
 	/**
 	 * <pre> corpus_ref integer X foreign key to corpus.id id integer X restart
