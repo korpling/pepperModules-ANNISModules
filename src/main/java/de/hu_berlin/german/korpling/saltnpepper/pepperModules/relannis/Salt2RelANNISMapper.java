@@ -17,8 +17,8 @@
  */
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
-import com.google.common.io.Files;
 import java.io.FileNotFoundException;
 import java.util.Map;
 
@@ -34,7 +34,6 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.graph.GRAPH_TRAVERSE_TYPE;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpus;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SAudioDataSource;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STYPE_NAME;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualDS;
@@ -44,15 +43,17 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SMetaAnnotation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.eclipse.emf.common.util.BasicEList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,7 +73,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 	private final static Logger log = LoggerFactory.getLogger(Salt2RelANNISMapper.class);
 
 	private IdManager idManager = null;
-
+  
 	public IdManager getIdManager() {
 		return idManager;
 	}
@@ -122,6 +123,11 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 	 * tuple writer to write {@link RelANNIS#FILE_CORPUS_META} *
 	 */
 	public TupleWriter tw_corpusMeta = null;
+  
+  /**
+	 * tuple writer to write {@link RelANNIS#FILE_VISUALIZATION} *
+	 */
+	public TupleWriter tw_visualization = null;
 
 	/**
 	 * the individual name for the top-level corpus *
@@ -706,7 +712,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 		}//traversing corpus structure
 
 	}
-
+  
 	public void notifiyNewNodeMapped() {
 		int newValue = numberOfMappedNodes.incrementAndGet();
 		// only set status for each 100th node

@@ -804,4 +804,9 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
       }
     }
   }
+  
+  public void insertResolverEntry(ResolverEntry entry) {
+    
+  }
+  
 }

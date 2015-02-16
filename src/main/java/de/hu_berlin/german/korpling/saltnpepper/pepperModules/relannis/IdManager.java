@@ -12,7 +12,9 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualDS;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.Lock;
@@ -39,7 +41,7 @@ public class IdManager {
 	private EList<Long> virtualTokenIdList = null;
 	
 	protected ConcurrentMap<String,SegmentationInfo> segmentationInfoTable = null;
-	
+  
 	public IdManager(GlobalIdManager globalIdManager) {
 
 		this.globalIdManager = globalIdManager;
@@ -142,6 +144,18 @@ public class IdManager {
 		return this.spanVirtualisationMapping.get(tokenId);
 	}
 	
+  public boolean insertResolverEntry(ResolverEntry entry) {
+    ResolverEntry old = 
+            globalIdManager.getResolverEntryByDisplay().putIfAbsent(entry.getDisplay(), entry);
+    return old == null;      
+  }
+  
+  public List<ResolverEntry> getResolverEntries() {
+    ArrayList<ResolverEntry> entries = new ArrayList<ResolverEntry>();
+    entries.addAll(globalIdManager.getResolverEntryByDisplay().values());
+    return entries;
+  }
+  
 	
 	/**
 	 * This method returns the corpus tab id of the {@link SCorpus} or {@link SDocument} specified by the {@link SElementId} sElementId

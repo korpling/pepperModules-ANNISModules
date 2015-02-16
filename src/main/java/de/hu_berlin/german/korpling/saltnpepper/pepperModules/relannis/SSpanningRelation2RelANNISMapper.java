@@ -11,11 +11,13 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructu
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpanningRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STYPE_NAME;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SLayer;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class SSpanningRelation2RelANNISMapper extends SRelation2RelANNISMapper  {
 
@@ -41,21 +43,25 @@ public class SSpanningRelation2RelANNISMapper extends SRelation2RelANNISMapper  
 		if (sRelationRoots != null && sRelationRoots.size() != 0){
 			for (SNode node : sRelationRoots){
 				
-				String componentLayer = DEFAULT_NS;
-				/*
+				String componentLayerName = DEFAULT_NS;
+        SLayer componentLayer = null;
 				EList<SLayer> nodeLayer = node.getSLayers();
 				if (nodeLayer != null){
-					if (nodeLayer.size() > 0){
-						if (! "".equals(nodeLayer.get(0))){
-							componentLayer = nodeLayer.get(0).toString();
-						}
-					}
-				}*/
+          // get layer name which comes lexically first
+			    TreeMap<String, SLayer> layers = new TreeMap<String, SLayer>();
+          for (SLayer l : nodeLayer) {
+            layers.put(l.getSName(), l);
+          }
+          if (!layers.isEmpty()) {
+            componentLayer = layers.firstEntry().getValue();
+            componentLayerName = layers.firstEntry().getKey();
+          }
+				}
 				
 				if (this.currentTraversionSType== null){
-					super.initialiseTraversion("c", componentLayer, "NULL");
+					super.initialiseTraversion("c", componentLayerName, "NULL");
 				} else {
-					super.initialiseTraversion("c", componentLayer, this.currentTraversionSType);
+					super.initialiseTraversion("c", componentLayerName, this.currentTraversionSType);
 				}
 				
 				// create an EList for the current root
@@ -66,6 +72,7 @@ public class SSpanningRelation2RelANNISMapper extends SRelation2RelANNISMapper  
 				
 				// map the component
 				this.mapComponent2RelANNIS();
+        createResolverEntry(componentLayer);
 				
 			}
 		}
@@ -129,8 +136,7 @@ public class SSpanningRelation2RelANNISMapper extends SRelation2RelANNISMapper  
       EList<SToken> overlappedToken = 
         documentGraph.getOverlappedSTokens(span, spanRel);
 
-      if (overlappedToken != null && !overlappedToken.isEmpty())
-      {
+      if (overlappedToken != null && !overlappedToken.isEmpty()) {
         long minIndex = Integer.MAX_VALUE;
         long maxIndex = Integer.MIN_VALUE;
         for (SToken tok : overlappedToken)
@@ -149,6 +155,23 @@ public class SSpanningRelation2RelANNISMapper extends SRelation2RelANNISMapper  
 
     }
     return continuous;
+  }
+  
+  private void createResolverEntry(SLayer layer) {    
+    String displayName = "grid";
+    if(layer != null)
+    {
+      displayName = displayName + " (" + layer.getSName() + ")";
+    }
+    ResolverEntry entry = new ResolverEntry();
+    entry.setDisplay(displayName);
+    entry.setElement(ResolverEntry.Element.node);
+    if(layer != null)
+    {
+      entry.setLayerName(layer.getSName());
+    }
+    entry.setOrder(1);
+    idManager.insertResolverEntry(entry);
   }
   
 	
