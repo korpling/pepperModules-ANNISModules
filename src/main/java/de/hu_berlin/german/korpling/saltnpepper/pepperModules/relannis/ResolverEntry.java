@@ -25,20 +25,22 @@ import java.util.Map;
 public class ResolverEntry {
 
   public enum Element {
+
     node, edge, NULL
   }
-  
+
   public enum Visibility {
+
     hidden, permanent, visible, removed, preloaded
   }
-  
+
   private String layerName = null;
   private Element element = Element.NULL;
   private String vis = "grid";
-  private String display = "visualization"; 
+  private String display = "visualization";
   private Visibility visibility = Visibility.hidden;
   private int order = 0;
-  
+
   private final Map<String, String> mappings = new LinkedHashMap<String, String>();
 
   public String getLayerName() {
@@ -92,5 +94,5 @@ public class ResolverEntry {
   public Map<String, String> getMappings() {
     return mappings;
   }
-  
+
 }

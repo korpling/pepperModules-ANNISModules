@@ -52,8 +52,8 @@ import org.slf4j.LoggerFactory;
 public class RelANNISExporter extends PepperExporterImpl implements PepperExporter, RelANNIS {
 
   private static final Logger log = LoggerFactory.getLogger(RelANNISExporter.class);
-  
-   /**
+
+  /**
    * tuple writer to write {@link RelANNIS#FILE_TEXT} *
    */
   public TupleWriter tw_text = null;
@@ -98,13 +98,13 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 
   private ConcurrentMap<Character, String> characterEscapeTable = null;
   private boolean escapeCharacters = true;
-  
+
   // ------------------------- IdManager
   /**
    * object to manage relANNIS ids*
    */
   private GlobalIdManager globalIdManager;
-  
+
   // =================================================== mandatory ===================================================
   public RelANNISExporter() {
     super();
@@ -214,7 +214,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
       String individualCorpusName_tmp = ((RelANNISExporterProperties) this.getProperties()).getIndividualCorpusName();
 
       // remove leading and trailing whitespaces of the individual corpus name, if it is set.
-        if (individualCorpusName_tmp != null) {
+      if (individualCorpusName_tmp != null) {
         this.individualCorpusName = individualCorpusName_tmp.trim();
       }
 
@@ -268,29 +268,28 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
   @Override
   public void end() throws PepperModuleException {
     super.end();
-    
+
     for (SCorpusGraph corpusGraph : getSaltProject().getSCorpusGraphs()) {
       if (tw_visualization != null) {
         printResolverVisMap(corpusGraph);
       }
     }
   }
-  
+
   /**
    * This method prints the resolver_vis_map.relannis file
    *
    * @param corpusGraph the corpus graph
    */
   private void printResolverVisMap(SCorpusGraph corpusGraph) {
-    
+
     Long transactionId = tw_visualization.beginTA();
-    
-    try
-    {
+
+    try {
 
       String corpusName = "NULL";
       String corpusVersion = "NULL";
-       // get the version of the corpus but initialise the default NULL
+      // get the version of the corpus but initialise the default NULL
       if (corpusGraph.getSRootCorpus() != null) {
         if (corpusGraph.getSRootCorpus().size() > 0) {
           SCorpus rootCorpus = corpusGraph.getSRootCorpus().get(0);
@@ -305,11 +304,10 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
           }
         }
       }
-      
+
       Collection<ResolverEntry> entries = getGlobalIdManager().getResolverEntryByDisplay().values();
       int order = 1;
-      for(ResolverEntry e : entries)
-      {
+      for (ResolverEntry e : entries) {
         e.setOrder(order);
 
         EList<String> resolverTuple = new BasicEList<String>();
@@ -324,16 +322,12 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
         resolverTuple.add("" + e.getOrder());
 
         List<String> mappings = new LinkedList<String>();
-        for(Map.Entry<String,String> m : e.getMappings().entrySet())
-        {
+        for (Map.Entry<String, String> m : e.getMappings().entrySet()) {
           mappings.add(m.getKey() + ":" + m.getValue());
         }
-        if(mappings.isEmpty())
-        {
+        if (mappings.isEmpty()) {
           resolverTuple.add("NULL");
-        }
-        else
-        {
+        } else {
           resolverTuple.add(Joiner.on(";").join(mappings));
         }
         tw_visualization.addTuple(resolverTuple);
@@ -341,16 +335,12 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
         order++;
       }
       tw_visualization.commitTA(transactionId);
-    }
-    catch(FileNotFoundException e) {
+    } catch (FileNotFoundException e) {
       tw_visualization.abortTA(transactionId);
       throw new PepperModuleException(this, "Could not write to the file " + tw_visualization.getFile().getAbsolutePath() + ". Reason: " + e.getMessage(), e);
     }
   }
 
-  
-  
-  
   /**
    * returns singleton object to manage relANNIS ids
    *

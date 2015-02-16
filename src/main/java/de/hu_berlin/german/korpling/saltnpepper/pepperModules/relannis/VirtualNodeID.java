@@ -19,23 +19,23 @@ package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis;
  *
  * @author Thomas Krause <krauseto@hu-berlin.de>
  */
-public class VirtualNodeID
-{
-	private final long nodeID;
-	private final boolean fresh;
+public class VirtualNodeID {
 
-	public VirtualNodeID(long nodeID, boolean fresh) {
-		super();
-		this.nodeID = nodeID;
-		this.fresh = fresh;
-	}
+  private final long nodeID;
+  private final boolean fresh;
 
-	public long getNodeID() {
-		return nodeID;
-	}
+  public VirtualNodeID(long nodeID, boolean fresh) {
+    super();
+    this.nodeID = nodeID;
+    this.fresh = fresh;
+  }
 
-	public boolean isFresh() {
-		return fresh;
-	}
-  
+  public long getNodeID() {
+    return nodeID;
+  }
+
+  public boolean isFresh() {
+    return fresh;
+  }
+
 }

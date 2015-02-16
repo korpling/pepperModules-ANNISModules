@@ -37,115 +37,97 @@ import org.eclipse.emf.common.util.URI;
  * @author Thomas Krause <krauseto@hu-berlin.de>
  */
 public class Audio2RelANNISMapper extends SRelation2RelANNISMapper {
-  
+
   /**
    * A map from a SDocument ID to an URI
    */
   private final Set<URI> mappedFiles;
 
-  public Audio2RelANNISMapper(IdManager idManager, 
-          SDocumentGraph documentGraph, TupleWriter nodeTabWriter, 
-          TupleWriter nodeAnnoTabWriter, TupleWriter rankTabWriter, 
-          TupleWriter edgeAnnoTabWriter, TupleWriter componentTabWriter, 
+  public Audio2RelANNISMapper(IdManager idManager,
+          SDocumentGraph documentGraph, TupleWriter nodeTabWriter,
+          TupleWriter nodeAnnoTabWriter, TupleWriter rankTabWriter,
+          TupleWriter edgeAnnoTabWriter, TupleWriter componentTabWriter,
           Salt2RelANNISMapper parentMapper) {
-    super(idManager, documentGraph, nodeTabWriter, nodeAnnoTabWriter, 
+    super(idManager, documentGraph, nodeTabWriter, nodeAnnoTabWriter,
             rankTabWriter, edgeAnnoTabWriter, componentTabWriter, parentMapper);
     mappedFiles = Collections.synchronizedSet(new HashSet<URI>());
   }
 
   @Override
-  public void mapSRelations2RelANNIS(EList<? extends SNode> sRelationRoots, STYPE_NAME relationTypeName, 
+  public void mapSRelations2RelANNIS(EList<? extends SNode> sRelationRoots, STYPE_NAME relationTypeName,
           Salt2RelANNISMapper.TRAVERSION_TYPE traversionType) {
     this.traversionType = traversionType;
-		this.relationTypeName = relationTypeName;
-		this.sRelationRoots = sRelationRoots;
+    this.relationTypeName = relationTypeName;
+    this.sRelationRoots = sRelationRoots;
   }
 
   @Override
   public void run() {
     beginTransaction();
-    if (sRelationRoots != null && sRelationRoots.size() != 0){
-			for (SNode node : sRelationRoots){
-				
-				
+    if (sRelationRoots != null && sRelationRoots.size() != 0) {
+      for (SNode node : sRelationRoots) {
+
         super.initialiseTraversion(null, null, null);
-				
-				// create an EList for the current root
-				EList<SNode> singleRootList = new BasicEList<SNode>();
-				singleRootList.add(node);
-				
-				documentGraph.traverse(singleRootList, GRAPH_TRAVERSE_TYPE.TOP_DOWN_DEPTH_FIRST,traversionType.toString(), this);
-				
-				
-			}
-		}
+
+        // create an EList for the current root
+        EList<SNode> singleRootList = new BasicEList<SNode>();
+        singleRootList.add(node);
+
+        documentGraph.traverse(singleRootList, GRAPH_TRAVERSE_TYPE.TOP_DOWN_DEPTH_FIRST, traversionType.toString(), this);
+
+      }
+    }
     commitTransaction();
   }
 
   @Override
   public boolean checkConstraint(GRAPH_TRAVERSE_TYPE traversalType, String traversalId, SRelation edge, SNode currNode, long order) {
-    
-    if(traversionType == Salt2RelANNISMapper.TRAVERSION_TYPE.DOCUMENT_STRUCTURE_AUDIO)
-    {
+
+    if (traversionType == Salt2RelANNISMapper.TRAVERSION_TYPE.DOCUMENT_STRUCTURE_AUDIO) {
       return currNode instanceof SToken || edge instanceof SAudioDSRelation;
     }
-    
+
     return false;
   }
-  
-  
 
   @Override
-  public void nodeReached(GRAPH_TRAVERSE_TYPE traversalType, String traversalId, 
+  public void nodeReached(GRAPH_TRAVERSE_TYPE traversalType, String traversalId,
           SNode currNode, SRelation sRelation, SNode fromNode, long order) {
-    
-    if(sRelation instanceof SAudioDSRelation && 
-            traversionType == Salt2RelANNISMapper.TRAVERSION_TYPE.DOCUMENT_STRUCTURE_AUDIO)
-    {
+
+    if (sRelation instanceof SAudioDSRelation
+            && traversionType == Salt2RelANNISMapper.TRAVERSION_TYPE.DOCUMENT_STRUCTURE_AUDIO) {
       SAudioDSRelation dsRel = (SAudioDSRelation) sRelation;
       Double start = dsRel.getSStart();
       Double end = dsRel.getSEnd();
       String val;
-      if(start != null && end != null)
-      {
+      if (start != null && end != null) {
         val = "" + start + "-" + end;
-      }
-      else if(start != null)
-      {
+      } else if (start != null) {
         val = "" + start;
-      }
-      else if(end != null)
-      {
+      } else if (end != null) {
         val = "-" + end;
-      }
-      else
-      {
+      } else {
         val = "";
       }
-      
+
       SToken tok = dsRel.getSToken();
       tok.createSAnnotation("annis", "time", val);
       mapSNode(dsRel.getSToken());
-      
+
       URI linkedFile = dsRel.getSAudioDS().getSAudioReference();
-      if(linkedFile != null)
-      {
-        if(mappedFiles.add(linkedFile))
-        {
+      if (linkedFile != null) {
+        if (mappedFiles.add(linkedFile)) {
           copyLinkedFile(linkedFile);
         }
       }
-      
+
     }
-    
+
   }
 
   @Override
   public void nodeLeft(GRAPH_TRAVERSE_TYPE traversalType, String traversalId, SNode currNode, SRelation edge, SNode fromNode, long order) {
-  
+
   }
-  
-  
-  
 
 }
