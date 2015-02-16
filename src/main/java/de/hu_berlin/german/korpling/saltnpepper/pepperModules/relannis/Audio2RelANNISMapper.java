@@ -99,7 +99,7 @@ public class Audio2RelANNISMapper extends SRelation2RelANNISMapper {
   public void nodeReached(GRAPH_TRAVERSE_TYPE traversalType, String traversalId, 
           SNode currNode, SRelation sRelation, SNode fromNode, long order) {
     
-    if(sRelation != null && 
+    if(sRelation instanceof SAudioDSRelation && 
             traversionType == Salt2RelANNISMapper.TRAVERSION_TYPE.DOCUMENT_STRUCTURE_AUDIO)
     {
       SAudioDSRelation dsRel = (SAudioDSRelation) sRelation;
