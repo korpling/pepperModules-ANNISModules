@@ -811,5 +811,9 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
     }
     return componentLayer;
   }
+  
+  public Statistics getStats() {
+    return parentMapper.getStats();
+  }
 
 }

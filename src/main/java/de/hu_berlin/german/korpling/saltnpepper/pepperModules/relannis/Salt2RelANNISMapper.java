@@ -17,7 +17,6 @@
  */
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis;
 
-import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import java.io.FileNotFoundException;
 import java.util.Map;
@@ -45,15 +44,12 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.eclipse.emf.common.util.BasicEList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,6 +58,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
   private final AtomicInteger numberOfMappedNodes = new AtomicInteger();
   private int numberOfDocumentNodes;
   private File outputDir;
+  private Statistics stats = new Statistics();
 
   public Salt2RelANNISMapper() {
     this.init();
@@ -718,5 +715,15 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
       setProgress(percent * 0.9);
     }
   }
+
+  public Statistics getStats() {
+    return stats;
+  }
+
+  public void setStats(Statistics stats) {
+    this.stats = stats;
+  }
+  
+  
 
 }

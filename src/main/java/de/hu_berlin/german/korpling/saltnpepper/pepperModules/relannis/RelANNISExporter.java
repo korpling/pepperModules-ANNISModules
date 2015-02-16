@@ -44,6 +44,8 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
 import java.util.concurrent.ConcurrentMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -104,6 +106,8 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
    * object to manage relANNIS ids*
    */
   private GlobalIdManager globalIdManager;
+  
+  private Statistics domStats;
 
   // =================================================== mandatory ===================================================
   public RelANNISExporter() {
@@ -125,6 +129,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
   public PepperMapper createPepperMapper(SElementId sElementId) {
     Salt2RelANNISMapper mapper = new Salt2RelANNISMapper();
     mapper.setIdManager(new IdManager(globalIdManager));
+    mapper.setStats(domStats);
     mapper.setOutputDir(new File(getCorpusDesc().getCorpusPath().toFileString()));
     mapper.tw_text = tw_text;
     mapper.tw_node = tw_node;
@@ -136,7 +141,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
     mapper.tw_corpusMeta = tw_corpusMeta;
     mapper.tw_visualization = tw_visualization;
     mapper.individualCorpusName = this.individualCorpusName;
-
+    
     mapper.mapRelationsInParallel(true);
 
     //a fix: it seems to be a bug, that ScorpusGraph is not set automatically for mapper
@@ -253,6 +258,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
     }
 
     this.globalIdManager = new GlobalIdManager();
+    this.domStats = new Statistics();
 
     // write versions file
     File versionFile = new File(getCorpusDesc().getCorpusPath().toFileString(), "relannis.version");
@@ -269,11 +275,57 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
   public void end() throws PepperModuleException {
     super.end();
 
+    for(String l : domStats.getLayers()) {
+      createDominanceResolverEntry(l);
+    }  
     for (SCorpusGraph corpusGraph : getSaltProject().getSCorpusGraphs()) {
       if (tw_visualization != null) {
         printResolverVisMap(corpusGraph);
       }
     }
+  }
+  
+  private void createDominanceResolverEntry(String layerName) {
+    String displayName = "tree";
+    if (layerName != null) {
+      displayName = displayName + " (" + layerName + ")";
+    }
+    ResolverEntry entry = new ResolverEntry();
+    entry.setDisplay(displayName);
+    entry.setElement(ResolverEntry.Element.node);
+    if (layerName != null) {
+      entry.setLayerName(layerName);
+    }
+    entry.setVis("tree");
+
+    Set<Statistics.QName> terminalAnnos = domStats.getTerminalAnno(layerName);
+    
+    if(terminalAnnos.size() >= 1) {
+      Statistics.QName qname = terminalAnnos.iterator().next();
+      entry.getMappings().put("terminal_name", qname.getName());
+      entry.getMappings().put("terminal_ns", qname.getNs());
+    }
+    
+    Set<Statistics.QName> edgeAnnos = domStats.getEdgeAnno(layerName);
+    
+    if(edgeAnnos.size() >= 1) {
+      Statistics.QName qname = edgeAnnos.iterator().next();
+      entry.getMappings().put("edge_key", qname.getName());
+      entry.getMappings().put("edge_anno_ns", qname.getNs());
+    }
+     
+    SortedMap<Integer, String> etypes = domStats.getEdgeTypesBySize(layerName);
+    if(etypes.size() >= 2) {
+      // the primary edge type always has the greatest number of entries
+      String primaryType = etypes.get(etypes.lastKey());
+      String secondaryType = etypes.get(etypes.firstKey());
+      
+      entry.getMappings().put("edge_type", primaryType);
+      entry.getMappings().put("secedge_type", secondaryType);
+    }
+
+    globalIdManager.getResolverEntryByDisplay().putIfAbsent(entry.getDisplay(), entry);
+
   }
 
   /**

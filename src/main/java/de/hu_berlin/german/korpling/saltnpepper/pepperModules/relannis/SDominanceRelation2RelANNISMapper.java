@@ -9,11 +9,17 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.graph.GRAPH_TRAVERSE_TYPE;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDominanceRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STYPE_NAME;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SLayer;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
+import java.util.HashSet;
+import java.util.Set;
 
 public class SDominanceRelation2RelANNISMapper extends SRelation2RelANNISMapper {
+
+  private SNode lastEnteredNode;
 
   public SDominanceRelation2RelANNISMapper(IdManager idManager,
           SDocumentGraph documentGraph, TupleWriter nodeTabWriter,
@@ -30,6 +36,7 @@ public class SDominanceRelation2RelANNISMapper extends SRelation2RelANNISMapper 
   public void run() {
 
     beginTransaction();
+    Set<String> layers = new HashSet<String>();
 
     if (sRelationRoots != null && sRelationRoots.size() != 0) {
       for (SNode node : sRelationRoots) {
@@ -39,6 +46,7 @@ public class SDominanceRelation2RelANNISMapper extends SRelation2RelANNISMapper 
         if (componentLayer != null) {
           componentLayerName = componentLayer.getSName();
         }
+        layers.add(componentLayerName);
 
         if (this.currentTraversionSType == null) {
           super.initialiseTraversion("d", componentLayerName, "NULL");
@@ -54,11 +62,8 @@ public class SDominanceRelation2RelANNISMapper extends SRelation2RelANNISMapper 
 
         // map the component
         this.mapComponent2RelANNIS();
-        createResolverEntry(componentLayer);
-
       }
     }
-
     commitTransaction();
   }
 
@@ -79,7 +84,21 @@ public class SDominanceRelation2RelANNISMapper extends SRelation2RelANNISMapper 
 
     // this method behaves exactly as the one in the super class
     super.nodeReached(traversalType, traversalId, currNode, sRelation, fromNode, order);
-
+    lastEnteredNode = currNode;
+    if (sRelation != null) {
+      EList<String> types = sRelation.getSTypes();
+      if (types != null) {
+        for (String t : types) {
+          getStats().addEdgeType(currentComponentLayer, t);
+        }
+      }
+      EList<SAnnotation> annos = sRelation.getSAnnotations();
+      if(annos != null) {
+        for(SAnnotation a : annos) {
+          getStats().addEdgeAnno(currentComponentLayer, a.getSNS(), a.getSName());
+        }
+      }
+    }
   }
 
   @Override
@@ -88,6 +107,18 @@ public class SDominanceRelation2RelANNISMapper extends SRelation2RelANNISMapper 
 
     // this method behaves exactly as the one in the super class
     super.nodeLeft(traversalType, traversalId, currNode, edge, fromNode, order);
+
+    if (lastEnteredNode == currNode) {
+      // we left a leaf node
+      if (!(currNode instanceof SToken)) {
+        EList<SAnnotation> annos = currNode.getSAnnotations();
+        if (annos != null && !annos.isEmpty()) {
+          SAnnotation anno = annos.get(0);
+          getStats().addTerminalAnno(currentComponentLayer, anno.getSNS(), anno.getSName());
+        }
+
+      }
+    }
 
   }
 
@@ -122,19 +153,5 @@ public class SDominanceRelation2RelANNISMapper extends SRelation2RelANNISMapper 
     return returnVal;
   }
 
-  private void createResolverEntry(SLayer layer) {
-    String displayName = "tree";
-    if (layer != null) {
-      displayName = displayName + " (" + layer.getSName() + ")";
-    }
-    ResolverEntry entry = new ResolverEntry();
-    entry.setDisplay(displayName);
-    entry.setElement(ResolverEntry.Element.node);
-    if (layer != null) {
-      entry.setLayerName(layer.getSName());
-    }
-    entry.setVis("tree");
-    idManager.insertResolverEntry(entry);
-  }
-
+  
 }

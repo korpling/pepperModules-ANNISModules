@@ -158,10 +158,10 @@ public class IdManager {
     return this.spanVirtualisationMapping.get(tokenId);
   }
 
-  public boolean insertResolverEntry(ResolverEntry entry) {
+  public ResolverEntry insertResolverEntry(ResolverEntry entry) {
     ResolverEntry old
             = globalIdManager.getResolverEntryByDisplay().putIfAbsent(entry.getDisplay(), entry);
-    return old == null;
+    return old;
   }
 
   public List<ResolverEntry> getResolverEntries() {
