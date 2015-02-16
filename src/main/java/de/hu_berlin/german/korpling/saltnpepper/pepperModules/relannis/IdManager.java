@@ -22,9 +22,9 @@ public class IdManager {
 
 	private final GlobalIdManager globalIdManager;
 	
-	private final ConcurrentHashMap<String,Long> textIdMap;
-	private final ConcurrentHashMap<String,EList<Long>> tokenVirtualisationMapping;
-	private final ConcurrentHashMap<String,Long> spanVirtualisationMapping;
+	private final ConcurrentMap<String,Long> textIdMap;
+	private final ConcurrentMap<String,EList<Long>> tokenVirtualisationMapping;
+	private final ConcurrentMap<String,Long> spanVirtualisationMapping;
 	
 	private final Lock lockNodeIdMap = new ReentrantLock();
 	private final Map<String,Long> nodeIdMap = new HashMap<String, Long>();
@@ -116,12 +116,8 @@ public class IdManager {
 	 */
 	public synchronized void registerTokenVirtMapping(String tokenId, Long virtualSpanId, EList<Long> virtualTokenIds){
 		globalIdManager.setContainsVirtualTokens(true);
-		if (! this.tokenVirtualisationMapping.contains(tokenId)){
-			this.tokenVirtualisationMapping.put(tokenId, virtualTokenIds);
-		}
-		if (! this.spanVirtualisationMapping.contains(virtualSpanId)){
-			this.spanVirtualisationMapping.put(tokenId, virtualSpanId);
-		}
+    tokenVirtualisationMapping.putIfAbsent(tokenId, virtualTokenIds);
+    spanVirtualisationMapping.putIfAbsent(tokenId, virtualSpanId);
 	}
 	
 	/**
