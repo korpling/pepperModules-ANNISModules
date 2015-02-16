@@ -9,6 +9,7 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.graph.GRAPH_TRAVERSE_TYPE;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDominanceRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STYPE_NAME;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SLayer;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
 
@@ -32,21 +33,17 @@ public class SDominanceRelation2RelANNISMapper extends SRelation2RelANNISMapper 
     
 		if (sRelationRoots != null && sRelationRoots.size() != 0){
 			for (SNode node : sRelationRoots){
-				String componentLayer = DEFAULT_NS;
-				/*
-				EList<SLayer> nodeLayer = node.getSLayers();
-				if (nodeLayer != null){
-					if (nodeLayer.size() > 0){
-						if (! "".equals(nodeLayer.get(0))){
-							componentLayer = nodeLayer.get(0).toString();
-						}
-					}
-				}*/
+        
+				String componentLayerName = DEFAULT_NS;
+        SLayer componentLayer = getFirstComponentLayer(node);
+        if(componentLayer != null) {
+          componentLayerName = componentLayer.getSName();
+        }
 				
 				if (this.currentTraversionSType== null){
-					super.initialiseTraversion("d", componentLayer, "NULL");
+					super.initialiseTraversion("d", componentLayerName, "NULL");
 				} else {
-					super.initialiseTraversion("d", componentLayer, this.currentTraversionSType);
+					super.initialiseTraversion("d", componentLayerName, this.currentTraversionSType);
 				}
 				
 				
@@ -58,7 +55,7 @@ public class SDominanceRelation2RelANNISMapper extends SRelation2RelANNISMapper 
 				
 				// map the component
 				this.mapComponent2RelANNIS();
-        
+        createResolverEntry(componentLayer);
 				
 			}
 		}
@@ -132,6 +129,22 @@ public class SDominanceRelation2RelANNISMapper extends SRelation2RelANNISMapper 
 		return returnVal;
 	}
 
+  private void createResolverEntry(SLayer layer) {    
+    String displayName = "tree";
+    if(layer != null)
+    {
+      displayName = displayName + " (" + layer.getSName() + ")";
+    }
+    ResolverEntry entry = new ResolverEntry();
+    entry.setDisplay(displayName);
+    entry.setElement(ResolverEntry.Element.node);
+    if(layer != null)
+    {
+      entry.setLayerName(layer.getSName());
+    }
+    entry.setVis("tree");
+    idManager.insertResolverEntry(entry);
+  }
 	
 	
 }

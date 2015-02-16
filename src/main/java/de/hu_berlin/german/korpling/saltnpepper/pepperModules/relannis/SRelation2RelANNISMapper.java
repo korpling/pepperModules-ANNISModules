@@ -25,6 +25,7 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructu
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SDATATYPE;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SGraphTraverseHandler;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SLayer;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
 import java.io.File;
@@ -33,6 +34,7 @@ import java.util.Collection;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import org.eclipse.emf.common.util.URI;
@@ -805,8 +807,20 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
     }
   }
   
-  public void insertResolverEntry(ResolverEntry entry) {
-    
+  protected SLayer getFirstComponentLayer(SNode node) {
+    SLayer componentLayer = null;
+    EList<SLayer> nodeLayer = node.getSLayers();
+    if (nodeLayer != null) {
+      // get layer name which comes lexically first
+      TreeMap<String, SLayer> layers = new TreeMap<String, SLayer>();
+      for (SLayer l : nodeLayer) {
+        layers.put(l.getSName(), l);
+      }
+      if (!layers.isEmpty()) {
+        componentLayer = layers.firstEntry().getValue();
+      }
+    }
+    return componentLayer;
   }
   
 }

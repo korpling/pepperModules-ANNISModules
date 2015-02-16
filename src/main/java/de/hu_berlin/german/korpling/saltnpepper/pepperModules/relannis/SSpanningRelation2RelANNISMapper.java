@@ -44,19 +44,10 @@ public class SSpanningRelation2RelANNISMapper extends SRelation2RelANNISMapper  
 			for (SNode node : sRelationRoots){
 				
 				String componentLayerName = DEFAULT_NS;
-        SLayer componentLayer = null;
-				EList<SLayer> nodeLayer = node.getSLayers();
-				if (nodeLayer != null){
-          // get layer name which comes lexically first
-			    TreeMap<String, SLayer> layers = new TreeMap<String, SLayer>();
-          for (SLayer l : nodeLayer) {
-            layers.put(l.getSName(), l);
-          }
-          if (!layers.isEmpty()) {
-            componentLayer = layers.firstEntry().getValue();
-            componentLayerName = layers.firstEntry().getKey();
-          }
-				}
+        SLayer componentLayer = getFirstComponentLayer(node);
+        if(componentLayer != null) {
+          componentLayerName = componentLayer.getSName();
+        }
 				
 				if (this.currentTraversionSType== null){
 					super.initialiseTraversion("c", componentLayerName, "NULL");
@@ -170,7 +161,7 @@ public class SSpanningRelation2RelANNISMapper extends SRelation2RelANNISMapper  
     {
       entry.setLayerName(layer.getSName());
     }
-    entry.setOrder(1);
+    entry.setVis("grid");
     idManager.insertResolverEntry(entry);
   }
   
