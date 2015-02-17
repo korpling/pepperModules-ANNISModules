@@ -19,6 +19,7 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Table;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
@@ -46,19 +47,26 @@ public class Statistics {
   private final Multimap<String, QName> edgeAnnoByLayer
           = HashMultimap.create();
   
+  private final Table<String, QName, AtomicInteger> nodeAnnoCounter
+          = HashBasedTable.create();
+  
   private final Set<String> layers = Collections.synchronizedSet(new HashSet<String>());
   
-  public void addEdgeType(String layer, String edgeType) {
+  public void addEdgeType(String layer, EList<String> types) {
     
-    synchronized (edgeTypeCounter) {
+    if (types != null) {
+      synchronized (edgeTypeCounter) {
 
-      if (!edgeTypeCounter.contains(layer, edgeType)) {
-        edgeTypeCounter.put(layer, edgeType, new AtomicInteger(0));
+        for (String edgeType : types) {
+          if (!edgeTypeCounter.contains(layer, edgeType)) {
+            edgeTypeCounter.put(layer, edgeType, new AtomicInteger(0));
+          }
+          edgeTypeCounter.get(layer, edgeType).incrementAndGet();
+        }
       }
-      edgeTypeCounter.get(layer, edgeType).incrementAndGet();
+
+      layers.add(layer);
     }
-    
-    layers.add(layer);
   }
   
   public SortedMap<Integer, String> getEdgeTypesBySize(String layer) {
@@ -107,11 +115,15 @@ public class Statistics {
     return result;
   }
   
-  public void addEdgeAnno(String layer, String annoNS, String annoName) {
-    synchronized(edgeAnnoByLayer) {
-      edgeAnnoByLayer.put(layer, new QName(annoNS, annoName));
+  public void addEdgeAnno(String layer,  EList<SAnnotation> annos) {
+    if (annos != null) {
+      synchronized (edgeAnnoByLayer) {
+        for(SAnnotation a : annos) {
+          edgeAnnoByLayer.put(layer, new QName(a.getSNS(), a.getSName()));
+        }
+      }
+      layers.add(layer);
     }
-    layers.add(layer);
   }
   
   public Set<QName> getEdgeAnno(String layer) {
@@ -121,6 +133,34 @@ public class Statistics {
     }
     return result;
   }
+  
+  public void addNodeAnno(String layer,  EList<SAnnotation> annos) {
+    if (annos != null) {
+      synchronized (nodeAnnoCounter) {
+        for(SAnnotation a : annos) {
+          QName qname = new QName(a.getSNS(), a.getSName());
+          if(nodeAnnoCounter.get(layer, qname) == null) {
+            nodeAnnoCounter.put(layer, qname, new AtomicInteger(0));
+          }
+          nodeAnnoCounter.get(layer, qname).incrementAndGet();
+        }
+      }
+      layers.add(layer);
+    }
+  }
+  
+  public SortedMap<Integer, QName> getNodeAnnobySize(String layer) {
+    TreeMap<Integer, QName> result = new TreeMap<Integer, QName>();
+    
+    synchronized (nodeAnnoCounter) {
+
+      for (Map.Entry<QName, AtomicInteger> e : nodeAnnoCounter.row(layer).entrySet()) {
+        result.put(e.getValue().get(), e.getKey());
+      }
+    }
+    return result;
+  }
+  
   
   public Set<String> getLayers() {
     return new HashSet<String>(layers);
@@ -146,6 +186,13 @@ public class Statistics {
     public String getName() {
       return name;
     }
+
+    @Override
+    public String toString() {
+      return ns + ":" + name;
+    }
+    
+    
 
     @Override
     public int hashCode() {

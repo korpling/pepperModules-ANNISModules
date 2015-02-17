@@ -306,6 +306,14 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
       entry.getMappings().put("terminal_ns", qname.getNs());
     }
     
+    SortedMap<Integer, Statistics.QName> nodeAnnos = domStats.getNodeAnnobySize(layerName);
+    
+    if(nodeAnnos.size() >= 1) {
+      Statistics.QName qname = nodeAnnos.get(nodeAnnos.lastKey());
+      entry.getMappings().put("node_key", qname.getName());
+      entry.getMappings().put("node_anno_ns", qname.getNs());
+    }
+    
     Set<Statistics.QName> edgeAnnos = domStats.getEdgeAnno(layerName);
     
     if(edgeAnnos.size() >= 1) {

@@ -85,19 +85,10 @@ public class SDominanceRelation2RelANNISMapper extends SRelation2RelANNISMapper 
     // this method behaves exactly as the one in the super class
     super.nodeReached(traversalType, traversalId, currNode, sRelation, fromNode, order);
     lastEnteredNode = currNode;
+    
     if (sRelation != null) {
-      EList<String> types = sRelation.getSTypes();
-      if (types != null) {
-        for (String t : types) {
-          getStats().addEdgeType(currentComponentLayer, t);
-        }
-      }
-      EList<SAnnotation> annos = sRelation.getSAnnotations();
-      if (annos != null) {
-        for (SAnnotation a : annos) {
-          getStats().addEdgeAnno(currentComponentLayer, a.getSNS(), a.getSName());
-        }
-      }
+      getStats().addEdgeType(currentComponentLayer, sRelation.getSTypes());
+      getStats().addEdgeAnno(currentComponentLayer, sRelation.getSAnnotations());
     }
   }
 
@@ -124,6 +115,8 @@ public class SDominanceRelation2RelANNISMapper extends SRelation2RelANNISMapper 
           }
 
         }
+      } else {
+        getStats().addNodeAnno(currentComponentLayer, currNode.getSAnnotations());
       }
     }
 
