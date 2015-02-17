@@ -303,7 +303,9 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
     if(terminalAnnos.size() >= 1) {
       Statistics.QName qname = terminalAnnos.iterator().next();
       entry.getMappings().put("terminal_name", qname.getName());
-      entry.getMappings().put("terminal_ns", qname.getNs());
+      if(!Statistics.QName.NULL.equals(qname.getNs())) {
+        entry.getMappings().put("terminal_ns", qname.getNs());
+      }
     }
     
     SortedMap<Integer, Statistics.QName> nodeAnnos = domStats.getNodeAnnobySize(layerName);
@@ -311,7 +313,9 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
     if(nodeAnnos.size() >= 1) {
       Statistics.QName qname = nodeAnnos.get(nodeAnnos.lastKey());
       entry.getMappings().put("node_key", qname.getName());
-      entry.getMappings().put("node_anno_ns", qname.getNs());
+      if(!Statistics.QName.NULL.equals(qname.getNs())) {
+        entry.getMappings().put("node_anno_ns", qname.getNs());
+      }
     }
     
     Set<Statistics.QName> edgeAnnos = domStats.getEdgeAnno(layerName);
@@ -319,7 +323,9 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
     if(edgeAnnos.size() >= 1) {
       Statistics.QName qname = edgeAnnos.iterator().next();
       entry.getMappings().put("edge_key", qname.getName());
-      entry.getMappings().put("edge_anno_ns", qname.getNs());
+      if(!Statistics.QName.NULL.equals(qname.getNs())) {
+        entry.getMappings().put("edge_anno_ns", qname.getNs());
+      }
     }
      
     SortedMap<Integer, String> etypes = domStats.getEdgeTypesBySize(layerName);

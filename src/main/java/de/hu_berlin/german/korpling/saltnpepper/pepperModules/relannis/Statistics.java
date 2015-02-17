@@ -167,11 +167,14 @@ public class Statistics {
   }
   
   public static class QName {
+    
+    public static final String NULL = "null";
+    
     private final String ns;
     private final String name;
 
     public QName(String ns, String name) {
-      this.ns = ns == null ? "null" : ns;
+      this.ns = ns == null ? NULL : ns;
       this.name = name;
     }
 
