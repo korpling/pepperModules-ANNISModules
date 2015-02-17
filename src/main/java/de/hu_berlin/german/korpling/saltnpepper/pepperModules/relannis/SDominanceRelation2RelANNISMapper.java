@@ -93,8 +93,8 @@ public class SDominanceRelation2RelANNISMapper extends SRelation2RelANNISMapper 
         }
       }
       EList<SAnnotation> annos = sRelation.getSAnnotations();
-      if(annos != null) {
-        for(SAnnotation a : annos) {
+      if (annos != null) {
+        for (SAnnotation a : annos) {
           getStats().addEdgeAnno(currentComponentLayer, a.getSNS(), a.getSName());
         }
       }
@@ -108,15 +108,22 @@ public class SDominanceRelation2RelANNISMapper extends SRelation2RelANNISMapper 
     // this method behaves exactly as the one in the super class
     super.nodeLeft(traversalType, traversalId, currNode, edge, fromNode, order);
 
-    if (lastEnteredNode == currNode) {
-      // we left a leaf node
-      if (!(currNode instanceof SToken)) {
-        EList<SAnnotation> annos = currNode.getSAnnotations();
-        if (annos != null && !annos.isEmpty()) {
-          SAnnotation anno = annos.get(0);
-          getStats().addTerminalAnno(currentComponentLayer, anno.getSNS(), anno.getSName());
+    if (currentTraversionSType == null) {
+      if (lastEnteredNode == currNode) {
+        // we left a leaf node
+
+        if (edge != null) {
+          getStats().addTerminalEdgeType(currentComponentLayer, edge.getSTypes());
         }
 
+        if (!(currNode instanceof SToken)) {
+          EList<SAnnotation> annos = currNode.getSAnnotations();
+          if (annos != null && !annos.isEmpty()) {
+            SAnnotation anno = annos.get(0);
+            getStats().addTerminalAnno(currentComponentLayer, anno.getSNS(), anno.getSName());
+          }
+
+        }
       }
     }
 
@@ -153,5 +160,4 @@ public class SDominanceRelation2RelANNISMapper extends SRelation2RelANNISMapper 
     return returnVal;
   }
 
-  
 }

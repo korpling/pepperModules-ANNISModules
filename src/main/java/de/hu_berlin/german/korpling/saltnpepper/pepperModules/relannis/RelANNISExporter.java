@@ -320,6 +320,13 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
       String primaryType = etypes.get(etypes.lastKey());
       String secondaryType = etypes.get(etypes.firstKey());
       
+      // check if the terminal nodes are reachable by the original types
+      // use the special "null" type if not
+      Set<String> terminalEdgeTypes = domStats.getTerminalEdgeType(layerName);
+      if(!terminalEdgeTypes.contains(primaryType) && !terminalEdgeTypes.contains(secondaryType)) {
+        primaryType = "null";
+      }
+      
       entry.getMappings().put("edge_type", primaryType);
       entry.getMappings().put("secedge_type", secondaryType);
     }

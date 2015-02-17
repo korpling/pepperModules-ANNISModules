@@ -26,6 +26,7 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.eclipse.emf.common.util.EList;
 
 /**
  *
@@ -37,6 +38,9 @@ public class Statistics {
           = HashBasedTable.create();
   
   private final Multimap<String, QName> terminalAnnoByLayer
+          = HashMultimap.create();
+  
+  private final Multimap<String, String> terminalEdgeType
           = HashMultimap.create();
   
   private final Multimap<String, QName> edgeAnnoByLayer
@@ -80,6 +84,25 @@ public class Statistics {
     Set<QName> result = new HashSet<QName>();
     synchronized(terminalAnnoByLayer) {
       result.addAll(terminalAnnoByLayer.get(layer));
+    }
+    return result;
+  }
+  
+  public void addTerminalEdgeType(String layer, EList<String> sTypes) {
+    if (sTypes != null) {
+      synchronized (terminalEdgeType) {
+        for(String edgeType : sTypes) {
+          terminalEdgeType.put(layer, edgeType);
+        }
+      }      
+      layers.add(layer);
+    }
+  }
+  
+  public Set<String> getTerminalEdgeType(String layer) {
+    Set<String> result = new HashSet<String>();
+    synchronized(terminalEdgeType) {
+      result.addAll(terminalEdgeType.get(layer));
     }
     return result;
   }
