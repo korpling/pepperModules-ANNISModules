@@ -69,8 +69,10 @@ public class SPointingRelation2RelANNISMapper extends SRelation2RelANNISMapper {
 
       }
     }
-
+    
     commitTransaction();
+    
+    getPointingStats().setNodeCount(this.documentGraph.getNumOfNodes());
   }
 
   @Override
@@ -92,7 +94,6 @@ public class SPointingRelation2RelANNISMapper extends SRelation2RelANNISMapper {
     super.nodeReached(traversalType, traversalId, currNode, sRelation, fromNode, order);
     
     lastEnteredNode = currNode;
-    getPointingStats().addNodeCount();
 
     if (sRelation != null & sRelation instanceof SPointingRelation) {
 			//System.out.println("found relation "+ fromNode.getSName() +" ->["+sRelation.getSId()+"] "+currNode.getSName());

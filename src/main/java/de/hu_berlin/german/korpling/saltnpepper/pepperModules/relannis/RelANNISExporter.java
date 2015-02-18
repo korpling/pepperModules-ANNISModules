@@ -401,11 +401,11 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
     } else {
       
       // use coref visualizer for "large" documents and discourse (fulltext) otherwise
-//      if(pointingStats.getNodeCount() <= MAX_NUM_OF_NODES_FOR_DISCOURSE) {
-//        entry.setVis("discourse");
-//      } else {
+      if(pointingStats.getMaxNodeCount() <= MAX_NUM_OF_NODES_FOR_DISCOURSE) {
+        entry.setVis("discourse");
+      } else {
         entry.setVis("coref");
-//      }
+      }
     }
 
     String displayName = entry.getVis();

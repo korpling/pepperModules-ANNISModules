@@ -15,12 +15,11 @@
  */
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.resolver;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Statistics used for creating resolver entries for pointing relation components.
@@ -35,7 +34,11 @@ public class PointingStatistics {
   private final StatMultiMap<QName, QName> terminalAnno
           = new StatMultiMap<QName, QName>(layers);
   
-  private final AtomicLong numberOfNodes = new AtomicLong(0l);
+  private final ReadWriteLock numberOfNodeLock = new ReentrantReadWriteLock();
+  
+  private long numberOfNodes = 0l;
+  
+  private long maxNumberOfNodes = 0l;
   
   public void addLayer(QName layer) {
     layers.add(layer);
@@ -46,16 +49,32 @@ public class PointingStatistics {
     return new HashSet<QName>(layers);
   }
   
-  public void addNodeCount() {
-    numberOfNodes.incrementAndGet();
-  }
-  
-  public void addNodeCount(long count) {
-    numberOfNodes.addAndGet(count);
+  public void setNodeCount(long newCount) {
+    numberOfNodeLock.writeLock().lock();
+    try {
+      numberOfNodes = newCount;
+      maxNumberOfNodes = Math.max(maxNumberOfNodes, numberOfNodes);
+    } finally {
+      numberOfNodeLock.writeLock().unlock();
+    }
   }
   
   public long getNodeCount() {
-    return numberOfNodes.get();
+    numberOfNodeLock.readLock().lock();
+    try {
+      return numberOfNodes;
+    } finally {
+      numberOfNodeLock.readLock().unlock();
+    }
+  }
+  
+  public long getMaxNodeCount() {
+    numberOfNodeLock.readLock().lock();
+    try {
+      return maxNumberOfNodes;
+    } finally {
+      numberOfNodeLock.readLock().unlock();
+    }
   }
   
   /**
@@ -64,12 +83,19 @@ public class PointingStatistics {
    * The other object is not allowed to be modified while
    * executing this functions since no explicit locking will occur. This object
    * will be locked and suppports concurrent calls to this function.
+   * 
+   * Please note that the number of nodes will not be merged (only the max number).
    * @param other 
    */
   public void merge(PointingStatistics other) {
-    numberOfNodes.addAndGet(other.numberOfNodes.get());
     layers.addAll(other.layers);
     terminalAnno.merge(other.terminalAnno);
+    numberOfNodeLock.writeLock().lock();
+    try {
+      maxNumberOfNodes = Math.max(maxNumberOfNodes, other.numberOfNodes);
+    } finally {
+      numberOfNodeLock.writeLock().unlock();
+    }
   }
 
   public StatMultiMap<QName, QName> getTerminalAnno() {
