@@ -30,6 +30,7 @@ import de.hu_berlin.german.korpling.saltnpepper.misc.tupleconnector.TupleWriter;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.common.DOCUMENT_STATUS;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleException;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.impl.PepperMapperImpl;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.resolver.SpanStatistics;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.GRAPH_TRAVERSE_TYPE;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpus;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
@@ -59,7 +60,8 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
   private final AtomicInteger numberOfMappedNodes = new AtomicInteger();
   private int numberOfDocumentNodes;
   private File outputDir;
-  private DomStatistics stats = new DomStatistics();
+  private DomStatistics domStats = new DomStatistics();
+  private SpanStatistics spanStats = new SpanStatistics();
 
   public Salt2RelANNISMapper() {
     this.init();
@@ -717,12 +719,20 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
     }
   }
 
-  public DomStatistics getStats() {
-    return stats;
+  public DomStatistics getDomStats() {
+    return domStats;
   }
 
-  public void setStats(DomStatistics stats) {
-    this.stats = stats;
+  public void setDomStats(DomStatistics domStats) {
+    this.domStats = domStats;
+  }
+
+  public SpanStatistics getSpanStats() {
+    return spanStats;
+  }
+
+  public void setSpanStats(SpanStatistics spanStats) {
+    this.spanStats = spanStats;
   }
   
   

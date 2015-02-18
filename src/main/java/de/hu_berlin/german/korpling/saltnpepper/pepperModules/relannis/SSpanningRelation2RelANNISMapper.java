@@ -17,7 +17,6 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeMap;
 
 public class SSpanningRelation2RelANNISMapper extends SRelation2RelANNISMapper {
 
@@ -63,8 +62,7 @@ public class SSpanningRelation2RelANNISMapper extends SRelation2RelANNISMapper {
 
         // map the component
         this.mapComponent2RelANNIS();
-        createResolverEntry(componentLayer);
-
+        this.getSpanStats().addLayer(componentLayer);
       }
     }
 
@@ -135,20 +133,6 @@ public class SSpanningRelation2RelANNISMapper extends SRelation2RelANNISMapper {
     return continuous;
   }
 
-  private void createResolverEntry(SLayer layer) {
-    String displayName = "grid";
-    if (layer != null) {
-      displayName = displayName + " (" + layer.getSName() + ")";
-    }
-    ResolverEntry entry = new ResolverEntry();
-    entry.setDisplay(displayName);
-    entry.setElement(ResolverEntry.Element.node);
-    if (layer != null) {
-      entry.setLayerName(layer.getSName());
-    }
-    entry.setVis("grid");
-    idManager.insertResolverEntry(entry);
-  }
 
 // ========================= Graph Traversion =================================
   @Override

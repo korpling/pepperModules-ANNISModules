@@ -87,8 +87,8 @@ public class SDominanceRelation2RelANNISMapper extends SRelation2RelANNISMapper 
     lastEnteredNode = currNode;
     
     if (sRelation != null) {
-      getStats().addEdgeType(currentComponentLayer, sRelation.getSTypes());
-      getStats().addEdgeAnno(currentComponentLayer, sRelation.getSAnnotations());
+      getDomStats().addEdgeType(currentComponentLayer, sRelation.getSTypes());
+      getDomStats().addEdgeAnno(currentComponentLayer, sRelation.getSAnnotations());
     }
   }
 
@@ -104,19 +104,19 @@ public class SDominanceRelation2RelANNISMapper extends SRelation2RelANNISMapper 
         // we left a leaf node
 
         if (edge != null) {
-          getStats().addTerminalEdgeType(currentComponentLayer, edge.getSTypes());
+          getDomStats().addTerminalEdgeType(currentComponentLayer, edge.getSTypes());
         }
 
         if (!(currNode instanceof SToken)) {
           EList<SAnnotation> annos = currNode.getSAnnotations();
           if (annos != null && !annos.isEmpty()) {
             SAnnotation anno = annos.get(0);
-            getStats().addTerminalAnno(currentComponentLayer, anno.getSNS(), anno.getSName());
+            getDomStats().addTerminalAnno(currentComponentLayer, anno.getSNS(), anno.getSName());
           }
 
         }
       } else {
-        getStats().addNodeAnno(currentComponentLayer, currNode.getSAnnotations());
+        getDomStats().addNodeAnno(currentComponentLayer, currNode.getSAnnotations());
       }
     }
 

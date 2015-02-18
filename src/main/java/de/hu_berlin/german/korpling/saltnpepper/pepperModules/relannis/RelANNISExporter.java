@@ -37,9 +37,11 @@ import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperMapper;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleException;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleNotReadyException;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.impl.PepperExporterImpl;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.resolver.SpanStatistics;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpus;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SLayer;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SMetaAnnotation;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -109,6 +111,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
   private GlobalIdManager globalIdManager;
   
   private DomStatistics domStats;
+  private SpanStatistics spanStats;
 
   // =================================================== mandatory ===================================================
   public RelANNISExporter() {
@@ -130,7 +133,8 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
   public PepperMapper createPepperMapper(SElementId sElementId) {
     Salt2RelANNISMapper mapper = new Salt2RelANNISMapper();
     mapper.setIdManager(new IdManager(globalIdManager));
-    mapper.setStats(domStats);
+    mapper.setDomStats(domStats);
+    mapper.setSpanStats(spanStats);
     mapper.setOutputDir(new File(getCorpusDesc().getCorpusPath().toFileString()));
     mapper.tw_text = tw_text;
     mapper.tw_node = tw_node;
@@ -260,6 +264,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 
     this.globalIdManager = new GlobalIdManager();
     this.domStats = new DomStatistics();
+    this.spanStats = new SpanStatistics();
 
     // write versions file
     File versionFile = new File(getCorpusDesc().getCorpusPath().toFileString(), "relannis.version");
@@ -275,6 +280,10 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
   @Override
   public void end() throws PepperModuleException {
     super.end();
+    
+    for(String l : spanStats.getLayers()) {
+      createSpanResolverEntry(l);
+    }
 
     for(String l : domStats.getLayers()) {
       createDominanceResolverEntry(l);
@@ -284,6 +293,21 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
         printResolverVisMap(corpusGraph);
       }
     }
+  }
+  
+  private void createSpanResolverEntry(String layer) {
+    String displayName = "grid";
+    if (layer != null) {
+      displayName = displayName + " (" + layer + ")";
+    }
+    ResolverEntry entry = new ResolverEntry();
+    entry.setDisplay(displayName);
+    entry.setElement(ResolverEntry.Element.node);
+    if (layer != null) {
+      entry.setLayerName(layer);
+    }
+    entry.setVis("grid");
+    globalIdManager.getResolverEntryByDisplay().putIfAbsent(entry.getDisplay(), entry);
   }
   
   private void createDominanceResolverEntry(String layerName) {
