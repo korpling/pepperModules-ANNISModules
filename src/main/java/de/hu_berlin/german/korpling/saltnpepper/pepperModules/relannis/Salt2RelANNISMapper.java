@@ -61,9 +61,13 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
   private final AtomicInteger numberOfMappedNodes = new AtomicInteger();
   private int numberOfDocumentNodes;
   private File outputDir;
-  private DomStatistics domStats = new DomStatistics();
-  private SpanStatistics spanStats = new SpanStatistics();
-  private PointingStatistics pointingStats = new PointingStatistics();
+  private final DomStatistics localDomStats = new DomStatistics();
+  private final SpanStatistics localSpanStats = new SpanStatistics();
+  private final PointingStatistics localPointingStats = new PointingStatistics();
+  
+  private DomStatistics globalDomStats;
+  private SpanStatistics globalSpanStats;
+  private PointingStatistics globalPointingStats;
 
   public Salt2RelANNISMapper() {
     this.init();
@@ -487,8 +491,22 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
       }
     }//start traversion of corpus structure
 
+    mergeLocalStatsIntoGlobal();
+    
     setProgress(1.0);
     return DOCUMENT_STATUS.COMPLETED;
+  }
+  
+  private void mergeLocalStatsIntoGlobal() {
+    if(globalDomStats != null) {
+      globalDomStats.merge(localDomStats);
+    }
+    if(globalPointingStats != null) {
+      globalPointingStats.merge(localPointingStats);
+    }
+    if(globalSpanStats != null) {
+      globalSpanStats.merge(localSpanStats);
+    }
   }
 
   /**
@@ -721,28 +739,29 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
     }
   }
 
-  public DomStatistics getDomStats() {
-    return domStats;
+  public DomStatistics getLocalDomStats() {
+    return localDomStats;
   }
 
-  public void setDomStats(DomStatistics domStats) {
-    this.domStats = domStats;
+  public SpanStatistics getLocalSpanStats() {
+    return localSpanStats;
   }
 
-  public SpanStatistics getSpanStats() {
-    return spanStats;
+  public PointingStatistics getLocalPointingStats() {
+    return localPointingStats;
+  }  
+
+  public void setGlobalDomStats(DomStatistics globalDomStats) {
+    this.globalDomStats = globalDomStats;
   }
 
-  public void setSpanStats(SpanStatistics spanStats) {
-    this.spanStats = spanStats;
+  public void setGlobalSpanStats(SpanStatistics globalSpanStats) {
+    this.globalSpanStats = globalSpanStats;
   }
 
-  public PointingStatistics getPointingStats() {
-    return pointingStats;
+  public void setGlobalPointingStats(PointingStatistics globalPointingStats) {
+    this.globalPointingStats = globalPointingStats;
   }
-
-  public void setPointingStats(PointingStatistics pointingStats) {
-    this.pointingStats = pointingStats;
-  }
+  
   
 }

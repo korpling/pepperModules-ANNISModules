@@ -17,45 +17,35 @@ package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.resolver
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Statistics used for creating resolver entries for pointing relation components.
  *
  * @author Thomas Krause <krauseto@hu-berlin.de>
+ * @param <LayerType>
+ * @param <ValueType>
  */
-public class PointingStatistics {
-  
-  private final Set<QName> layers = Collections.synchronizedSet(new HashSet<QName>());
+public class StatMultiMap<LayerType, ValueType> {
 
+  private final Multimap<LayerType, ValueType> valuesByLayer
+          = HashMultimap.create();
+  
+  private final Set<LayerType> layers;
 
-  private final StatMultiMap<QName, QName> terminalAnno
-          = new StatMultiMap<QName, QName>(layers);
+  /**
+   * Constructor.
+   * @param layers A *synchronized* set of layer names
+   */
+  public StatMultiMap(Set<LayerType> layers) {
+    this.layers = layers;
+  }
   
-  private final AtomicLong numberOfNodes = new AtomicLong(0l);
-  
-  public void addLayer(QName layer) {
+  public void add(LayerType layer, ValueType val) {
+    synchronized(valuesByLayer) {
+      valuesByLayer.put(layer, val);
+    }
     layers.add(layer);
-  }
-  
-  
-  public Set<QName> getLayers() {
-    return new HashSet<QName>(layers);
-  }
-  
-  public void addNodeCount() {
-    numberOfNodes.incrementAndGet();
-  }
-  
-  public void addNodeCount(long count) {
-    numberOfNodes.addAndGet(count);
-  }
-  
-  public long getNodeCount() {
-    return numberOfNodes.get();
   }
   
   /**
@@ -66,14 +56,22 @@ public class PointingStatistics {
    * will be locked and suppports concurrent calls to this function.
    * @param other 
    */
-  public void merge(PointingStatistics other) {
-    numberOfNodes.addAndGet(other.numberOfNodes.get());
-    layers.addAll(other.layers);
-    terminalAnno.merge(other.terminalAnno);
+  public void merge(StatMultiMap<LayerType, ? extends ValueType> other) {
+    synchronized (valuesByLayer) {
+      valuesByLayer.putAll(other.valuesByLayer);
+    } // end synchronized
+    for(LayerType l : valuesByLayer.keySet()) {
+      layers.add(l);
+    }
   }
-
-  public StatMultiMap<QName, QName> getTerminalAnno() {
-    return terminalAnno;
+  
+  public Set<ValueType> get(LayerType layer) {
+    Set<ValueType> result = new HashSet<ValueType>();
+    synchronized(valuesByLayer) {
+      result.addAll(valuesByLayer.get(layer));
+    }
+    return result;
   }
+  
   
 }

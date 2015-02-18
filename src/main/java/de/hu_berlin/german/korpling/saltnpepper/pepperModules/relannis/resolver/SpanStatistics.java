@@ -38,4 +38,16 @@ public class SpanStatistics {
   public Set<String> getLayers() {
     return new HashSet<String>(layers);
   }
+  
+  /**
+   * Merges the information from the other statistics object.
+   * 
+   * The other object is not allowed to be modified while
+   * executing this functions since no explicit locking will occur. This object
+   * will be locked and suppports concurrent calls to this function.
+   * @param other 
+   */
+  public void merge(SpanStatistics other) {
+    layers.addAll(other.layers);
+  }
 }

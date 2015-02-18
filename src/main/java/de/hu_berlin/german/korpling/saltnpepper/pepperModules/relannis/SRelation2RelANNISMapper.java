@@ -816,15 +816,15 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
   }
   
   public DomStatistics getDomStats() {
-    return parentMapper.getDomStats();
+    return parentMapper.getLocalDomStats();
   }
   
   public SpanStatistics getSpanStats() {
-    return parentMapper.getSpanStats();
+    return parentMapper.getLocalSpanStats();
   }
   
   public PointingStatistics getPointingStats() {
-    return parentMapper.getPointingStats();
+    return parentMapper.getLocalPointingStats();
   }
 
 }

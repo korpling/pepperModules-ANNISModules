@@ -137,9 +137,9 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
   public PepperMapper createPepperMapper(SElementId sElementId) {
     Salt2RelANNISMapper mapper = new Salt2RelANNISMapper();
     mapper.setIdManager(new IdManager(globalIdManager));
-    mapper.setDomStats(domStats);
-    mapper.setSpanStats(spanStats);
-    mapper.setPointingStats(pointingStats);
+    mapper.setGlobalDomStats(domStats);
+    mapper.setGlobalPointingStats(pointingStats);
+    mapper.setGlobalSpanStats(spanStats);
     mapper.setOutputDir(new File(getCorpusDesc().getCorpusPath().toFileString()));
     mapper.tw_text = tw_text;
     mapper.tw_node = tw_node;
@@ -334,7 +334,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
     }
     entry.setVis("tree");
 
-    Set<QName> terminalAnnos = domStats.getTerminalAnno(layerName);
+    Set<QName> terminalAnnos = domStats.getTerminalAnno().get(layerName);
     
     if(terminalAnnos.size() >= 1) {
       QName qname = terminalAnnos.iterator().next();
@@ -344,7 +344,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
       }
     }
     
-    SortedMap<Integer, QName> nodeAnnos = domStats.getNodeAnnobySize(layerName);
+    SortedMap<Integer, QName> nodeAnnos = domStats.getNodeAnnoCounter().getBySize(layerName);
     
     if(nodeAnnos.size() >= 1) {
       QName qname = nodeAnnos.get(nodeAnnos.lastKey());
@@ -354,7 +354,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
       }
     }
     
-    Set<QName> edgeAnnos = domStats.getEdgeAnno(layerName);
+    Set<QName> edgeAnnos = domStats.getEdgeAnno().get(layerName);
     
     if(edgeAnnos.size() >= 1) {
       QName qname = edgeAnnos.iterator().next();
@@ -364,7 +364,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
       }
     }
      
-    SortedMap<Integer, String> etypes = domStats.getEdgeTypesBySize(layerName);
+    SortedMap<Integer, String> etypes = domStats.getEdgeTypeCounter().getBySize(layerName);
     if(etypes.size() >= 2) {
       // the primary edge type always has the greatest number of entries
       String primaryType = etypes.get(etypes.lastKey());
@@ -372,7 +372,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
       
       // check if the terminal nodes are reachable by the original types
       // use the special "null" type if not
-      Set<String> terminalEdgeTypes = domStats.getTerminalEdgeType(layerName);
+      Set<String> terminalEdgeTypes = domStats.getTerminalEdgeType().get(layerName);
       if(!terminalEdgeTypes.contains(primaryType) && !terminalEdgeTypes.contains(secondaryType)) {
         primaryType = "null";
       }
@@ -388,7 +388,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
   private void createPointingResolverEntry(QName layerName) {
 
     ResolverEntry entry = new ResolverEntry();
-    Set<QName> terminalAnnos = pointingStats.getTerminalAnno(layerName);
+    Set<QName> terminalAnnos = pointingStats.getTerminalAnno().get(layerName);
     
     if(terminalAnnos.size() <= 1) {
       // use arch_dependency visualizer

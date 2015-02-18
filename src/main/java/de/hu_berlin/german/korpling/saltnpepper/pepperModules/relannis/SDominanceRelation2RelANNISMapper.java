@@ -5,6 +5,7 @@ import org.eclipse.emf.common.util.EList;
 
 import de.hu_berlin.german.korpling.saltnpepper.misc.tupleconnector.TupleWriter;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.Salt2RelANNISMapper.TRAVERSION_TYPE;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.resolver.QName;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.GRAPH_TRAVERSE_TYPE;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDominanceRelation;
@@ -111,7 +112,7 @@ public class SDominanceRelation2RelANNISMapper extends SRelation2RelANNISMapper 
           EList<SAnnotation> annos = currNode.getSAnnotations();
           if (annos != null && !annos.isEmpty()) {
             SAnnotation anno = annos.get(0);
-            getDomStats().addTerminalAnno(currentComponentLayer, anno.getSNS(), anno.getSName());
+            getDomStats().getTerminalAnno().add(traversalId, new QName(anno.getSNS(), anno.getSName()));
           }
 
         }

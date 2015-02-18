@@ -15,18 +15,10 @@
  */
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.resolver;
 
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Table;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import org.eclipse.emf.common.util.EList;
 
 /**
@@ -35,135 +27,101 @@ import org.eclipse.emf.common.util.EList;
  */
 public class DomStatistics {
   
-  private final Table<String, String, AtomicInteger> edgeTypeCounter
-          = HashBasedTable.create();
-  
-  private final Multimap<String, QName> terminalAnnoByLayer
-          = HashMultimap.create();
-  
-  private final Multimap<String, String> terminalEdgeType
-          = HashMultimap.create();
-  
-  private final Multimap<String, QName> edgeAnnoByLayer
-          = HashMultimap.create();
-  
-  private final Table<String, QName, AtomicInteger> nodeAnnoCounter
-          = HashBasedTable.create();
   
   private final Set<String> layers = Collections.synchronizedSet(new HashSet<String>());
+  
+  private final StatTableCounter<String> edgeTypeCounter
+          = new StatTableCounter<String>(layers);
+  
+  private final StatMultiMap<String, QName> terminalAnno
+          = new StatMultiMap<String, QName>(layers);
+  
+  private final StatMultiMap<String, String> terminalEdgeType
+          = new StatMultiMap<String, String>(layers);
+  
+  private final StatMultiMap<String, QName> edgeAnno
+          = new StatMultiMap<String, QName>(layers);
+  
+  private final StatTableCounter<QName> nodeAnnoCounter
+          = new StatTableCounter<QName>(layers);
+  
+  ///////////////
+  // edge type //
+  ///////////////
   
   public void addEdgeType(String layer, EList<String> types) {
     
     if (types != null) {
-      synchronized (edgeTypeCounter) {
-
-        for (String edgeType : types) {
-          if (!edgeTypeCounter.contains(layer, edgeType)) {
-            edgeTypeCounter.put(layer, edgeType, new AtomicInteger(0));
-          }
-          edgeTypeCounter.get(layer, edgeType).incrementAndGet();
-        }
-      }
-
-      layers.add(layer);
-    }
-  }
-  
-  public SortedMap<Integer, String> getEdgeTypesBySize(String layer) {
-    TreeMap<Integer, String> result = new TreeMap<Integer, String>();
-    
-    synchronized (edgeTypeCounter) {
-
-      for (Map.Entry<String, AtomicInteger> e : edgeTypeCounter.row(layer).entrySet()) {
-        result.put(e.getValue().get(), e.getKey());
+      for(String edgeType : types) {
+        edgeTypeCounter.add(layer, edgeType, 1);
       }
     }
-    return result;
-  }
-  
-  public void addTerminalAnno(String layer, String annoNS, String annoName) {
-    synchronized(terminalAnnoByLayer) {
-      terminalAnnoByLayer.put(layer, new QName(annoNS, annoName));
-    }
-    layers.add(layer);
-  }
-  
-  public Set<QName> getTerminalAnno(String layer) {
-    Set<QName> result = new HashSet<QName>();
-    synchronized(terminalAnnoByLayer) {
-      result.addAll(terminalAnnoByLayer.get(layer));
-    }
-    return result;
-  }
-  
-  public void addTerminalEdgeType(String layer, EList<String> sTypes) {
-    if (sTypes != null) {
-      synchronized (terminalEdgeType) {
-        for(String edgeType : sTypes) {
-          terminalEdgeType.put(layer, edgeType);
-        }
-      }      
-      layers.add(layer);
-    }
-  }
-  
-  public Set<String> getTerminalEdgeType(String layer) {
-    Set<String> result = new HashSet<String>();
-    synchronized(terminalEdgeType) {
-      result.addAll(terminalEdgeType.get(layer));
-    }
-    return result;
   }
   
   public void addEdgeAnno(String layer,  EList<SAnnotation> annos) {
     if (annos != null) {
-      synchronized (edgeAnnoByLayer) {
-        for(SAnnotation a : annos) {
-          edgeAnnoByLayer.put(layer, new QName(a.getSNS(), a.getSName()));
-        }
+      for(SAnnotation a : annos) {
+        QName qname = new QName(a.getSNS(), a.getSName());
+        edgeAnno.add(layer, qname);
       }
-      layers.add(layer);
     }
   }
   
-  public Set<QName> getEdgeAnno(String layer) {
-    Set<QName> result = new HashSet<QName>();
-    synchronized(edgeAnnoByLayer) {
-      result.addAll(edgeAnnoByLayer.get(layer));
-    }
-    return result;
-  }
-  
-  public void addNodeAnno(String layer,  EList<SAnnotation> annos) {
+  public void addNodeAnno(String layer, EList<SAnnotation> annos) {
     if (annos != null) {
-      synchronized (nodeAnnoCounter) {
-        for(SAnnotation a : annos) {
-          QName qname = new QName(a.getSNS(), a.getSName());
-          if(nodeAnnoCounter.get(layer, qname) == null) {
-            nodeAnnoCounter.put(layer, qname, new AtomicInteger(0));
-          }
-          nodeAnnoCounter.get(layer, qname).incrementAndGet();
-        }
+      for (SAnnotation a : annos) {
+        QName qname = new QName(a.getSNS(), a.getSName());
+        nodeAnnoCounter.add(layer, qname, 1);
       }
-      layers.add(layer);
     }
   }
   
-  public SortedMap<Integer, QName> getNodeAnnobySize(String layer) {
-    TreeMap<Integer, QName> result = new TreeMap<Integer, QName>();
-    
-    synchronized (nodeAnnoCounter) {
-
-      for (Map.Entry<QName, AtomicInteger> e : nodeAnnoCounter.row(layer).entrySet()) {
-        result.put(e.getValue().get(), e.getKey());
+  public void addTerminalEdgeType(String layer, EList<String> types) {
+    if (types != null) {
+      for(String t : types) {
+        terminalEdgeType.add(layer, t);
       }
     }
-    return result;
   }
   
+  /**
+   * Merges the information from the other statistics object.
+   * 
+   * The other object is not allowed to be modified while
+   * executing this functions since no explicit locking will occur. This object
+   * will be locked and suppports concurrent calls to this function.
+   * @param other 
+   */
+  public void merge(DomStatistics other) {
+    edgeAnno.merge(other.edgeAnno);
+    edgeTypeCounter.merge(other.edgeTypeCounter);
+    nodeAnnoCounter.merge(other.nodeAnnoCounter);
+    terminalAnno.merge(other.terminalAnno);
+    terminalEdgeType.merge(other.terminalEdgeType);
+  }
   
   public Set<String> getLayers() {
     return new HashSet<String>(layers);
+  }
+
+  public StatMultiMap<String, QName> getTerminalAnno() {
+    return terminalAnno;
+  }
+
+  public StatMultiMap<String, String> getTerminalEdgeType() {
+    return terminalEdgeType;
+  }
+
+  public StatMultiMap<String, QName> getEdgeAnno() {
+    return edgeAnno;
+  }
+
+  public StatTableCounter<String> getEdgeTypeCounter() {
+    return edgeTypeCounter;
+  }
+
+  public StatTableCounter<QName> getNodeAnnoCounter() {
+    return nodeAnnoCounter;
   }
   
   

@@ -125,8 +125,8 @@ public class SPointingRelation2RelANNISMapper extends SRelation2RelANNISMapper {
         EList<SAnnotation> annos = currNode.getSAnnotations();
         if (annos != null) {
           for (SAnnotation anno : annos) {
-            getPointingStats().addTerminalAnno(layer,
-                    anno.getSNS(), anno.getSName());
+            getPointingStats().getTerminalAnno().add(layer,
+                    new QName(anno.getSNS(), anno.getSName()));
           }
         }
       }
