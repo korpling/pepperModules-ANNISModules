@@ -33,6 +33,7 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -40,6 +41,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.logging.Level;
 import org.eclipse.emf.common.util.URI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -780,6 +782,23 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
       File outputDir = parentMapper.getOutputDir();
       File sourceFile = new File(uri.toFileString());
       if (sourceFile.isFile()) {
+        
+        try {
+          String mimeType = java.nio.file.Files.probeContentType(sourceFile.toPath());
+          if(mimeType != null) {
+            if(mimeType.startsWith("video/")) {
+              idManager.getGlobal().setVideoFound();
+            } else if(mimeType.startsWith("audio/")) {
+              idManager.getGlobal().setAudioFound();
+            } else if(mimeType.startsWith("application/pdf")) {
+              idManager.getGlobal().setPDFFound();
+            }
+          }
+          
+        } catch (IOException ex) {
+          log.error("Could not get mime type for file " + sourceFile.getAbsolutePath(), ex);
+        }
+
 
         File extData = new File(outputDir, "ExtData");
         File docDir = new File(extData, documentGraph.getSDocument().getSName());

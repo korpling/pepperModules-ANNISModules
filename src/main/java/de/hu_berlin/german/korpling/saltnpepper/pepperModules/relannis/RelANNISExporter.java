@@ -302,11 +302,14 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
       createPointingResolverEntry(l);
     }
     
+    createMediaResolverEntries();
+    
     for (SCorpusGraph corpusGraph : getSaltProject().getSCorpusGraphs()) {
       if (tw_visualization != null) {
         printResolverVisMap(corpusGraph);
       }
     }
+    
   }
   
   private void createSpanResolverEntry(String layer) {
@@ -424,6 +427,33 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
     globalIdManager.getResolverEntryByDisplay().putIfAbsent(entry.getDisplay(), entry);
 
   }
+  
+  private void createMediaResolverEntries() {
+    
+    if(globalIdManager.isAudioFound()) {
+      ResolverEntry entry = new ResolverEntry();
+      entry.setDisplay("audio");
+      entry.setVis(Vis.audio);
+      entry.setVisibility(ResolverEntry.Visibility.preloaded);
+      globalIdManager.getResolverEntryByDisplay().putIfAbsent(entry.getDisplay(), entry);
+    }
+    
+    if(globalIdManager.isVideoFound()) {
+      ResolverEntry entry = new ResolverEntry();
+      entry.setDisplay("video");
+      entry.setVis(Vis.video);
+      entry.setVisibility(ResolverEntry.Visibility.preloaded);
+      globalIdManager.getResolverEntryByDisplay().putIfAbsent(entry.getDisplay(), entry);
+    }
+    
+    if(globalIdManager.isPDFFound()) {
+      ResolverEntry entry = new ResolverEntry();
+      entry.setDisplay("pdf");
+      entry.setVis(Vis.pdf);
+      entry.setVisibility(ResolverEntry.Visibility.preloaded);
+      globalIdManager.getResolverEntryByDisplay().putIfAbsent(entry.getDisplay(), entry);
+    }
+  }
 
   /**
    * This method prints the resolver_vis_map.relannis file
@@ -468,7 +498,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 
         resolverTuple.add(corpusName);
         resolverTuple.add(corpusVersion);
-        resolverTuple.add(e.getLayerName());
+        resolverTuple.add(e.getLayerName() == null ? "NULL" : e.getLayerName());
         resolverTuple.add(e.getElement().name());
         resolverTuple.add(e.getVis().name());
         resolverTuple.add(e.getDisplay());

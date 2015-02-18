@@ -21,6 +21,10 @@ public class GlobalIdManager {
 
   private final ConcurrentMap<String, ResolverEntry> resolverEntryByDisplay
           = new ConcurrentHashMap<String, ResolverEntry>();
+  
+  private final AtomicBoolean audioFound = new AtomicBoolean(false);
+  private final AtomicBoolean videoFound = new AtomicBoolean(false);
+  private final AtomicBoolean pdfFound = new AtomicBoolean(false);
 
   public GlobalIdManager() {
 
@@ -68,4 +72,29 @@ public class GlobalIdManager {
     return resolverEntryByDisplay;
   }
 
+  public void setAudioFound() {
+    audioFound.set(true);
+  }
+  
+  public void setVideoFound() {
+    videoFound.set(true);
+  }
+  
+  public void setPDFFound() {
+    pdfFound.set(true);
+  }
+
+  public boolean isAudioFound() {
+    return audioFound.get();
+  }
+
+  public boolean isVideoFound() {
+    return videoFound.get();
+  }
+  
+  public boolean isPDFFound() {
+    return pdfFound.get();
+  }
+  
+  
 }
