@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis;
+package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.resolver;
 
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.HashMultimap;
@@ -30,10 +30,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.eclipse.emf.common.util.EList;
 
 /**
- *
+ * Statistics used for creating resolver entries for dominance components.
  * @author Thomas Krause <krauseto@hu-berlin.de>
  */
-public class Statistics {
+public class DomStatistics {
   
   private final Table<String, String, AtomicInteger> edgeTypeCounter
           = HashBasedTable.create();

@@ -17,6 +17,7 @@
  */
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis;
 
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.resolver.DomStatistics;
 import com.google.common.base.Strings;
 import java.io.FileNotFoundException;
 import java.util.Map;
@@ -58,7 +59,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
   private final AtomicInteger numberOfMappedNodes = new AtomicInteger();
   private int numberOfDocumentNodes;
   private File outputDir;
-  private Statistics stats = new Statistics();
+  private DomStatistics stats = new DomStatistics();
 
   public Salt2RelANNISMapper() {
     this.init();
@@ -716,11 +717,11 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
     }
   }
 
-  public Statistics getStats() {
+  public DomStatistics getStats() {
     return stats;
   }
 
-  public void setStats(Statistics stats) {
+  public void setStats(DomStatistics stats) {
     this.stats = stats;
   }
   

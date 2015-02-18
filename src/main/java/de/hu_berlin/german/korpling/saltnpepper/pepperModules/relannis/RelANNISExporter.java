@@ -17,6 +17,7 @@
  */
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis;
 
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.resolver.DomStatistics;
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.io.Files;
@@ -107,7 +108,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
    */
   private GlobalIdManager globalIdManager;
   
-  private Statistics domStats;
+  private DomStatistics domStats;
 
   // =================================================== mandatory ===================================================
   public RelANNISExporter() {
@@ -258,7 +259,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
     }
 
     this.globalIdManager = new GlobalIdManager();
-    this.domStats = new Statistics();
+    this.domStats = new DomStatistics();
 
     // write versions file
     File versionFile = new File(getCorpusDesc().getCorpusPath().toFileString(), "relannis.version");
@@ -298,32 +299,32 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
     }
     entry.setVis("tree");
 
-    Set<Statistics.QName> terminalAnnos = domStats.getTerminalAnno(layerName);
+    Set<DomStatistics.QName> terminalAnnos = domStats.getTerminalAnno(layerName);
     
     if(terminalAnnos.size() >= 1) {
-      Statistics.QName qname = terminalAnnos.iterator().next();
+      DomStatistics.QName qname = terminalAnnos.iterator().next();
       entry.getMappings().put("terminal_name", qname.getName());
-      if(!Statistics.QName.NULL.equals(qname.getNs())) {
+      if(!DomStatistics.QName.NULL.equals(qname.getNs())) {
         entry.getMappings().put("terminal_ns", qname.getNs());
       }
     }
     
-    SortedMap<Integer, Statistics.QName> nodeAnnos = domStats.getNodeAnnobySize(layerName);
+    SortedMap<Integer, DomStatistics.QName> nodeAnnos = domStats.getNodeAnnobySize(layerName);
     
     if(nodeAnnos.size() >= 1) {
-      Statistics.QName qname = nodeAnnos.get(nodeAnnos.lastKey());
+      DomStatistics.QName qname = nodeAnnos.get(nodeAnnos.lastKey());
       entry.getMappings().put("node_key", qname.getName());
-      if(!Statistics.QName.NULL.equals(qname.getNs())) {
+      if(!DomStatistics.QName.NULL.equals(qname.getNs())) {
         entry.getMappings().put("node_anno_ns", qname.getNs());
       }
     }
     
-    Set<Statistics.QName> edgeAnnos = domStats.getEdgeAnno(layerName);
+    Set<DomStatistics.QName> edgeAnnos = domStats.getEdgeAnno(layerName);
     
     if(edgeAnnos.size() >= 1) {
-      Statistics.QName qname = edgeAnnos.iterator().next();
+      DomStatistics.QName qname = edgeAnnos.iterator().next();
       entry.getMappings().put("edge_key", qname.getName());
-      if(!Statistics.QName.NULL.equals(qname.getNs())) {
+      if(!DomStatistics.QName.NULL.equals(qname.getNs())) {
         entry.getMappings().put("edge_anno_ns", qname.getNs());
       }
     }

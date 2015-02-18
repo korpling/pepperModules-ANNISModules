@@ -1,5 +1,6 @@
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis;
 
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.resolver.DomStatistics;
 import com.google.common.io.Files;
 import java.io.FileNotFoundException;
 import java.util.HashSet;
@@ -812,7 +813,7 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
     return componentLayer;
   }
   
-  public Statistics getStats() {
+  public DomStatistics getStats() {
     return parentMapper.getStats();
   }
 
