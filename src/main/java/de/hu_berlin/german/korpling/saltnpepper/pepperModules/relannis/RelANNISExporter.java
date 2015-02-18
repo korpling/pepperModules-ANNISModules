@@ -328,65 +328,78 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
   }
   
   private void createDominanceResolverEntry(String layerName) {
-    String displayName = "tree";
-    if (layerName != null) {
-      displayName = displayName + " (" + layerName + ")";
-    }
+    
+    
     ResolverEntry entry = new ResolverEntry();
-    entry.setDisplay(displayName);
-    if (layerName != null) {    
-      entry.setElement(ResolverEntry.Element.node);
+    
+    
+    if(layerName != null && 
+            (layerName.equalsIgnoreCase("rst") || layerName.startsWith("rhet"))) {
+      
+      entry.setVis(Vis.rstdoc);
+      entry.setDisplay("rst (" + layerName + ")");
       entry.setLayerName(layerName);
-    }
-    entry.setVis(Vis.tree);
+      entry.setElement(ResolverEntry.Element.node);
 
-    Set<QName> terminalAnnos = domStats.getTerminalAnno().get(layerName);
-    
-    if(terminalAnnos.size() >= 1) {
-      QName qname = terminalAnnos.iterator().next();
-      entry.getMappings().put("terminal_name", qname.getName());
-      if(!QName.NULL.equals(qname.getNs())) {
-        entry.getMappings().put("terminal_ns", qname.getNs());
+    } else {
+      String displayName = "tree";
+      if (layerName != null) {
+        displayName = displayName + " (" + layerName + ")";
       }
-    }
-    
-    SortedMap<Integer, QName> nodeAnnos = domStats.getNodeAnnoCounter().getBySize(layerName);
-    
-    if(nodeAnnos.size() >= 1) {
-      QName qname = nodeAnnos.get(nodeAnnos.lastKey());
-      entry.getMappings().put("node_key", qname.getName());
-      if(!QName.NULL.equals(qname.getNs())) {
-        entry.getMappings().put("node_anno_ns", qname.getNs());
+      entry.setDisplay(displayName);
+      if (layerName != null) {    
+        entry.setElement(ResolverEntry.Element.node);
+        entry.setLayerName(layerName);
       }
-    }
-    
-    Set<QName> edgeAnnos = domStats.getEdgeAnno().get(layerName);
-    
-    if(edgeAnnos.size() >= 1) {
-      QName qname = edgeAnnos.iterator().next();
-      entry.getMappings().put("edge_key", qname.getName());
-      if(!QName.NULL.equals(qname.getNs())) {
-        entry.getMappings().put("edge_anno_ns", qname.getNs());
-      }
-    }
-     
-    SortedMap<Integer, String> etypes = domStats.getEdgeTypeCounter().getBySize(layerName);
-    if(etypes.size() >= 2) {
-      // the primary edge type always has the greatest number of entries
-      String primaryType = etypes.get(etypes.lastKey());
-      String secondaryType = etypes.get(etypes.firstKey());
-      
-      // check if the terminal nodes are reachable by the original types
-      // use the special "null" type if not
-      Set<String> terminalEdgeTypes = domStats.getTerminalEdgeType().get(layerName);
-      if(!terminalEdgeTypes.contains(primaryType) && !terminalEdgeTypes.contains(secondaryType)) {
-        primaryType = "null";
-      }
-      
-      entry.getMappings().put("edge_type", primaryType);
-      entry.getMappings().put("secedge_type", secondaryType);
-    }
+      entry.setVis(Vis.tree);
 
+      Set<QName> terminalAnnos = domStats.getTerminalAnno().get(layerName);
+
+      if(terminalAnnos.size() >= 1) {
+        QName qname = terminalAnnos.iterator().next();
+        entry.getMappings().put("terminal_name", qname.getName());
+        if(!QName.NULL.equals(qname.getNs())) {
+          entry.getMappings().put("terminal_ns", qname.getNs());
+        }
+      }
+
+      SortedMap<Integer, QName> nodeAnnos = domStats.getNodeAnnoCounter().getBySize(layerName);
+
+      if(nodeAnnos.size() >= 1) {
+        QName qname = nodeAnnos.get(nodeAnnos.lastKey());
+        entry.getMappings().put("node_key", qname.getName());
+        if(!QName.NULL.equals(qname.getNs())) {
+          entry.getMappings().put("node_anno_ns", qname.getNs());
+        }
+      }
+
+      Set<QName> edgeAnnos = domStats.getEdgeAnno().get(layerName);
+
+      if(edgeAnnos.size() >= 1) {
+        QName qname = edgeAnnos.iterator().next();
+        entry.getMappings().put("edge_key", qname.getName());
+        if(!QName.NULL.equals(qname.getNs())) {
+          entry.getMappings().put("edge_anno_ns", qname.getNs());
+        }
+      }
+
+      SortedMap<Integer, String> etypes = domStats.getEdgeTypeCounter().getBySize(layerName);
+      if(etypes.size() >= 2) {
+        // the primary edge type always has the greatest number of entries
+        String primaryType = etypes.get(etypes.lastKey());
+        String secondaryType = etypes.get(etypes.firstKey());
+
+        // check if the terminal nodes are reachable by the original types
+        // use the special "null" type if not
+        Set<String> terminalEdgeTypes = domStats.getTerminalEdgeType().get(layerName);
+        if(!terminalEdgeTypes.contains(primaryType) && !terminalEdgeTypes.contains(secondaryType)) {
+          primaryType = "null";
+        }
+
+        entry.getMappings().put("edge_type", primaryType);
+        entry.getMappings().put("secedge_type", secondaryType);
+      }
+    }
     globalIdManager.getResolverEntryByDisplay().putIfAbsent(entry.getDisplay(), entry);
 
   }
