@@ -43,7 +43,6 @@ import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.resolver.
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpus;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SLayer;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SMetaAnnotation;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -59,6 +58,8 @@ import org.slf4j.LoggerFactory;
 public class RelANNISExporter extends PepperExporterImpl implements PepperExporter, RelANNIS {
 
   private static final Logger log = LoggerFactory.getLogger(RelANNISExporter.class);
+  
+  public static final long MAX_NUM_OF_NODES_FOR_DISCOURSE = 5000l;
 
   /**
    * tuple writer to write {@link RelANNIS#FILE_TEXT} *
@@ -398,8 +399,13 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
         entry.getMappings().put("node_key", qname.getName());
       }
     } else {
-      // use coref visualizer
-      entry.setVis("coref");
+      
+      // use coref visualizer for "large" documents and discourse (fulltext) otherwise
+//      if(pointingStats.getNodeCount() <= MAX_NUM_OF_NODES_FOR_DISCOURSE) {
+//        entry.setVis("discourse");
+//      } else {
+        entry.setVis("coref");
+//      }
     }
 
     String displayName = entry.getVis();

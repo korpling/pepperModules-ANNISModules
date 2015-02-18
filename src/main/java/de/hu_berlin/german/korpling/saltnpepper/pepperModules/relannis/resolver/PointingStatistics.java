@@ -17,10 +17,10 @@ package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.resolver
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SLayer;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Statistics used for creating resolver entries for pointing relation components.
@@ -31,6 +31,8 @@ public class PointingStatistics {
 
   private final Multimap<QName, QName> terminalAnnoByLayer
           = HashMultimap.create();
+  
+  private final AtomicLong numberOfNodes = new AtomicLong(0l);
   
   private final Set<QName> layers = Collections.synchronizedSet(new HashSet<QName>());
 
@@ -55,5 +57,17 @@ public class PointingStatistics {
   
   public Set<QName> getLayers() {
     return new HashSet<QName>(layers);
+  }
+  
+  public void addNodeCount() {
+    numberOfNodes.incrementAndGet();
+  }
+  
+  public void addNodeCount(long count) {
+    numberOfNodes.addAndGet(count);
+  }
+  
+  public long getNodeCount() {
+    return numberOfNodes.get();
   }
 }
