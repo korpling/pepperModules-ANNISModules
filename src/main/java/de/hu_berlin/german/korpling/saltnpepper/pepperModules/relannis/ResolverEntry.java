@@ -24,6 +24,10 @@ import java.util.Map;
  */
 public class ResolverEntry {
 
+  public enum Vis {
+    grid, tree, arch_dependency, discourse, coref
+  }
+  
   public enum Element {
 
     node, edge, NULL
@@ -36,7 +40,7 @@ public class ResolverEntry {
 
   private String layerName = null;
   private Element element = Element.NULL;
-  private String vis = "grid";
+  private Vis vis = Vis.grid;
   private String display = "visualization";
   private Visibility visibility = Visibility.hidden;
   private int order = 0;
@@ -59,11 +63,11 @@ public class ResolverEntry {
     this.element = element;
   }
 
-  public String getVis() {
+  public Vis getVis() {
     return vis;
   }
 
-  public void setVis(String vis) {
+  public void setVis(Vis vis) {
     this.vis = vis;
   }
 

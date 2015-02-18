@@ -37,6 +37,7 @@ import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperMapper;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleException;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleNotReadyException;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.impl.PepperExporterImpl;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.ResolverEntry.Vis;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.resolver.PointingStatistics;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.resolver.QName;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.resolver.SpanStatistics;
@@ -44,7 +45,9 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SMetaAnnotation;
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -317,7 +320,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
       entry.setElement(ResolverEntry.Element.node);
       entry.setLayerName(layer);
     }
-    entry.setVis("grid");
+    entry.setVis(Vis.grid);
     globalIdManager.getResolverEntryByDisplay().putIfAbsent(entry.getDisplay(), entry);
   }
   
@@ -332,7 +335,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
       entry.setElement(ResolverEntry.Element.node);
       entry.setLayerName(layerName);
     }
-    entry.setVis("tree");
+    entry.setVis(Vis.tree);
 
     Set<QName> terminalAnnos = domStats.getTerminalAnno().get(layerName);
     
@@ -392,7 +395,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
     
     if(terminalAnnos.size() <= 1) {
       // use arch_dependency visualizer
-      entry.setVis("arch_dependency");
+      entry.setVis(Vis.arch_dependency);
       
       if (terminalAnnos.size() == 1) {
         QName qname = terminalAnnos.iterator().next();
@@ -402,13 +405,13 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
       
       // use coref visualizer for "large" documents and discourse (fulltext) otherwise
       if(pointingStats.getMaxNodeCount() <= MAX_NUM_OF_NODES_FOR_DISCOURSE) {
-        entry.setVis("discourse");
+        entry.setVis(Vis.discourse);
       } else {
-        entry.setVis("coref");
+        entry.setVis(Vis.coref);
       }
     }
 
-    String displayName = entry.getVis();
+    String displayName = entry.getVis().name();
     if (layerName != null) {
       displayName = layerName.getName() + " (" + layerName.getNs() + ")";
     }
@@ -451,7 +454,12 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
         }
       }
 
-      Collection<ResolverEntry> entries = getGlobalIdManager().getResolverEntryByDisplay().values();
+      List<ResolverEntry> entries = new ArrayList<ResolverEntry>(
+              getGlobalIdManager().getResolverEntryByDisplay().values());
+      
+      // sort the entries
+      Collections.sort(entries, new ResolverComparator());
+      
       int order = 1;
       for (ResolverEntry e : entries) {
         e.setOrder(order);
@@ -462,7 +470,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
         resolverTuple.add(corpusVersion);
         resolverTuple.add(e.getLayerName());
         resolverTuple.add(e.getElement().name());
-        resolverTuple.add(e.getVis());
+        resolverTuple.add(e.getVis().name());
         resolverTuple.add(e.getDisplay());
         resolverTuple.add(e.getVisibility().name());
         resolverTuple.add("" + e.getOrder());
@@ -495,6 +503,20 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
    */
   public GlobalIdManager getGlobalIdManager() {
     return this.globalIdManager;
+  }
+  
+  public static class ResolverComparator implements Comparator<ResolverEntry>{
+
+    @Override
+    public int compare(ResolverEntry o1, ResolverEntry o2) {
+      int byVis = o1.getVis().compareTo(o2.getVis());
+      if(byVis != 0) {
+        return byVis;
+      }
+      
+      return o1.getDisplay().compareTo(o2.getDisplay());
+    }
+    
   }
 
 }
