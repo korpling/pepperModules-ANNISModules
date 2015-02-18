@@ -29,10 +29,8 @@ public class SpanStatistics {
 
   private final Set<String> layers = Collections.synchronizedSet(new HashSet<String>());
 
-  public void addLayer(SLayer layer) {
-    if(layer != null && layer.getSName() != null) {
-      layers.add(layer.getSName());
-    }
+  public void addLayer(String layerName) {
+    layers.add(layerName);
   }
   
   public Set<String> getLayers() {

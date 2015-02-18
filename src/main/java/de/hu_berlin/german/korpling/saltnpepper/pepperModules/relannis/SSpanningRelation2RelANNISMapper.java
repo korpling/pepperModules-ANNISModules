@@ -62,7 +62,7 @@ public class SSpanningRelation2RelANNISMapper extends SRelation2RelANNISMapper {
 
         // map the component
         this.mapComponent2RelANNIS();
-        this.getSpanStats().addLayer(componentLayer);
+        this.getSpanStats().addLayer(componentLayerName);
       }
     }
 
