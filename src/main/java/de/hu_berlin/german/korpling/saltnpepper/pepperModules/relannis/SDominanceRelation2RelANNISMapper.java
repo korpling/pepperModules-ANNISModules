@@ -119,7 +119,6 @@ public class SDominanceRelation2RelANNISMapper extends SRelation2RelANNISMapper 
         getDomStats().addNodeAnno(currentComponentLayer, currNode.getSAnnotations());
       }
     }
-
   }
 
   @Override

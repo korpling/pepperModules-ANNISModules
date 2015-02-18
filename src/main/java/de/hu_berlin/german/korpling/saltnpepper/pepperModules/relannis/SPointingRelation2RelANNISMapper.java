@@ -5,16 +5,21 @@ import org.eclipse.emf.common.util.EList;
 
 import de.hu_berlin.german.korpling.saltnpepper.misc.tupleconnector.TupleWriter;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.Salt2RelANNISMapper.TRAVERSION_TYPE;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.resolver.QName;
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.GRAPH_TRAVERSE_TYPE;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SPointingRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STYPE_NAME;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
 
 public class SPointingRelation2RelANNISMapper extends SRelation2RelANNISMapper {
 
+  private SNode lastEnteredNode;
+  
   public SPointingRelation2RelANNISMapper(IdManager idManager,
           SDocumentGraph documentGraph, TupleWriter nodeTabWriter,
           TupleWriter nodeAnnoTabWriter, TupleWriter rankTabWriter,
@@ -85,6 +90,8 @@ public class SPointingRelation2RelANNISMapper extends SRelation2RelANNISMapper {
 
     // this method behaves exactly as the one in the super class
     super.nodeReached(traversalType, traversalId, currNode, sRelation, fromNode, order);
+    
+    lastEnteredNode = currNode;
 
     if (sRelation != null & sRelation instanceof SPointingRelation) {
 			//System.out.println("found relation "+ fromNode.getSName() +" ->["+sRelation.getSId()+"] "+currNode.getSName());
@@ -107,6 +114,22 @@ public class SPointingRelation2RelANNISMapper extends SRelation2RelANNISMapper {
 
     // this method behaves exactly as the one in the super class
     super.nodeLeft(traversalType, traversalId, currNode, edge, fromNode, order);
+    
+    if (lastEnteredNode == currNode) {
+      // we left a leaf node
+      QName layer = new QName(currentComponentLayer, currentTraversionSType);
+      getPointingStats().addLayer(layer);
+      
+      if (!(currNode instanceof SToken)) {
+        EList<SAnnotation> annos = currNode.getSAnnotations();
+        if (annos != null) {
+          for (SAnnotation anno : annos) {
+            getPointingStats().addTerminalAnno(layer,
+                    anno.getSNS(), anno.getSName());
+          }
+        }
+      }
+    }
 
   }
 

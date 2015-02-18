@@ -30,6 +30,7 @@ import de.hu_berlin.german.korpling.saltnpepper.misc.tupleconnector.TupleWriter;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.common.DOCUMENT_STATUS;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleException;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.impl.PepperMapperImpl;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.resolver.PointingStatistics;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.resolver.SpanStatistics;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.GRAPH_TRAVERSE_TYPE;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpus;
@@ -62,6 +63,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
   private File outputDir;
   private DomStatistics domStats = new DomStatistics();
   private SpanStatistics spanStats = new SpanStatistics();
+  private PointingStatistics pointingStats = new PointingStatistics();
 
   public Salt2RelANNISMapper() {
     this.init();
@@ -734,7 +736,13 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
   public void setSpanStats(SpanStatistics spanStats) {
     this.spanStats = spanStats;
   }
-  
-  
 
+  public PointingStatistics getPointingStats() {
+    return pointingStats;
+  }
+
+  public void setPointingStats(PointingStatistics pointingStats) {
+    this.pointingStats = pointingStats;
+  }
+  
 }

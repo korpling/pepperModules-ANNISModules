@@ -37,6 +37,8 @@ import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperMapper;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleException;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleNotReadyException;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.impl.PepperExporterImpl;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.resolver.PointingStatistics;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.resolver.QName;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.resolver.SpanStatistics;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpus;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
@@ -112,6 +114,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
   
   private DomStatistics domStats;
   private SpanStatistics spanStats;
+  private PointingStatistics pointingStats;
 
   // =================================================== mandatory ===================================================
   public RelANNISExporter() {
@@ -135,6 +138,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
     mapper.setIdManager(new IdManager(globalIdManager));
     mapper.setDomStats(domStats);
     mapper.setSpanStats(spanStats);
+    mapper.setPointingStats(pointingStats);
     mapper.setOutputDir(new File(getCorpusDesc().getCorpusPath().toFileString()));
     mapper.tw_text = tw_text;
     mapper.tw_node = tw_node;
@@ -265,6 +269,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
     this.globalIdManager = new GlobalIdManager();
     this.domStats = new DomStatistics();
     this.spanStats = new SpanStatistics();
+    this.pointingStats = new PointingStatistics();
 
     // write versions file
     File versionFile = new File(getCorpusDesc().getCorpusPath().toFileString(), "relannis.version");
@@ -287,7 +292,12 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 
     for(String l : domStats.getLayers()) {
       createDominanceResolverEntry(l);
-    }  
+    }
+    
+    for(QName l : pointingStats.getLayers()) {
+      createPointingResolverEntry(l);
+    }
+    
     for (SCorpusGraph corpusGraph : getSaltProject().getSCorpusGraphs()) {
       if (tw_visualization != null) {
         printResolverVisMap(corpusGraph);
@@ -302,8 +312,8 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
     }
     ResolverEntry entry = new ResolverEntry();
     entry.setDisplay(displayName);
-    entry.setElement(ResolverEntry.Element.node);
-    if (layer != null) {
+    if (layer != null) {    
+      entry.setElement(ResolverEntry.Element.node);
       entry.setLayerName(layer);
     }
     entry.setVis("grid");
@@ -317,38 +327,38 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
     }
     ResolverEntry entry = new ResolverEntry();
     entry.setDisplay(displayName);
-    entry.setElement(ResolverEntry.Element.node);
-    if (layerName != null) {
+    if (layerName != null) {    
+      entry.setElement(ResolverEntry.Element.node);
       entry.setLayerName(layerName);
     }
     entry.setVis("tree");
 
-    Set<DomStatistics.QName> terminalAnnos = domStats.getTerminalAnno(layerName);
+    Set<QName> terminalAnnos = domStats.getTerminalAnno(layerName);
     
     if(terminalAnnos.size() >= 1) {
-      DomStatistics.QName qname = terminalAnnos.iterator().next();
+      QName qname = terminalAnnos.iterator().next();
       entry.getMappings().put("terminal_name", qname.getName());
-      if(!DomStatistics.QName.NULL.equals(qname.getNs())) {
+      if(!QName.NULL.equals(qname.getNs())) {
         entry.getMappings().put("terminal_ns", qname.getNs());
       }
     }
     
-    SortedMap<Integer, DomStatistics.QName> nodeAnnos = domStats.getNodeAnnobySize(layerName);
+    SortedMap<Integer, QName> nodeAnnos = domStats.getNodeAnnobySize(layerName);
     
     if(nodeAnnos.size() >= 1) {
-      DomStatistics.QName qname = nodeAnnos.get(nodeAnnos.lastKey());
+      QName qname = nodeAnnos.get(nodeAnnos.lastKey());
       entry.getMappings().put("node_key", qname.getName());
-      if(!DomStatistics.QName.NULL.equals(qname.getNs())) {
+      if(!QName.NULL.equals(qname.getNs())) {
         entry.getMappings().put("node_anno_ns", qname.getNs());
       }
     }
     
-    Set<DomStatistics.QName> edgeAnnos = domStats.getEdgeAnno(layerName);
+    Set<QName> edgeAnnos = domStats.getEdgeAnno(layerName);
     
     if(edgeAnnos.size() >= 1) {
-      DomStatistics.QName qname = edgeAnnos.iterator().next();
+      QName qname = edgeAnnos.iterator().next();
       entry.getMappings().put("edge_key", qname.getName());
-      if(!DomStatistics.QName.NULL.equals(qname.getNs())) {
+      if(!QName.NULL.equals(qname.getNs())) {
         entry.getMappings().put("edge_anno_ns", qname.getNs());
       }
     }
@@ -368,6 +378,38 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
       
       entry.getMappings().put("edge_type", primaryType);
       entry.getMappings().put("secedge_type", secondaryType);
+    }
+
+    globalIdManager.getResolverEntryByDisplay().putIfAbsent(entry.getDisplay(), entry);
+
+  }
+  
+  private void createPointingResolverEntry(QName layerName) {
+
+    ResolverEntry entry = new ResolverEntry();
+    Set<QName> terminalAnnos = pointingStats.getTerminalAnno(layerName);
+    
+    if(terminalAnnos.size() <= 1) {
+      // use arch_dependency visualizer
+      entry.setVis("arch_dependency");
+      
+      if (terminalAnnos.size() == 1) {
+        QName qname = terminalAnnos.iterator().next();
+        entry.getMappings().put("node_key", qname.getName());
+      }
+    } else {
+      // use coref visualizer
+      entry.setVis("coref");
+    }
+
+    String displayName = entry.getVis();
+    if (layerName != null) {
+      displayName = layerName.getName() + " (" + layerName.getNs() + ")";
+    }
+    entry.setDisplay(displayName);
+    if (layerName != null) {    
+      entry.setElement(ResolverEntry.Element.edge);
+      entry.setLayerName(layerName.getNs());
     }
 
     globalIdManager.getResolverEntryByDisplay().putIfAbsent(entry.getDisplay(), entry);
