@@ -71,8 +71,8 @@ public class RelANNISExporterTest extends PepperExporterTest{
 		Map<Character, String> escapeCharactersList = ((RelANNISExporterProperties) props).getEscapeCharactersSet();
 		
 		
-		assertFalse(clobberVisMap);
-		assertFalse(clobberCorpusAnno);
+		assertTrue(clobberVisMap);
+		assertTrue(clobberCorpusAnno);
 		assertNull(individualCorpName);
 		assertTrue(escapeCharacters);
 		assertNull(escapeCharactersList);
