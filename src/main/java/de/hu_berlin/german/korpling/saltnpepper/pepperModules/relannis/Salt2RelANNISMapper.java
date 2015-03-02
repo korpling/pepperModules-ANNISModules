@@ -29,6 +29,7 @@ import org.eclipse.emf.common.util.EList;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.common.DOCUMENT_STATUS;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleException;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.impl.PepperMapperImpl;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.resolver.OrderStatistics;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.resolver.PointingStatistics;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.resolver.SpanStatistics;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.GRAPH_TRAVERSE_TYPE;
@@ -63,10 +64,12 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
   private final DomStatistics localDomStats = new DomStatistics();
   private final SpanStatistics localSpanStats = new SpanStatistics();
   private final PointingStatistics localPointingStats = new PointingStatistics();
+  private final OrderStatistics localOrderStats = new OrderStatistics();
   
   private DomStatistics globalDomStats;
   private SpanStatistics globalSpanStats;
   private PointingStatistics globalPointingStats;
+  private OrderStatistics globalOrderStats;
 
   public Salt2RelANNISMapper() {
     this.init();
@@ -506,6 +509,9 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
     if(globalSpanStats != null) {
       globalSpanStats.merge(localSpanStats);
     }
+    if(globalOrderStats != null) {
+      globalOrderStats.merge(localOrderStats);
+    }
   }
 
   /**
@@ -750,6 +756,10 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
     return localPointingStats;
   }  
 
+  public OrderStatistics getLocalOrderStats() {
+    return localOrderStats;
+  }
+  
   public void setGlobalDomStats(DomStatistics globalDomStats) {
     this.globalDomStats = globalDomStats;
   }
@@ -761,6 +771,15 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
   public void setGlobalPointingStats(PointingStatistics globalPointingStats) {
     this.globalPointingStats = globalPointingStats;
   }
+
+  public OrderStatistics getGlobalOrderStats() {
+    return globalOrderStats;
+  }
+
+  public void setGlobalOrderStats(OrderStatistics globalOrderStats) {
+    this.globalOrderStats = globalOrderStats;
+  }
+  
   
   
 }

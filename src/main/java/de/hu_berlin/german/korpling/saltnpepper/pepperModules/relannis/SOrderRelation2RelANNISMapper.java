@@ -356,7 +356,7 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper {
     } else {
       name = this.currentTraversionSType;
     }
-
+    
     Long segIndex = this.seg_index;
     this.seg_index = this.seg_index + 1;
     String segSpan = "NULL";
@@ -378,6 +378,7 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper {
       }
     }
     this.idManager.addSegmentInformation(currNode.getSId(), segIndex, name, segSpan);
+    getOrderStats().addOrderRelation(name);
   }
 
   @Override

@@ -25,7 +25,7 @@ import java.util.Map;
 public class ResolverEntry {
 
   public enum Vis {
-    grid, tree, arch_dependency, discourse, coref, rstdoc, audio, video, pdf
+    grid, tree, arch_dependency, discourse, coref, rstdoc, audio, video, pdf, kwic
   }
   
   public enum Element {

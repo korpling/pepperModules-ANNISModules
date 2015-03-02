@@ -36,6 +36,7 @@ import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.Pepper
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleNotReadyException;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.impl.PepperExporterImpl;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.ResolverEntry.Vis;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.resolver.OrderStatistics;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.resolver.PointingStatistics;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.resolver.QName;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.resolver.SpanStatistics;
@@ -117,6 +118,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
   private DomStatistics domStats;
   private SpanStatistics spanStats;
   private PointingStatistics pointingStats;
+  private OrderStatistics orderStatistics;
 
   // =================================================== mandatory ===================================================
   public RelANNISExporter() {
@@ -141,6 +143,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
     mapper.setGlobalDomStats(domStats);
     mapper.setGlobalPointingStats(pointingStats);
     mapper.setGlobalSpanStats(spanStats);
+    mapper.setGlobalOrderStats(orderStatistics);
     mapper.setOutputDir(new File(getCorpusDesc().getCorpusPath().toFileString()));
     mapper.tw_text = tw_text;
     mapper.tw_node = tw_node;
@@ -272,6 +275,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
     this.domStats = new DomStatistics();
     this.spanStats = new SpanStatistics();
     this.pointingStats = new PointingStatistics();
+    this.orderStatistics = new OrderStatistics();
 
     // write versions file
     File versionFile = new File(getCorpusDesc().getCorpusPath().toFileString(), "relannis.version");
@@ -287,6 +291,8 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
   @Override
   public void end() throws PepperModuleException {
     super.end();
+    
+    createOrderResolverEntries();
     
     for(String l : spanStats.getLayers()) {
       createSpanResolverEntry(l);
@@ -463,6 +469,30 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
       entry.setVis(Vis.pdf);
       entry.setVisibility(ResolverEntry.Visibility.preloaded);
       globalIdManager.getResolverEntryByDisplay().putIfAbsent(entry.getDisplay(), entry);
+    }
+  }
+  
+  private void createOrderResolverEntries() {
+    
+    Set<String> orderRels = orderStatistics.getOrderRelations();
+    if((globalIdManager.containsVirtualTokens() || !orderStatistics.getHasRealToken()) 
+            && !orderRels.isEmpty()) {
+      // deactivate the original kwic view
+      ResolverEntry entryHideKWIC = new ResolverEntry();
+      entryHideKWIC.setDisplay("kwic");
+      entryHideKWIC.setVisibility(ResolverEntry.Visibility.removed);
+      entryHideKWIC.setVis(Vis.kwic);
+      globalIdManager.getResolverEntryByDisplay().putIfAbsent(
+              entryHideKWIC.getDisplay(), entryHideKWIC);
+      
+      // create a permanent grid which displays all order relations
+      ResolverEntry entryGrid = new ResolverEntry();
+      entryGrid.setDisplay("");
+      entryGrid.setVis(Vis.grid);
+      entryGrid.setVisibility(ResolverEntry.Visibility.permanent);
+      entryGrid.getMappings().put("hide_tok", "true");
+      entryGrid.getMappings().put("annos", Joiner.on(",").join(orderRels));
+      globalIdManager.getResolverEntryByDisplay().putIfAbsent(entryGrid.getDisplay(), entryGrid);
     }
   }
 
