@@ -49,7 +49,7 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
 @Component(name="RelANNISExporterComponent", factory="PepperExporterComponentFactory")
 public class RelANNISExporter extends PepperExporterImpl implements PepperExporter
 {	
-	private static final String MODULE_NAME= "RelANNISExporter";
+	private static final String MODULE_NAME= "LegacyRelANNISExporter";
 	private static final Logger logger= LoggerFactory.getLogger(MODULE_NAME);
 	public RelANNISExporter()
 	{
