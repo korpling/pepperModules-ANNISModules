@@ -45,7 +45,7 @@ public class RelANNISImporter extends PepperImporterImpl implements PepperImport
 		super();
 
 		//setting name of module
-		setName("RelANNISImporter");
+		setName("LegacyRelANNISImporter");
 		//set list of formats supported by this module
 		this.addSupportedFormat("relANNIS", "3.1", null);
 	}

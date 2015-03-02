@@ -54,7 +54,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 		super();
 
 		//setting name of module
-		setName("RelANNISExporter");
+		setName("LegacyRelANNISExporter");
 		//set list of formats supported by this module
 		this.addSupportedFormat("relANNIS", "3.1", null);
 		this.addSupportedFormat("relANNIS", "3.2", null);
