@@ -603,9 +603,16 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
     } else {
       if (sNode instanceof SCorpus) {
         type = "CORPUS";
-
       }
     }
+    // set corpus version
+    SMetaAnnotation versionMetaAnno = sNode.getSMetaAnnotation("version");
+    if (versionMetaAnno != null) {
+      if (versionMetaAnno.getSValueSTEXT() != null) {
+        version = versionMetaAnno.getSValueSTEXT();
+      }
+    }
+    
     ArrayList<String> tuple = new ArrayList<>();
     tuple.add(idString);
     tuple.add(name);
