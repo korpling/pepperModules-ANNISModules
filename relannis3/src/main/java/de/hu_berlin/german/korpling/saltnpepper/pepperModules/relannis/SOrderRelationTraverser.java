@@ -1,5 +1,5 @@
 /**
- * Copyright 2009 Humboldt University of Berlin, INRIA.
+ * Copyright 2009 Humboldt-Universität zu Berlin, INRIA.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,80 +28,72 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SGraphTraverseHand
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
 
-public class SOrderRelationTraverser implements SGraphTraverseHandler
-{
+public class SOrderRelationTraverser implements SGraphTraverseHandler {
 	/**
-	 * determining order for current node  
+	 * determining order for current node
 	 */
-	private long orderCounter= 0;
-	
+	private long orderCounter = 0;
+
 	/**
-	 * stores {@link SElementId} objects and corresponding {@link RANode}-objects.
+	 * stores {@link SElementId} objects and corresponding {@link RANode}
+	 * -objects.
 	 */
-	public Map<SElementId, RANode> sElementId2RANode= null;
-	
+	public Map<SElementId, RANode> sElementId2RANode = null;
+
 	/**
-	 * The initial {@link RANode}  object, which must be root of segment path. In this case, it can not get a name that easy,
-	 * it must get it after the first {@link SOrderRelation} object has been traversed.
+	 * The initial {@link RANode} object, which must be root of segment path. In
+	 * this case, it can not get a name that easy, it must get it after the
+	 * first {@link SOrderRelation} object has been traversed.
 	 */
-	private RANode initialNode= null;
-	
+	private RANode initialNode = null;
+
 	@Override
-	public void nodeReached(GRAPH_TRAVERSE_TYPE traversalType,
-			String traversalId, SNode currNode, SRelation sRelation,
-			SNode fromNode, long order) 
-	{
-		RANode raNode= sElementId2RANode.get(currNode.getSElementId());
-		if (raNode== null)
-		{
-			throw new RelANNISException("Cannot create order raNode corresponding to SNode '"+currNode.getSId()+"', because internal mapping table has no entry for given SNode. ");
+	public void nodeReached(GRAPH_TRAVERSE_TYPE traversalType, String traversalId, SNode currNode, SRelation sRelation, SNode fromNode, long order) {
+		RANode raNode = sElementId2RANode.get(currNode.getSElementId());
+		if (raNode == null) {
+			throw new RelANNISException("Cannot create order raNode corresponding to SNode '" + currNode.getSId() + "', because internal mapping table has no entry for given SNode. ");
 		}
-		if (sRelation!= null)
-		{
-			String types= null;
-			if (sRelation.getSTypes().size()== 0){
-				types="default";
-			}else{
-				types= sRelation.getSTypes().get(0);
-			}
-			if (sRelation.getSTypes().size()>1)
-			{
-				for (int i=1; i< sRelation.getSTypes().size(); i++)
-				{
-					types= types+ ":"+ sRelation.getSTypes().get(i);
+		if (sRelation != null) {
+			String types = null;
+			if (sRelation.getSTypes().size() == 0) {
+				types = "default";
+			} else if (sRelation.getSTypes().size() > 0) {
+				types = sRelation.getSTypes().get(0);
+			} else if (sRelation.getSTypes().size() > 1) {
+				for (int i = 1; i < sRelation.getSTypes().size(); i++) {
+					types = types + ":" + sRelation.getSTypes().get(i);
 				}
-				
+
 			}
 			raNode.setSegment_name(types);
-			if (this.initialNode!= null)
+			if (this.initialNode != null) {
 				this.initialNode.setSegment_name(types);
+			}
+		} else {
+			this.initialNode = raNode;
 		}
-		else
-			this.initialNode= raNode;
-		
 		raNode.setLeftSegment(orderCounter);
 		raNode.setRightSegment(orderCounter);
 		orderCounter++;
 	}
 
 	@Override
-	public void nodeLeft(GRAPH_TRAVERSE_TYPE traversalType, String traversalId,
-			SNode currNode, SRelation edge, SNode fromNode, long order) {
+	public void nodeLeft(GRAPH_TRAVERSE_TYPE traversalType, String traversalId, SNode currNode, SRelation edge, SNode fromNode, long order) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
-	public boolean checkConstraint(GRAPH_TRAVERSE_TYPE traversalType,
-			String traversalId, SRelation edge, SNode currNode, long order) {
+	public boolean checkConstraint(GRAPH_TRAVERSE_TYPE traversalType, String traversalId, SRelation edge, SNode currNode, long order) {
 		{
-			if (edge== null)
-				return(true);
-			else
-			{
-				if (edge instanceof SOrderRelation)
-					return(true);
-				else return(false);
+			if (edge == null)
+				return (true);
+			else {
+				if (edge instanceof SOrderRelation) {
+					return (true);
+				} else {
+					return (false);
+				}
 			}
 		}
 	}

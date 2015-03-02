@@ -1,5 +1,5 @@
 /**
- * Copyright 2009 Humboldt University of Berlin, INRIA.
+ * Copyright 2009 Humboldt-Universität zu Berlin, INRIA.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import org.osgi.service.component.annotations.Component;
 
 import de.hu_berlin.german.korpling.saltnpepper.misc.relANNIS.RACorpus;
 import de.hu_berlin.german.korpling.saltnpepper.misc.relANNIS.RACorpusGraph;
+import de.hu_berlin.german.korpling.saltnpepper.misc.relANNIS.resources.RelANNISProperties;
 import de.hu_berlin.german.korpling.saltnpepper.misc.relANNIS.resources.RelANNISResourceFactory;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperImporter;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleException;
@@ -45,7 +46,7 @@ public class RelANNISImporter extends PepperImporterImpl implements PepperImport
 		super();
 
 		//setting name of module
-		setName("LegacyRelANNISImporter");
+		setName("RelANNISImporter");
 		//set list of formats supported by this module
 		this.addSupportedFormat("relANNIS", "3.1", null);
 	}
@@ -93,8 +94,6 @@ public class RelANNISImporter extends PepperImporterImpl implements PepperImport
 		//sets table for relation between SElementId and raId
 		this.sElementId2RaId= mapper.getsElementId2RaId();
 	}
-	
-	
 	
 	@Override
 	public void start(SElementId sElementId) throws PepperModuleException 

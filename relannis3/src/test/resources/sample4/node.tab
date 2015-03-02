@@ -1,0 +1,10 @@
+0	0	0	namespace	tok1	0	4	1	true	Text
+1	0	0	namespace	tok2	5	11	2	true	number
+2	0	0	namespace	tok3	12	15	3	true	one
+3	0	0	namespace	span1	0	11	NULL	true	NULL
+4	0	0	namespace	span2	5	15	NULL	true	NULL
+5	1	1	namespace	tok1	0	4	1	true	Text
+6	1	1	namespace	tok2	5	11	2	true	number
+7	1	1	namespace	tok3	12	15	3	true	two
+8	1	1	namespace	span1	0	11	NULL	true	NULL
+9	1	1	namespace	span2	5	15	NULL	true	NULL

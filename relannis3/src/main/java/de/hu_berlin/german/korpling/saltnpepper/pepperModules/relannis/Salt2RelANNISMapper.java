@@ -1,5 +1,5 @@
 /**
- * Copyright 2009 Humboldt University of Berlin, INRIA.
+ * Copyright 2009 Humboldt-Universität zu Berlin, INRIA.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -357,8 +357,10 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 	 */
 	public double getProgress() {
 		//TODO is because of an internal bug???
-		if (currentProgress> 1)
+		if (currentProgress> 1){
 			currentProgress= 0.999999999999999;
+			logger.trace("[RelANNISExporter] An internal bug in computing progress. The value was higher than 1. ");
+		}
 		return currentProgress;
 	}
 
@@ -401,12 +403,14 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 			timeToMapSRComponents= System.nanoTime();
 			this.traverseBySRelation(SSpanningRelation.class);
 			timeToMapSRComponents= System.nanoTime() - timeToMapSRComponents;
+			currentProgress= currentProgress+0.2; 
 		//end: exporting all SStructure, SSpan and SToken elements connected with SSpanningRelation
 		
 		//start: exporting all SStructure, SSpan and SToken elements connected with SDominanceRelation
 			logger.debug("[RelANNISExporter] "+getsDocGraph().getSElementId().getSId()+ ": relANNISExporter computing components for SDominanceRelation...");
 			timeToMapDRComponents= System.nanoTime();
 			this.traverseBySRelation(SDominanceRelation.class);
+			currentProgress= currentProgress+0.2;
 			timeToMapDRComponents= System.nanoTime() - timeToMapDRComponents;
 		//end: exporting all SStructure, SSpan and SToken elements connected with SDominanceRelation
 		
@@ -421,11 +425,6 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 				for (SToken sToken: sTokens)
 				{
 					alreadyProcessedTokens++;
-					if (((alreadyProcessedTokens *100/ sTokens.size()) - percentage)>=percentageThreshold)
-					{
-						percentage= alreadyProcessedTokens *100/ sTokens.size();
-						currentProgress= currentProgress+ percentage* 0.20;
-					}
 
 					//if element does not already have been stored
 					if (this.sElementId2RANode.get(sToken.getSElementId())== null)
@@ -478,21 +477,15 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 					}//create artificial annotation for audiosequence of SAudioDSRelation
 				}
 			}//end: map SAudioDataSource
-			
-			StringBuilder logStr= new StringBuilder();
-			logStr.append("time to map document: "+this.getsDocGraph().getSDocument().getSName()+"\n");
-			logStr.append("\ttime to map spanning-relation-components:\t"+(timeToMapSRComponents/ 1000000)+"\n");
-			logStr.append("\ttime to map dominance-relation-components:\t"+(timeToMapDRComponents/ 1000000)+"\n");
-			logStr.append("\ttime to map pointing-relation-components:\t"+(timeToMapPRComponents/ 1000000)+"\n");
-			logStr.append("\ttime to map lonely-components:\t\t"+(timeToMapLonlyComponents/ 1000000)+"\n");
-			logger.debug("[RelANNISExporter] "+logStr.toString());
+			currentProgress= currentProgress+0.2;
 		//end: Export all tokens who aren't connected by (SSPANNING_RELATION, SPOINTING_RELATION or SDOMINANCE_RELATION)
 			
-			//start: exporting all SStructuredNodes connected with SPointingRelation
+		//start: exporting all SStructuredNodes connected with SPointingRelation
 			logger.debug("[RelANNISExporter] "+getsDocGraph().getSElementId().getSId()+ ": relANNISExporter computing components for SPointingRelation...");
 			timeToMapPRComponents= System.nanoTime();
 			this.traverseBySRelation(SPointingRelation.class);
 			timeToMapPRComponents= System.nanoTime() - timeToMapPRComponents;
+			currentProgress= currentProgress+0.2;
 		//end: exporting all SStructuredNodes connected with SPointingRelation
 			
 		//start: exporting all SNodes connected with SOrderRelation
@@ -503,8 +496,6 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 				if (roots!= null)
 				{
 					Set<String> segmentNames= roots.keySet();
-					double percentage= 0;
-					int alreadyProcessedRoots= 0;
 					for (String segmentName: segmentNames)
 					{//walk through every slot
 						//sets traversion to be not cycle safe
@@ -512,16 +503,22 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 							SOrderRelationTraverser traverser= new SOrderRelationTraverser();
 							traverser.sElementId2RANode= this.sElementId2RANode;
 							this.getsDocGraph().traverse(roots.get(segmentName), GRAPH_TRAVERSE_TYPE.TOP_DOWN_DEPTH_FIRST, "sOrderRelation", traverser, true);
-							alreadyProcessedRoots++;
-							percentage= alreadyProcessedRoots/ roots.size();
-							currentProgress= currentProgress+ percentage* 0.20;
 						}catch (Exception e) {
 							throw new PepperModuleException("Some error occurs while traversing corpus structure graph.", e);
 						}
 					}
 				}			
 			}
+			currentProgress= currentProgress+0.2;
 		//end: exporting all SNodes connected with SOrderRelation
+			StringBuilder logStr= new StringBuilder();
+			logStr.append("time to map document: "+this.getsDocGraph().getSDocument().getSName()+"\n");
+			logStr.append("\ttime to map spanning-relation-components:\t"+(timeToMapSRComponents/ 1000000)+"\n");
+			logStr.append("\ttime to map dominance-relation-components:\t"+(timeToMapDRComponents/ 1000000)+"\n");
+			logStr.append("\ttime to map pointing-relation-components:\t"+(timeToMapPRComponents/ 1000000)+"\n");
+			logStr.append("\ttime to map lonely-components:\t\t"+(timeToMapLonlyComponents/ 1000000)+"\n");
+			logger.debug("[RelANNISExporter] "+logStr.toString());
+	
 	}
 	
 	/** determines the threshold of process, which invokes a notification about it **/
@@ -536,16 +533,8 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 	{
 		if (roots!= null)
 		{
-			int alreadyProcessedRoots= 0;
-			int percentage= 0;
 			for (SNode subRoot: roots)
 			{//walk through every root
-				alreadyProcessedRoots++;
-				if (((alreadyProcessedRoots *100/ roots.size()) - percentage)>=percentageThreshold)
-				{//notify the pepper-framework about progress
-					percentage= alreadyProcessedRoots * 100/ roots.size();
-					currentProgress= currentProgress+ percentage* factor;
-				}//notify the pepper-framework about progress
 				
 				this.currRaComponent= relANNISFactory.eINSTANCE.createRAComponent();
 				if (	(roots== null) ||
@@ -886,29 +875,27 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 	 * @param sAnno
 	 * @param raNodeAnnotation
 	 */
-	protected RANodeAnnotation mapSAnnotation2RANodeAnnotation(	SAnnotation sAnno, 
-													RANode raNode)
-	{
-		if (sAnno== null)
+	protected RANodeAnnotation mapSAnnotation2RANodeAnnotation(SAnnotation sAnno, RANode raNode) {
+		if (sAnno == null)
 			throw new PepperModuleException("Cannot map the SAnnotation-object to the given RANodeAnnotation-object, because sAnnotation is empty.");
-		RANodeAnnotation raNodeAnno= relANNISFactory.eINSTANCE.createRANodeAnnotation(sAnno);
-		
-//		{//compute namespace from layer
-//			String namespace= null;
-//			if (	(sAnno.getSAnnotatableElement() instanceof SNode) &&
-//					(((SNode)sAnno.getSAnnotatableElement()).getSLayers()!= null) &&
-//					(((SNode)sAnno.getSAnnotatableElement()).getSLayers().size()!= 0))
-//			{//a namespace can be taken from layers name
-//				if (((SNode)sAnno.getSAnnotatableElement()).getSLayers().get(0)!= null)
-//				{	
-//					namespace= ((SNode)sAnno.getSAnnotatableElement()).getSLayers().get(0).getSName();
-//				}
-//			}//a namespace can be taken from layers name
-//			else namespace= DEFAULT_NS;
-//			raNodeAnno.setRaNamespace(namespace);
-//		}//compute namespace from layer
-		
-		return(raNodeAnno);
+		RANodeAnnotation raNodeAnno = relANNISFactory.eINSTANCE.createRANodeAnnotation(sAnno);
+		// compute namespace from layer
+		String namespace = sAnno.getSNS();
+		if ((namespace == null) || (namespace.isEmpty())) {
+			if ((sAnno.getSAnnotatableElement() instanceof SNode) && (((SNode) sAnno.getSAnnotatableElement()).getSLayers() != null) && (((SNode) sAnno.getSAnnotatableElement()).getSLayers().size() != 0)) {
+				// a namespace can be taken from layers name
+				if (((SNode) sAnno.getSAnnotatableElement()).getSLayers().get(0) != null) {
+					namespace = ((SNode) sAnno.getSAnnotatableElement()).getSLayers().get(0).getSName();
+				}
+			}// a namespace can be taken from layers name
+			else {
+				namespace = RelANNISResource.DEFAULT_NS;
+			}
+		}
+		raNodeAnno.setRaNamespace(namespace);
+		// compute namespace from layer
+
+		return (raNodeAnno);
 	}
 		
 	/**
@@ -1287,17 +1274,35 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 							(sRelation.getSTypes()!= null) &&
 							(sRelation.getSTypes().size()> 0))
 					{//do only if relation has a sub type
-						//if the current sRelation belongs to current component
-						if (this.currComponentId.equals(this.computeConnectedComponentId(sRelation)))
+						if (this.currComponentId.equals(this.computeConnectedComponentId(sRelation))){
+							//if the current sRelation belongs to current component
 							retVal= true;
-						//if the current sRelation doesn't belongs to current component
-						else retVal= false;
+						}else{
+							//if the current sRelation doesn't belongs to current component
+							retVal= false;
+						}
+						if (	(edge instanceof SPointingRelation)&&
+								(this.currTraversionType== TRAVERSION_TYPE.DOCUMENT_STRUCTURE_PR_SUB)){
+							if (sRelation.getSSource().equals(sRelation.getSTarget())){
+								retVal= false;
+								logger.warn("Cannot export relation "+sRelation.getSId()+", because its source and target points to the same node '"+sRelation.getSSource().getSId()+"'. ");
+							}else{
+								if (hasVisited(sRelation)){
+									retVal= false;
+								}else{
+									this.markAsVisited(sRelation);
+									retVal= true;
+								}
+							}
+						}
 					}//do only if relation has a sub type
-					else if (sRelation== null)
-					{//first relation of sub component has to be null
+					else if (sRelation== null){
+						//first relation of sub component has to be null
 						retVal= true;
-					}//first relation of sub component has to be null
-					else retVal= false;
+					}else{
+						//first relation of sub component has to be null
+						retVal= false;
+					}
 				}//traversion of sub components
 			}
 		}//traversing document structure
@@ -1536,7 +1541,6 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 						}
 						this.mapSRelation2RARank(sRelation, currSNode, this.currRaComponent, currLastRARank, raNode, raRank);
 						this.getRaDocGraph().addSRelation(raRank);
-						
 						{//necessary for setting edge.source to parentRank.raNode
 							if (this.parentRank2Rank== null)
 								this.parentRank2Rank= new Hashtable<RARank, EList<RARank>>();
@@ -1585,6 +1589,9 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 
 	private String KW_NS= "s2ra";
 	private String KW_NAME_PRE= "pre";
+	
+	/** A set to store already visited pointing relations to avoid cycles **/
+	private Set<SPointingRelation> visitedSPointingRelations= new HashSet<SPointingRelation>();
 
 	@Override
 	public void nodeReached(	GRAPH_TRAVERSE_TYPE traversalType,
@@ -1660,27 +1667,24 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 				}
 			}//add pre value
 		}//traversing document structure
-		else if (this.currTraversionType== TRAVERSION_TYPE.DOCUMENT_STRUCTURE_OR)
-		{//traversing SOrderRelation
+		else if (this.currTraversionType== TRAVERSION_TYPE.DOCUMENT_STRUCTURE_OR){
+			//traversing SOrderRelation
 			SOrderRelation sOrderRel= (SOrderRelation) edge;
-//			System.out.println(fromNode.getId()+"--"+sOrderRel.getSTypes()+"-->"+currNode.getId());
-		}//traversing SOrderRelation
-		{//for testing
-//			System.out.println("----------> node reached: "+currNode.getId());
-		}//for testing			
+		}
 	}	
 	
 // ========================================= start: handling to check if node or relation has been visited	
-	private Map<SElementId, Boolean> visitedSNodes= null;
+	private Set<SElementId> visitedSNodes= null;
 	/**
 	 * Marks the given node as visited.
 	 * @param raRank
 	 */
 	private void markAsVisited(SNode sNode)
 	{
-		if (this.visitedSNodes== null)
-			this.visitedSNodes= new Hashtable<SElementId, Boolean>();
-		this.visitedSNodes.put(sNode.getSElementId(), true);
+		if (this.visitedSNodes== null){
+			this.visitedSNodes= new HashSet<SElementId>();
+		}
+		this.visitedSNodes.add(sNode.getSElementId());
 	}
 	
 	/**
@@ -1691,22 +1695,24 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 	private boolean hasVisited(SNode sNode)
 	{
 		if (this.visitedSNodes== null)
-			this.visitedSNodes= new Hashtable<SElementId, Boolean>();
-		if (visitedSNodes.containsKey(sNode.getSElementId()))
+			this.visitedSNodes= new HashSet<SElementId>();
+		if (visitedSNodes.contains(sNode.getSElementId())){
 			return(true);
+		}
 		else return(false);
 	}
 	
-	private Map<SElementId, Boolean> visitedSRelations= null;
+	private Set<SElementId> visitedSRelations= null;
 	/**
 	 * Marks the given node as visited.
 	 * @param raRank
 	 */
 	private void markAsVisited(SRelation SRelation)
 	{
-		if (this.visitedSRelations== null)
-			this.visitedSRelations= new Hashtable<SElementId, Boolean>();
-		this.visitedSRelations.put(SRelation.getSElementId(), true);
+		if (this.visitedSRelations== null){
+			this.visitedSRelations= new HashSet<SElementId>();
+		}
+		this.visitedSRelations.add(SRelation.getSElementId());
 	}
 	
 	/**
@@ -1716,11 +1722,14 @@ public class Salt2RelANNISMapper implements SGraphTraverseHandler
 	 */
 	private boolean hasVisited(SRelation SRelation)
 	{
-		if (this.visitedSRelations== null)
-			this.visitedSRelations= new Hashtable<SElementId, Boolean>();
-		if (visitedSRelations.containsKey(SRelation.getSElementId()))
+		if (this.visitedSRelations== null){
+			this.visitedSRelations= new HashSet<SElementId>();
+		}
+		if (visitedSRelations.contains(SRelation.getSElementId())){
 			return(true);
-		else return(false);
+		}else{
+			return(false);
+		}
 	}
 // ========================================= start: handling to check if node or relation has been visited
 }

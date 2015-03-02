@@ -40,12 +40,20 @@
     </repository>
   </distributionManagement>
   <dependencies>
+          <dependency>
+            <groupId>de.hu_berlin.german.korpling.saltnpepper</groupId>
+            <artifactId>misc-TupleConnector</artifactId>
+            <version>[1.1.1,)</version>
+            <scope>compile</scope>
+        </dependency>
+    <!-- 
     <dependency>
       <groupId>de.hu_berlin.german.korpling.saltnpepper</groupId>
       <artifactId>misc-RelANNISModel</artifactId>
       <version>[1.1.0,)</version>
       <scope>compile</scope>
     </dependency>
+     -->
   </dependencies>
   <build>
     <plugins>
