@@ -417,7 +417,7 @@ public class Salt2RelANNISMapperTest
     SStructuredNode struct4 = graph.createSStructure(tok);
     SStructuredNode struct3 = graph.createSStructure(struct4);
     SStructuredNode struct2 = graph.createSStructure(struct4);
-    EList<SStructuredNode> struct1Targets = new BasicEList<SStructuredNode>();
+    EList<SStructuredNode> struct1Targets = new BasicEList<>();
     struct1Targets.add(struct2);
     struct1Targets.add(struct3);
     SStructuredNode struct1 = graph.createSStructure(struct1Targets);
@@ -633,7 +633,7 @@ public class Salt2RelANNISMapperTest
     Set<String> segNames = Files.readLines(new File(tmpPath, "node.relannis"),
       Charsets.UTF_8, new LineProcessor<Set<String>>()
       {
-        private final Set<String> result = new TreeSet<String>();
+        private final Set<String> result = new TreeSet<>();
 
         @Override
         public boolean processLine(String line) throws IOException
@@ -664,7 +664,7 @@ public class Salt2RelANNISMapperTest
             getSortedSTokenByText();
     int remainder = tokens.size() % 2;
     int numberOfChains = (tokens.size() - remainder) / 2;
-    LinkedList<String> expectedNames = new LinkedList<String>();
+    LinkedList<String> expectedNames = new LinkedList<>();
     for (int i = 0; i < numberOfChains; i++) {
       SOrderRelation r = SaltFactory.eINSTANCE.createSOrderRelation();
       r.addSType("order");
@@ -688,7 +688,7 @@ public class Salt2RelANNISMapperTest
     // check output files that only "order" is used as segmentation name
     Set<String> segNames = Files.readLines(new File(tmpPath, "node.relannis"),
             Charsets.UTF_8, new LineProcessor<Set<String>>() {
-              private final Set<String> result = new TreeSet<String>();
+              private final Set<String> result = new TreeSet<>();
 
               @Override
               public boolean processLine(String line) throws IOException {
@@ -747,7 +747,7 @@ public class Salt2RelANNISMapperTest
         + "' does not exist (Path, where the correct files are located).");
     }
 
-    Vector<File> filesToCompare = new Vector<File>();
+    Vector<File> filesToCompare = new Vector<>();
     for (String raFileName : RelANNIS.FILE_RELANNIS_FILES)
     {
       File raFile = new File(goldPath.getAbsolutePath() + File.separator

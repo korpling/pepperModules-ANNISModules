@@ -66,7 +66,7 @@ public class StatMultiMap<LayerType, ValueType> {
   }
   
   public Set<ValueType> get(LayerType layer) {
-    Set<ValueType> result = new HashSet<ValueType>();
+    Set<ValueType> result = new HashSet<>();
     synchronized(valuesByLayer) {
       result.addAll(valuesByLayer.get(layer));
     }

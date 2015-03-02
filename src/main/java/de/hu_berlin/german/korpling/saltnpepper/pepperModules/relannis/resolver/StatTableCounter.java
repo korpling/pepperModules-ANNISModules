@@ -77,7 +77,7 @@ public class StatTableCounter<ValueType> {
   }
   
   public SortedMap<Integer, ValueType> getBySize(String layer) {
-    TreeMap<Integer, ValueType> result = new TreeMap<Integer, ValueType>();
+    TreeMap<Integer, ValueType> result = new TreeMap<>();
     
     synchronized (values) {
 

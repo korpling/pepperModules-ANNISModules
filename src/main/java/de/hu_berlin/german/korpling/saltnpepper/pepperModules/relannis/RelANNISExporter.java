@@ -190,7 +190,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 
     tWriter.setEscaping(escapeCharacters);
     if (characterEscapeTable != null) {
-      tWriter.setEscapeTable(new Hashtable<Character, String>(characterEscapeTable));
+      tWriter.setEscapeTable(new Hashtable<>(characterEscapeTable));
     }
 
     tWriter.setFile(outFile);
@@ -495,7 +495,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
         }
       }
 
-      List<ResolverEntry> entries = new ArrayList<ResolverEntry>(
+      List<ResolverEntry> entries = new ArrayList<>(
               getGlobalIdManager().getResolverEntryByDisplay().values());
       
       // sort the entries

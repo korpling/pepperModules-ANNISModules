@@ -73,7 +73,7 @@ public class TupleWriter
 	 */
 	public TupleWriter()
 	{
-		charEscapeTable = new Hashtable<Character, String>();
+		charEscapeTable = new Hashtable<>();
 		/**
 		 * Standard escaping
 		 * \t \n \r \ '

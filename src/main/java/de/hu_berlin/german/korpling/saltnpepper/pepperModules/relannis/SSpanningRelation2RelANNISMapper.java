@@ -54,7 +54,7 @@ public class SSpanningRelation2RelANNISMapper extends SRelation2RelANNISMapper {
         }
 
         // create an EList for the current root
-        EList<SNode> singleRootList = new BasicEList<SNode>();
+        EList<SNode> singleRootList = new BasicEList<>();
         singleRootList.add(node);
 
         this.documentGraph.traverse(singleRootList, GRAPH_TRAVERSE_TYPE.TOP_DOWN_DEPTH_FIRST, traversionType.toString(), this);
@@ -107,7 +107,7 @@ public class SSpanningRelation2RelANNISMapper extends SRelation2RelANNISMapper {
       continuous = cachedValue;
     } else {
       // we need to compute wether the span is continuous
-      BasicEList<STYPE_NAME> spanRel = new BasicEList<STYPE_NAME>();
+      BasicEList<STYPE_NAME> spanRel = new BasicEList<>();
       spanRel.add(STYPE_NAME.SSPANNING_RELATION);
 
       EList<SToken> overlappedToken

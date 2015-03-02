@@ -34,7 +34,7 @@ public class SpanStatistics {
   }
   
   public Set<String> getLayers() {
-    return new HashSet<String>(layers);
+    return new HashSet<>(layers);
   }
   
   /**

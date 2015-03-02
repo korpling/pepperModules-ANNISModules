@@ -14,13 +14,13 @@ public class GlobalIdManager {
 
   private final AtomicLong nodeId = new AtomicLong(0l);
 
-  private final ConcurrentHashMap<String, Long> corpusTabIdMap = new ConcurrentHashMap<String, Long>();
+  private final ConcurrentHashMap<String, Long> corpusTabIdMap = new ConcurrentHashMap<>();
 
   // states whether virtual tokens and spans are managed
   private final AtomicBoolean containsVirtualTokens = new AtomicBoolean(false);
 
   private final ConcurrentMap<String, ResolverEntry> resolverEntryByDisplay
-          = new ConcurrentHashMap<String, ResolverEntry>();
+          = new ConcurrentHashMap<>();
   
   private final AtomicBoolean audioFound = new AtomicBoolean(false);
   private final AtomicBoolean videoFound = new AtomicBoolean(false);

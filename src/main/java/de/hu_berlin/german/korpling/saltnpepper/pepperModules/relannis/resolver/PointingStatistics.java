@@ -32,7 +32,7 @@ public class PointingStatistics {
 
 
   private final StatMultiMap<QName, QName> terminalAnno
-          = new StatMultiMap<QName, QName>(layers);
+          = new StatMultiMap<>(layers);
   
   private final ReadWriteLock numberOfNodeLock = new ReentrantReadWriteLock();
   
@@ -46,7 +46,7 @@ public class PointingStatistics {
   
   
   public Set<QName> getLayers() {
-    return new HashSet<QName>(layers);
+    return new HashSet<>(layers);
   }
   
   public void setNodeCount(long newCount) {

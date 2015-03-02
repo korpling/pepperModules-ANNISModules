@@ -190,8 +190,8 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
     {
 			//start traversion of corpus structure
       /// initialize preOrder and postOrder:
-      this.preorderTable = new ConcurrentHashMap<SNode, Long>();
-      this.postorderTable = new ConcurrentHashMap<SNode, Long>();
+      this.preorderTable = new ConcurrentHashMap<>();
+      this.postorderTable = new ConcurrentHashMap<>();
       prePostOrder = 0l;
 
       try {
@@ -208,7 +208,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
         if (getSCorpus() != null && roots.contains(getSCorpus())) {
           // set the SName of the corpus graph root to the individual one
           if (this.individualCorpusName != null) {
-            this.individualCorpusNameReplacement = new ImmutablePair<String, String>(roots.get(0).getSName(), this.individualCorpusName);
+            this.individualCorpusNameReplacement = new ImmutablePair<>(roots.get(0).getSName(), this.individualCorpusName);
             //roots.get(0).setSName(this.individualCorpusName);
           }
           //set traversion type to corpus structure
@@ -251,8 +251,8 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
   @Override
   public DOCUMENT_STATUS mapSDocument() {
 
-    this.preorderTable = new ConcurrentHashMap<SNode, Long>();
-    this.postorderTable = new ConcurrentHashMap<SNode, Long>();
+    this.preorderTable = new ConcurrentHashMap<>();
+    this.postorderTable = new ConcurrentHashMap<>();
     prePostOrder = 0l;
 
     numberOfMappedNodes.set(0);
@@ -321,7 +321,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
           sDocID = this.idManager.getNewCorpusTabId(sDocumentElementId);
           String textName = "sText0";
           String textContent = Strings.repeat(" ", idManager.getNumberOfVirtualToken());
-          ArrayList<String> tuple = new ArrayList<String>();
+          ArrayList<String> tuple = new ArrayList<>();
           tuple.add(sDocID.toString());
           tuple.add(textId.toString());
           tuple.add(textName);
@@ -537,7 +537,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
       sDocID = manager.getNewCorpusTabId(sDocumentElementId);
       String textName = text.getSName();
       String textContent = text.getSText();
-      ArrayList<String> tuple = new ArrayList<String>();
+      ArrayList<String> tuple = new ArrayList<>();
       tuple.add(sDocID.toString());
       tuple.add(manager.getNewTextId(text.getSId()).toString());
       tuple.add(textName);
@@ -600,7 +600,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 
       }
     }
-    ArrayList<String> tuple = new ArrayList<String>();
+    ArrayList<String> tuple = new ArrayList<>();
     tuple.add(idString);
     tuple.add(name);
     tuple.add(type);

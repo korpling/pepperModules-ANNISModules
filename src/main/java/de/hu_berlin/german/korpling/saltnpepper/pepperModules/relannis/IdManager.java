@@ -29,10 +29,10 @@ public class IdManager {
   private final ConcurrentMap<String, Long> spanVirtualisationMapping;
 
   private final Lock lockNodeIdMap = new ReentrantLock();
-  private final Map<String, Long> nodeIdMap = new HashMap<String, Long>();
+  private final Map<String, Long> nodeIdMap = new HashMap<>();
 
   private final Lock lockVirtualNodeIdMap = new ReentrantLock();
-  private final Map<String, Long> virtualNodeIdMap = new HashMap<String, Long>();
+  private final Map<String, Long> virtualNodeIdMap = new HashMap<>();
 
   private Long textId = 0l;
 
@@ -45,15 +45,15 @@ public class IdManager {
 
     this.globalIdManager = globalIdManager;
 
-    this.textIdMap = new ConcurrentHashMap<String, Long>();
-    this.tokenVirtualisationMapping = new ConcurrentHashMap<String, EList<Long>>();
-    this.spanVirtualisationMapping = new ConcurrentHashMap<String, Long>();
+    this.textIdMap = new ConcurrentHashMap<>();
+    this.tokenVirtualisationMapping = new ConcurrentHashMap<>();
+    this.spanVirtualisationMapping = new ConcurrentHashMap<>();
 
-    this.virtualTokenIdList = new BasicEList<Long>();
+    this.virtualTokenIdList = new BasicEList<>();
 
     this.textId = 0l;
 
-    this.segmentationInfoTable = new ConcurrentHashMap<String, SegmentationInfo>();
+    this.segmentationInfoTable = new ConcurrentHashMap<>();
   }
 
   /**
@@ -75,7 +75,7 @@ public class IdManager {
    */
   public synchronized Pair<Long, Long> getLeftRightVirtualToken(Long leftTokenRAId, Long rightTokenRAId) {
     Pair<Long, Long> returnVal;
-    returnVal = new ImmutablePair<Long, Long>((long) virtualTokenIdList.indexOf(leftTokenRAId), (long) virtualTokenIdList.indexOf(rightTokenRAId));
+    returnVal = new ImmutablePair<>((long) virtualTokenIdList.indexOf(leftTokenRAId), (long) virtualTokenIdList.indexOf(rightTokenRAId));
     return returnVal;
   }
 
@@ -165,7 +165,7 @@ public class IdManager {
   }
 
   public List<ResolverEntry> getResolverEntries() {
-    ArrayList<ResolverEntry> entries = new ArrayList<ResolverEntry>();
+    ArrayList<ResolverEntry> entries = new ArrayList<>();
     entries.addAll(globalIdManager.getResolverEntryByDisplay().values());
     return entries;
   }
@@ -243,7 +243,7 @@ public class IdManager {
     } finally {
       lockNodeIdMap.unlock();
     }
-    return new ImmutablePair<Long, Boolean>(id, isNew);
+    return new ImmutablePair<>(id, isNew);
   }
 
   /**

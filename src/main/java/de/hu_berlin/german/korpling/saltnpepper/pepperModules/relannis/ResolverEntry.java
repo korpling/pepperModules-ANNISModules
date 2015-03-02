@@ -45,7 +45,7 @@ public class ResolverEntry {
   private Visibility visibility = Visibility.hidden;
   private int order = 0;
 
-  private final Map<String, String> mappings = new LinkedHashMap<String, String>();
+  private final Map<String, String> mappings = new LinkedHashMap<>();
 
   public String getLayerName() {
     return layerName;

@@ -102,7 +102,7 @@ public class TabFileComparator
     List<String> a = Files.readAllLines(Paths.get(pathA), Charsets.UTF_8);
     List<String> b = Files.readAllLines(Paths.get(pathB), Charsets.UTF_8);
     
-    Set<Integer> ignoredAsSet = new HashSet<Integer>();
+    Set<Integer> ignoredAsSet = new HashSet<>();
     for(Integer i : ignoredColumns)
     {
       ignoredAsSet.add(i);
@@ -119,19 +119,19 @@ public class TabFileComparator
   private static List<String> removeIgnoredColumns(Collection<String> originalLines, 
     Set<Integer> ignoreColumns, String placeholder)
   {
-    List<String> result = new ArrayList<String>(originalLines.size());
+    List<String> result = new ArrayList<>(originalLines.size());
     
     Splitter splitter = Splitter.on('\t');
     Joiner joiner = Joiner.on("\t");
     
     if(ignoreColumns == null)
     {
-      ignoreColumns = new HashSet<Integer>();
+      ignoreColumns = new HashSet<>();
     }
     
     for(String l : originalLines)
     {
-      List<String> newLine = new LinkedList<String>();
+      List<String> newLine = new LinkedList<>();
       int columnNr = 0;
       for(String cell : splitter.split(l))
       {

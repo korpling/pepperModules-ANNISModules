@@ -72,7 +72,7 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper {
     String virtualSpanName = tok.getSName() + "_virtualSpan";
 
     VirtualNodeID virtualSpanId = idManager.getVirtualNodeId(virtualSpanSId);
-    EList<Long> virtualTokenIds = new BasicEList<Long>();
+    EList<Long> virtualTokenIds = new BasicEList<>();
 
     if (minimal) { // map a timeline which has only one virtual token
       String virtualTokenName = tok.getSName() + "_virtualToken";
@@ -100,7 +100,7 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper {
        System.out.println("Start POT "+ timelineRelation.getSStart());
        System.out.println("End POT "+ timelineRelation.getSEnd());
        */
-      EList<STimelineRelation> overlappedTimelines = new BasicEList<STimelineRelation>();
+      EList<STimelineRelation> overlappedTimelines = new BasicEList<>();
 
       //System.out.println(minimalTimelineRelations.keySet());
       for (Integer i = timelineRelation.getSStart(); i < timelineRelation.getSEnd(); i++) { // get all timeline-overlapped timelines
@@ -178,7 +178,7 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper {
       }
 
       {// map NULL -> virtSpan
-        EList<String> rankEntry = new BasicEList<String>();
+        EList<String> rankEntry = new BasicEList<>();
 
         rankEntry.add(parentRank.toString());
         rankEntry.add("0");
@@ -201,7 +201,7 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper {
    * @return The sorted {@link STimelineRelation} objects
    */
   private Map<String, STimelineRelation> sortTimelineRelationsByStart(EList<STimelineRelation> sTimelineRelations) {
-    HashMap<String, STimelineRelation> retVal = new HashMap<String, STimelineRelation>();
+    HashMap<String, STimelineRelation> retVal = new HashMap<>();
     for (STimelineRelation t : sTimelineRelations) {
       String startTime = t.getSStart().toString();
       if (retVal.containsKey(startTime)) {
@@ -227,9 +227,9 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper {
      }*/
 		//System.out.println("SOrderRelation2RelANNOSMapper : Points of time are " + pointsOfTime);
 
-    HashSet<STimelineRelation> nonMinimalTimelineRelations = new HashSet<STimelineRelation>();
-    HashSet<STimelineRelation> minimalTimelineRelations = new HashSet<STimelineRelation>();
-    EList<STimelineRelation> minimalTimelineRelationList = new BasicEList<STimelineRelation>();
+    HashSet<STimelineRelation> nonMinimalTimelineRelations = new HashSet<>();
+    HashSet<STimelineRelation> minimalTimelineRelations = new HashSet<>();
+    EList<STimelineRelation> minimalTimelineRelationList = new BasicEList<>();
 
     if (timelineRelations != null && !timelineRelations.isEmpty()) {
       {// get minimal and non-minimal timelines
@@ -274,8 +274,8 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper {
       }
 
       { // create the sorted virtual token id list
-        EList<STimelineRelation> sortedMinimalTimelineRelationList = new BasicEList<STimelineRelation>();
-        EList<Long> sortedMinimalIdList = new BasicEList<Long>();
+        EList<STimelineRelation> sortedMinimalTimelineRelationList = new BasicEList<>();
+        EList<Long> sortedMinimalIdList = new BasicEList<>();
         for (String pot : pointsOfTime) {
           for (String key : minimalTimelineRelationsSortedByStart.keySet()) {
             if (key.equals(pot)) {
@@ -317,7 +317,7 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper {
 
       // Step 1: traverse the SOrderRelations
       for (SNode node : sRelationRoots) {
-        EList<SNode> singleRootList = new BasicEList<SNode>();
+        EList<SNode> singleRootList = new BasicEList<>();
         singleRootList.add(node);
 
         this.documentGraph.traverse(singleRootList, GRAPH_TRAVERSE_TYPE.TOP_DOWN_DEPTH_FIRST, "", this);

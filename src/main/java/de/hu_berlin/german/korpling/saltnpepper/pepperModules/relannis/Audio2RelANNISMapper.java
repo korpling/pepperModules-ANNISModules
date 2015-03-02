@@ -67,7 +67,7 @@ public class Audio2RelANNISMapper extends SRelation2RelANNISMapper {
         super.initialiseTraversion(null, null, null);
 
         // create an EList for the current root
-        EList<SNode> singleRootList = new BasicEList<SNode>();
+        EList<SNode> singleRootList = new BasicEList<>();
         singleRootList.add(node);
 
         documentGraph.traverse(singleRootList, GRAPH_TRAVERSE_TYPE.TOP_DOWN_DEPTH_FIRST, traversionType.toString(), this);

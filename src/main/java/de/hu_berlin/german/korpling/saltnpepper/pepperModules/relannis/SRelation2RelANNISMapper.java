@@ -32,7 +32,6 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.Collection;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -40,7 +39,6 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.logging.Level;
 import org.eclipse.emf.common.util.URI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,7 +85,7 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 
     this.tokenSortedByLeft = documentGraph.getSortedSTokenByText();
     // calculate the index of each token
-    this.token2Index = new HashMap<SToken, Long>();
+    this.token2Index = new HashMap<>();
     if (this.tokenSortedByLeft != null) {
       long i = 0;
       for (SToken tok : this.tokenSortedByLeft) {
@@ -129,15 +127,15 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
     rankLevel = 0l;
 
     // initialise the pre and post order table
-    preorderTable = new ConcurrentHashMap<Long, Long>();
+    preorderTable = new ConcurrentHashMap<>();
 
     // initialise the preorder
     prePostOrder = 0l;
 
-    this.virtualNodes = new HashSet<SNode>();
+    this.virtualNodes = new HashSet<>();
 
     // initialise rank Hashtable
-    this.rankTable = new ConcurrentHashMap<Long, Long>();
+    this.rankTable = new ConcurrentHashMap<>();
   }
 
   protected void commitTransaction() {
@@ -173,10 +171,10 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
   }
 
   protected final Map<OutputTable, TupleWriter> writers
-          = new EnumMap<OutputTable, TupleWriter>(OutputTable.class);
+          = new EnumMap<>(OutputTable.class);
 
   private final Map<OutputTable, Long> transactionIds
-          = new EnumMap<OutputTable, Long>(OutputTable.class);
+          = new EnumMap<>(OutputTable.class);
 
 // ============================ Data for SRelation Mapping ====================
   protected TRAVERSION_TYPE traversionType;
@@ -269,7 +267,7 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
         Long pre = this.getNewPPOrder();
         Long post = this.getNewPPOrder();
 
-        EList<String> rankEntry = new BasicEList<String>();
+        EList<String> rankEntry = new BasicEList<>();
         rankEntry.add(rankId.toString());
         rankEntry.add(pre.toString());
         rankEntry.add(post.toString());
@@ -406,7 +404,7 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
   protected void mapComponent2RelANNIS() {
 		// id		type	layer					name
     // unique	c/d/p	SLayer/default_layer	"NULL"/SType
-    EList<String> componentEntry = new BasicEList<String>();
+    EList<String> componentEntry = new BasicEList<>();
     componentEntry.add(currentComponentId.toString());
     componentEntry.add(currentComponentType);
     componentEntry.add(currentComponentLayer);
@@ -440,7 +438,7 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
      *
      * @TODO: do we REALLY need this?
      */
-    EList<String> rankEntry = new BasicEList<String>();
+    EList<String> rankEntry = new BasicEList<>();
 
     rankEntry.add(rankId.toString());
     rankEntry.add(this.preorderTable.get(targetNodeID).toString());
@@ -468,7 +466,7 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
     }
     // rank_id 	namespace	name	value
 
-    EList<String> edgeAnnotationEntry = new BasicEList<String>();
+    EList<String> edgeAnnotationEntry = new BasicEList<>();
     edgeAnnotationEntry.add(rankId.toString());
     if (sAnnotation.getSNS() != null) {
       edgeAnnotationEntry.add(sAnnotation.getSNS());
@@ -583,7 +581,7 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
       }
     } else {
       if (node instanceof SSpan || node instanceof SStructure) {
-        EList<STYPE_NAME> overlappingTypes = new BasicEList<STYPE_NAME>();
+        EList<STYPE_NAME> overlappingTypes = new BasicEList<>();
         overlappingTypes.add(STYPE_NAME.SSPANNING_RELATION);
         if (node instanceof SStructure) {
           overlappingTypes.add(STYPE_NAME.SDOMINANCE_RELATION);
@@ -675,7 +673,7 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
           Long seg_index, String seg_name, String span,
           boolean isRoot) {
 
-    EList<String> tableEntry = new BasicEList<String>();
+    EList<String> tableEntry = new BasicEList<>();
     tableEntry.add(id.toString());
     tableEntry.add(text_ref.toString());
     tableEntry.add(corpus_ref.toString());
@@ -721,7 +719,7 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 
   protected void mapSNodeAnnotation(Long node_ref, String namespace, String name, String value) {
 
-    EList<String> tableEntry = new BasicEList<String>();
+    EList<String> tableEntry = new BasicEList<>();
     tableEntry.add(node_ref.toString());
     tableEntry.add(namespace);
     tableEntry.add(name);
@@ -822,7 +820,7 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
     EList<SLayer> nodeLayer = node.getSLayers();
     if (nodeLayer != null) {
       // get layer name which comes lexically first
-      TreeMap<String, SLayer> layers = new TreeMap<String, SLayer>();
+      TreeMap<String, SLayer> layers = new TreeMap<>();
       for (SLayer l : nodeLayer) {
         layers.put(l.getSName(), l);
       }

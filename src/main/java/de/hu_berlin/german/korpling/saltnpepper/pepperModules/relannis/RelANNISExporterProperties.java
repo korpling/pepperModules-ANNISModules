@@ -59,11 +59,11 @@ public class RelANNISExporterProperties extends PepperModuleProperties {
   public static final String PROP_ESCAPE_CHARACTERS_LIST = PREFIX + "escapeCharactersList";
 
   public RelANNISExporterProperties() {
-    this.addProperty(new PepperModuleProperty<Boolean>(PROP_VISUALISATION_CLOBBER, Boolean.class, "This property defines whether the resolver_vis_map.tab is allowed to be overwritten if it is existent. By default, the table is overwritten(value:true)", Boolean.TRUE, false));
-    this.addProperty(new PepperModuleProperty<Boolean>(PROP_CORPUS_ANNOTATION_CLOBBER, Boolean.class, "This property defines whether the corpus_annotation.tab is allowed to be overwritten if it is existent. By default, the table is overwritten(value:true)", Boolean.TRUE, false));
-    this.addProperty(new PepperModuleProperty<String>(PROP_INDIVIDUAL_CORPUS_NAME, String.class, "This property defines an individual name for the top-level corpus. By default, the top-level corpus gets a generic name by the salt meta model.", null, false));
-    this.addProperty(new PepperModuleProperty<Boolean>(PROP_ESCAPE_CHARACTERS, Boolean.class, "This property defines whether special characters are escaped during export. By default, characters which are incompatible with databases are escaped.", Boolean.TRUE, false));
-    this.addProperty(new PepperModuleProperty<String>(PROP_ESCAPE_CHARACTERS_LIST, String.class, "This property defines a set of special characters with their escape characters.", null, Boolean.FALSE));
+    this.addProperty(new PepperModuleProperty<>(PROP_VISUALISATION_CLOBBER, Boolean.class, "This property defines whether the resolver_vis_map.tab is allowed to be overwritten if it is existent. By default, the table is overwritten(value:true)", Boolean.TRUE, false));
+    this.addProperty(new PepperModuleProperty<>(PROP_CORPUS_ANNOTATION_CLOBBER, Boolean.class, "This property defines whether the corpus_annotation.tab is allowed to be overwritten if it is existent. By default, the table is overwritten(value:true)", Boolean.TRUE, false));
+    this.addProperty(new PepperModuleProperty<>(PROP_INDIVIDUAL_CORPUS_NAME, String.class, "This property defines an individual name for the top-level corpus. By default, the top-level corpus gets a generic name by the salt meta model.", null, false));
+    this.addProperty(new PepperModuleProperty<>(PROP_ESCAPE_CHARACTERS, Boolean.class, "This property defines whether special characters are escaped during export. By default, characters which are incompatible with databases are escaped.", Boolean.TRUE, false));
+    this.addProperty(new PepperModuleProperty<>(PROP_ESCAPE_CHARACTERS_LIST, String.class, "This property defines a set of special characters with their escape characters.", null, Boolean.FALSE));
 
   }
 
@@ -86,12 +86,12 @@ public class RelANNISExporterProperties extends PepperModuleProperties {
     String escapeString = ((String) this.getProperty(PROP_ESCAPE_CHARACTERS_LIST).getValue());
     if (escapeString != null) {
       if (!escapeString.isEmpty()) {
-        characterEscapeTable = new ConcurrentHashMap<Character, String>();
+        characterEscapeTable = new ConcurrentHashMap<>();
         // \(FIND_CHAR=REPLACE_CHAR\) (,\(FIND_CHAR=REPLACE_CHAR\))*
         Pattern pattern = Pattern.compile("(\\()(.*?=.*?)(\\))");
         Matcher matcher = pattern.matcher(escapeString);
 
-        ArrayList<String> listMatches = new ArrayList<String>();
+        ArrayList<String> listMatches = new ArrayList<>();
 
         while (matcher.find()) {
           listMatches.add(matcher.group(2));

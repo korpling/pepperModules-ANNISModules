@@ -31,19 +31,19 @@ public class DomStatistics {
   private final Set<String> layers = Collections.synchronizedSet(new HashSet<String>());
   
   private final StatTableCounter<String> edgeTypeCounter
-          = new StatTableCounter<String>(layers);
+          = new StatTableCounter<>(layers);
   
   private final StatMultiMap<String, QName> terminalAnno
-          = new StatMultiMap<String, QName>(layers);
+          = new StatMultiMap<>(layers);
   
   private final StatMultiMap<String, String> terminalEdgeType
-          = new StatMultiMap<String, String>(layers);
+          = new StatMultiMap<>(layers);
   
   private final StatMultiMap<String, QName> edgeAnno
-          = new StatMultiMap<String, QName>(layers);
+          = new StatMultiMap<>(layers);
   
   private final StatTableCounter<QName> nodeAnnoCounter
-          = new StatTableCounter<QName>(layers);
+          = new StatTableCounter<>(layers);
   
   ///////////////
   // edge type //
@@ -101,7 +101,7 @@ public class DomStatistics {
   }
   
   public Set<String> getLayers() {
-    return new HashSet<String>(layers);
+    return new HashSet<>(layers);
   }
 
   public StatMultiMap<String, QName> getTerminalAnno() {

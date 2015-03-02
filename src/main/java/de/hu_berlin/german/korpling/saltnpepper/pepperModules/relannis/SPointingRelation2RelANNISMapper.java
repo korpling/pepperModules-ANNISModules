@@ -58,7 +58,7 @@ public class SPointingRelation2RelANNISMapper extends SRelation2RelANNISMapper {
         }
 				//System.out.println("[DEBUG] Mapping pointingRelation with sType "+ this.currentTraversionSType);
         // create an EList for the current root
-        EList<SNode> singleRootList = new BasicEList<SNode>();
+        EList<SNode> singleRootList = new BasicEList<>();
         singleRootList.add(node);
 
         this.documentGraph.traverse(singleRootList, GRAPH_TRAVERSE_TYPE.TOP_DOWN_DEPTH_FIRST, traversionType.toString(), this);
