@@ -3,7 +3,6 @@ package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis;
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 
-import de.hu_berlin.german.korpling.saltnpepper.misc.tupleconnector.TupleWriter;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.Salt2RelANNISMapper.TRAVERSION_TYPE;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.resolver.QName;
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;

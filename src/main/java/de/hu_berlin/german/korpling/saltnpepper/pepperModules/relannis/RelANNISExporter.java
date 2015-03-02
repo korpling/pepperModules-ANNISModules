@@ -30,8 +30,6 @@ import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 import org.osgi.service.component.annotations.Component;
 
-import de.hu_berlin.german.korpling.saltnpepper.misc.tupleconnector.TupleConnectorFactory;
-import de.hu_berlin.german.korpling.saltnpepper.misc.tupleconnector.TupleWriter;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperExporter;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperMapper;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleException;
@@ -188,7 +186,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
         throw new PepperModuleException("Could not create the corpus tab file " + outFile.getAbsolutePath() + " Exception:" + e.getMessage());
       }
     }
-    TupleWriter tWriter = TupleConnectorFactory.fINSTANCE.createTupleWriter(true);
+    TupleWriter tWriter = new TupleWriter();
 
     tWriter.setEscaping(escapeCharacters);
     if (characterEscapeTable != null) {
@@ -216,7 +214,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
         throw new PepperModuleException("Could not create the corpus tab file " + outFile.getAbsolutePath() + " Exception:" + e.getMessage());
       }
     }
-    TupleWriter tWriter = TupleConnectorFactory.fINSTANCE.createTupleWriter(true);
+    TupleWriter tWriter = new TupleWriter();
     tWriter.setFile(outFile);
     return (tWriter);
   }
@@ -507,7 +505,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
       for (ResolverEntry e : entries) {
         e.setOrder(order);
 
-        EList<String> resolverTuple = new BasicEList<String>();
+        EList<String> resolverTuple = new BasicEList<>();
 
         resolverTuple.add(corpusName);
         resolverTuple.add(corpusVersion);
@@ -518,7 +516,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
         resolverTuple.add(e.getVisibility().name());
         resolverTuple.add("" + e.getOrder());
 
-        List<String> mappings = new LinkedList<String>();
+        List<String> mappings = new LinkedList<>();
         for (Map.Entry<String, String> m : e.getMappings().entrySet()) {
           mappings.add(m.getKey() + ":" + m.getValue());
         }

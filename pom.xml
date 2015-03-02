@@ -56,13 +56,6 @@
     </dependency>
     
     <dependency>
-      <groupId>de.hu_berlin.german.korpling.saltnpepper</groupId>
-      <artifactId>misc-TupleConnector</artifactId>
-      <version>1.1.5-SNAPSHOT</version>
-      <type>bundle</type>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
       <version>3.0</version>
