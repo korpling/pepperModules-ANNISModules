@@ -111,7 +111,7 @@ public class SDominanceRelation2RelANNISMapper extends SRelation2RelANNISMapper 
           EList<SAnnotation> annos = currNode.getSAnnotations();
           if (annos != null && !annos.isEmpty()) {
             SAnnotation anno = annos.get(0);
-            getDomStats().getTerminalAnno().add(traversalId, new QName(anno.getSNS(), anno.getSName()));
+            getDomStats().getTerminalAnno().add(currentComponentLayer, new QName(anno.getSNS(), anno.getSName()));
           }
 
         }
