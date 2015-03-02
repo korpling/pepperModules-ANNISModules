@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-model href="http://www.oasis-open.org/docbook/xml/5.0/rng/docbook.rng" schematypens="http://relaxng.org/ns/structure/1.0"?>
+<book xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0">
+    <info>
+        <title>RelANNISModules</title>
+        <subtitle>User's Guide</subtitle>
+        <authorgroup>
+            <author>
+                <personname>
+                    <firstname>Florian</firstname>
+                    <surname>Zipser</surname>
+                </personname>
+                <email>saltnpepper@lists.hu-berlin.de</email>
+            </author>
+            <author>
+                <orgname xml:id="snp_org1"> INRIA </orgname>
+            </author>
+            <author>
+                <orgname xml:id="snp_org2"> SFB 632 Information Structure / D1 Linguistic Database
+                </orgname>
+            </author>
+            <author>
+                <orgname xml:id="snp_org3"> Humboldt-Universität zu Berlin </orgname>
+            </author>
+            <author>
+                <orgname xml:id="snp_org4"> Universität Potsdam </orgname>
+            </author>
+        </authorgroup>
+        <copyright>
+            <year>2009</year>
+            <holder> INRIA, SFB 632 Information Structure / D1 Linguistic Database,
+                Humboldt-Universität zu Berlin, Universität Potsdam, All rights reserved. </holder>
+        </copyright>
+        <releaseinfo>Version ${project.version}</releaseinfo>
+    </info>
+    <preface>
+        <title>Foreword</title>
+        <para>The intention of this document is first to give a guide to the user of how to use the
+            here mentioned Pepper modules and how to utilize a mapping performed by them. Second
+            this document shall give a closer view in the details of such a mapping in a declarative
+            way, to give the user a chance to understand how specific data will be mapped by the
+            presented Pepper modules.</para>
+    </preface>
+    <chapter>
+        <title>Overview</title>
+        <para>This project contains the Pepper modules listed in <xref linkend="table_overview"/>. A
+            single module can be identified via its coordinates (module-name, format-name,
+            format-version) also given in <xref linkend="table_overview"/>. You can use these
+            coordinates in a Pepper workflow description file to identify the modules in a Pepper
+            conversion process. A description of how to model a workflow description file can be
+            found under https://korpling.german.hu-berlin.de/saltnpepper/.</para>
+        <para>relANNIS is the tab separated file format of the linguistic search and visualization
+            tool ANNIS (see: <link xlink:href="http://www.sfb632.uni-potsdam.de/annis/">http://www.sfb632.uni-potsdam.de/annis/</link>). The
+            relANNIS format is similar to the Salt meta model a graph based meta model. It also
+            consists of nodes and edges, which are subtyped by a more specific linguistic meaning.
+            Nevertheless, like Salt also the relANNIS format is a theory independent format.</para>
+        <table xml:id="table_overview" frame="all">
+            <title>Pepper modules contained in this project</title>
+            <tgroup cols="3" align="left" colsep="1" rowsep="1">
+                <thead>
+                    <row>
+                        <entry>Name of Pepper module</entry>
+                        <entry>Type of Pepper module</entry>
+                        <entry>Format (if module is im- or exporter)</entry>
+                    </row>
+                </thead>
+                <tbody>
+                    <row>
+                        <entry><xref linkend="relANNIS_importer" endterm="relANNIS_importer_name"
+                            /></entry>
+                        <entry>importer</entry>
+                        <entry>3.1</entry>
+                    </row>
+                    <row>
+                        <entry><xref linkend="relANNIS_exporter" endterm="relANNIS_exporter_name"
+                            /></entry>
+                        <entry>exporter</entry>
+                        <entry>3.1, 3.2</entry>
+                    </row>
+                </tbody>
+            </tgroup>
+        </table>
+    </chapter>
+    <chapter xml:id="relANNIS_importer">
+        <title xml:id="relANNIS_importer_name">RelANNISImporter</title>
+        <para> The RelANNISImporter make use of the relANNISModel project to map data from the
+            relANNIS model to the Salt model. That means, the conversion process is divided into two
+            steps: <itemizedlist>
+                <listitem>
+                    <para>Importing the relANNIS data from file into relANNIS model (in main
+                        memory)</para>
+                </listitem>
+                <listitem>
+                    <para>Mapping of the relANNIS model to a Salt model</para>
+                </listitem>
+            </itemizedlist>
+        </para>
+    </chapter>
+    <chapter xml:id="relANNIS_exporter">
+        <title xml:id="relANNIS_exporter_name">RelANNISExporter</title>
+        <para> The RelANNISExporter make use of the relANNISModel project to map data from the
+            relANNIS model to the Salt model. That means, the conversion process is divided into two
+            steps: <itemizedlist>
+                <listitem>
+                    <para>Mapping of the Salt model to a relANNIS model</para>
+                </listitem>
+                <listitem>
+                    <para>Exporting the relANNIS model to a file</para>
+                </listitem>
+            </itemizedlist>
+        </para>
+        <para>Since relANNIS is available in two different versions, the relANNIS 3.1 format and the
+            relANNIS 3.2 format, you can customize the relANNIS creation only when using the format
+            description. That means the second case of identifying an im- or exporter. The relANNIS
+            3.1 format fits for all ANNIS 2.X versions, whereas the relANNIS 3.2 is importable since
+            ANNIS 3.0. </para>
+        <para>The relANNIS format is a csv based format and uses for separating columns the tab
+            character and for separating lines a line break character. Therefore it is necessary to
+            not have tab characters or line breaks inside the data like annotation names, annotation
+            values, primary data and so on. Of course, the data could be checked when exporting
+            them. But since checking each String for occurances of these characxters is a time
+            consuming job and a lot of data does not contain such characters, it is up to the user
+            to switch one the that cleaning process. Therefore the two properties <xref
+                linkend="exporter_prop_prop1" endterm="exporter_prop1_title"/> and <xref
+                linkend="exporter_prop_prop2" endterm="exporter_prop2_title"/> exist, with which
+            even the replacement character or character sequence can be determined. </para>
+        <sect1>
+            <title>Properties</title>
+            <para> The table <xref linkend="exorter_prop_overview"/> contains an overview of all
+                usable properties to customize the behaviour of this Pepper module. The following
+                section contains a close description to each single property and describes the
+                resulting differences in the mapping to the Salt model.</para>
+            <table xml:id="exorter_prop_overview" frame="all">
+                <title>properties to customize exporter behaviour</title>
+                <tgroup cols="4" align="left" colsep="1" rowsep="1">
+                    <colspec colnum="1" colname="c1" colwidth="4.45*"/>
+                    <colspec colnum="2" colname="c2" colwidth="1.85*"/>
+                    <colspec colnum="3" colname="c3" colwidth="1.94*"/>
+                    <colspec colnum="4" colname="c4" colwidth="1*"/>
+                    <thead>
+                        <row>
+                            <entry>Name of property</entry>
+                            <entry>Type of property</entry>
+                            <entry>optional/ mandatory</entry>
+                            <entry>default value</entry>
+                        </row>
+                    </thead>
+                    <tbody>
+                        <row>
+                            <entry><xref linkend="exporter_prop_prop1"
+                                    endterm="exporter_prop1_title"/></entry>
+                            <entry>String</entry>
+                            <entry>optional</entry>
+                            <entry>--</entry>
+                        </row>
+                        <row>
+                            <entry><xref linkend="exporter_prop_prop2"
+                                    endterm="exporter_prop2_title"/></entry>
+                            <entry>String</entry>
+                            <entry>optional</entry>
+                            <entry>--</entry>
+                        </row>
+                        <row>
+                            <entry><xref linkend="exporter_prop_prop3"
+                                endterm="exporter_prop3_title"/></entry>
+                            <entry>String</entry>
+                            <entry>optional</entry>
+                            <entry>--</entry>
+                        </row>
+                    </tbody>
+                </tgroup>
+            </table>
+            <sect2 xml:id="exporter_prop_prop1">
+                <title xml:id="exporter_prop1_title">relANNIS.exporter.tab_escape</title>
+                <para>With this property tab characters ('\t') will be replaces by the given
+                    character or character sequence. For instance imagine the following text:
+                    <programlisting>This\tis\ta\ttext</programlisting> Normally, in most editors, a
+                    tab is shown as a longer whitespace and not as '\t'. The use of the property:
+                    <programlisting>relANNIS.exporter.tab_escape=BLANK</programlisting> will result
+                    in the following text:
+                    <programlisting>ThisBLANKisBLANKaBLANKtext</programlisting> Of course, this
+                    replacement does not make much sense and normally you would replace a tab with
+                    one or a sequence of blanks. This is possible when using the blank key instead
+                    of the 'BLANK' sequence, but hard to read in this example. </para>
+            </sect2>
+            <sect2 xml:id="exporter_prop_prop2">
+                <title xml:id="exporter_prop2_title">relANNIS.exporter.linebreak_escape</title>
+                <para>With this property linebreak characters (like '\n' and '\r') will be replaces by the given
+                    character or character sequence. For instance imagine the following text:
+                    <programlisting>This\nis\na\ntext</programlisting> Normally, in most editors, a
+                    linebreak is not shown and not as '\t'. The use of the property:
+                    <programlisting>relANNIS.exporter.linebreak_escape=BLANK</programlisting> will result
+                    in the following text:
+                    <programlisting>ThisBLANKisBLANKaBLANKtext</programlisting> Of course, this
+                    replacement does not make much sense and normally you would replace a linebreak with
+                    one or a sequence of blanks. This is possible when using the blank key instead
+                    of the 'BLANK' sequence, but hard to read in this example. </para>
+            </sect2>
+            <sect2 xml:id="exporter_prop_prop3">
+                <title xml:id="exporter_prop3_title">relANNIS.exporter.backslash_escape</title>
+                <para>With this property bakcslash character ('\') will be replaces by the given
+                    character or character sequence. For instance imagine the following text:
+                    <programlisting>This\is\a\text</programlisting>. The use of the property:
+                    <programlisting>relANNIS.exporter.backslash_escape=BLANK</programlisting> will result
+                    in the following text:
+                    <programlisting>ThisBLANKisBLANKaBLANKtext</programlisting>.</para>
+            </sect2>
+        </sect1>
+    </chapter>
+</book>
