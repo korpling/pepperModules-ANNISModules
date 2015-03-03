@@ -35,13 +35,14 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SOrderRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpan;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SStructure;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SStructuredNode;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STYPE_NAME;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SDATATYPE;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualDS;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SLayer;
 import de.hu_berlin.german.korpling.saltnpepper.salt.samples.SampleGenerator;
+import java.util.Arrays;
 import org.eclipse.emf.common.util.BasicEList;
 import org.junit.Rule;
 import org.junit.rules.TestName;
@@ -137,6 +138,45 @@ public class ResolverHeuristicsTest extends PepperExporterTest{
     SStructure abcStruct = doc2.createSStructure(doc2.getSTokens().get(0));
     abcStruct.createSAnnotation(null, "const", "ABC");
     abcLayer.getSNodes().add(abcStruct);
+    
+    start();
+    
+    TabFileComparator.checkEqual(testPath.getAbsolutePath() + "/resolver_vis_map.relannis", 
+      outputDir.getAbsolutePath() + "/resolver_vis_map.relannis");
+	}
+  
+  @Test
+	public void testArtificialTokenHeuristics() throws IOException
+	{
+    SampleGenerator.createDialogue(doc1.getSDocument());
+    
+    STextualDS text = doc2.createSTextualDS("1 2 3");
+    SToken tok1 = doc2.createSToken(text, 0, 1);
+    SToken tok2 = doc2.createSToken(text, 2, 3);
+    SToken tok3 = doc2.createSToken(text, 4, 5);
+    
+    SSpan spk1_1 = doc2.createSSpan(new BasicEList<>(Arrays.asList(tok1)));
+    SSpan spk1_2 = doc2.createSSpan(new BasicEList<>(Arrays.asList(tok3)));
+    SSpan spk2_1 = doc2.createSSpan(new BasicEList<>(Arrays.asList(tok1, tok2)));
+    SSpan spk2_2 = doc2.createSSpan(new BasicEList<>(Arrays.asList(tok3)));
+    
+    spk1_1.createSAnnotation(null, "spk1_v", "Hi");
+    spk1_2.createSAnnotation(null, "spk1_v", "Ho");
+    spk2_1.createSAnnotation(null, "spk2_v", "Oh");
+    spk2_2.createSAnnotation(null, "spk2_v", "sorry");
+    
+    SOrderRelation order1 = SaltFactory.eINSTANCE.createSOrderRelation();
+    order1.setSSource(spk1_1);
+    order1.setSTarget(spk1_2);
+    order1.addSType("spk1_v");
+    doc2.addSRelation(order1);
+    
+    SOrderRelation order2 = SaltFactory.eINSTANCE.createSOrderRelation();
+    order2.setSSource(spk2_1);
+    order2.setSTarget(spk2_2);
+    order2.addSType("spk2_v");
+    doc2.addSRelation(order2);
+    
     
     start();
     
