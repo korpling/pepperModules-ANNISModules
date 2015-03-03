@@ -34,9 +34,15 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.SaltProject;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpus;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpan;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SStructure;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SStructuredNode;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STYPE_NAME;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SDATATYPE;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SLayer;
 import de.hu_berlin.german.korpling.saltnpepper.salt.samples.SampleGenerator;
+import org.eclipse.emf.common.util.BasicEList;
 import org.junit.Rule;
 import org.junit.rules.TestName;
  
@@ -46,8 +52,8 @@ public class ResolverHeuristicsTest extends PepperExporterTest{
   @Rule
   public TestName name = new TestName();
   
-  private SDocument doc1;
-  private SDocument doc2;
+  private SDocumentGraph doc1;
+  private SDocumentGraph doc2;
   
   private File outputDir;
   private File testPath;
@@ -76,12 +82,14 @@ public class ResolverHeuristicsTest extends PepperExporterTest{
 		
     
     SCorpus rootCorpus = sCorpGraph.createSCorpus(null, "rootCorpus");
-    doc1 = sCorpGraph.createSDocument(rootCorpus, "doc1");
-    doc2 = sCorpGraph.createSDocument(rootCorpus, "doc2");
+    SDocument d1 = sCorpGraph.createSDocument(rootCorpus, "doc1");
+    SDocument d2 = sCorpGraph.createSDocument(rootCorpus, "doc2");
     
+    doc1 = SaltFactory.eINSTANCE.createSDocumentGraph();
+    doc2 = SaltFactory.eINSTANCE.createSDocumentGraph();
     
-    doc2.setSDocumentGraph(SaltFactory.eINSTANCE
-            .createSDocumentGraph());
+    d1.setSDocumentGraph(doc1);
+    d2.setSDocumentGraph(doc2);
 
     getFixture().setSaltProject(saltProject);
     
@@ -96,16 +104,39 @@ public class ResolverHeuristicsTest extends PepperExporterTest{
 	public void testGridHeuristics() throws IOException
 	{
     
-    SampleGenerator.createInformationStructureSpan(doc1);
-    SampleGenerator.createInformationStructureAnnotations(doc1);
+    SampleGenerator.createInformationStructureSpan(doc1.getSDocument());
+    SampleGenerator.createInformationStructureAnnotations(doc1.getSDocument());
     
-    SampleGenerator.createTokens(doc2);
+    SampleGenerator.createTokens(doc2.getSDocument());
     
     SLayer abcLayer = SaltFactory.eINSTANCE.createSLayer();
     abcLayer.setSName("abc");
-    doc2.getSDocumentGraph().addSLayer(abcLayer);
-    SSpan abcSpan = doc2.getSDocumentGraph().createSSpan(doc2.getSDocumentGraph().getSTokens().get(0));
+    doc2.addSLayer(abcLayer);
+    SSpan abcSpan = doc2.createSSpan(doc2.getSTokens().get(0));
     abcLayer.getSNodes().add(abcSpan);
+    
+    start();
+    
+    TabFileComparator.checkEqual(testPath.getAbsolutePath() + "/resolver_vis_map.relannis", 
+      outputDir.getAbsolutePath() + "/resolver_vis_map.relannis");
+	}
+  
+  @Test
+	public void testSimpleTreeHeuristics() throws IOException
+	{
+    
+    SampleGenerator.createSyntaxStructure(doc1.getSDocument());
+    SampleGenerator.createSyntaxAnnotations(doc1.getSDocument());
+    
+    SampleGenerator.createTokens(doc2.getSDocument());
+    
+    SLayer abcLayer = SaltFactory.eINSTANCE.createSLayer();
+    abcLayer.setSName("abc");
+    doc2.addSLayer(abcLayer);
+    
+    SStructure abcStruct = doc2.createSStructure(doc2.getSTokens().get(0));
+    abcStruct.createSAnnotation(null, "const", "ABC");
+    abcLayer.getSNodes().add(abcStruct);
     
     start();
     
