@@ -44,6 +44,11 @@ public class StatTableCounter<ValueType> {
   }
   
   public void add(String layer, ValueType col, int  delta) {
+    
+    if(layer == null) {
+      return;
+    }
+    
     synchronized(values) {
       if(values.get(layer, col) == null) {
         values.put(layer, col, new AtomicInteger(0));
@@ -78,6 +83,11 @@ public class StatTableCounter<ValueType> {
   
   public SortedMap<Integer, ValueType> getBySize(String layer) {
     TreeMap<Integer, ValueType> result = new TreeMap<>();
+    
+    if(layer == null)
+    {
+      return result;
+    }
     
     synchronized (values) {
 
