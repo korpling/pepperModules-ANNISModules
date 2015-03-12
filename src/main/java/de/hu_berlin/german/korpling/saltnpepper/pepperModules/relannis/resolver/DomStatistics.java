@@ -51,7 +51,7 @@ public class DomStatistics {
   
   public void addEdgeType(String layer, EList<String> types) {
     
-    if (types != null && layer != null) {
+    if (types != null) {
       for(String edgeType : types) {
         edgeTypeCounter.add(layer, edgeType, 1);
       }
