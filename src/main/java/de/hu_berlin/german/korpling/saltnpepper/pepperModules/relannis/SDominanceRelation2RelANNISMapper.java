@@ -1,5 +1,6 @@
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis;
 
+import com.google.common.base.Preconditions;
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 
@@ -57,6 +58,8 @@ public class SDominanceRelation2RelANNISMapper extends SRelation2RelANNISMapper 
         // create an EList for the current root
         EList<SNode> singleRootList = new BasicEList<>();
         singleRootList.add(node);
+        
+        Preconditions.checkNotNull(currentComponentLayer);
 
         this.documentGraph.traverse(singleRootList, GRAPH_TRAVERSE_TYPE.TOP_DOWN_DEPTH_FIRST, traversionType.toString(), this);
 

@@ -232,17 +232,6 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
     // We've got the rank
     // fromNode -> edge -> currNode
 
-		//if (this.traversionType.equals(TRAVERSION_TYPE.valueOf(traversalId))){
-    // the traversion type is correct
-    // set component layer
-    if (sRelation != null) {
-      if (sRelation.getSLayers() != null) {
-        if (sRelation.getSLayers().size() > 0) {
-          this.currentComponentLayer = sRelation.getSLayers().get(0).getSName();
-        }
-      }
-    }
-
     Long rankId;
     EList<Long> virtualTokenIds = this.idManager.getVirtualisedTokenId(currNode.getSId());
 
