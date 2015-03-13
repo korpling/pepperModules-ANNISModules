@@ -485,12 +485,13 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
                 = new SSpanningRelation2RelANNISMapper(getIdManager(),
                         getSDocument().getSDocumentGraph(), token2Index,
                         tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component, this);
+        mapper.beginTransaction();
         for (SNode node : getSDocument().getSDocumentGraph().getSTokens()) {
           if (this.idManager.getVirtualisedSpanId(node.getSId()) == null) {
             mapper.mapSNode(node);
           }
-
         }
+        mapper.commitTransaction();
 				// END Step 6: map all SToken which were not mapped, yet
 
       } catch (PepperModuleException e) {
