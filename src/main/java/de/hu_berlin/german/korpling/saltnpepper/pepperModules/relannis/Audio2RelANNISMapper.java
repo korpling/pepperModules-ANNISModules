@@ -24,6 +24,7 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
@@ -41,11 +42,15 @@ public class Audio2RelANNISMapper extends SRelation2RelANNISMapper {
   private final Set<URI> mappedFiles;
 
   public Audio2RelANNISMapper(IdManager idManager,
-          SDocumentGraph documentGraph, TupleWriter nodeTabWriter,
+          SDocumentGraph documentGraph, 
+          Map<SToken, Long> token2Index,
+          TupleWriter nodeTabWriter,
           TupleWriter nodeAnnoTabWriter, TupleWriter rankTabWriter,
           TupleWriter edgeAnnoTabWriter, TupleWriter componentTabWriter,
           Salt2RelANNISMapper parentMapper) {
-    super(idManager, documentGraph, nodeTabWriter, nodeAnnoTabWriter,
+    super(idManager, documentGraph, 
+            token2Index,
+            nodeTabWriter, nodeAnnoTabWriter,
             rankTabWriter, edgeAnnoTabWriter, componentTabWriter, parentMapper);
     mappedFiles = Collections.synchronizedSet(new HashSet<URI>());
   }

@@ -39,6 +39,7 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STYPE_NAME;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualDS;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SGraphTraverseHandler;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SMetaAnnotatableElement;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SMetaAnnotation;
@@ -47,6 +48,9 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
@@ -289,6 +293,8 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
         EList<? extends SNode> sRelationRoots;
         Map<String, EList<SNode>> subComponentRoots;
 
+        Map<SToken, Long> token2Index = calculateToken2Index(getSDocument().getSDocumentGraph());
+        
         // START Step 1: map SOrderRelation
         subComponentRoots = this.getSDocument().getSDocumentGraph().getRootsBySRelationSType(STYPE_NAME.SORDER_RELATION);
         if (subComponentRoots != null) {
@@ -298,7 +304,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
               //System.out.println("Mapping SOrderRelations subcomponents with sType: "+key);
               SRelation2RelANNISMapper sOrderRelationMapper
                       = new SOrderRelation2RelANNISMapper(getIdManager(),
-                              getSDocument().getSDocumentGraph(),
+                              getSDocument().getSDocumentGraph(), token2Index,
                               tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component,
                               this);
 
@@ -360,7 +366,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
               //System.out.println("Mapping PointingRelation subcomponents with sType: "+key);
               SRelation2RelANNISMapper sPointingSubRelationMapper
                       = new SPointingRelation2RelANNISMapper(getIdManager(),
-                              getSDocument().getSDocumentGraph(),
+                              getSDocument().getSDocumentGraph(), token2Index,
                               tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component,
                               this
                       );
@@ -386,7 +392,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
           if (sRelationRoots.size() > 0) {
             SRelation2RelANNISMapper sDominanceRelationMapper
                     = new SDominanceRelation2RelANNISMapper(getIdManager(),
-                            getSDocument().getSDocumentGraph(),
+                            getSDocument().getSDocumentGraph(), token2Index,
                             tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component,
                             this
                     );
@@ -410,7 +416,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 
               SRelation2RelANNISMapper sDominanceSubRelationMapper
                       = new SDominanceRelation2RelANNISMapper(getIdManager(),
-                              getSDocument().getSDocumentGraph(),
+                              getSDocument().getSDocumentGraph(), token2Index,
                               tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component, this);
               sDominanceSubRelationMapper.setTraversionSType(key);
               sDominanceSubRelationMapper.mapSRelations2RelANNIS(subComponentRoots.get(key), STYPE_NAME.SDOMINANCE_RELATION, TRAVERSION_TYPE.DOCUMENT_STRUCTURE_DR);
@@ -434,7 +440,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
           if (sRelationRoots.size() > 0) {
             SRelation2RelANNISMapper spanningRelationMapper
                     = new SSpanningRelation2RelANNISMapper(getIdManager(),
-                            getSDocument().getSDocumentGraph(),
+                            getSDocument().getSDocumentGraph(), token2Index,
                             tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component, this);
             spanningRelationMapper.mapSRelations2RelANNIS(sRelationRoots, STYPE_NAME.SSPANNING_RELATION, TRAVERSION_TYPE.DOCUMENT_STRUCTURE_CR);
             if (exec != null) {
@@ -453,6 +459,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
             SRelation2RelANNISMapper audioRelationMapper
                     = new Audio2RelANNISMapper(getIdManager(),
                             getSDocument().getSDocumentGraph(),
+                            token2Index,
                             tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component, this);
             audioRelationMapper.mapSRelations2RelANNIS(sRelationRoots,
                     STYPE_NAME.STIME_OVERLAPPING_RELATION,
@@ -476,7 +483,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
         // START Step 6: map all SToken which were not mapped, yet
         SRelation2RelANNISMapper mapper
                 = new SSpanningRelation2RelANNISMapper(getIdManager(),
-                        getSDocument().getSDocumentGraph(),
+                        getSDocument().getSDocumentGraph(), token2Index,
                         tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component, this);
         for (SNode node : getSDocument().getSDocumentGraph().getSTokens()) {
           if (this.idManager.getVirtualisedSpanId(node.getSId()) == null) {
@@ -497,6 +504,21 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
     
     setProgress(1.0);
     return DOCUMENT_STATUS.COMPLETED;
+  }
+  
+  private Map<SToken, Long> calculateToken2Index(SDocumentGraph documentGraph) {
+
+    List<SToken> tokenSortedByLeft = documentGraph.getSortedSTokenByText();
+    // calculate the index of each token
+    Map<SToken, Long> token2Index = new HashMap<>();
+    if (tokenSortedByLeft != null) {
+      long i = 0;
+      for (SToken tok : tokenSortedByLeft) {
+        token2Index.put(tok, i);
+        i++;
+      }
+    }
+    return Collections.unmodifiableMap(token2Index);
   }
   
   private void mergeLocalStatsIntoGlobal() {

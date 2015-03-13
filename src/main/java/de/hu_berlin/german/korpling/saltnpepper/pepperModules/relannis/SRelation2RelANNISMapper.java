@@ -67,6 +67,7 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
   /**
    * @param idManager
    * @param documentGraph
+   * @param token2Index
    * @param nodeTabWriter
    * @param nodeAnnoTabWriter
    * @param rankTabWriter
@@ -75,6 +76,7 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
    * @param parentMapper
    */
   public SRelation2RelANNISMapper(IdManager idManager, SDocumentGraph documentGraph,
+          Map<SToken, Long> token2Index,
           TupleWriter nodeTabWriter, TupleWriter nodeAnnoTabWriter,
           TupleWriter rankTabWriter, TupleWriter edgeAnnoTabWriter,
           TupleWriter componentTabWriter,
@@ -83,17 +85,8 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
     this.idManager = idManager;
     this.parentMapper = parentMapper;
     this.documentGraph = documentGraph;
-
-    this.tokenSortedByLeft = documentGraph.getSortedSTokenByText();
-    // calculate the index of each token
-    this.token2Index = new HashMap<>();
-    if (this.tokenSortedByLeft != null) {
-      long i = 0;
-      for (SToken tok : this.tokenSortedByLeft) {
-        token2Index.put(tok, i);
-        i++;
-      }
-    }
+    this.token2Index = token2Index;
+    
 
     writers.clear();
     writers.put(OutputTable.NODE, nodeTabWriter);
@@ -471,7 +464,6 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
   }
 
 // =============================== Data for Node Mapping ======================
-  protected final EList<SToken> tokenSortedByLeft;
   protected final Map<SToken, Long> token2Index;
 
 // ================================= Mapping of SNodes ========================
@@ -740,10 +732,6 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 
     mapSNodeAnnotation(node_ref, namespace, name, value);
 
-  }
-
-  public EList<SToken> getTokenSortedByLeft() {
-    return tokenSortedByLeft;
   }
 
   protected boolean isRoot(SNode n) {

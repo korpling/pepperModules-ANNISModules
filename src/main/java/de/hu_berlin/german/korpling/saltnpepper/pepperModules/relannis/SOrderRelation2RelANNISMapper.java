@@ -25,12 +25,14 @@ public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper {
   private static final Logger log = LoggerFactory.getLogger(SOrderRelation2RelANNISMapper.class);
 
   public SOrderRelation2RelANNISMapper(IdManager idManager,
-          SDocumentGraph documentGraph, TupleWriter nodeTabWriter,
+          SDocumentGraph documentGraph, 
+          Map<SToken, Long> token2index,
+          TupleWriter nodeTabWriter,
           TupleWriter nodeAnnoTabWriter, TupleWriter rankTabWriter,
           TupleWriter edgeAnnoTabWriter, TupleWriter componentTabWriter,
           Salt2RelANNISMapper parentMapper) {
 
-    super(idManager, documentGraph, nodeTabWriter, nodeAnnoTabWriter,
+    super(idManager, documentGraph, token2index, nodeTabWriter, nodeAnnoTabWriter,
             rankTabWriter, edgeAnnoTabWriter, componentTabWriter, parentMapper);
 
   }

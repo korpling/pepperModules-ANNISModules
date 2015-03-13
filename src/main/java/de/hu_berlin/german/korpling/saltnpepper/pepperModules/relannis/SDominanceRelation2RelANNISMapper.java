@@ -16,6 +16,7 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SLayer;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class SDominanceRelation2RelANNISMapper extends SRelation2RelANNISMapper {
@@ -23,12 +24,14 @@ public class SDominanceRelation2RelANNISMapper extends SRelation2RelANNISMapper 
   private SNode lastEnteredNode;
 
   public SDominanceRelation2RelANNISMapper(IdManager idManager,
-          SDocumentGraph documentGraph, TupleWriter nodeTabWriter,
+          SDocumentGraph documentGraph, 
+          Map<SToken, Long> token2index,
+          TupleWriter nodeTabWriter,
           TupleWriter nodeAnnoTabWriter, TupleWriter rankTabWriter,
           TupleWriter edgeAnnoTabWriter, TupleWriter componentTabWriter,
           Salt2RelANNISMapper parentMapper) {
 
-    super(idManager, documentGraph, nodeTabWriter, nodeAnnoTabWriter,
+    super(idManager, documentGraph, token2index, nodeTabWriter, nodeAnnoTabWriter,
             rankTabWriter, edgeAnnoTabWriter, componentTabWriter, parentMapper);
 
   }
