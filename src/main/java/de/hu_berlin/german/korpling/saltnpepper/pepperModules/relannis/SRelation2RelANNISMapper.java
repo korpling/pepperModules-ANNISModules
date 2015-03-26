@@ -35,7 +35,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
@@ -507,8 +506,8 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
 		// get the layer if there is one
     //@ TODO: Change this to DEFAULT_LAYER
     String layer = DEFAULT_NS;
-    // initialise the name
-    String name = node.getSName();
+    // initialise the name with the unique identifier
+    String name = getUniqueNodeName(node);
     // get the first covered character
     Long left = null;
     // get the last covered character
@@ -648,6 +647,11 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
     parentMapper.notifiyNewNodeMapped();
 
     return id;
+  }
+  
+  private String getUniqueNodeName(SNode node) {
+    URI nodeID = node.getSElementPath();
+    return nodeID.fragment();
   }
 
   protected void writeNodeTabEntry(
