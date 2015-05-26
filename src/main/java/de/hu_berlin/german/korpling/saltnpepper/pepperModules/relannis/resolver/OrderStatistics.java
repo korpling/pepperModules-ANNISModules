@@ -18,6 +18,7 @@ package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.resolver
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 
@@ -39,7 +40,7 @@ public class OrderStatistics {
   }
   
   public Set<String> getOrderRelations() {
-    return new HashSet<>(orderRelations);
+    return new TreeSet<>(orderRelations);
   }
  
   public void checkRealToken(String span) {
