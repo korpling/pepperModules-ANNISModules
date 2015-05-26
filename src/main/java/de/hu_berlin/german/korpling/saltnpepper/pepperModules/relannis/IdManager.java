@@ -297,6 +297,25 @@ public class IdManager {
       return newId;
     }
   }
+  
+  public String getUniqueDocumentName(String docName) {
+    
+    // try the original name first
+    String result = docName;
+    
+    int appendix = 1;
+    String oldVal; 
+    do
+    { 
+      oldVal = globalIdManager.getDocumentNames().putIfAbsent(result, docName);
+      if(oldVal != null) {
+        // append a number until we find a non-existing ID
+        result = docName + "_" + appendix++;
+      }
+    } while(oldVal != null);
+    
+    return result;
+  }
 
   public GlobalIdManager getGlobal() {
     return globalIdManager;

@@ -145,7 +145,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
    */
   public String individualCorpusName = null;
   private Pair<String, String> individualCorpusNameReplacement = null;
-
+  
   public boolean isTestMode = false;
 
 // -------------------------start: SCorpusGraph 	
@@ -609,25 +609,24 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
     TupleWriter corpusTabWriter = tw_corpus;
     String idString = id.toString();
 
+    CorpusType corpusType = CorpusType.createFromNode(sNode);
+    
     String name = sNode.getSName();
-    if (preOrder == 0 && this.individualCorpusNameReplacement != null) {
+    if (corpusType == CorpusType.DOCUMENT) {
+      // make sure the document name is globally unique (not just for a sub-corpus)
+      name = idManager.getUniqueDocumentName(name);
+    } else if (corpusType== CorpusType.TOPLEVEL && this.individualCorpusNameReplacement != null) {
       if (name.equals(this.individualCorpusNameReplacement.getLeft())) {
         name = this.individualCorpusNameReplacement.getRight();
       }
     }
 
-    String type = null;
+    String type = corpusType.getCorpusTabType();
     String version = "NULL";
     String pre = preOrder.toString();
     String post = postOrder.toString();
-    String toplevel = preOrder == 0 ? "TRUE" : "FALSE";
-    if (sNode instanceof SDocument) {
-      type = "DOCUMENT";
-    } else {
-      if (sNode instanceof SCorpus) {
-        type = "CORPUS";
-      }
-    }
+    String toplevel = corpusType == CorpusType.TOPLEVEL ? "TRUE" : "FALSE";
+
     // set corpus version
     SMetaAnnotation versionMetaAnno = sNode.getSMetaAnnotation("version");
     if (versionMetaAnno != null) {
