@@ -610,7 +610,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
     String idString = id.toString();
 
     String name = sNode.getSName();
-    if (this.individualCorpusNameReplacement != null) {
+    if (preOrder == 0 && this.individualCorpusNameReplacement != null) {
       if (name.equals(this.individualCorpusNameReplacement.getLeft())) {
         name = this.individualCorpusNameReplacement.getRight();
       }
