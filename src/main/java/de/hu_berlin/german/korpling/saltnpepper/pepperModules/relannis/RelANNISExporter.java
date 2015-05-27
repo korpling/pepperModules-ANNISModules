@@ -189,7 +189,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
 
     tWriter.setEscaping(escapeCharacters);
     if (characterEscapeTable != null) {
-      tWriter.setEscapeTable(new Hashtable<>(characterEscapeTable));
+      tWriter.setEscapeTable(characterEscapeTable);
     }
 
     tWriter.setFile(outFile);

@@ -25,13 +25,14 @@ import java.util.Collection;
 import java.util.Hashtable;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -243,9 +244,9 @@ public class TupleWriter
 	}
 	
 	/** internal table containing the escapings, key= character to escape, value= replacement */
-	private Hashtable<Character,String> escapeTable;
+	private ConcurrentMap<Character,String> escapeTable;
 	
-	public void setEscapeTable(Hashtable<Character,String> escapeTable){
+	public void setEscapeTable(ConcurrentMap<Character,String> escapeTable){
 		if (escapeTable != null){
 			this.escapeTable = escapeTable;
 		}
@@ -262,9 +263,9 @@ public class TupleWriter
 	 * </table>
 	 * @return
 	 */
-	public Hashtable<Character, String> getEscapeTable() {
+	public ConcurrentMap<Character, String> getEscapeTable() {
 		if (escapeTable == null) {
-			escapeTable = new Hashtable<>();
+			escapeTable = new ConcurrentHashMap<>();
 			/**
 			 * Standard escaping \t \n \r \ '
 			 */
