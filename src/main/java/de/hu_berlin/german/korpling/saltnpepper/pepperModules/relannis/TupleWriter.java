@@ -57,8 +57,6 @@ public class TupleWriter
 	
 	private boolean escapeCharacters = false;
 	
-	private Hashtable<Character,String> charEscapeTable;
-	
 	/**
 	 * output file 
 	 */
@@ -71,18 +69,7 @@ public class TupleWriter
 	/**
 	 * Constructor
 	 */
-	public TupleWriter()
-	{
-		charEscapeTable = new Hashtable<>();
-		/**
-		 * Standard escaping
-		 * \t \n \r \ '
-		 */
-		charEscapeTable.put('\t', "TAB");
-		charEscapeTable.put('\n', "NEWLINE");
-		charEscapeTable.put('\r', "RETURN");
-		charEscapeTable.put('\\', "\\\\");
-		charEscapeTable.put('\'', "\\'");
+	public TupleWriter(){
 	}
 	
 	public void addTuple(Collection<String> tuple) throws FileNotFoundException
@@ -196,7 +183,7 @@ public class TupleWriter
         StringBuilder escaped = new StringBuilder();
         for (char chr : att.toCharArray())
         { // for every char in the atring
-          String escapeString = this.charEscapeTable.get(chr);
+          String escapeString = getEscapeTable().get(chr);
           if (escapeString != null)
           { // if there is some escape sequence
             escaped.append(escapeString);
@@ -255,14 +242,39 @@ public class TupleWriter
 		this.escapeCharacters = escape;
 	}
 	
+	/** internal table containing the escapings, key= character to escape, value= replacement */
+	private Hashtable<Character,String> escapeTable;
+	
 	public void setEscapeTable(Hashtable<Character,String> escapeTable){
-		if (escapeTable == null)
-			throw new TupleWriterException("Error(TupleWriter): The given escape table object is null.");
-		this.charEscapeTable = escapeTable;
+		if (escapeTable != null){
+			this.escapeTable = escapeTable;
+		}
 	}
 	
-	public Hashtable<Character,String> getEscapeTable(){
-		return this.charEscapeTable;
+	/**
+	 * If no other escaping is set, the following one is used:
+	 * <table border="0">
+	 *   <tr><td>\t</td><td> </td></tr>
+	 *   <tr><td>\n</td><td> </td></tr>
+	 *   <tr><td>\r</td><td> </td></tr>
+	 *   <tr><td>\\</td><td>\\\\</td></tr>
+	 *   <tr><td>\</td><td>\\</td></tr>
+	 * </table>
+	 * @return
+	 */
+	public Hashtable<Character, String> getEscapeTable() {
+		if (escapeTable == null) {
+			escapeTable = new Hashtable<>();
+			/**
+			 * Standard escaping \t \n \r \ '
+			 */
+			escapeTable.put('\t', " ");
+			escapeTable.put('\n', " ");
+			escapeTable.put('\r', " ");
+			escapeTable.put('\\', "\\\\");
+			escapeTable.put('\'', "\\'");
+		}
+		return this.escapeTable;
 	}
 	
 	public String getEncoding() 
