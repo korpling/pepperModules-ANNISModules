@@ -380,7 +380,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
   public abstract void mapSRelations2ANNIS(EList<? extends SNode> sRelationRoots, STYPE_NAME relationTypeName, TRAVERSION_TYPE traversionType);
 
   /**
-   * This method maps the currently processed component to the relANNIS
+   * This method maps the currently processed component to the ANNIS
    * component tab file.
    */
   protected void mapComponent2ANNIS() {

@@ -46,7 +46,7 @@ public class ANNISExporterTest extends PepperExporterTest{
 	public void setUp()
 	{
 		setFixture(new ANNISExporter());
-		File tmpFile= new File(System.getProperty("java.io.tmpdir")+File.separator+"relANNISExporter_test");
+		File tmpFile= new File(System.getProperty("java.io.tmpdir")+File.separator+"ANNISExporter_test");
 		tmpFile.mkdirs();
 		File resFile= new File("./src/test/resources");
 		resFile.mkdirs();

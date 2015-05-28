@@ -65,8 +65,8 @@ public class Salt2ANNISMapperTest
   private File testPath;
 
   private static final File globalTmpPath = new File(System.getProperty(
-    "java.io.tmpdir") + File.separator + "relANNISModules_test" + File.separator
-    + "Salt2relannisMapper" + File.separator);
+    "java.io.tmpdir") + File.separator + "ANNISModules_test" + File.separator
+    + "Salt2ANNISMapper" + File.separator);
 
   @Before
   public void setUp()

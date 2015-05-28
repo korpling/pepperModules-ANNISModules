@@ -6,8 +6,8 @@ public class SegmentationInfo {
   String segmentationName = "";
   String span = "";
 
-  public SegmentationInfo(Long relAnnisId, String segmentationName, String span) {
-    this.annisId = relAnnisId;
+  public SegmentationInfo(Long annisId, String segmentationName, String span) {
+    this.annisId = annisId;
     this.segmentationName = segmentationName;
     this.span = span;
   }

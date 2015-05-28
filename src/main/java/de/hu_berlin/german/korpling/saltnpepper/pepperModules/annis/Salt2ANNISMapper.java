@@ -672,7 +672,7 @@ public class Salt2ANNISMapper extends PepperMapperImpl implements SGraphTraverse
         } catch (FileNotFoundException ex) {
           tw_corpusMeta.abortTA(transactionId);
           throw new PepperModuleException(this,
-                  "Could not write to the corpus_annotation.relannis, exception was" + ex.getMessage());
+                  "Could not write to the " + ANNIS.FILE_CORPUS_META + ", exception was" + ex.getMessage());
         }
       }
     }
