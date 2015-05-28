@@ -99,12 +99,12 @@ public class Salt2ANNISMapperTest
 
     getFixture().isTestMode = true;
 
-	GlobalIdManager globalIdManager = new GlobalIdManager();
+    GlobalIdManager globalIdManager = new GlobalIdManager();
     IdManager idManager = new IdManager(globalIdManager);
     getFixture().setIdManager(idManager);
 
     tmpPath = new File(globalTmpPath.getAbsoluteFile() + File.separator + name.
-      getMethodName());
+            getMethodName());
     testPath = new File(getTestPath() + name.getMethodName());
     createTupleWriters(tmpPath);
   }
@@ -724,6 +724,49 @@ public class Salt2ANNISMapperTest
     // the last character the unicode character "GOTHIC LETTER AHSA" which is not part of the BMP
     // and must be represented as surrugate pair in Java
     String sampleText = "a\\b\\\\c\n\r\n\t\uD800\uDF30";
+    
+    if (sDocument == null) {
+			throw new SaltSampleException("Cannot create example, because the given sDocument is empty.");
+		}
+		if (sDocument.getSDocumentGraph() == null) {
+			sDocument.setSDocumentGraph(SaltFactory.eINSTANCE.createSDocumentGraph());
+		}
+		STextualDS sTextualDS = null;
+		// creating the primary text depending on the language
+		sTextualDS = SaltFactory.eINSTANCE.createSTextualDS();
+		sTextualDS.setSText(sampleText);
+		// adding the text to the document-graph
+		sDocument.getSDocumentGraph().addSNode(sTextualDS);
+    
+    SToken sToken = SaltFactory.eINSTANCE.createSToken();
+		sDocument.getSDocumentGraph().addSNode(sToken);
+		
+		STextualRelation sTextRel = SaltFactory.eINSTANCE.createSTextualRelation();
+		sTextRel.setSToken(sToken);
+		sTextRel.setSTextualDS(sTextualDS);
+		sTextRel.setSStart(0);
+		sTextRel.setSEnd(sampleText.length());
+		sDocument.getSDocumentGraph().addSRelation(sTextRel);
+    
+    doMapping();
+    
+    TabFileComparator.checkEqual(new File(testPath, ANNIS.FILE_NODE).getAbsolutePath(), 
+            new File(tmpPath, ANNIS.FILE_NODE).getAbsolutePath());
+    
+  }
+  
+  @Test
+  public void testEscapeCustom() throws IOException {
+
+    // the last character is the unicode character "GOTHIC LETTER AHSA" which is not part of the BMP
+    // and must be represented as surrugate pair in Java
+    String sampleText = "a\\b\\\\c\n\r\n\t\uD800\uDF30";
+    
+    String customEscape = "(c=X),(\\n=N),(\\t=T),(\\=S),(\\r=R)";
+    props.setPropertyValue(ANNISExporterProperties.PROP_ESCAPE_CHARACTERS_LIST, customEscape);
+    
+    // re-init tuple writers
+    createTupleWriters(tmpPath);
     
     if (sDocument == null) {
 			throw new SaltSampleException("Cannot create example, because the given sDocument is empty.");
