@@ -42,9 +42,9 @@
     <name>Humboldt Univerity of Berlin</name>
   </organization>
   <scm>
-    <connection>scm:git:git://github.com/korpling/pepperModules-RelANNISModules.git</connection>
-    <developerConnection>scm:git:git@github.com:korpling/pepperModules-RelANNISModules.git</developerConnection>
-    <url>https://github.com/korpling/pepperModules-RelANNISModules</url>
+    <connection>scm:git:git://github.com/korpling/pepperModules-ANNISModules.git</connection>
+    <developerConnection>scm:git:git@github.com:korpling/pepperModules-ANNISModules.git</developerConnection>
+    <url>https://github.com/korpling/pepperModules-ANNISModules</url>
   </scm>
  
   <dependencies>
