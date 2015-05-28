@@ -106,6 +106,9 @@ model.
 ### escapeCharacters
 
 If "true" escape characters that might be invalid (e.g. tabs and new lines).
+Per default this will replace all characters that are invalid according the rules for 
+PostgreSQL import files (http://www.postgresql.org/docs/9.3/static/sql-copy.html#AEN69268).
+If further customization is needed (which should not be the case normally) you can use `escapeCharactersList`.
 
 ### escapeCharactersList
 
@@ -122,4 +125,3 @@ If "true" overwrite any existing corpus_annotation.annis file in the output fold
 ### corpusName
 
 If set use this name as the toplevel corpus name instead of the one provided by Pepper.
-
