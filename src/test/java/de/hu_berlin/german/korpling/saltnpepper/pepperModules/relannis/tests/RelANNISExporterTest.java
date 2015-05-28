@@ -34,8 +34,8 @@ import org.junit.Test;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.common.FormatDesc;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperModuleProperties;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.testFramework.PepperExporterTest;
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.RelANNISExporter;
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.RelANNISExporterProperties;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.RelANNISExporter;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.RelANNISExporterProperties;
 import java.util.Map;
  
  

@@ -15,7 +15,7 @@
  *
  *
  */
-package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis;
+package de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

@@ -13,29 +13,47 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.resolver;
+package de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver;
 
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SLayer;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Pattern;
 
 /**
  * Statistics used for creating resolver entries for dominance components.
  *
  * @author Thomas Krause <krauseto@hu-berlin.de>
  */
-public class SpanStatistics {
+public class OrderStatistics {
 
-  private final Set<String> layers = Collections.synchronizedSet(new HashSet<String>());
+  private final Set<String> orderRelations = Collections.synchronizedSet(new HashSet<String>());
+  
+  private final AtomicBoolean hasRealToken = new AtomicBoolean(false);
 
-  public void addLayer(String layerName) {
-    layers.add(layerName);
+  private final Pattern patternNoToken = Pattern.compile("[0-9 ]*");
+  
+  public void addOrderRelation(String name) {
+    orderRelations.add(name);
   }
   
-  public Set<String> getLayers() {
-    return new HashSet<>(layers);
+  public Set<String> getOrderRelations() {
+    return new TreeSet<>(orderRelations);
   }
+ 
+  public void checkRealToken(String span) {
+    if(!patternNoToken.matcher(span).matches()) {
+      hasRealToken.set(true);
+    }
+  }
+
+  public boolean getHasRealToken() {
+    return hasRealToken.get();
+  }
+  
+  
   
   /**
    * Merges the information from the other statistics object.
@@ -45,7 +63,8 @@ public class SpanStatistics {
    * will be locked and suppports concurrent calls to this function.
    * @param other 
    */
-  public void merge(SpanStatistics other) {
-    layers.addAll(other.layers);
+  public void merge(OrderStatistics other) {
+    orderRelations.addAll(other.orderRelations);
+    hasRealToken.set(hasRealToken.get() || other.hasRealToken.get());
   }
 }

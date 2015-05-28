@@ -1,4 +1,4 @@
-package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis;
+package de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis;
 
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 

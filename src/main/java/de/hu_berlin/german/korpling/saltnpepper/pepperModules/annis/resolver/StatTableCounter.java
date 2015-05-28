@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.resolver;
+package de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver;
 
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
