@@ -132,6 +132,11 @@ You can insert some special characters as key by escaping them:
 | `\'`       | Single quote |
 | `\"`       | Double quote |
 
+An example definition could look like this:
+```
+escapeCharactersList=(\n=_),(\r=_),(\t=\t)
+```
+
 ### clobber.visualisation
 
 If "true" overwrite any existing resolver_vis_map.annis file in the output folder.
