@@ -112,7 +112,25 @@ If further customization is needed (which should not be the case normally) you c
 
 ### escapeCharactersList
 
-TODO
+If set a custom character replacement is used instead of the default one.
+A definition has the form
+```
+(FIND_CHAR=REPLACE_CHAR)
+```
+where `FIND_CHAR` is exact one character and `REPLACE_CHAR` is a replacement string.
+Multiple definition can be given by separating them with comma.
+When defining your own definitions you have to make sure that the result is compatible to the
+PostgreSQL CSV import file format (http://www.postgresql.org/docs/9.3/static/sql-copy.html#AEN69268).
+Also make sure that each character is only replaced by one character.
+You can insert some special characters as key by escaping them:
+
+|Escaped key | Name    |
+|------------|---------|
+| `\t`       | Tabstop |
+| `\n`       | Line feed (Newline) |
+| `\r`       | Carriage return |
+| `\'`       | Single quote |
+| `\"`       | Double quote |
 
 ### clobber.visualisation
 
