@@ -103,40 +103,40 @@ public class Salt2ANNISMapper extends PepperMapperImpl implements SGraphTraverse
   }
 
   /**
-   * tuple writer to write {@link RelANNIS#FILE_TEXT} *
+   * tuple writer to write {@link ANNIS#FILE_TEXT} *
    */
   public TupleWriter tw_text = null;
   /**
-   * tuple writer to write {@link RelANNIS#FILE_NODE} *
+   * tuple writer to write {@link ANNIS#FILE_NODE} *
    */
   public TupleWriter tw_node = null;
   /**
-   * tuple writer to write {@link RelANNIS#FILE_NODE_ANNO} *
+   * tuple writer to write {@link ANNIS#FILE_NODE_ANNO} *
    */
   public TupleWriter tw_nodeAnno = null;
   /**
-   * tuple writer to write {@link RelANNIS#FILE_RANK} *
+   * tuple writer to write {@link ANNIS#FILE_RANK} *
    */
   public TupleWriter tw_rank = null;
   /**
-   * tuple writer to write {@link RelANNIS#FILE_EDGE_ANNO} *
+   * tuple writer to write {@link ANNIS#FILE_EDGE_ANNO} *
    */
   public TupleWriter tw_edgeAnno = null;
   /**
-   * tuple writer to write {@link RelANNIS#FILE_COMPONENT} *
+   * tuple writer to write {@link ANNIS#FILE_COMPONENT} *
    */
   public TupleWriter tw_component = null;
   /**
-   * tuple writer to write {@link RelANNIS#FILE_CORPUS} *
+   * tuple writer to write {@link ANNIS#FILE_CORPUS} *
    */
   public TupleWriter tw_corpus = null;
   /**
-   * tuple writer to write {@link RelANNIS#FILE_CORPUS_META} *
+   * tuple writer to write {@link ANNIS#FILE_CORPUS_META} *
    */
   public TupleWriter tw_corpusMeta = null;
 
   /**
-   * tuple writer to write {@link RelANNIS#FILE_VISUALIZATION} *
+   * tuple writer to write {@link ANNIS#FILE_VISUALIZATION} *
    */
   public TupleWriter tw_visualization = null;
 
@@ -208,7 +208,7 @@ public class Salt2ANNISMapper extends PepperMapperImpl implements SGraphTraverse
         }
 
         if (roots.size() > 1) {
-          throw new PepperModuleException(this, "Only one root corpus is allowed for relANNIS export");
+          throw new PepperModuleException(this, "Only one root corpus is allowed for ANNIS export");
         }
 
         // check if we are called for the root corpus
@@ -650,7 +650,8 @@ public class Salt2ANNISMapper extends PepperMapperImpl implements SGraphTraverse
       corpusTabWriter.commitTA(transactionId);
     } catch (FileNotFoundException e) {
       corpusTabWriter.abortTA(transactionId);
-      throw new PepperModuleException(this, "Could not write to the corpus.relannis, exception was" + e.getMessage());
+      throw new PepperModuleException(this, "Could not write to the " 
+              + ANNIS.FILE_CORPUS + ", exception was" + e.getMessage());
     }
 
     if (tw_corpusMeta != null && sNode instanceof SMetaAnnotatableElement) {

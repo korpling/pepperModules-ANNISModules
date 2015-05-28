@@ -51,6 +51,12 @@ public interface ANNIS {
    * Name of the file, to store the visualization configuration. *
    */
   public static final String FILE_VISUALIZATION = "resolver_vis_map" + FILE_ENDING;
+  
+  
+  /**
+   * Name of the file, to store the version information. *
+   */
+  public static final String FILE_VERSION = "annis.version";
   /**
    * A list of all ANNIS format file names.*
    */

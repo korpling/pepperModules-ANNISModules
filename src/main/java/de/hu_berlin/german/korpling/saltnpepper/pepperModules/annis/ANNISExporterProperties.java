@@ -34,7 +34,7 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class ANNISExporterProperties extends PepperModuleProperties {
 
-  public static final String PREFIX = "relANNIS.exporter.";
+  public static final String PREFIX = "ANNIS.exporter.";
 
   public static final String PREFIX_CLOBBER = "clobber.";
 

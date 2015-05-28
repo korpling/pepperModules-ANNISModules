@@ -276,11 +276,11 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
     this.orderStatistics = new OrderStatistics();
 
     // write versions file
-    File versionFile = new File(getCorpusDesc().getCorpusPath().toFileString(), "relannis.version");
+    File versionFile = new File(getCorpusDesc().getCorpusPath().toFileString(), ANNIS.FILE_VERSION);
     try {
       Files.write("4.0", versionFile, Charsets.UTF_8);
     } catch (IOException ex) {
-      log.error("Can't write relannis.version file", ex);
+      log.error("Can't write {} file", ex, ANNIS.FILE_VERSION);
     }
 
     return (super.isReadyToStart());
@@ -495,7 +495,7 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
   }
 
   /**
-   * This method prints the resolver_vis_map.relannis file
+   * This method prints the resolver_vis_map.annis file
    *
    * @param corpusGraph the corpus graph
    */
@@ -565,7 +565,7 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
   }
 
   /**
-   * returns singleton object to manage relANNIS ids
+   * returns singleton object to manage ANNIS ids
    *
    *
    * @return

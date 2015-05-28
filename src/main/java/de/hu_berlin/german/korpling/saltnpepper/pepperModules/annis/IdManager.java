@@ -69,8 +69,8 @@ public class IdManager {
    * This method returns the token id of the first and last covered virtual
    * token.
    *
-   * @param leftTokenRAId The RelANNIS id of the first covered token
-   * @param rightTokenRAId The RelANNIS id of the last covered token
+   * @param leftTokenRAId The ANNIS id of the first covered token
+   * @param rightTokenRAId The ANNIS id of the last covered token
    * @return A pair of token ids
    */
   public synchronized Pair<Long, Long> getLeftRightVirtualToken(Long leftTokenRAId, Long rightTokenRAId) {
@@ -121,8 +121,8 @@ public class IdManager {
    * virtual span.
    *
    * @param tokenId The {@link SElementId} of the real token
-   * @param virtualSpanId The RelANNIS id of the virtual span
-   * @param virtualTokenIds The RelANNIS ids of the virtual tokens
+   * @param virtualSpanId The ANNIS id of the virtual span
+   * @param virtualTokenIds The ANNIS ids of the virtual tokens
    */
   public synchronized void registerTokenVirtMapping(String tokenId, Long virtualSpanId, EList<Long> virtualTokenIds) {
     globalIdManager.setContainsVirtualTokens(true);
@@ -131,11 +131,11 @@ public class IdManager {
   }
 
   /**
-   * This method returns the RelANNIS ids of the virtual tokens which represent
+   * This method returns the ANNIS ids of the virtual tokens which represent
    * the token specified by tokenId.
    *
    * @param tokenId The {@link SElementId} of the node
-   * @return The list of RelANNIS ids of the virtual tokens or null, if the
+   * @return The list of ANNIS ids of the virtual tokens or null, if the
    * token was not virtualised.
    */
   public synchronized EList<Long> getVirtualisedTokenId(String tokenId) {
@@ -147,11 +147,11 @@ public class IdManager {
   }
 
   /**
-   * This method returns the RelANNIS id of the virtual span which represents
+   * This method returns the ANNIS id of the virtual span which represents
    * the token specified by tokenId.
    *
    * @param tokenId The {@link SElementId} of the node
-   * @return The RelANNIS id of the virtual Span or null, if the token was not
+   * @return The ANNIS id of the virtual Span or null, if the token was not
    * virtualised.
    */
   public synchronized Long getVirtualisedSpanId(String tokenId) {
@@ -193,11 +193,11 @@ public class IdManager {
   }
 
   /**
-   * This method returns a RelANNIS id for a virtual node specified by the given
+   * This method returns a ANNIS id for a virtual node specified by the given
    * string parameter.
    *
    * @param sElementId The element id
-   * @return a pair <Long,Boolean> which is the RelANNIS node tab id and a
+   * @return a pair <Long,Boolean> which is the ANNIS node tab id and a
    * boolean which specifies whether the id is fresh.
    */
   public VirtualNodeID getVirtualNodeId(String sElementId) {
@@ -219,12 +219,12 @@ public class IdManager {
   }
 
   /**
-   * This method returns an unique node tab RelANNIS id for the node with the
+   * This method returns an unique node tab ANNIS id for the node with the
    * specified {@link SElementId}. Also, the method returns a boolean which
-   * specifies whether the RelANNIS id is fresh.
+   * specifies whether the ANNIS id is fresh.
    *
    * @param sElementId the {@link SElementId} of the node
-   * @return a pair <Long,Boolean> which is the RelANNIS node tab id and a
+   * @return a pair <Long,Boolean> which is the ANNIS node tab id and a
    * boolean which specifies whether the id is fresh.
    */
   public Pair<Long, Boolean> getNewNodeId(String sElementId) {
@@ -247,7 +247,7 @@ public class IdManager {
   }
 
   /**
-   * This method returns the unique node tab RelANNIS id for the node with the
+   * This method returns the unique node tab ANNIS id for the node with the
    * specified {@link SElementId}.
    *
    * @param node the node
