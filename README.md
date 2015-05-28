@@ -97,11 +97,11 @@ model.
 
 |Name of property                  |Type of property |optional/mandatory |default value|
 |----------------------------------|-----------------|-------------------|-------------|
-|escapeCharacters                  |String           | optional          |true         |
+|escapeCharacters                  |Boolean           | optional          |true         |
 |escapeCharactersList              |String           | optional          |--           | 
-|clobber.visualisation             |                 |                   |true         |
-|clobber.corpus_annotation         |                 |                   |true         |
-|corpusName                        |                 |                   |--           |
+|clobber.visualisation             |Boolean          |                   |true         |
+|clobber.corpus_annotation         |Boolean          |                   |true         |
+|corpusName                        |String           |                   |--           |
 
 ### escapeCharacters
 
