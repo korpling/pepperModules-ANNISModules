@@ -56,7 +56,7 @@ import java.util.concurrent.ConcurrentMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Component(name = "RelANNISExporterComponent", factory = "PepperExporterComponentFactory")
+@Component(name = "ANNISExporterComponent", factory = "PepperExporterComponentFactory")
 public class RelANNISExporter extends PepperExporterImpl implements PepperExporter, RelANNIS {
 
   private static final Logger log = LoggerFactory.getLogger(RelANNISExporter.class);
@@ -124,8 +124,9 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
   public RelANNISExporter() {
     super();
     setProperties(new RelANNISExporterProperties());
-    this.setName("RelANNISExporter");
-    this.addSupportedFormat("relANNIS", "4.0", null);
+    this.setName("ANNISExporter");
+    this.addSupportedFormat("relANNIS", "3.3", null);
+    this.addSupportedFormat("annis", "3.3", null);
   }
 
   /**
