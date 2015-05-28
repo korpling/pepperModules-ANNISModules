@@ -391,7 +391,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
         if (sRelationRoots != null) {
           if (sRelationRoots.size() > 0) {
             SRelation2RelANNISMapper sDominanceRelationMapper
-                    = new SDominanceRelation2RelANNISMapper(getIdManager(),
+                    = new SDominanceRelation2ANNISMapper(getIdManager(),
                             getSDocument().getSDocumentGraph(), token2Index,
                             tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component,
                             this
@@ -415,7 +415,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
               //System.out.println("Mapping DominanceRelation subcomponents with sType: "+key);
 
               SRelation2RelANNISMapper sDominanceSubRelationMapper
-                      = new SDominanceRelation2RelANNISMapper(getIdManager(),
+                      = new SDominanceRelation2ANNISMapper(getIdManager(),
                               getSDocument().getSDocumentGraph(), token2Index,
                               tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component, this);
               sDominanceSubRelationMapper.setTraversionSType(key);

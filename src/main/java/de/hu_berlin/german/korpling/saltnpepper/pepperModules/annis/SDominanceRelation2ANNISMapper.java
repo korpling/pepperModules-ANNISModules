@@ -19,11 +19,11 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class SDominanceRelation2RelANNISMapper extends SRelation2RelANNISMapper {
+public class SDominanceRelation2ANNISMapper extends SRelation2RelANNISMapper {
 
   private SNode lastEnteredNode;
 
-  public SDominanceRelation2RelANNISMapper(IdManager idManager,
+  public SDominanceRelation2ANNISMapper(IdManager idManager,
           SDocumentGraph documentGraph, 
           Map<SToken, Long> token2index,
           TupleWriter nodeTabWriter,
