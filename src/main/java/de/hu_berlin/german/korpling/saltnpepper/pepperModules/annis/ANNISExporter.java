@@ -123,7 +123,7 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
   // =================================================== mandatory ===================================================
   public ANNISExporter() {
     super();
-    setProperties(new RelANNISExporterProperties());
+    setProperties(new ANNISExporterProperties());
     this.setName("ANNISExporter");
     this.addSupportedFormat("relANNIS", "3.3", null);
     this.addSupportedFormat("annis", "3.3", null);
@@ -226,18 +226,18 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
   @Override
   public boolean isReadyToStart() throws PepperModuleNotReadyException {
     if (this.getProperties() != null) {
-      overwriteResolverVisMap = ((RelANNISExporterProperties) this.getProperties()).getClobberResolverVisMap();
-      overwriteCorpusAnnotations = ((RelANNISExporterProperties) this.getProperties()).getClobberCorpusAnnotations();
-      String individualCorpusName_tmp = ((RelANNISExporterProperties) this.getProperties()).getIndividualCorpusName();
+      overwriteResolverVisMap = ((ANNISExporterProperties) this.getProperties()).getClobberResolverVisMap();
+      overwriteCorpusAnnotations = ((ANNISExporterProperties) this.getProperties()).getClobberCorpusAnnotations();
+      String individualCorpusName_tmp = ((ANNISExporterProperties) this.getProperties()).getIndividualCorpusName();
 
       // remove leading and trailing whitespaces of the individual corpus name, if it is set.
       if (individualCorpusName_tmp != null) {
         this.individualCorpusName = individualCorpusName_tmp.trim();
       }
 
-      this.escapeCharacters = ((RelANNISExporterProperties) this.getProperties()).getEscapeCharacters();
+      this.escapeCharacters = ((ANNISExporterProperties) this.getProperties()).getEscapeCharacters();
       if (this.escapeCharacters) {
-        this.characterEscapeTable = ((RelANNISExporterProperties) this.getProperties()).getEscapeCharactersSet();
+        this.characterEscapeTable = ((ANNISExporterProperties) this.getProperties()).getEscapeCharactersSet();
       }
     }
     String corpPath = getCorpusDesc().getCorpusPath().toFileString() + ((getCorpusDesc().getCorpusPath().toFileString().endsWith("/")) ? "" : "/");

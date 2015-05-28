@@ -27,12 +27,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * Defines the properties to be used for the {@link RelANNISExporter}.
+ * Defines the properties to be used for the {@link ANNISExporter}.
  *
  * @author Mario Frank
  *
  */
-public class RelANNISExporterProperties extends PepperModuleProperties {
+public class ANNISExporterProperties extends PepperModuleProperties {
 
   public static final String PREFIX = "relANNIS.exporter.";
 
@@ -58,7 +58,7 @@ public class RelANNISExporterProperties extends PepperModuleProperties {
 
   public static final String PROP_ESCAPE_CHARACTERS_LIST = PREFIX + "escapeCharactersList";
 
-  public RelANNISExporterProperties() {
+  public ANNISExporterProperties() {
     this.addProperty(new PepperModuleProperty<>(PROP_VISUALISATION_CLOBBER, Boolean.class, "This property defines whether the resolver_vis_map.tab is allowed to be overwritten if it is existent. By default, the table is overwritten(value:true)", Boolean.TRUE, false));
     this.addProperty(new PepperModuleProperty<>(PROP_CORPUS_ANNOTATION_CLOBBER, Boolean.class, "This property defines whether the corpus_annotation.tab is allowed to be overwritten if it is existent. By default, the table is overwritten(value:true)", Boolean.TRUE, false));
     this.addProperty(new PepperModuleProperty<>(PROP_INDIVIDUAL_CORPUS_NAME, String.class, "This property defines an individual name for the top-level corpus. By default, the top-level corpus gets a generic name by the salt meta model.", null, false));

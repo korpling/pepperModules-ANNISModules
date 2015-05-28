@@ -35,7 +35,7 @@ import de.hu_berlin.german.korpling.saltnpepper.pepper.common.FormatDesc;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperModuleProperties;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.testFramework.PepperExporterTest;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNISExporter;
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.RelANNISExporterProperties;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNISExporterProperties;
 import java.util.Map;
  
  
@@ -64,11 +64,11 @@ public class RelANNISExporterTest extends PepperExporterTest{
 		getFixture().getProperties().addProperties(URI.createFileURI(pepperParams.getAbsolutePath()));
 		
 		PepperModuleProperties props = getFixture().getProperties();
-		boolean clobberVisMap = ((RelANNISExporterProperties) props).getClobberResolverVisMap();
-		boolean clobberCorpusAnno = ((RelANNISExporterProperties) props).getClobberCorpusAnnotations();
-		String individualCorpName = ((RelANNISExporterProperties) props).getIndividualCorpusName();
-		boolean escapeCharacters = ((RelANNISExporterProperties) props).getEscapeCharacters();
-		Map<Character, String> escapeCharactersList = ((RelANNISExporterProperties) props).getEscapeCharactersSet();
+		boolean clobberVisMap = ((ANNISExporterProperties) props).getClobberResolverVisMap();
+		boolean clobberCorpusAnno = ((ANNISExporterProperties) props).getClobberCorpusAnnotations();
+		String individualCorpName = ((ANNISExporterProperties) props).getIndividualCorpusName();
+		boolean escapeCharacters = ((ANNISExporterProperties) props).getEscapeCharacters();
+		Map<Character, String> escapeCharactersList = ((ANNISExporterProperties) props).getEscapeCharactersSet();
 		
 		
 		assertTrue(clobberVisMap);
@@ -87,11 +87,11 @@ public class RelANNISExporterTest extends PepperExporterTest{
 		getFixture().getProperties().addProperties(URI.createFileURI(pepperParams.getAbsolutePath()));
 		
 		PepperModuleProperties props = getFixture().getProperties();
-		boolean clobberVisMap = ((RelANNISExporterProperties) props).getClobberResolverVisMap();
-		boolean clobberCorpusAnno = ((RelANNISExporterProperties) props).getClobberCorpusAnnotations();
-		String individualCorpName = ((RelANNISExporterProperties) props).getIndividualCorpusName();
-		boolean escapeCharacters = ((RelANNISExporterProperties) props).getEscapeCharacters();
-		Map<Character, String> escapeCharactersList = ((RelANNISExporterProperties) props).getEscapeCharactersSet();
+		boolean clobberVisMap = ((ANNISExporterProperties) props).getClobberResolverVisMap();
+		boolean clobberCorpusAnno = ((ANNISExporterProperties) props).getClobberCorpusAnnotations();
+		String individualCorpName = ((ANNISExporterProperties) props).getIndividualCorpusName();
+		boolean escapeCharacters = ((ANNISExporterProperties) props).getEscapeCharacters();
+		Map<Character, String> escapeCharactersList = ((ANNISExporterProperties) props).getEscapeCharactersSet();
 		
 		
 		assertTrue(clobberVisMap);
