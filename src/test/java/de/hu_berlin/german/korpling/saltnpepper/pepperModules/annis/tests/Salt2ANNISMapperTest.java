@@ -7,9 +7,9 @@ import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.GlobalIdMana
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.IdManager;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNIS;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNISExporter;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNISExporterProperties;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.Salt2ANNISMapper;
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.resources.dot.SDocumentGraphDOTWriter;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpus;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
@@ -18,9 +18,11 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructu
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SStructuredNode;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STYPE_NAME;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualDS;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.samples.SampleGenerator;
+import de.hu_berlin.german.korpling.saltnpepper.salt.samples.exceptions.SaltSampleException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -50,6 +52,8 @@ public class Salt2ANNISMapperTest
   
   private SCorpus rootCorpus = null;
   private SDocument sDocument = null;
+  
+  private ANNISExporterProperties props = new ANNISExporterProperties();
 
   public Salt2ANNISMapper getFixture()
   {
@@ -115,22 +119,30 @@ public class Salt2ANNISMapperTest
 
   private void createTupleWriters(File path)
   {
-    getFixture().tw_text = ANNISExporter.createTupleWRiter(new File(path.
-      getAbsolutePath() + File.separator + ANNIS.FILE_TEXT));
-    getFixture().tw_node = ANNISExporter.createTupleWRiter(new File(path.
-      getAbsolutePath() + File.separator + ANNIS.FILE_NODE));
-    getFixture().tw_nodeAnno = ANNISExporter.createTupleWRiter(new File(path.
-      getAbsolutePath() + File.separator + ANNIS.FILE_NODE_ANNO));
-    getFixture().tw_rank = ANNISExporter.createTupleWRiter(new File(path.
-      getAbsolutePath() + File.separator + ANNIS.FILE_RANK));
-    getFixture().tw_edgeAnno = ANNISExporter.createTupleWRiter(new File(path.
-      getAbsolutePath() + File.separator + ANNIS.FILE_EDGE_ANNO));
-    getFixture().tw_component = ANNISExporter.createTupleWRiter(new File(
-      path.getAbsolutePath() + File.separator + ANNIS.FILE_COMPONENT));
-    getFixture().tw_corpus = ANNISExporter.createTupleWRiter(new File(path.
-      getAbsolutePath() + File.separator + ANNIS.FILE_CORPUS));
-    getFixture().tw_corpusMeta = ANNISExporter.createTupleWRiter(new File(
-      path.getAbsolutePath() + File.separator + ANNIS.FILE_CORPUS_META));
+    getFixture().tw_text = ANNISExporter.createTupleWriter(
+            new File(path.getAbsolutePath() + File.separator + ANNIS.FILE_TEXT),
+            props.getEscapeCharacters(), props.getEscapeCharactersSet());
+    getFixture().tw_node = ANNISExporter.createTupleWriter(
+            new File(path.getAbsolutePath() + File.separator + ANNIS.FILE_NODE),
+            props.getEscapeCharacters(), props.getEscapeCharactersSet());
+    getFixture().tw_nodeAnno = ANNISExporter.createTupleWriter(
+            new File(path.getAbsolutePath() + File.separator + ANNIS.FILE_NODE_ANNO),
+            props.getEscapeCharacters(), props.getEscapeCharactersSet());
+    getFixture().tw_rank = ANNISExporter.createTupleWriter(
+            new File(path.getAbsolutePath() + File.separator + ANNIS.FILE_RANK),
+            props.getEscapeCharacters(), props.getEscapeCharactersSet());
+    getFixture().tw_edgeAnno = ANNISExporter.createTupleWriter(
+            new File(path.getAbsolutePath() + File.separator + ANNIS.FILE_EDGE_ANNO),
+            props.getEscapeCharacters(), props.getEscapeCharactersSet());
+    getFixture().tw_component = ANNISExporter.createTupleWriter(
+            new File(path.getAbsolutePath() + File.separator + ANNIS.FILE_COMPONENT),
+            props.getEscapeCharacters(), props.getEscapeCharactersSet());
+    getFixture().tw_corpus = ANNISExporter.createTupleWriter(
+            new File(path.getAbsolutePath() + File.separator + ANNIS.FILE_CORPUS),
+            props.getEscapeCharacters(), props.getEscapeCharactersSet());
+    getFixture().tw_corpusMeta = ANNISExporter.createTupleWriter(
+            new File(path.getAbsolutePath() + File.separator + ANNIS.FILE_CORPUS_META),
+            props.getEscapeCharacters(), props.getEscapeCharactersSet());
   }
 
   @After
@@ -704,6 +716,43 @@ public class Salt2ANNISMapperTest
             });
 
     assertEquals(expectedNames, new LinkedList(segNames));
+  }
+  
+  @Test
+  public void testEscapeDefault() throws IOException {
+
+    // the last character the unicode character "GOTHIC LETTER AHSA" which is not part of the BMP
+    // and must be represented as surrugate pair in Java
+    String sampleText = "a\\b\\\\c\n\r\n\t\uD800\uDF30";
+    
+    if (sDocument == null) {
+			throw new SaltSampleException("Cannot create example, because the given sDocument is empty.");
+		}
+		if (sDocument.getSDocumentGraph() == null) {
+			sDocument.setSDocumentGraph(SaltFactory.eINSTANCE.createSDocumentGraph());
+		}
+		STextualDS sTextualDS = null;
+		// creating the primary text depending on the language
+		sTextualDS = SaltFactory.eINSTANCE.createSTextualDS();
+		sTextualDS.setSText(sampleText);
+		// adding the text to the document-graph
+		sDocument.getSDocumentGraph().addSNode(sTextualDS);
+    
+    SToken sToken = SaltFactory.eINSTANCE.createSToken();
+		sDocument.getSDocumentGraph().addSNode(sToken);
+		
+		STextualRelation sTextRel = SaltFactory.eINSTANCE.createSTextualRelation();
+		sTextRel.setSToken(sToken);
+		sTextRel.setSTextualDS(sTextualDS);
+		sTextRel.setSStart(0);
+		sTextRel.setSEnd(sampleText.length());
+		sDocument.getSDocumentGraph().addSRelation(sTextRel);
+    
+    doMapping();
+    
+    TabFileComparator.checkEqual(new File(testPath, ANNIS.FILE_NODE).getAbsolutePath(), 
+            new File(tmpPath, ANNIS.FILE_NODE).getAbsolutePath());
+    
   }
 
   /**

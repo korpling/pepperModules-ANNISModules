@@ -264,14 +264,17 @@ public class TupleWriter
 	 * @return
 	 */
 	public ConcurrentMap<Character, String> getEscapeTable() {
+    
+    
+    
 		if (escapeTable == null) {
 			escapeTable = new ConcurrentHashMap<>();
 			/**
 			 * Standard escaping \t \n \r \ '
 			 */
-			escapeTable.put('\t', " ");
-			escapeTable.put('\n', " ");
-			escapeTable.put('\r', " ");
+			escapeTable.put('\t', "\\t");
+			escapeTable.put('\n', "\\n");
+			escapeTable.put('\r', "\\r");
 			escapeTable.put('\\', "\\\\");
 			escapeTable.put('\'', "\\'");
 		}

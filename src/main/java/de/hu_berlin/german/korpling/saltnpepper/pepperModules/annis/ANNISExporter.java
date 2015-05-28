@@ -206,28 +206,6 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
   }
 
   /**
-   * Creates a {@link TupleWriter} responsible for the given file.
-   *
-   * @param outFile
-   * @return
-   */
-  public static synchronized TupleWriter createTupleWRiter(File outFile) {
-    if (!outFile.getParentFile().exists()) {
-      outFile.getParentFile().mkdirs();
-    }
-    if (!outFile.exists()) {
-      try {
-        outFile.createNewFile();
-      } catch (IOException e) {
-        throw new PepperModuleException("Could not create the corpus tab file " + outFile.getAbsolutePath() + " Exception:" + e.getMessage());
-      }
-    }
-    TupleWriter tWriter = new TupleWriter();
-    tWriter.setFile(outFile);
-    return (tWriter);
-  }
-
-  /**
    * Initializes all {@link TupleWriter} objects.
    */
   @Override
