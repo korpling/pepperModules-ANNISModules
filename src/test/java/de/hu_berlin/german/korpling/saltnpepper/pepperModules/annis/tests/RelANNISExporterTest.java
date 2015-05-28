@@ -54,8 +54,15 @@ public class RelANNISExporterTest extends PepperExporterTest{
 		FormatDesc formatDef;
 		formatDef= new FormatDesc();
 		formatDef.setFormatName("relANNIS");
-		formatDef.setFormatVersion("4.0");
+		formatDef.setFormatVersion("3.3");
 		supportedFormatsCheck.add(formatDef);
+    
+    FormatDesc formatDef2;
+		formatDef2= new FormatDesc();
+		formatDef2.setFormatName("annis");
+		formatDef2.setFormatVersion("3.3");
+		supportedFormatsCheck.add(formatDef2);
+    
 	}
 	@Test
 	public void testSpecialParams1() throws IOException

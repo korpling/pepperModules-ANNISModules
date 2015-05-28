@@ -425,8 +425,8 @@ public class Salt2RelANNISMapperTest
     doMapping();
     
     // check the pre/post-order and level
-    TabFileComparator.checkEqual(testPath.getAbsolutePath() + "/rank.relannis", 
-      tmpPath.getAbsolutePath() + "/rank.relannis", 0, 3, 4, 5);
+    TabFileComparator.checkEqual(testPath.getAbsolutePath() + "/" + ANNIS.FILE_RANK, 
+      tmpPath.getAbsolutePath() + "/" + ANNIS.FILE_RANK, 0, 3, 4, 5);
   }
 
   /**

@@ -28,6 +28,7 @@ import org.junit.Test;
 
 import de.hu_berlin.german.korpling.saltnpepper.pepper.common.FormatDesc;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.testFramework.PepperExporterTest;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNIS;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNISExporter;
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.SaltProject;
@@ -72,8 +73,14 @@ public class ResolverHeuristicsTest extends PepperExporterTest{
 		FormatDesc formatDef;
 		formatDef= new FormatDesc();
 		formatDef.setFormatName("relANNIS");
-		formatDef.setFormatVersion("4.0");
+		formatDef.setFormatVersion("3.3");
 		supportedFormatsCheck.add(formatDef);
+    
+    FormatDesc formatDef2;
+		formatDef2= new FormatDesc();
+		formatDef2.setFormatName("annis");
+		formatDef2.setFormatVersion("3.3");
+		supportedFormatsCheck.add(formatDef2);
     
     
     SaltProject saltProject= SaltFactory.eINSTANCE.createSaltProject();
@@ -118,8 +125,10 @@ public class ResolverHeuristicsTest extends PepperExporterTest{
     
     start();
     
-    TabFileComparator.checkEqual(testPath.getAbsolutePath() + "/resolver_vis_map.relannis", 
-      outputDir.getAbsolutePath() + "/resolver_vis_map.relannis");
+    TabFileComparator.checkEqual(testPath.getAbsolutePath() + "/" 
+            + ANNIS.FILE_VISUALIZATION, 
+      outputDir.getAbsolutePath() + "/" 
+            + ANNIS.FILE_VISUALIZATION);
 	}
   
   @Test
@@ -141,8 +150,9 @@ public class ResolverHeuristicsTest extends PepperExporterTest{
     
     start();
     
-    TabFileComparator.checkEqual(testPath.getAbsolutePath() + "/resolver_vis_map.relannis", 
-      outputDir.getAbsolutePath() + "/resolver_vis_map.relannis");
+    TabFileComparator.checkEqual(testPath.getAbsolutePath() + "/" 
+            + ANNIS.FILE_VISUALIZATION, 
+      outputDir.getAbsolutePath() + "/" + ANNIS.FILE_VISUALIZATION);
 	}
   
   @Test
@@ -180,8 +190,10 @@ public class ResolverHeuristicsTest extends PepperExporterTest{
     
     start();
     
-    TabFileComparator.checkEqual(testPath.getAbsolutePath() + "/resolver_vis_map.relannis", 
-      outputDir.getAbsolutePath() + "/resolver_vis_map.relannis");
+    TabFileComparator.checkEqual(testPath.getAbsolutePath() + "/" 
+            + ANNIS.FILE_VISUALIZATION, 
+      outputDir.getAbsolutePath() + "/" 
+            + ANNIS.FILE_VISUALIZATION);
 	}
 	
 }
