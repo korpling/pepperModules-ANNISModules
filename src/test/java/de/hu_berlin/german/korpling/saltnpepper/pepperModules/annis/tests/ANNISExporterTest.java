@@ -39,7 +39,7 @@ import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNISExporte
 import java.util.Map;
  
  
-public class RelANNISExporterTest extends PepperExporterTest{ 
+public class ANNISExporterTest extends PepperExporterTest{ 
 	
 	
 	@Before

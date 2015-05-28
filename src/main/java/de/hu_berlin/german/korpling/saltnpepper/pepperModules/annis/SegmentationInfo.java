@@ -2,18 +2,18 @@ package de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis;
 
 public class SegmentationInfo {
 
-  Long relANNISId = 0l;
+  Long annisId = 0l;
   String segmentationName = "";
   String span = "";
 
   public SegmentationInfo(Long relAnnisId, String segmentationName, String span) {
-    this.relANNISId = relAnnisId;
+    this.annisId = relAnnisId;
     this.segmentationName = segmentationName;
     this.span = span;
   }
 
-  Long getRelANNISId() {
-    return this.relANNISId;
+  Long getANNISId() {
+    return this.annisId;
   }
 
   String getSegmentationName() {

@@ -40,7 +40,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
 
-public class Salt2RelANNISMapperTest
+public class Salt2ANNISMapperTest
 {
 
   @Rule
@@ -630,7 +630,7 @@ public class Salt2RelANNISMapperTest
     doMapping();
 
     // check output files that only "order" is used as segmentation name
-    Set<String> segNames = Files.readLines(new File(tmpPath, "node.relannis"),
+    Set<String> segNames = Files.readLines(new File(tmpPath, ANNIS.FILE_NODE),
       Charsets.UTF_8, new LineProcessor<Set<String>>()
       {
         private final Set<String> result = new TreeSet<>();
@@ -686,7 +686,7 @@ public class Salt2RelANNISMapperTest
     doMapping();
 
     // check output files that only "order" is used as segmentation name
-    Set<String> segNames = Files.readLines(new File(tmpPath, "node.relannis"),
+    Set<String> segNames = Files.readLines(new File(tmpPath, ANNIS.FILE_NODE),
             Charsets.UTF_8, new LineProcessor<Set<String>>() {
               private final Set<String> result = new TreeSet<>();
 
@@ -729,7 +729,7 @@ public class Salt2RelANNISMapperTest
   }
 
   /**
-   * Compares all relANNIS files given by {@link RelANNIS#FILE_RELANNIS_FILES}
+   * Compares all ANNIS files given by {@link ANNIS#FILE_ANNIS_FILES}
    * if they exist in gold path with the createdPath. If they do not exist, the
    * method throws an exception.
    *

@@ -56,7 +56,7 @@ public class Audio2ANNISMapper extends SRelation2ANNISMapper {
   }
 
   @Override
-  public void mapSRelations2RelANNIS(EList<? extends SNode> sRelationRoots, STYPE_NAME relationTypeName,
+  public void mapSRelations2ANNIS(EList<? extends SNode> sRelationRoots, STYPE_NAME relationTypeName,
           Salt2ANNISMapper.TRAVERSION_TYPE traversionType) {
     this.traversionType = traversionType;
     this.relationTypeName = relationTypeName;

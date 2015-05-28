@@ -69,7 +69,7 @@ public class SPointingRelation2ANNISMapper extends SRelation2ANNISMapper {
         this.documentGraph.traverse(singleRootList, GRAPH_TRAVERSE_TYPE.TOP_DOWN_DEPTH_FIRST, traversionType.toString(), this);
 
         // map the component
-        this.mapComponent2RelANNIS();
+        this.mapComponent2ANNIS();
 
       }
     }
@@ -80,7 +80,7 @@ public class SPointingRelation2ANNISMapper extends SRelation2ANNISMapper {
   }
 
   @Override
-  public void mapSRelations2RelANNIS(EList<? extends SNode> sRelationRoots,
+  public void mapSRelations2ANNIS(EList<? extends SNode> sRelationRoots,
           STYPE_NAME relationTypeName, TRAVERSION_TYPE traversionType) {
     this.traversionType = traversionType;
     this.relationTypeName = relationTypeName;

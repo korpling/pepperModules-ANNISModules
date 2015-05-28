@@ -267,7 +267,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
         if (sRelation != null) {
           if (sRelation.getSAnnotations() != null) {
             for (SAnnotation sAnnotation : sRelation.getSAnnotations()) {
-              this.mapSAnnotation2RelANNIS(rankId, sAnnotation);
+              this.mapSAnnotation2ANNIS(rankId, sAnnotation);
               hasAnnotations = true;
             }
           }
@@ -301,7 +301,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
       if (sRelation != null) {
         if (sRelation.getSAnnotations() != null) {
           for (SAnnotation sAnnotation : sRelation.getSAnnotations()) {
-            this.mapSAnnotation2RelANNIS(rankId, sAnnotation);
+            this.mapSAnnotation2ANNIS(rankId, sAnnotation);
           }
         }
       }
@@ -343,7 +343,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
       // decrease the rank level
       this.rankLevel -= 1;
 
-      this.mapRank2RelANNIS(edge, currNodeID, rankId, pre, post, parentRank, rankLevel);
+      this.mapRank2ANNIS(edge, currNodeID, rankId, pre, post, parentRank, rankLevel);
     } else {
       this.rankLevel -= 1;
     }
@@ -377,13 +377,13 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
   }
 
 // =============================== Mapping of SRelations ======================
-  public abstract void mapSRelations2RelANNIS(EList<? extends SNode> sRelationRoots, STYPE_NAME relationTypeName, TRAVERSION_TYPE traversionType);
+  public abstract void mapSRelations2ANNIS(EList<? extends SNode> sRelationRoots, STYPE_NAME relationTypeName, TRAVERSION_TYPE traversionType);
 
   /**
    * This method maps the currently processed component to the relANNIS
    * component tab file.
    */
-  protected void mapComponent2RelANNIS() {
+  protected void mapComponent2ANNIS() {
 		// id		type	layer					name
     // unique	c/d/p	SLayer/default_layer	"NULL"/SType
     EList<String> componentEntry = new BasicEList<>();
@@ -396,7 +396,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
 
   }
 
-  protected void mapRank2RelANNIS(SRelation sRelation, Long targetNodeID, Long rankId, Long preOrder, Long postOrder, Long parentRank, Long level) {
+  protected void mapRank2ANNIS(SRelation sRelation, Long targetNodeID, Long rankId, Long preOrder, Long postOrder, Long parentRank, Long level) {
     // check all needed params
     if (targetNodeID == null) {
       throw new PepperModuleException("The given target node for the rank is null");
@@ -439,7 +439,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
 
   }
 
-  protected void mapSAnnotation2RelANNIS(Long rankId, SAnnotation sAnnotation) {
+  protected void mapSAnnotation2ANNIS(Long rankId, SAnnotation sAnnotation) {
     if (rankId == null) {
       throw new PepperModuleException("The given rank id for the mapping of the SAnnotation is null");
     }
@@ -475,7 +475,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
   public Long mapSNode(SNode sNode) {
     SegmentationInfo segInfo = this.idManager.getSegmentInformation(sNode.getSId());
     if (segInfo != null) {
-      return this.mapSNode(sNode, segInfo.getRelANNISId(), segInfo.getSegmentationName(), segInfo.getSpan());
+      return this.mapSNode(sNode, segInfo.getANNISId(), segInfo.getSegmentationName(), segInfo.getSpan());
     } else {
       return this.mapSNode(sNode, null, null, null);
     }

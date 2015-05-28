@@ -64,7 +64,7 @@ public class SSpanningRelation2ANNISMapper extends SRelation2ANNISMapper {
         this.documentGraph.traverse(singleRootList, GRAPH_TRAVERSE_TYPE.TOP_DOWN_DEPTH_FIRST, traversionType.toString(), this);
 
         // map the component
-        this.mapComponent2RelANNIS();
+        this.mapComponent2ANNIS();
         this.getSpanStats().addLayer(componentLayerName);
       }
     }
@@ -73,7 +73,7 @@ public class SSpanningRelation2ANNISMapper extends SRelation2ANNISMapper {
   }
 
   @Override
-  public void mapSRelations2RelANNIS(EList<? extends SNode> sRelationRoots,
+  public void mapSRelations2ANNIS(EList<? extends SNode> sRelationRoots,
           STYPE_NAME relationTypeName, TRAVERSION_TYPE traversionType) {
     this.traversionType = traversionType;
     this.relationTypeName = relationTypeName;
@@ -82,7 +82,7 @@ public class SSpanningRelation2ANNISMapper extends SRelation2ANNISMapper {
   }
 
   @Override
-  protected void mapRank2RelANNIS(SRelation sRelation, Long targetNodeID,
+  protected void mapRank2ANNIS(SRelation sRelation, Long targetNodeID,
           Long rankId, Long preOrder, Long postOrder, Long parentRank, Long level) {
     boolean doMapping = true;
     if (sRelation instanceof SSpanningRelation) {
@@ -97,7 +97,7 @@ public class SSpanningRelation2ANNISMapper extends SRelation2ANNISMapper {
       }
     } // end if non-null relation and target node is token
     if (doMapping) {
-      super.mapRank2RelANNIS(sRelation, targetNodeID, rankId, preOrder,
+      super.mapRank2ANNIS(sRelation, targetNodeID, rankId, preOrder,
               postOrder,
               parentRank, level);
     }

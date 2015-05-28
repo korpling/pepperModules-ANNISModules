@@ -309,7 +309,7 @@ public class Salt2ANNISMapper extends PepperMapperImpl implements SGraphTraverse
                               this);
 
               sOrderRelationMapper.setTraversionSType(entry.getKey());
-              sOrderRelationMapper.mapSRelations2RelANNIS(subComponentRoots.get(entry.getKey()), STYPE_NAME.SORDER_RELATION, null);
+              sOrderRelationMapper.mapSRelations2ANNIS(subComponentRoots.get(entry.getKey()), STYPE_NAME.SORDER_RELATION, null);
 
             }
           }
@@ -370,7 +370,7 @@ public class Salt2ANNISMapper extends PepperMapperImpl implements SGraphTraverse
                               tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component,
                               this
                       );
-              sPointingSubRelationMapper.mapSRelations2RelANNIS(subComponentRoots.get(key), STYPE_NAME.SPOINTING_RELATION, TRAVERSION_TYPE.DOCUMENT_STRUCTURE_PR);
+              sPointingSubRelationMapper.mapSRelations2ANNIS(subComponentRoots.get(key), STYPE_NAME.SPOINTING_RELATION, TRAVERSION_TYPE.DOCUMENT_STRUCTURE_PR);
               sPointingSubRelationMapper.setTraversionSType(key);
               if (exec != null) {
                 exec.execute(sPointingSubRelationMapper);
@@ -396,7 +396,7 @@ public class Salt2ANNISMapper extends PepperMapperImpl implements SGraphTraverse
                             tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component,
                             this
                     );
-            sDominanceRelationMapper.mapSRelations2RelANNIS(sRelationRoots, STYPE_NAME.SDOMINANCE_RELATION, TRAVERSION_TYPE.DOCUMENT_STRUCTURE_DR);
+            sDominanceRelationMapper.mapSRelations2ANNIS(sRelationRoots, STYPE_NAME.SDOMINANCE_RELATION, TRAVERSION_TYPE.DOCUMENT_STRUCTURE_DR);
             if (exec != null) {
               exec.execute(sDominanceRelationMapper);
             } else {
@@ -419,7 +419,7 @@ public class Salt2ANNISMapper extends PepperMapperImpl implements SGraphTraverse
                               getSDocument().getSDocumentGraph(), token2Index,
                               tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component, this);
               sDominanceSubRelationMapper.setTraversionSType(key);
-              sDominanceSubRelationMapper.mapSRelations2RelANNIS(subComponentRoots.get(key), STYPE_NAME.SDOMINANCE_RELATION, TRAVERSION_TYPE.DOCUMENT_STRUCTURE_DR);
+              sDominanceSubRelationMapper.mapSRelations2ANNIS(subComponentRoots.get(key), STYPE_NAME.SDOMINANCE_RELATION, TRAVERSION_TYPE.DOCUMENT_STRUCTURE_DR);
               if (exec != null) {
                 exec.execute(sDominanceSubRelationMapper);
               } else {
@@ -442,7 +442,7 @@ public class Salt2ANNISMapper extends PepperMapperImpl implements SGraphTraverse
                     = new SSpanningRelation2ANNISMapper(getIdManager(),
                             getSDocument().getSDocumentGraph(), token2Index,
                             tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component, this);
-            spanningRelationMapper.mapSRelations2RelANNIS(sRelationRoots, STYPE_NAME.SSPANNING_RELATION, TRAVERSION_TYPE.DOCUMENT_STRUCTURE_CR);
+            spanningRelationMapper.mapSRelations2ANNIS(sRelationRoots, STYPE_NAME.SSPANNING_RELATION, TRAVERSION_TYPE.DOCUMENT_STRUCTURE_CR);
             if (exec != null) {
               exec.execute(spanningRelationMapper);
             } else {
@@ -461,7 +461,7 @@ public class Salt2ANNISMapper extends PepperMapperImpl implements SGraphTraverse
                             getSDocument().getSDocumentGraph(),
                             token2Index,
                             tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component, this);
-            audioRelationMapper.mapSRelations2RelANNIS(sRelationRoots,
+            audioRelationMapper.mapSRelations2ANNIS(sRelationRoots,
                     STYPE_NAME.STIME_OVERLAPPING_RELATION,
                     TRAVERSION_TYPE.DOCUMENT_STRUCTURE_AUDIO);
             if (exec != null) {

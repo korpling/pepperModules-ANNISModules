@@ -61,7 +61,7 @@ public class SOrderRelation2ANNISMapper extends SRelation2ANNISMapper {
     this.currentComponentType = "c";
     this.currentComponentLayer = "VIRTUAL";
     this.currentComponentName = "timelineRelationMapping";
-    this.mapComponent2RelANNIS();
+    this.mapComponent2ANNIS();
 
     // set the corpus reference
     Long corpus_ref = this.idManager.getNewCorpusTabId(this.documentGraph.getSDocument().getSId());
@@ -139,7 +139,7 @@ public class SOrderRelation2ANNISMapper extends SRelation2ANNISMapper {
       String span = null;
       SegmentationInfo segmentInfo = this.idManager.getSegmentInformation(tok.getSId());
       if (segmentInfo != null) {
-        segId = segmentInfo.getRelANNISId();
+        segId = segmentInfo.getANNISId();
         segName = segmentInfo.getSegmentationName();
         span = segmentInfo.getSpan();
       }
@@ -304,11 +304,11 @@ public class SOrderRelation2ANNISMapper extends SRelation2ANNISMapper {
 
   @Override
   public void run() {
-    // this mapper does nothing in parallel, thus all work is done in mapSRelations2RelANNIS
+    // this mapper does nothing in parallel, thus all work is done in mapSRelations2ANNIS
   }
 
   @Override
-  public void mapSRelations2RelANNIS(EList<? extends SNode> sRelationRoots,
+  public void mapSRelations2ANNIS(EList<? extends SNode> sRelationRoots,
           STYPE_NAME relationTypeName, TRAVERSION_TYPE traversionType) {
 
     beginTransaction();
