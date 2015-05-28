@@ -64,39 +64,39 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
   public static final long MAX_NUM_OF_NODES_FOR_DISCOURSE = 5000l;
 
   /**
-   * tuple writer to write {@link RelANNIS#FILE_TEXT} *
+   * tuple writer to write {@link ANNIS#FILE_TEXT} *
    */
   public TupleWriter tw_text = null;
   /**
-   * tuple writer to write {@link RelANNIS#FILE_NODE} *
+   * tuple writer to write {@link ANNIS#FILE_NODE} *
    */
   public TupleWriter tw_node = null;
   /**
-   * tuple writer to write {@link RelANNIS#FILE_NODE_ANNO} *
+   * tuple writer to write {@link ANNIS#FILE_NODE_ANNO} *
    */
   public TupleWriter tw_nodeAnno = null;
   /**
-   * tuple writer to write {@link RelANNIS#FILE_RANK} *
+   * tuple writer to write {@link ANNIS#FILE_RANK} *
    */
   public TupleWriter tw_rank = null;
   /**
-   * tuple writer to write {@link RelANNIS#FILE_EDGE_ANNO} *
+   * tuple writer to write {@link ANNIS#FILE_EDGE_ANNO} *
    */
   public TupleWriter tw_edgeAnno = null;
   /**
-   * tuple writer to write {@link RelANNIS#FILE_COMPONENT} *
+   * tuple writer to write {@link ANNIS#FILE_COMPONENT} *
    */
   public TupleWriter tw_component = null;
   /**
-   * tuple writer to write {@link RelANNIS#FILE_CORPUS} *
+   * tuple writer to write {@link ANNIS#FILE_CORPUS} *
    */
   public TupleWriter tw_corpus = null;
   /**
-   * tuple writer to write {@link RelANNIS#FILE_CORPUS_META} *
+   * tuple writer to write {@link ANNIS#FILE_CORPUS_META} *
    */
   public TupleWriter tw_corpusMeta = null;
   /**
-   * tuple writer to write {@link RelANNIS#FILE_VISUALIZATION} *
+   * tuple writer to write {@link ANNIS#FILE_VISUALIZATION} *
    */
   public TupleWriter tw_visualization = null;
 
@@ -111,7 +111,7 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
 
   // ------------------------- IdManager
   /**
-   * object to manage relANNIS ids*
+   * object to manage ANNIS ids*
    */
   private GlobalIdManager globalIdManager;
   

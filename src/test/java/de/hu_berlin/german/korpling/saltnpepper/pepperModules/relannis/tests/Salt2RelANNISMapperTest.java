@@ -748,7 +748,7 @@ public class Salt2RelANNISMapperTest
     }
 
     Vector<File> filesToCompare = new Vector<>();
-    for (String raFileName : ANNIS.FILE_RELANNIS_FILES)
+    for (String raFileName : ANNIS.FILE_ANNIS_FILES)
     {
       File raFile = new File(goldPath.getAbsolutePath() + File.separator
         + raFileName);

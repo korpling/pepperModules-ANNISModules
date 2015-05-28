@@ -13,7 +13,7 @@ public interface ANNIS {
   /**
    * Name of the file, to store the corpus-structure. *
    */
-  public static final String FILE_ENDING = ".relannis";
+  public static final String FILE_ENDING = ".annis";
 
   /**
    * Name of the file, to store the corpus-structure. *
@@ -52,8 +52,8 @@ public interface ANNIS {
    */
   public static final String FILE_VISUALIZATION = "resolver_vis_map" + FILE_ENDING;
   /**
-   * A list of all relANNIS file names.*
+   * A list of all ANNIS format file names.*
    */
-  public static final String[] FILE_RELANNIS_FILES = {FILE_CORPUS, FILE_CORPUS_META, FILE_TEXT, FILE_NODE, FILE_NODE_ANNO, FILE_RANK, FILE_EDGE_ANNO, FILE_COMPONENT, FILE_VISUALIZATION};
+  public static final String[] FILE_ANNIS_FILES = {FILE_CORPUS, FILE_CORPUS_META, FILE_TEXT, FILE_NODE, FILE_NODE_ANNO, FILE_RANK, FILE_EDGE_ANNO, FILE_COMPONENT, FILE_VISUALIZATION};
 
 }
