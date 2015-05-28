@@ -1,4 +1,4 @@
-package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.tests;
+package de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.tests;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;

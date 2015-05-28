@@ -15,7 +15,7 @@
  *
  *
  */
-package de.hu_berlin.german.korpling.saltnpepper.pepperModules.relannis.tests;
+package de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.tests;
 
 
 import de.hu_berlin.german.korpling.saltnpepper.pepper.common.CorpusDesc;
