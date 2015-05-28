@@ -278,7 +278,7 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
     // write versions file
     File versionFile = new File(getCorpusDesc().getCorpusPath().toFileString(), ANNIS.FILE_VERSION);
     try {
-      Files.write("4.0", versionFile, Charsets.UTF_8);
+      Files.write("3.3", versionFile, Charsets.UTF_8);
     } catch (IOException ex) {
       log.error("Can't write {} file", ex, ANNIS.FILE_VERSION);
     }
