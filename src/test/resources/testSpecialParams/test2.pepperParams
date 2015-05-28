@@ -1,5 +1,5 @@
-ANNIS.exporter.clobber.visualisation=true
-ANNIS.exporter.clobber.corpus_annotation=true
-ANNIS.exporter.corpusName=TestCorpusName
-ANNIS.exporter.escapeCharacters=false // true
-ANNIS.exporter.escapeCharactersList=(\=\\),(a=bcd),(\t= )
+clobber.visualisation=true
+clobber.corpus_annotation=true
+corpusName=TestCorpusName
+escapeCharacters=false // true
+escapeCharactersList=(\=\\),(a=bcd),(\t= )

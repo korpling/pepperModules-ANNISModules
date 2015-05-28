@@ -34,29 +34,27 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class ANNISExporterProperties extends PepperModuleProperties {
 
-  public static final String PREFIX = "ANNIS.exporter.";
-
   public static final String PREFIX_CLOBBER = "clobber.";
 
   /**
    * Name of property which sets the clobber mode for the resolver_vis_map tab.
    */
-  public static final String PROP_VISUALISATION_CLOBBER = PREFIX + PREFIX_CLOBBER + "visualisation";
+  public static final String PROP_VISUALISATION_CLOBBER =  PREFIX_CLOBBER + "visualisation";
 
   /**
    * Name of property which sets the clobber mode for the corpus_annotation tab.
    */
-  public static final String PROP_CORPUS_ANNOTATION_CLOBBER = PREFIX + PREFIX_CLOBBER + "corpus_annotation";
+  public static final String PROP_CORPUS_ANNOTATION_CLOBBER = PREFIX_CLOBBER + "corpus_annotation";
 
   /**
    * Name of property which sets the top-level corpus name to a given one. The
    * default name for the corpus is overridden.
    */
-  public static final String PROP_INDIVIDUAL_CORPUS_NAME = PREFIX + "corpusName";
+  public static final String PROP_INDIVIDUAL_CORPUS_NAME = "corpusName";
 
-  public static final String PROP_ESCAPE_CHARACTERS = PREFIX + "escapeCharacters";
+  public static final String PROP_ESCAPE_CHARACTERS = "escapeCharacters";
 
-  public static final String PROP_ESCAPE_CHARACTERS_LIST = PREFIX + "escapeCharactersList";
+  public static final String PROP_ESCAPE_CHARACTERS_LIST =  "escapeCharactersList";
 
   public ANNISExporterProperties() {
     this.addProperty(new PepperModuleProperty<Boolean>(PROP_VISUALISATION_CLOBBER, Boolean.class, "This property defines whether the resolver_vis_map.tab is allowed to be overwritten if it is existent. By default, the table is overwritten(value:true)", Boolean.TRUE, false));
