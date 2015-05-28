@@ -17,33 +17,9 @@
  */
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis;
 
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.DomStatistics;
-import com.google.common.base.Charsets;
-import com.google.common.base.Joiner;
-import com.google.common.io.Files;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Hashtable;
-
-import org.eclipse.emf.common.util.BasicEList;
-import org.eclipse.emf.common.util.EList;
-import org.osgi.service.component.annotations.Component;
-
-import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperExporter;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperMapper;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleException;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleNotReadyException;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.impl.PepperExporterImpl;
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ResolverEntry.Vis;
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.OrderStatistics;
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.PointingStatistics;
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.QName;
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.SpanStatistics;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpus;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SMetaAnnotation;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -53,8 +29,39 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.concurrent.ConcurrentMap;
+
+import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Charsets;
+import com.google.common.base.Joiner;
+import com.google.common.io.Files;
+
+import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperExporter;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperMapper;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleException;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleNotReadyException;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.impl.PepperExporterImpl;
+import static de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNIS.FILE_COMPONENT;
+import static de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNIS.FILE_CORPUS;
+import static de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNIS.FILE_CORPUS_META;
+import static de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNIS.FILE_EDGE_ANNO;
+import static de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNIS.FILE_NODE;
+import static de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNIS.FILE_NODE_ANNO;
+import static de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNIS.FILE_RANK;
+import static de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNIS.FILE_TEXT;
+import static de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNIS.FILE_VISUALIZATION;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ResolverEntry.Vis;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.DomStatistics;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.OrderStatistics;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.PointingStatistics;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.QName;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.SpanStatistics;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpus;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SMetaAnnotation;
 
 @Component(name = "ANNISExporterComponent", factory = "PepperExporterComponentFactory")
 public class ANNISExporter extends PepperExporterImpl implements PepperExporter, ANNIS {
@@ -191,7 +198,7 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
 
     tWriter.setEscaping(escapeCharacters);
     if (characterEscapeTable != null) {
-      tWriter.setEscapeTable(new Hashtable<>(characterEscapeTable));
+      tWriter.setEscapeTable(characterEscapeTable);
     }
 
     tWriter.setFile(outFile);
@@ -533,7 +540,7 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
       for (ResolverEntry e : entries) {
         e.setOrder(order);
 
-        EList<String> resolverTuple = new BasicEList<>();
+        List<String> resolverTuple = new ArrayList<>();
 
         resolverTuple.add(corpusName);
         resolverTuple.add(corpusVersion);

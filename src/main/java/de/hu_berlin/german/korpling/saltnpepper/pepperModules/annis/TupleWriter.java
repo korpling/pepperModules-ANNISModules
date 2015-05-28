@@ -25,13 +25,14 @@ import java.util.Collection;
 import java.util.Hashtable;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,8 +58,6 @@ public class TupleWriter
 	
 	private boolean escapeCharacters = false;
 	
-	private Hashtable<Character,String> charEscapeTable;
-	
 	/**
 	 * output file 
 	 */
@@ -71,18 +70,7 @@ public class TupleWriter
 	/**
 	 * Constructor
 	 */
-	public TupleWriter()
-	{
-		charEscapeTable = new Hashtable<>();
-		/**
-		 * Standard escaping
-		 * \t \n \r \ '
-		 */
-		charEscapeTable.put('\t', "TAB");
-		charEscapeTable.put('\n', "NEWLINE");
-		charEscapeTable.put('\r', "RETURN");
-		charEscapeTable.put('\\', "\\\\");
-		charEscapeTable.put('\'', "\\'");
+	public TupleWriter(){
 	}
 	
 	public void addTuple(Collection<String> tuple) throws FileNotFoundException
@@ -196,7 +184,7 @@ public class TupleWriter
         StringBuilder escaped = new StringBuilder();
         for (char chr : att.toCharArray())
         { // for every char in the atring
-          String escapeString = this.charEscapeTable.get(chr);
+          String escapeString = getEscapeTable().get(chr);
           if (escapeString != null)
           { // if there is some escape sequence
             escaped.append(escapeString);
@@ -255,14 +243,39 @@ public class TupleWriter
 		this.escapeCharacters = escape;
 	}
 	
-	public void setEscapeTable(Hashtable<Character,String> escapeTable){
-		if (escapeTable == null)
-			throw new TupleWriterException("Error(TupleWriter): The given escape table object is null.");
-		this.charEscapeTable = escapeTable;
+	/** internal table containing the escapings, key= character to escape, value= replacement */
+	private ConcurrentMap<Character,String> escapeTable;
+	
+	public void setEscapeTable(ConcurrentMap<Character,String> escapeTable){
+		if (escapeTable != null){
+			this.escapeTable = escapeTable;
+		}
 	}
 	
-	public Hashtable<Character,String> getEscapeTable(){
-		return this.charEscapeTable;
+	/**
+	 * If no other escaping is set, the following one is used:
+	 * <table border="0">
+	 *   <tr><td>\t</td><td> </td></tr>
+	 *   <tr><td>\n</td><td> </td></tr>
+	 *   <tr><td>\r</td><td> </td></tr>
+	 *   <tr><td>\\</td><td>\\\\</td></tr>
+	 *   <tr><td>\</td><td>\\</td></tr>
+	 * </table>
+	 * @return
+	 */
+	public ConcurrentMap<Character, String> getEscapeTable() {
+		if (escapeTable == null) {
+			escapeTable = new ConcurrentHashMap<>();
+			/**
+			 * Standard escaping \t \n \r \ '
+			 */
+			escapeTable.put('\t', " ");
+			escapeTable.put('\n', " ");
+			escapeTable.put('\r', " ");
+			escapeTable.put('\\', "\\\\");
+			escapeTable.put('\'', "\\'");
+		}
+		return this.escapeTable;
 	}
 	
 	public String getEncoding() 

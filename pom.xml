@@ -39,7 +39,7 @@
   </ciManagement>
   <inceptionYear>2014</inceptionYear>
   <organization>
-    <name>Humboldt Univerity of Berlin</name>
+    <name>Humboldt-Universität zu Berlin</name>
   </organization>
   <scm>
     <connection>scm:git:git://github.com/korpling/pepperModules-ANNISModules.git</connection>
