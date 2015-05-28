@@ -17,11 +17,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SSpanningRelation2RelANNISMapper extends SRelation2ANNISMapper {
+public class SSpanningRelation2ANNISMapper extends SRelation2ANNISMapper {
 
   private final Map<SSpan, Boolean> spanIsContinous;
 
-  public SSpanningRelation2RelANNISMapper(IdManager idManager,
+  public SSpanningRelation2ANNISMapper(IdManager idManager,
           SDocumentGraph documentGraph, 
           Map<SToken, Long> token2Index,
           TupleWriter nodeTabWriter,

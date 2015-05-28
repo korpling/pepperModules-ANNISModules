@@ -439,7 +439,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
         if (sRelationRoots != null) {
           if (sRelationRoots.size() > 0) {
             SRelation2ANNISMapper spanningRelationMapper
-                    = new SSpanningRelation2RelANNISMapper(getIdManager(),
+                    = new SSpanningRelation2ANNISMapper(getIdManager(),
                             getSDocument().getSDocumentGraph(), token2Index,
                             tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component, this);
             spanningRelationMapper.mapSRelations2RelANNIS(sRelationRoots, STYPE_NAME.SSPANNING_RELATION, TRAVERSION_TYPE.DOCUMENT_STRUCTURE_CR);
@@ -482,7 +482,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 
         // START Step 6: map all SToken which were not mapped, yet
         SRelation2ANNISMapper mapper
-                = new SSpanningRelation2RelANNISMapper(getIdManager(),
+                = new SSpanningRelation2ANNISMapper(getIdManager(),
                         getSDocument().getSDocumentGraph(), token2Index,
                         tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component, this);
         mapper.beginTransaction();
