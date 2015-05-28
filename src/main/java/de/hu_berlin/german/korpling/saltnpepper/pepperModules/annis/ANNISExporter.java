@@ -57,7 +57,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Component(name = "ANNISExporterComponent", factory = "PepperExporterComponentFactory")
-public class ANNISExporter extends PepperExporterImpl implements PepperExporter, RelANNIS {
+public class ANNISExporter extends PepperExporterImpl implements PepperExporter, ANNIS {
 
   private static final Logger log = LoggerFactory.getLogger(ANNISExporter.class);
   

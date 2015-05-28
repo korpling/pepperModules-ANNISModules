@@ -5,7 +5,7 @@ import com.google.common.io.Files;
 import com.google.common.io.LineProcessor;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.GlobalIdManager;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.IdManager;
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.RelANNIS;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNIS;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNISExporter;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.Salt2RelANNISMapper;
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
@@ -116,21 +116,21 @@ public class Salt2RelANNISMapperTest
   private void createTupleWriters(File path)
   {
     getFixture().tw_text = ANNISExporter.createTupleWRiter(new File(path.
-      getAbsolutePath() + File.separator + RelANNIS.FILE_TEXT));
+      getAbsolutePath() + File.separator + ANNIS.FILE_TEXT));
     getFixture().tw_node = ANNISExporter.createTupleWRiter(new File(path.
-      getAbsolutePath() + File.separator + RelANNIS.FILE_NODE));
+      getAbsolutePath() + File.separator + ANNIS.FILE_NODE));
     getFixture().tw_nodeAnno = ANNISExporter.createTupleWRiter(new File(path.
-      getAbsolutePath() + File.separator + RelANNIS.FILE_NODE_ANNO));
+      getAbsolutePath() + File.separator + ANNIS.FILE_NODE_ANNO));
     getFixture().tw_rank = ANNISExporter.createTupleWRiter(new File(path.
-      getAbsolutePath() + File.separator + RelANNIS.FILE_RANK));
+      getAbsolutePath() + File.separator + ANNIS.FILE_RANK));
     getFixture().tw_edgeAnno = ANNISExporter.createTupleWRiter(new File(path.
-      getAbsolutePath() + File.separator + RelANNIS.FILE_EDGE_ANNO));
+      getAbsolutePath() + File.separator + ANNIS.FILE_EDGE_ANNO));
     getFixture().tw_component = ANNISExporter.createTupleWRiter(new File(
-      path.getAbsolutePath() + File.separator + RelANNIS.FILE_COMPONENT));
+      path.getAbsolutePath() + File.separator + ANNIS.FILE_COMPONENT));
     getFixture().tw_corpus = ANNISExporter.createTupleWRiter(new File(path.
-      getAbsolutePath() + File.separator + RelANNIS.FILE_CORPUS));
+      getAbsolutePath() + File.separator + ANNIS.FILE_CORPUS));
     getFixture().tw_corpusMeta = ANNISExporter.createTupleWRiter(new File(
-      path.getAbsolutePath() + File.separator + RelANNIS.FILE_CORPUS_META));
+      path.getAbsolutePath() + File.separator + ANNIS.FILE_CORPUS_META));
   }
 
   @After
@@ -748,7 +748,7 @@ public class Salt2RelANNISMapperTest
     }
 
     Vector<File> filesToCompare = new Vector<>();
-    for (String raFileName : RelANNIS.FILE_RELANNIS_FILES)
+    for (String raFileName : ANNIS.FILE_RELANNIS_FILES)
     {
       File raFile = new File(goldPath.getAbsolutePath() + File.separator
         + raFileName);

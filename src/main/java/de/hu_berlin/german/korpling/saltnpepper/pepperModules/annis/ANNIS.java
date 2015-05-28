@@ -3,12 +3,12 @@ package de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 
 /**
- * Contains general relANNIS format information
+ * Contains general ANNIS format information
  *
  * @author florian
  *
  */
-public interface RelANNIS {
+public interface ANNIS {
 
   /**
    * Name of the file, to store the corpus-structure. *
