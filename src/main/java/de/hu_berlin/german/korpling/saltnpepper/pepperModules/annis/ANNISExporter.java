@@ -57,9 +57,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Component(name = "ANNISExporterComponent", factory = "PepperExporterComponentFactory")
-public class RelANNISExporter extends PepperExporterImpl implements PepperExporter, RelANNIS {
+public class ANNISExporter extends PepperExporterImpl implements PepperExporter, RelANNIS {
 
-  private static final Logger log = LoggerFactory.getLogger(RelANNISExporter.class);
+  private static final Logger log = LoggerFactory.getLogger(ANNISExporter.class);
   
   public static final long MAX_NUM_OF_NODES_FOR_DISCOURSE = 5000l;
 
@@ -121,7 +121,7 @@ public class RelANNISExporter extends PepperExporterImpl implements PepperExport
   private OrderStatistics orderStatistics;
 
   // =================================================== mandatory ===================================================
-  public RelANNISExporter() {
+  public ANNISExporter() {
     super();
     setProperties(new RelANNISExporterProperties());
     this.setName("ANNISExporter");

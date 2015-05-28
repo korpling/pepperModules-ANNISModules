@@ -6,7 +6,7 @@ import com.google.common.io.LineProcessor;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.GlobalIdManager;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.IdManager;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.RelANNIS;
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.RelANNISExporter;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNISExporter;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.Salt2RelANNISMapper;
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.resources.dot.SDocumentGraphDOTWriter;
@@ -115,21 +115,21 @@ public class Salt2RelANNISMapperTest
 
   private void createTupleWriters(File path)
   {
-    getFixture().tw_text = RelANNISExporter.createTupleWRiter(new File(path.
+    getFixture().tw_text = ANNISExporter.createTupleWRiter(new File(path.
       getAbsolutePath() + File.separator + RelANNIS.FILE_TEXT));
-    getFixture().tw_node = RelANNISExporter.createTupleWRiter(new File(path.
+    getFixture().tw_node = ANNISExporter.createTupleWRiter(new File(path.
       getAbsolutePath() + File.separator + RelANNIS.FILE_NODE));
-    getFixture().tw_nodeAnno = RelANNISExporter.createTupleWRiter(new File(path.
+    getFixture().tw_nodeAnno = ANNISExporter.createTupleWRiter(new File(path.
       getAbsolutePath() + File.separator + RelANNIS.FILE_NODE_ANNO));
-    getFixture().tw_rank = RelANNISExporter.createTupleWRiter(new File(path.
+    getFixture().tw_rank = ANNISExporter.createTupleWRiter(new File(path.
       getAbsolutePath() + File.separator + RelANNIS.FILE_RANK));
-    getFixture().tw_edgeAnno = RelANNISExporter.createTupleWRiter(new File(path.
+    getFixture().tw_edgeAnno = ANNISExporter.createTupleWRiter(new File(path.
       getAbsolutePath() + File.separator + RelANNIS.FILE_EDGE_ANNO));
-    getFixture().tw_component = RelANNISExporter.createTupleWRiter(new File(
+    getFixture().tw_component = ANNISExporter.createTupleWRiter(new File(
       path.getAbsolutePath() + File.separator + RelANNIS.FILE_COMPONENT));
-    getFixture().tw_corpus = RelANNISExporter.createTupleWRiter(new File(path.
+    getFixture().tw_corpus = ANNISExporter.createTupleWRiter(new File(path.
       getAbsolutePath() + File.separator + RelANNIS.FILE_CORPUS));
-    getFixture().tw_corpusMeta = RelANNISExporter.createTupleWRiter(new File(
+    getFixture().tw_corpusMeta = ANNISExporter.createTupleWRiter(new File(
       path.getAbsolutePath() + File.separator + RelANNIS.FILE_CORPUS_META));
   }
 

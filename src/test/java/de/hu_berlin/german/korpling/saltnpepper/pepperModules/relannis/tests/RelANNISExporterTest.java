@@ -34,7 +34,7 @@ import org.junit.Test;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.common.FormatDesc;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperModuleProperties;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.testFramework.PepperExporterTest;
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.RelANNISExporter;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNISExporter;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.RelANNISExporterProperties;
 import java.util.Map;
  
@@ -45,7 +45,7 @@ public class RelANNISExporterTest extends PepperExporterTest{
 	@Before
 	public void setUp()
 	{
-		setFixture(new RelANNISExporter());
+		setFixture(new ANNISExporter());
 		File tmpFile= new File(System.getProperty("java.io.tmpdir")+File.separator+"relANNISExporter_test");
 		tmpFile.mkdirs();
 		File resFile= new File("./src/test/resources");
