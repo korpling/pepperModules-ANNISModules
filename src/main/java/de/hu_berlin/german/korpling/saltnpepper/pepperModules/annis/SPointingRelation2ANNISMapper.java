@@ -16,11 +16,11 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
 import java.util.Map;
 
-public class SPointingRelation2RelANNISMapper extends SRelation2RelANNISMapper {
+public class SPointingRelation2ANNISMapper extends SRelation2RelANNISMapper {
 
   private SNode lastEnteredNode;
   
-  public SPointingRelation2RelANNISMapper(IdManager idManager,
+  public SPointingRelation2ANNISMapper(IdManager idManager,
           SDocumentGraph documentGraph, 
           Map<SToken, Long> token2Index,
           TupleWriter nodeTabWriter,

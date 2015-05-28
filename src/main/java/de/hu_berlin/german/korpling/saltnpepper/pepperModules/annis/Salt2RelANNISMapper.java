@@ -365,7 +365,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 					//System.out.println("Count of PR roots for key "+key+" : "+subComponentRoots.get(key).size());
               //System.out.println("Mapping PointingRelation subcomponents with sType: "+key);
               SRelation2RelANNISMapper sPointingSubRelationMapper
-                      = new SPointingRelation2RelANNISMapper(getIdManager(),
+                      = new SPointingRelation2ANNISMapper(getIdManager(),
                               getSDocument().getSDocumentGraph(), token2Index,
                               tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component,
                               this
