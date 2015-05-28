@@ -130,13 +130,13 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
   }
 
   /**
-   * Creates a {@link Salt2RelANNISMapper} object and passes this object, so
-   * that all {@link Salt2RelANNISMapper} object can access the
+   * Creates a {@link Salt2ANNISMapper} object and passes this object, so
+   * that all {@link Salt2ANNISMapper} object can access the
    * {@link IdManager} etc..
    */
   @Override
   public PepperMapper createPepperMapper(SElementId sElementId) {
-    Salt2RelANNISMapper mapper = new Salt2RelANNISMapper();
+    Salt2ANNISMapper mapper = new Salt2ANNISMapper();
     mapper.setIdManager(new IdManager(globalIdManager));
     mapper.setGlobalDomStats(domStats);
     mapper.setGlobalPointingStats(pointingStats);

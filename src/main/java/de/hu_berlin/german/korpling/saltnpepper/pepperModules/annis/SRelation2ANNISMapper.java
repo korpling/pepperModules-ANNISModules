@@ -10,7 +10,7 @@ import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleException;
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.Salt2RelANNISMapper.TRAVERSION_TYPE;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.Salt2ANNISMapper.TRAVERSION_TYPE;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.OrderStatistics;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.PointingStatistics;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.SpanStatistics;
@@ -49,7 +49,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
   private final static Logger log = LoggerFactory.getLogger(SRelation2ANNISMapper.class);
 
   protected IdManager idManager;
-  private final Salt2RelANNISMapper parentMapper;
+  private final Salt2ANNISMapper parentMapper;
 
   protected SDocumentGraph documentGraph;
 
@@ -79,7 +79,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
           TupleWriter nodeTabWriter, TupleWriter nodeAnnoTabWriter,
           TupleWriter rankTabWriter, TupleWriter edgeAnnoTabWriter,
           TupleWriter componentTabWriter,
-          Salt2RelANNISMapper parentMapper) {
+          Salt2ANNISMapper parentMapper) {
 
     this.idManager = idManager;
     this.parentMapper = parentMapper;

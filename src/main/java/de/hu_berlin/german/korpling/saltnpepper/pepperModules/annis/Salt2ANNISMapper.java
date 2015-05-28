@@ -60,7 +60,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTraverseHandler {
+public class Salt2ANNISMapper extends PepperMapperImpl implements SGraphTraverseHandler {
 
   private final AtomicInteger numberOfMappedNodes = new AtomicInteger();
   private int numberOfDocumentNodes;
@@ -75,14 +75,14 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
   private PointingStatistics globalPointingStats;
   private OrderStatistics globalOrderStats;
 
-  public Salt2RelANNISMapper() {
+  public Salt2ANNISMapper() {
     this.init();
   }
 
   private void init() {
   }
 
-  private final static Logger log = LoggerFactory.getLogger(Salt2RelANNISMapper.class);
+  private final static Logger log = LoggerFactory.getLogger(Salt2ANNISMapper.class);
 
   private IdManager idManager = null;
 

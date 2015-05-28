@@ -4,7 +4,7 @@ import com.google.common.base.Preconditions;
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.Salt2RelANNISMapper.TRAVERSION_TYPE;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.Salt2ANNISMapper.TRAVERSION_TYPE;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.QName;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.GRAPH_TRAVERSE_TYPE;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
@@ -29,7 +29,7 @@ public class SDominanceRelation2ANNISMapper extends SRelation2ANNISMapper {
           TupleWriter nodeTabWriter,
           TupleWriter nodeAnnoTabWriter, TupleWriter rankTabWriter,
           TupleWriter edgeAnnoTabWriter, TupleWriter componentTabWriter,
-          Salt2RelANNISMapper parentMapper) {
+          Salt2ANNISMapper parentMapper) {
 
     super(idManager, documentGraph, token2index, nodeTabWriter, nodeAnnoTabWriter,
             rankTabWriter, edgeAnnoTabWriter, componentTabWriter, parentMapper);

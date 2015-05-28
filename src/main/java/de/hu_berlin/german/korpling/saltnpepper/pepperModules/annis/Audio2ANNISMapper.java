@@ -47,7 +47,7 @@ public class Audio2ANNISMapper extends SRelation2ANNISMapper {
           TupleWriter nodeTabWriter,
           TupleWriter nodeAnnoTabWriter, TupleWriter rankTabWriter,
           TupleWriter edgeAnnoTabWriter, TupleWriter componentTabWriter,
-          Salt2RelANNISMapper parentMapper) {
+          Salt2ANNISMapper parentMapper) {
     super(idManager, documentGraph, 
             token2Index,
             nodeTabWriter, nodeAnnoTabWriter,
@@ -57,7 +57,7 @@ public class Audio2ANNISMapper extends SRelation2ANNISMapper {
 
   @Override
   public void mapSRelations2RelANNIS(EList<? extends SNode> sRelationRoots, STYPE_NAME relationTypeName,
-          Salt2RelANNISMapper.TRAVERSION_TYPE traversionType) {
+          Salt2ANNISMapper.TRAVERSION_TYPE traversionType) {
     this.traversionType = traversionType;
     this.relationTypeName = relationTypeName;
     this.sRelationRoots = sRelationRoots;
@@ -85,7 +85,7 @@ public class Audio2ANNISMapper extends SRelation2ANNISMapper {
   @Override
   public boolean checkConstraint(GRAPH_TRAVERSE_TYPE traversalType, String traversalId, SRelation edge, SNode currNode, long order) {
 
-    if (traversionType == Salt2RelANNISMapper.TRAVERSION_TYPE.DOCUMENT_STRUCTURE_AUDIO) {
+    if (traversionType == Salt2ANNISMapper.TRAVERSION_TYPE.DOCUMENT_STRUCTURE_AUDIO) {
       return currNode instanceof SToken || edge instanceof SAudioDSRelation;
     }
 
@@ -97,7 +97,7 @@ public class Audio2ANNISMapper extends SRelation2ANNISMapper {
           SNode currNode, SRelation sRelation, SNode fromNode, long order) {
 
     if (sRelation instanceof SAudioDSRelation
-            && traversionType == Salt2RelANNISMapper.TRAVERSION_TYPE.DOCUMENT_STRUCTURE_AUDIO) {
+            && traversionType == Salt2ANNISMapper.TRAVERSION_TYPE.DOCUMENT_STRUCTURE_AUDIO) {
       SAudioDSRelation dsRel = (SAudioDSRelation) sRelation;
       Double start = dsRel.getSStart();
       Double end = dsRel.getSEnd();

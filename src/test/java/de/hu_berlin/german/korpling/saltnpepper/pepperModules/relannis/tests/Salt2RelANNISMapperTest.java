@@ -7,7 +7,7 @@ import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.GlobalIdMana
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.IdManager;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNIS;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNISExporter;
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.Salt2RelANNISMapper;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.Salt2ANNISMapper;
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.resources.dot.SDocumentGraphDOTWriter;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpus;
@@ -46,17 +46,17 @@ public class Salt2RelANNISMapperTest
   @Rule
   public TestName name = new TestName();
 
-  private Salt2RelANNISMapper fixture = null;
+  private Salt2ANNISMapper fixture = null;
   
   private SCorpus rootCorpus = null;
   private SDocument sDocument = null;
 
-  public Salt2RelANNISMapper getFixture()
+  public Salt2ANNISMapper getFixture()
   {
     return fixture;
   }
 
-  public void setFixture(Salt2RelANNISMapper fixture)
+  public void setFixture(Salt2ANNISMapper fixture)
   {
     this.fixture = fixture;
   }
@@ -71,7 +71,7 @@ public class Salt2RelANNISMapperTest
   @Before
   public void setUp()
   {
-    setFixture(new Salt2RelANNISMapper());
+    setFixture(new Salt2ANNISMapper());
 
     getFixture().mapRelationsInParallel(false);
 
