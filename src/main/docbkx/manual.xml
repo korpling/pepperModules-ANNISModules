@@ -49,12 +49,12 @@
             coordinates in a Pepper workflow description file to identify the modules in a Pepper
             conversion process. A description of how to model a workflow description file can be
             found under https://korpling.german.hu-berlin.de/saltnpepper/.</para>
-        <para>relANNIS is the tab separated file format of the linguistic search and visualization
+        <para>The ANNIS-format is the tab separated file format of the linguistic search and visualization
             tool ANNIS (see: <link xlink:href="http://www.sfb632.uni-potsdam.de/annis/"
-                >http://www.sfb632.uni-potsdam.de/annis/</link>). The relANNIS format is similar to
+                >http://www.sfb632.uni-potsdam.de/annis/</link>). The ANNIS-format is similar to
             the Salt meta model a graph based meta model. It also consists of nodes and edges, which
             are subtyped by a more specific linguistic meaning. Nevertheless, like Salt also the
-            relANNIS format is a theory independent format.</para>
+            ANNIS-format is a theory independent format.</para>
         <table xml:id="table_overview" frame="all">
             <title>Pepper modules contained in this project</title>
             <tgroup cols="3" align="left" colsep="1" rowsep="1">
@@ -68,7 +68,7 @@
                 <tbody>
                     <row/>
                     <row>
-                        <entry><xref linkend="relANNIS_exporter" endterm="relANNIS_exporter_name"
+                        <entry><xref linkend="ANNIS_exporter" endterm="ANNIS_exporter_name"
                             /></entry>
                         <entry>exporter</entry>
                         <entry>4.0</entry>
@@ -78,9 +78,9 @@
         </table>
         <para> </para>
     </chapter>
-    <chapter xml:id="relANNIS_exporter">
-        <title xml:id="relANNIS_exporter_name">RelANNISExporter</title>
-        <para>The relANNIS format is a csv based format and uses for separating columns the tab
+    <chapter xml:id="ANNIS_exporter">
+        <title xml:id="ANNIS_exporter_name">ANNISExporter</title>
+        <para>The ANNIS format is a csv based format and uses for separating columns the tab
             character and for separating lines a line break character. Therefore it is necessary to
             not have tab characters or line breaks inside the data like annotation names, annotation
             values, primary data and so on. Of course, the data could be checked when exporting
@@ -137,12 +137,12 @@
                 </tgroup>
             </table>
             <sect2 xml:id="exporter_prop_prop1">
-                <title xml:id="exporter_prop1_title">relANNIS.exporter.tab_escape</title>
+                <title xml:id="exporter_prop1_title">ANNIS.exporter.tab_escape</title>
                 <para>With this property tab characters ('\t') will be replaces by the given
                     character or character sequence. For instance imagine the following text:
                     <programlisting>This\tis\ta\ttext</programlisting> Normally, in most editors, a
                     tab is shown as a longer whitespace and not as '\t'. The use of the property:
-                    <programlisting>relANNIS.exporter.tab_escape=BLANK</programlisting> will result
+                    <programlisting>ANNIS.exporter.tab_escape=BLANK</programlisting> will result
                     in the following text:
                     <programlisting>ThisBLANKisBLANKaBLANKtext</programlisting> Of course, this
                     replacement does not make much sense and normally you would replace a tab with
@@ -150,12 +150,12 @@
                     of the 'BLANK' sequence, but hard to read in this example. </para>
             </sect2>
             <sect2 xml:id="exporter_prop_prop2">
-                <title xml:id="exporter_prop2_title">relANNIS.exporter.linebreak_escape</title>
+                <title xml:id="exporter_prop2_title">ANNIS.exporter.linebreak_escape</title>
                 <para>With this property linebreak characters (like '\n' and '\r') will be replaces by the given
                     character or character sequence. For instance imagine the following text:
                     <programlisting>This\nis\na\ntext</programlisting> Normally, in most editors, a
                     linebreak is not shown and not as '\t'. The use of the property:
-                    <programlisting>relANNIS.exporter.linebreak_escape=BLANK</programlisting> will result
+                    <programlisting>ANNIS.exporter.linebreak_escape=BLANK</programlisting> will result
                     in the following text:
                     <programlisting>ThisBLANKisBLANKaBLANKtext</programlisting> Of course, this
                     replacement does not make much sense and normally you would replace a linebreak with
@@ -163,11 +163,11 @@
                     of the 'BLANK' sequence, but hard to read in this example. </para>
             </sect2>
             <sect2 xml:id="exporter_prop_prop3">
-                <title xml:id="exporter_prop3_title">relANNIS.exporter.backslash_escape</title>
+                <title xml:id="exporter_prop3_title">ANNIS.exporter.backslash_escape</title>
                 <para>With this property bakcslash character ('\') will be replaces by the given
                     character or character sequence. For instance imagine the following text:
                     <programlisting>This\is\a\text</programlisting>. The use of the property:
-                    <programlisting>relANNIS.exporter.backslash_escape=BLANK</programlisting> will result
+                    <programlisting>ANNIS.exporter.backslash_escape=BLANK</programlisting> will result
                     in the following text:
                     <programlisting>ThisBLANKisBLANKaBLANKtext</programlisting>.</para>
             </sect2>
