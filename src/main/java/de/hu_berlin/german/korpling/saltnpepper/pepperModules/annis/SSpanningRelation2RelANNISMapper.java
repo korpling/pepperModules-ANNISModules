@@ -17,7 +17,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SSpanningRelation2RelANNISMapper extends SRelation2RelANNISMapper {
+public class SSpanningRelation2RelANNISMapper extends SRelation2ANNISMapper {
 
   private final Map<SSpan, Boolean> spanIsContinous;
 

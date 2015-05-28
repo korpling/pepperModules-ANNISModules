@@ -19,7 +19,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class SDominanceRelation2ANNISMapper extends SRelation2RelANNISMapper {
+public class SDominanceRelation2ANNISMapper extends SRelation2ANNISMapper {
 
   private SNode lastEnteredNode;
 

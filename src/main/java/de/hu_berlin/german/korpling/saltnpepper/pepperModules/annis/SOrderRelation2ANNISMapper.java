@@ -20,7 +20,7 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SOrderRelation2ANNISMapper extends SRelation2RelANNISMapper {
+public class SOrderRelation2ANNISMapper extends SRelation2ANNISMapper {
 
   private static final Logger log = LoggerFactory.getLogger(SOrderRelation2ANNISMapper.class);
 

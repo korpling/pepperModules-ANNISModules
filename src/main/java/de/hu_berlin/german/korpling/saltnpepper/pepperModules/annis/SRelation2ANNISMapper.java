@@ -43,10 +43,10 @@ import org.eclipse.emf.common.util.URI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraverseHandler {
+public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseHandler {
 
 // =============================== Globally used objects ======================
-  private final static Logger log = LoggerFactory.getLogger(SRelation2RelANNISMapper.class);
+  private final static Logger log = LoggerFactory.getLogger(SRelation2ANNISMapper.class);
 
   protected IdManager idManager;
   private final Salt2RelANNISMapper parentMapper;
@@ -74,7 +74,7 @@ public abstract class SRelation2RelANNISMapper implements Runnable, SGraphTraver
    * @param componentTabWriter
    * @param parentMapper
    */
-  public SRelation2RelANNISMapper(IdManager idManager, SDocumentGraph documentGraph,
+  public SRelation2ANNISMapper(IdManager idManager, SDocumentGraph documentGraph,
           Map<SToken, Long> token2Index,
           TupleWriter nodeTabWriter, TupleWriter nodeAnnoTabWriter,
           TupleWriter rankTabWriter, TupleWriter edgeAnnoTabWriter,

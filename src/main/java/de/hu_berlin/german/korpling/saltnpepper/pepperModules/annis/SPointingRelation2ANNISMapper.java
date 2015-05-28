@@ -16,7 +16,7 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
 import java.util.Map;
 
-public class SPointingRelation2ANNISMapper extends SRelation2RelANNISMapper {
+public class SPointingRelation2ANNISMapper extends SRelation2ANNISMapper {
 
   private SNode lastEnteredNode;
   

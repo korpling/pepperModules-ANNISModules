@@ -34,7 +34,7 @@ import org.eclipse.emf.common.util.URI;
  *
  * @author Thomas Krause <krauseto@hu-berlin.de>
  */
-public class Audio2ANNISMapper extends SRelation2RelANNISMapper {
+public class Audio2ANNISMapper extends SRelation2ANNISMapper {
 
   /**
    * A map from a SDocument ID to an URI
