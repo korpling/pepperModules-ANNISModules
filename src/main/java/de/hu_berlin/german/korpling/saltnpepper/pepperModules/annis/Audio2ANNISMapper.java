@@ -34,14 +34,14 @@ import org.eclipse.emf.common.util.URI;
  *
  * @author Thomas Krause <krauseto@hu-berlin.de>
  */
-public class Audio2RelANNISMapper extends SRelation2RelANNISMapper {
+public class Audio2ANNISMapper extends SRelation2RelANNISMapper {
 
   /**
    * A map from a SDocument ID to an URI
    */
   private final Set<URI> mappedFiles;
 
-  public Audio2RelANNISMapper(IdManager idManager,
+  public Audio2ANNISMapper(IdManager idManager,
           SDocumentGraph documentGraph, 
           Map<SToken, Long> token2Index,
           TupleWriter nodeTabWriter,

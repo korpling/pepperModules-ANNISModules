@@ -457,7 +457,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
         if (sRelationRoots != null) {
           if (sRelationRoots.size() > 0) {
             SRelation2RelANNISMapper audioRelationMapper
-                    = new Audio2RelANNISMapper(getIdManager(),
+                    = new Audio2ANNISMapper(getIdManager(),
                             getSDocument().getSDocumentGraph(),
                             token2Index,
                             tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component, this);
