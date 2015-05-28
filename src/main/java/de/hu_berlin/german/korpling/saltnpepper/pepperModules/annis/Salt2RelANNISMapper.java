@@ -303,7 +303,7 @@ public class Salt2RelANNISMapper extends PepperMapperImpl implements SGraphTrave
 							//System.out.println("Count of SOrderRelation roots for key "+key+" : "+subComponentRoots.get(key).size());
               //System.out.println("Mapping SOrderRelations subcomponents with sType: "+key);
               SRelation2RelANNISMapper sOrderRelationMapper
-                      = new SOrderRelation2RelANNISMapper(getIdManager(),
+                      = new SOrderRelation2ANNISMapper(getIdManager(),
                               getSDocument().getSDocumentGraph(), token2Index,
                               tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component,
                               this);

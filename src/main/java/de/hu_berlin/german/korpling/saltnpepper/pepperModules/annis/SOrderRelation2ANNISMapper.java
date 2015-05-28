@@ -20,11 +20,11 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SOrderRelation2RelANNISMapper extends SRelation2RelANNISMapper {
+public class SOrderRelation2ANNISMapper extends SRelation2RelANNISMapper {
 
-  private static final Logger log = LoggerFactory.getLogger(SOrderRelation2RelANNISMapper.class);
+  private static final Logger log = LoggerFactory.getLogger(SOrderRelation2ANNISMapper.class);
 
-  public SOrderRelation2RelANNISMapper(IdManager idManager,
+  public SOrderRelation2ANNISMapper(IdManager idManager,
           SDocumentGraph documentGraph, 
           Map<SToken, Long> token2index,
           TupleWriter nodeTabWriter,
