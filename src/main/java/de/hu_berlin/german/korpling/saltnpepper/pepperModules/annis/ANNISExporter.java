@@ -301,8 +301,8 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
     for(Map.Entry<AQLIdentifier, Boolean> entry : globalIdManager.getInvalidAQLIdentifier().entrySet()) {
       if (entry.getValue()) {
         AQLIdentifier id = entry.getKey();
-        log.warn("Invalid identifier found: {} ({}). You won't be able to search for this information in ANNIS!",
-                id.getType().getName(), id.getName());
+        log.warn("Invalid {} identifier found: {}::{}. You won't be able to search for this information in ANNIS!",
+                id.getType().getName(), id.getNs(), id.getName());
       }
     }
     
