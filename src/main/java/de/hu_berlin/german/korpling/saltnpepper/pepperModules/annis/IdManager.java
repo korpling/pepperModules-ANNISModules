@@ -332,17 +332,28 @@ public class IdManager {
    * escaped to the same string. In order to avoid this the {@link IdManager}
    * provides this function which maps any original ID to a unique escaped ID.
    * @param orig The original string ID
-   * @return The replacement.
+   * @return The replacement or null if the argument was null.
    */
   public String getUniqueEscapedStringID(String orig) {
+    
+    if(orig == null) {
+      return null;
+    }
+    
     String escaped = getValidIDString(orig);
     
     String key = escaped;
     int appendix = 2;
     
     boolean tryNextAppendix;
+    boolean firstReplacement = false;
     do {
       String oldVal = globalIdManager.getStringIDMapping().putIfAbsent(key, orig);
+      
+      if(oldVal == null && !orig.equals(escaped)) {
+        firstReplacement = true;
+      }
+      
       // if there is already an entry check if it is a mapping to a different original
       tryNextAppendix = oldVal != null && !oldVal.equals(orig);
       if (tryNextAppendix) {
@@ -350,6 +361,11 @@ public class IdManager {
         key = escaped + appendix++;
       }
     } while (tryNextAppendix);
+    
+    if(firstReplacement) {
+      // warn about the replacement at the first time
+      log.warn("replaced invalid ANNIS identifier {} with {}", orig, key);
+    }
     
     return key;
   }
@@ -372,10 +388,7 @@ public class IdManager {
               || (firstChar >= 'a' && firstChar <= 'z'))) {
         firstChar = '_';
       }
-      String remaining = invalidIdCharPattern.matcher(orig.substring(1)).replaceAll("_");
-      result = firstChar + remaining;
-      
-      log.warn("replaced invalid ANNIS format ID {} with {}", orig, result);
+      result = firstChar + invalidIdCharPattern.matcher(orig.substring(1)).replaceAll("_");
     }
     
     return result;
