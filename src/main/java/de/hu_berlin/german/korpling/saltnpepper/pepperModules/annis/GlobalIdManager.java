@@ -28,7 +28,12 @@ public class GlobalIdManager {
   
   private final ConcurrentMap<String, String> documentNames
           = new ConcurrentHashMap<>();
+  
+ 
+  private final ConcurrentMap<AQLIdentifier, Boolean> invalidAQLIdentifier 
+          = new ConcurrentHashMap<>();
 
+  
   public GlobalIdManager() {
 
   }
@@ -102,6 +107,9 @@ public class GlobalIdManager {
   public boolean isPDFFound() {
     return pdfFound.get();
   }
-  
+
+  public ConcurrentMap<AQLIdentifier, Boolean> getInvalidAQLIdentifier() {
+    return invalidAQLIdentifier;
+  }
   
 }

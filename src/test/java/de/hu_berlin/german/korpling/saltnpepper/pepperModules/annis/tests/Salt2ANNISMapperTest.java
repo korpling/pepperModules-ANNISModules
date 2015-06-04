@@ -8,6 +8,7 @@ import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.IdManager;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNIS;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNISExporter;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNISExporterProperties;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.AQLIdentifier;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.Salt2ANNISMapper;
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpus;
@@ -15,11 +16,13 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SOrderRelation;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SPointingRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SStructuredNode;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STYPE_NAME;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualDS;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SLayer;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.samples.SampleGenerator;
 import de.hu_berlin.german.korpling.saltnpepper.salt.samples.exceptions.SaltSampleException;
@@ -28,40 +31,40 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.Vector;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.junit.After;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
 
-public class Salt2ANNISMapperTest
-{
+public class Salt2ANNISMapperTest {
 
   @Rule
   public TestName name = new TestName();
 
   private Salt2ANNISMapper fixture = null;
-  
+
   private SCorpus rootCorpus = null;
   private SDocument sDocument = null;
-  
+
   private ANNISExporterProperties props = new ANNISExporterProperties();
 
-  public Salt2ANNISMapper getFixture()
-  {
+  public Salt2ANNISMapper getFixture() {
     return fixture;
   }
 
-  public void setFixture(Salt2ANNISMapper fixture)
-  {
+  public void setFixture(Salt2ANNISMapper fixture) {
     this.fixture = fixture;
   }
 
@@ -69,18 +72,16 @@ public class Salt2ANNISMapperTest
   private File testPath;
 
   private static final File globalTmpPath = new File(System.getProperty(
-    "java.io.tmpdir") + File.separator + "ANNISModules_test" + File.separator
-    + "Salt2ANNISMapper" + File.separator);
+          "java.io.tmpdir") + File.separator + "ANNISModules_test" + File.separator
+          + "Salt2ANNISMapper" + File.separator);
 
   @Before
-  public void setUp()
-  {
+  public void setUp() {
     setFixture(new Salt2ANNISMapper());
 
     getFixture().mapRelationsInParallel(false);
 
-    if (!globalTmpPath.exists())
-    {
+    if (!globalTmpPath.exists()) {
       globalTmpPath.mkdirs();
     }
 
@@ -108,17 +109,15 @@ public class Salt2ANNISMapperTest
     testPath = new File(getTestPath() + name.getMethodName());
     createTupleWriters(tmpPath);
   }
-  
-  private void doMapping()
-  {
-	  getFixture().setSCorpus(rootCorpus);
-	  getFixture().mapSCorpus();
-	  getFixture().setSDocument(sDocument);
-	  getFixture().mapSDocument();
+
+  private void doMapping() {
+    getFixture().setSCorpus(rootCorpus);
+    getFixture().mapSCorpus();
+    getFixture().setSDocument(sDocument);
+    getFixture().mapSDocument();
   }
 
-  private void createTupleWriters(File path)
-  {
+  private void createTupleWriters(File path) {
     getFixture().tw_text = ANNISExporter.createTupleWriter(
             new File(path.getAbsolutePath() + File.separator + ANNIS.FILE_TEXT),
             props.getEscapeCharacters(), props.getEscapeCharactersSet());
@@ -146,8 +145,7 @@ public class Salt2ANNISMapperTest
   }
 
   @After
-  public void tearDown() throws IOException
-  {
+  public void tearDown() throws IOException {
 //		if (!deleteDirectory(tmpPath))
 //			throw new IOException();
   }
@@ -155,8 +153,7 @@ public class Salt2ANNISMapperTest
   /**
    * returns path of test resources *
    */
-  private String getTestPath()
-  {
+  private String getTestPath() {
     return ("./src/test/resources/");
   }
 
@@ -169,17 +166,16 @@ public class Salt2ANNISMapperTest
    * @throws IOException
    */
   @Test
-  public void testMapSText() throws IOException
-  {
+  public void testMapSText() throws IOException {
     // create the primary text
     SampleGenerator.createPrimaryData(getFixture().getSDocument());
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 
     doMapping();
-	
+
     assertFalse("There was no file to be compared in folder '" + testPath.
-      getAbsolutePath() + "' and folder '" + tmpPath.getAbsolutePath() + "'.",
-      new Integer(0).equals(compareFiles(testPath, tmpPath)));
+            getAbsolutePath() + "' and folder '" + tmpPath.getAbsolutePath() + "'.",
+            new Integer(0).equals(compareFiles(testPath, tmpPath)));
   }
 
   /**
@@ -191,18 +187,17 @@ public class Salt2ANNISMapperTest
    * @throws IOException
    */
   @Test
-  public void testMapIndividualCorpusName() throws IOException
-  {
+  public void testMapIndividualCorpusName() throws IOException {
     // create the primary text
-	SampleGenerator.createPrimaryData(getFixture().getSDocument());
+    SampleGenerator.createPrimaryData(getFixture().getSDocument());
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 
     getFixture().individualCorpusName = "NewTopLevelCorpus";
     doMapping();
 
     assertFalse("There was no file to be compared in folder '" + testPath.
-      getAbsolutePath() + "' and folder '" + tmpPath.getAbsolutePath() + "'.",
-      new Integer(0).equals(compareFiles(testPath, tmpPath)));
+            getAbsolutePath() + "' and folder '" + tmpPath.getAbsolutePath() + "'.",
+            new Integer(0).equals(compareFiles(testPath, tmpPath)));
   }
 
   /**
@@ -215,18 +210,17 @@ public class Salt2ANNISMapperTest
    * @throws IOException
    */
   @Test
-  public void testMapSToken() throws IOException
-  {
+  public void testMapSToken() throws IOException {
     // create the primary text
     SampleGenerator.createPrimaryData(getFixture().getSDocument());
     SampleGenerator.createTokens(getFixture().getSDocument());
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
-    
+
     doMapping();
 
     assertFalse("There was no file to be compared in folder '" + testPath.
-      getAbsolutePath() + "' and folder '" + tmpPath.getAbsolutePath() + "'.",
-      new Integer(0).equals(compareFiles(testPath, tmpPath)));
+            getAbsolutePath() + "' and folder '" + tmpPath.getAbsolutePath() + "'.",
+            new Integer(0).equals(compareFiles(testPath, tmpPath)));
   }
 
   /**
@@ -242,21 +236,20 @@ public class Salt2ANNISMapperTest
    * @throws IOException
    */
   @Test
-  public void testMapSeveralTokenizations() throws IOException
-  {
+  public void testMapSeveralTokenizations() throws IOException {
     // create the primary text
     SampleGenerator.createPrimaryData(getFixture().getSDocument());
     SampleGenerator.createTokens(getFixture().getSDocument());
     STextualDS primaryData_DE = SampleGenerator.createPrimaryData(getFixture().
-      getSDocument(), SampleGenerator.LANG_DE);
+            getSDocument(), SampleGenerator.LANG_DE);
     SampleGenerator.createTokens(getFixture().getSDocument(), primaryData_DE);
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 
     doMapping();
 
     assertFalse("There was no file to be compared in folder '" + testPath.
-      getAbsolutePath() + "' and folder '" + tmpPath.getAbsolutePath() + "'.",
-      new Integer(0).equals(compareFiles(testPath, tmpPath)));
+            getAbsolutePath() + "' and folder '" + tmpPath.getAbsolutePath() + "'.",
+            new Integer(0).equals(compareFiles(testPath, tmpPath)));
   }
 
   /**
@@ -273,18 +266,17 @@ public class Salt2ANNISMapperTest
    * @throws IOException
    */
   @Test
-  public void testMapParallelData() throws IOException
-  {
+  public void testMapParallelData() throws IOException {
     // create the primary text
     SampleGenerator.createParallelData(getFixture().getSDocument());
-	  
+
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 
     doMapping();
 
     assertFalse("There was no file to be compared in folder '" + testPath.
-      getAbsolutePath() + "' and folder '" + tmpPath.getAbsolutePath() + "'.",
-      new Integer(0).equals(compareFiles(testPath, tmpPath)));
+            getAbsolutePath() + "' and folder '" + tmpPath.getAbsolutePath() + "'.",
+            new Integer(0).equals(compareFiles(testPath, tmpPath)));
   }
 
   /**
@@ -302,17 +294,16 @@ public class Salt2ANNISMapperTest
    * @throws IOException
    */
   @Test
-  public void testMapUntypedPointingRelation() throws IOException
-  {
+  public void testMapUntypedPointingRelation() throws IOException {
     // create the primary text
     SampleGenerator.createParallelData(getFixture().getSDocument(), false);
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
-    
+
     doMapping();
 
     assertFalse("There was no file to be compared in folder '" + testPath.
-      getAbsolutePath() + "' and folder '" + tmpPath.getAbsolutePath() + "'.",
-      new Integer(0).equals(compareFiles(testPath, tmpPath)));
+            getAbsolutePath() + "' and folder '" + tmpPath.getAbsolutePath() + "'.",
+            new Integer(0).equals(compareFiles(testPath, tmpPath)));
   }
 
   /**
@@ -326,8 +317,7 @@ public class Salt2ANNISMapperTest
    * @throws IOException
    */
   @Test
-  public void testMapSTokenAnnotation() throws IOException
-  {
+  public void testMapSTokenAnnotation() throws IOException {
     // create the primary text
     SampleGenerator.createPrimaryData(getFixture().getSDocument());
     SampleGenerator.createTokens(getFixture().getSDocument());
@@ -337,8 +327,8 @@ public class Salt2ANNISMapperTest
     doMapping();
 
     assertFalse("There was no file to be compared in folder '" + testPath.
-      getAbsolutePath() + "' and folder '" + tmpPath.getAbsolutePath() + "'.",
-      new Integer(0).equals(compareFiles(testPath, tmpPath)));
+            getAbsolutePath() + "' and folder '" + tmpPath.getAbsolutePath() + "'.",
+            new Integer(0).equals(compareFiles(testPath, tmpPath)));
   }
 
   /**
@@ -353,21 +343,20 @@ public class Salt2ANNISMapperTest
    * @throws IOException
    */
   @Test
-  public void testMapSSpans() throws IOException
-  {
+  public void testMapSSpans() throws IOException {
     // create the primary text
     SampleGenerator.createPrimaryData(getFixture().getSDocument());
     SampleGenerator.createTokens(getFixture().getSDocument());
     SampleGenerator.createInformationStructureSpan(getFixture().getSDocument());
     SampleGenerator.
-      createInformationStructureAnnotations(getFixture().getSDocument());
+            createInformationStructureAnnotations(getFixture().getSDocument());
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 
     doMapping();
 
     assertFalse("There was no file to be compared in folder '" + testPath.
-      getAbsolutePath() + "' and folder '" + tmpPath.getAbsolutePath() + "'.",
-      new Integer(0).equals(compareFiles(testPath, tmpPath)));
+            getAbsolutePath() + "' and folder '" + tmpPath.getAbsolutePath() + "'.",
+            new Integer(0).equals(compareFiles(testPath, tmpPath)));
   }
 
   /**
@@ -382,8 +371,7 @@ public class Salt2ANNISMapperTest
    * @throws IOException
    */
   @Test
-  public void testMapSSyntax() throws IOException
-  {
+  public void testMapSSyntax() throws IOException {
     // create the primary text
     SampleGenerator.createPrimaryData(getFixture().getSDocument());
     SampleGenerator.createTokens(getFixture().getSDocument());
@@ -394,38 +382,35 @@ public class Salt2ANNISMapperTest
     doMapping();
 
     assertFalse("There was no file to be compared in folder '" + testPath.
-      getAbsolutePath() + "' and folder '" + tmpPath.getAbsolutePath() + "'.",
-      new Integer(0).equals(compareFiles(testPath, tmpPath)));
+            getAbsolutePath() + "' and folder '" + tmpPath.getAbsolutePath() + "'.",
+            new Integer(0).equals(compareFiles(testPath, tmpPath)));
   }
-  
+
   @Test
-  public void testMapDAGSimple() throws IOException 
-  {
-    
+  public void testMapDAGSimple() throws IOException {
+
     /*
-      create the following graph
-           1
-         /   \
-        v     v
-        2     3
-         \   /
-          v v
-           4
-           |
-           v
-           a
-    */
-    
+     create the following graph
+     1
+     /   \
+     v     v
+     2     3
+     \   /
+     v v
+     4
+     |
+     v
+     a
+     */
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
-    
+
     SDocumentGraph graph = SaltFactory.eINSTANCE.createSDocumentGraph();
     getFixture().getSDocument().setSDocumentGraph(graph);
-    
-    
+
     STextualDS textDS = graph.createSTextualDS("a");
-    
+
     SToken tok = graph.createSToken(textDS, 0, 1);
-    
+
     SStructuredNode struct4 = graph.createSStructure(tok);
     SStructuredNode struct3 = graph.createSStructure(struct4);
     SStructuredNode struct2 = graph.createSStructure(struct4);
@@ -435,10 +420,10 @@ public class Salt2ANNISMapperTest
     SStructuredNode struct1 = graph.createSStructure(struct1Targets);
 
     doMapping();
-    
+
     // check the pre/post-order and level
-    TabFileComparator.checkEqual(testPath.getAbsolutePath() + "/" + ANNIS.FILE_RANK, 
-      tmpPath.getAbsolutePath() + "/" + ANNIS.FILE_RANK, 0, 3, 4, 5);
+    TabFileComparator.checkEqual(testPath.getAbsolutePath() + "/" + ANNIS.FILE_RANK,
+            tmpPath.getAbsolutePath() + "/" + ANNIS.FILE_RANK, 0, 3, 4, 5);
   }
 
   /**
@@ -452,19 +437,18 @@ public class Salt2ANNISMapperTest
    * @throws IOException
    */
   @Test
-  public void testMapAnaphoric() throws IOException
-  {
+  public void testMapAnaphoric() throws IOException {
     // create the primary text
     SampleGenerator.createPrimaryData(getFixture().getSDocument());
     SampleGenerator.createTokens(getFixture().getSDocument());
     SampleGenerator.createAnaphoricAnnotations(getFixture().getSDocument());
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
-    
+
     doMapping();
 
     assertFalse("There was no file to be compared in folder '" + testPath.
-      getAbsolutePath() + "' and folder '" + tmpPath.getAbsolutePath() + "'.",
-      new Integer(0).equals(compareFiles(testPath, tmpPath)));
+            getAbsolutePath() + "' and folder '" + tmpPath.getAbsolutePath() + "'.",
+            new Integer(0).equals(compareFiles(testPath, tmpPath)));
   }
 
   /**
@@ -483,8 +467,7 @@ public class Salt2ANNISMapperTest
    * @throws IOException
    */
   @Test
-  public void testMapFullGraph() throws IOException
-  {
+  public void testMapFullGraph() throws IOException {
     // create the primary text
     SampleGenerator.createSDocumentStructure(getFixture().getSDocument());
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
@@ -492,18 +475,17 @@ public class Salt2ANNISMapperTest
     doMapping();
 
     assertFalse("There was no file to be compared in folder '" + testPath.
-      getAbsolutePath() + "' and folder '" + tmpPath.getAbsolutePath() + "'.",
-      new Integer(0).equals(compareFiles(testPath, tmpPath)));
+            getAbsolutePath() + "' and folder '" + tmpPath.getAbsolutePath() + "'.",
+            new Integer(0).equals(compareFiles(testPath, tmpPath)));
   }
 
   @Test
-  public void testMultiThreadingSpeed()
-  {
+  public void testMultiThreadingSpeed() {
     // create the primary text
     SampleGenerator.createSDocumentStructure(getFixture().getSDocument());
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 
-	getFixture().setSCorpus(rootCorpus);
+    getFixture().setSCorpus(rootCorpus);
     getFixture().mapSCorpus();
 
     long startTime = 0l;
@@ -512,26 +494,24 @@ public class Salt2ANNISMapperTest
 
     long averageTime = 0l;
     System.out.println(
-      "INFO: Starting single-threaded mapping (average of 100 times) of FullGraph");
-    for (int i = 0; i < 100; i++)
-    {
+            "INFO: Starting single-threaded mapping (average of 100 times) of FullGraph");
+    for (int i = 0; i < 100; i++) {
       startTime = System.currentTimeMillis();
-	  getFixture().setSDocument(sDocument);
+      getFixture().setSDocument(sDocument);
       getFixture().mapSDocument();
       stopTime = System.currentTimeMillis();
       elapsedTime = stopTime - startTime;
       averageTime += elapsedTime;
     }
     System.out.println(
-      "INFO: Single-threaded mapping (average of 100 times) of FullGraph needed "
-      + (averageTime / 100) + " ms");
+            "INFO: Single-threaded mapping (average of 100 times) of FullGraph needed "
+            + (averageTime / 100) + " ms");
 
     averageTime = 0l;
 
     System.out.println(
-      "INFO: Starting multi-threaded mapping (average of 100 times) of FullGraph");
-    for (int i = 0; i < 100; i++)
-    {
+            "INFO: Starting multi-threaded mapping (average of 100 times) of FullGraph");
+    for (int i = 0; i < 100; i++) {
       startTime = System.currentTimeMillis();
       getFixture().mapRelationsInParallel(true);
       getFixture().mapSDocument();
@@ -540,8 +520,8 @@ public class Salt2ANNISMapperTest
       averageTime += elapsedTime;
     }
     System.out.println(
-      "INFO: Multi-threaded mapping (average of 100 times) of FullGraph needed "
-      + (averageTime / 100) + " ms");
+            "INFO: Multi-threaded mapping (average of 100 times) of FullGraph needed "
+            + (averageTime / 100) + " ms");
 
   }
 
@@ -561,18 +541,17 @@ public class Salt2ANNISMapperTest
    * @throws IOException
    */
   @Test
-  public void testMapSOrderRelation() throws IOException
-  {
+  public void testMapSOrderRelation() throws IOException {
     // create the primary text
     SampleGenerator.createDialogue(getFixture().getSDocument());
 
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
-    
+
     doMapping();
 
     assertFalse("There was no file to be compared in folder '" + testPath.
-      getAbsolutePath() + "' and folder '" + tmpPath.getAbsolutePath() + "'.",
-      new Integer(0).equals(compareFiles(testPath, tmpPath)));
+            getAbsolutePath() + "' and folder '" + tmpPath.getAbsolutePath() + "'.",
+            new Integer(0).equals(compareFiles(testPath, tmpPath)));
   }
 
   /**
@@ -591,31 +570,29 @@ public class Salt2ANNISMapperTest
    * @throws IOException
    */
   @Test
-  public void testComplexMapSOrderRelation() throws IOException
-  {
+  public void testComplexMapSOrderRelation() throws IOException {
     // create the primary text
     SampleGenerator.createDialogue(getFixture().getSDocument());
     EList<SToken> sDocumentTokens = getFixture().getSDocument().
-      getSDocumentGraph().getSTokens();
+            getSDocumentGraph().getSTokens();
     SRelation pointing = getFixture().getSDocument().getSDocumentGraph().createSRelation(
-      sDocumentTokens.get(0), sDocumentTokens.get(1),
-      STYPE_NAME.SPOINTING_RELATION, "anno=test");
+            sDocumentTokens.get(0), sDocumentTokens.get(1),
+            STYPE_NAME.SPOINTING_RELATION, "anno=test");
     pointing.addSType("dep");
     getFixture().getSDocument().getSDocumentGraph().createSSpan(sDocumentTokens.
-      get(0));
-    
+            get(0));
+
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 
     doMapping();
 
     assertFalse("There was no file to be compared in folder '" + testPath.
-      getAbsolutePath() + "' and folder '" + tmpPath.getAbsolutePath() + "'.",
-      new Integer(0).equals(compareFiles(testPath, tmpPath)));
+            getAbsolutePath() + "' and folder '" + tmpPath.getAbsolutePath() + "'.",
+            new Integer(0).equals(compareFiles(testPath, tmpPath)));
   }
 
   @Test
-  public void testReuseExistingSOrderName() throws IOException
-  {
+  public void testReuseExistingSOrderName() throws IOException {
     // create the primary text
     SampleGenerator.createPrimaryData(getFixture().getSDocument());
     SampleGenerator.createTokens(getFixture().getSDocument());
@@ -623,10 +600,8 @@ public class Salt2ANNISMapperTest
     // create a single SOrderRelation chain
     SToken previousToken = null;
     for (SToken t : getFixture().getSDocument().getSDocumentGraph().
-      getSortedSTokenByText())
-    {
-      if (previousToken != null)
-      {
+            getSortedSTokenByText()) {
+      if (previousToken != null) {
         SOrderRelation r = SaltFactory.eINSTANCE.createSOrderRelation();
         r.addSType("order");
         r.setSSource(previousToken);
@@ -643,24 +618,21 @@ public class Salt2ANNISMapperTest
 
     // check output files that only "order" is used as segmentation name
     Set<String> segNames = Files.readLines(new File(tmpPath, ANNIS.FILE_NODE),
-      Charsets.UTF_8, new LineProcessor<Set<String>>()
-      {
-        private final Set<String> result = new TreeSet<>();
+            Charsets.UTF_8, new LineProcessor<Set<String>>() {
+              private final Set<String> result = new TreeSet<>();
 
-        @Override
-        public boolean processLine(String line) throws IOException
-        {
-          String[] split = line.split("\t");
-          result.add(split[11]);
-          return true;
-        }
+              @Override
+              public boolean processLine(String line) throws IOException {
+                String[] split = line.split("\t");
+                result.add(split[11]);
+                return true;
+              }
 
-        @Override
-        public Set<String> getResult()
-        {
-          return result;
-        }
-      });
+              @Override
+              public Set<String> getResult() {
+                return result;
+              }
+            });
 
     assertEquals(Arrays.asList("order"), new LinkedList(segNames));
   }
@@ -717,85 +689,162 @@ public class Salt2ANNISMapperTest
 
     assertEquals(expectedNames, new LinkedList(segNames));
   }
-  
+
   @Test
   public void testEscapeDefault() throws IOException {
 
     // the last character the unicode character "GOTHIC LETTER AHSA" which is not part of the BMP
     // and must be represented as surrugate pair in Java
     String sampleText = "a\\b\\\\c\n\r\n\t\uD800\uDF30";
-    
+
     if (sDocument == null) {
-			throw new SaltSampleException("Cannot create example, because the given sDocument is empty.");
-		}
-		if (sDocument.getSDocumentGraph() == null) {
-			sDocument.setSDocumentGraph(SaltFactory.eINSTANCE.createSDocumentGraph());
-		}
-		STextualDS sTextualDS = null;
-		// creating the primary text depending on the language
-		sTextualDS = SaltFactory.eINSTANCE.createSTextualDS();
-		sTextualDS.setSText(sampleText);
-		// adding the text to the document-graph
-		sDocument.getSDocumentGraph().addSNode(sTextualDS);
-    
+      throw new SaltSampleException("Cannot create example, because the given sDocument is empty.");
+    }
+    if (sDocument.getSDocumentGraph() == null) {
+      sDocument.setSDocumentGraph(SaltFactory.eINSTANCE.createSDocumentGraph());
+    }
+    STextualDS sTextualDS = null;
+    // creating the primary text depending on the language
+    sTextualDS = SaltFactory.eINSTANCE.createSTextualDS();
+    sTextualDS.setSText(sampleText);
+    // adding the text to the document-graph
+    sDocument.getSDocumentGraph().addSNode(sTextualDS);
+
     SToken sToken = SaltFactory.eINSTANCE.createSToken();
-		sDocument.getSDocumentGraph().addSNode(sToken);
-		
-		STextualRelation sTextRel = SaltFactory.eINSTANCE.createSTextualRelation();
-		sTextRel.setSToken(sToken);
-		sTextRel.setSTextualDS(sTextualDS);
-		sTextRel.setSStart(0);
-		sTextRel.setSEnd(sampleText.length());
-		sDocument.getSDocumentGraph().addSRelation(sTextRel);
-    
+    sDocument.getSDocumentGraph().addSNode(sToken);
+
+    STextualRelation sTextRel = SaltFactory.eINSTANCE.createSTextualRelation();
+    sTextRel.setSToken(sToken);
+    sTextRel.setSTextualDS(sTextualDS);
+    sTextRel.setSStart(0);
+    sTextRel.setSEnd(sampleText.length());
+    sDocument.getSDocumentGraph().addSRelation(sTextRel);
+
     doMapping();
-    
-    TabFileComparator.checkEqual(new File(testPath, ANNIS.FILE_NODE).getAbsolutePath(), 
+
+    TabFileComparator.checkEqual(new File(testPath, ANNIS.FILE_NODE).getAbsolutePath(),
             new File(tmpPath, ANNIS.FILE_NODE).getAbsolutePath());
-    
+
   }
-  
+
   @Test
   public void testEscapeCustom() throws IOException {
 
     // the last character is the unicode character "GOTHIC LETTER AHSA" which is not part of the BMP
     // and must be represented as surrugate pair in Java
     String sampleText = "a\\b\\\\c\n\r\n\t\uD800\uDF30";
-    
+
     String customEscape = "(c=X),(\\n=N),(\\t=T),(\\=S),(\\r=R)";
     props.setPropertyValue(ANNISExporterProperties.PROP_ESCAPE_CHARACTERS_LIST, customEscape);
-    
+
     // re-init tuple writers
     createTupleWriters(tmpPath);
-    
+
     if (sDocument == null) {
-			throw new SaltSampleException("Cannot create example, because the given sDocument is empty.");
-		}
-		if (sDocument.getSDocumentGraph() == null) {
-			sDocument.setSDocumentGraph(SaltFactory.eINSTANCE.createSDocumentGraph());
-		}
-		STextualDS sTextualDS = null;
-		// creating the primary text depending on the language
-		sTextualDS = SaltFactory.eINSTANCE.createSTextualDS();
-		sTextualDS.setSText(sampleText);
-		// adding the text to the document-graph
-		sDocument.getSDocumentGraph().addSNode(sTextualDS);
-    
+      throw new SaltSampleException("Cannot create example, because the given sDocument is empty.");
+    }
+    if (sDocument.getSDocumentGraph() == null) {
+      sDocument.setSDocumentGraph(SaltFactory.eINSTANCE.createSDocumentGraph());
+    }
+    STextualDS sTextualDS = null;
+    // creating the primary text depending on the language
+    sTextualDS = SaltFactory.eINSTANCE.createSTextualDS();
+    sTextualDS.setSText(sampleText);
+    // adding the text to the document-graph
+    sDocument.getSDocumentGraph().addSNode(sTextualDS);
+
     SToken sToken = SaltFactory.eINSTANCE.createSToken();
-		sDocument.getSDocumentGraph().addSNode(sToken);
-		
-		STextualRelation sTextRel = SaltFactory.eINSTANCE.createSTextualRelation();
-		sTextRel.setSToken(sToken);
-		sTextRel.setSTextualDS(sTextualDS);
-		sTextRel.setSStart(0);
-		sTextRel.setSEnd(sampleText.length());
-		sDocument.getSDocumentGraph().addSRelation(sTextRel);
-    
+    sDocument.getSDocumentGraph().addSNode(sToken);
+
+    STextualRelation sTextRel = SaltFactory.eINSTANCE.createSTextualRelation();
+    sTextRel.setSToken(sToken);
+    sTextRel.setSTextualDS(sTextualDS);
+    sTextRel.setSStart(0);
+    sTextRel.setSEnd(sampleText.length());
+    sDocument.getSDocumentGraph().addSRelation(sTextRel);
+
     doMapping();
-    
-    TabFileComparator.checkEqual(new File(testPath, ANNIS.FILE_NODE).getAbsolutePath(), 
+
+    TabFileComparator.checkEqual(new File(testPath, ANNIS.FILE_NODE).getAbsolutePath(),
             new File(tmpPath, ANNIS.FILE_NODE).getAbsolutePath());
+
+  }
+
+  @Test
+  public void testDetectInvalidIdentifiers() throws IOException {
+    SampleGenerator.createPrimaryData(getFixture().getSDocument());
+    SampleGenerator.createTokens(getFixture().getSDocument());
+    getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
+
+    SToken tok1 = getFixture().getSDocument().getSDocumentGraph().getSTokens().get(0);
+    SToken tok2 = getFixture().getSDocument().getSDocumentGraph().getSTokens().get(1);
+
+    // invalid node annotation
+    AQLIdentifier nodeAnno = genInvalidIdent(AQLIdentifier.Type.NODE_ANNO, true);
+    tok1.createSAnnotation(nodeAnno.getNs(), nodeAnno.getName(), "value");
+
+    // invalid edge name
+    SLayer layer = SaltFactory.eINSTANCE.createSLayer();
+    // this should not be a problem
+    layer.setSName(generateRandomInvalidID(10));
+    getFixture().getSDocument().getSDocumentGraph().addSLayer(layer);
+
+    SPointingRelation dep = SaltFactory.eINSTANCE.createSPointingRelation();
+    dep.setSSource(tok1);
+    dep.setSTarget(tok2);
+    AQLIdentifier edgeType = genInvalidIdent(AQLIdentifier.Type.EDGE_TYPE, false);
+    dep.addSType(edgeType.getName());
+    layer.getEdges().add(dep);
+    getFixture().getSDocument().getSDocumentGraph().addEdge(dep);
     
+    AQLIdentifier edgeAnno = genInvalidIdent(AQLIdentifier.Type.EDGE_ANNO, true);
+    dep.createSAnnotation(edgeAnno.getNs(), edgeAnno.getName(), "value");
+
+    // invalid segmentation name
+    SOrderRelation orderRel = SaltFactory.eINSTANCE.createSOrderRelation();
+    orderRel.setSSource(tok1);
+    orderRel.setSTarget(tok2);
+    AQLIdentifier order = genInvalidIdent(AQLIdentifier.Type.SEGMENTATION, false);
+    orderRel.addSType(order.getName());
+    getFixture().getSDocument().getSDocumentGraph().addEdge(orderRel);
+
+    // invalid meta data (different annotation names with the same mapping)
+    AQLIdentifier meta = genInvalidIdent(AQLIdentifier.Type.META_ANNO, true);
+    getFixture().getSDocument().createSMetaAnnotation(meta.getNs(), 
+            meta.getName(), "value");
+
+    doMapping();
+
+    Map<AQLIdentifier, Boolean> invalid = getFixture().getIdManager().getGlobal().getInvalidAQLIdentifier();
+    
+    assertTrue(invalid.containsKey(nodeAnno));
+    assertTrue(invalid.containsKey(edgeType));
+    assertTrue(invalid.containsKey(order));
+    assertTrue(invalid.containsKey(meta));
+    assertTrue(invalid.containsKey(edgeAnno));
+    
+    assertEquals("map of invalid AQL identifiers must have exact 5 entries",
+            5, invalid.size());
+
+  }
+  
+  private AQLIdentifier genInvalidIdent(AQLIdentifier.Type type, boolean withNamespace) {
+    return new AQLIdentifier(type, 
+            withNamespace ? generateRandomInvalidID(10) : null
+            , generateRandomInvalidID(10));
+  }
+
+  private String generateRandomInvalidID(int length) {
+    String startChars = "0123456789-";
+    String suffixChars = "^!§$%&/()=?ß}][{}äöü#*+~.,;:<>|\\²³°¸`'";
+
+    if (length > 1) {
+      return RandomStringUtils.random(1, startChars)
+              + RandomStringUtils.random(length - 1, suffixChars);
+    } else if (length == 1) {
+      RandomStringUtils.random(1, startChars);
+    }
+    return "";
   }
 
   /**
@@ -803,15 +852,11 @@ public class Salt2ANNISMapperTest
    *
    * @param fileToDelete
    */
-  private boolean deleteDirectory(File fileToDelete)
-  {
-    if (fileToDelete.isDirectory())
-    {
+  private boolean deleteDirectory(File fileToDelete) {
+    if (fileToDelete.isDirectory()) {
       String[] directoryContent = fileToDelete.list();
-      for (int i = 0; i < directoryContent.length; i++)
-      {
-        if (!(deleteDirectory(new File(fileToDelete, directoryContent[i]))))
-        {
+      for (int i = 0; i < directoryContent.length; i++) {
+        if (!(deleteDirectory(new File(fileToDelete, directoryContent[i])))) {
           return false;
         }
       }
@@ -821,73 +866,60 @@ public class Salt2ANNISMapperTest
   }
 
   /**
-   * Compares all ANNIS files given by {@link ANNIS#FILE_ANNIS_FILES}
-   * if they exist in gold path with the createdPath. If they do not exist, the
-   * method throws an exception.
+   * Compares all ANNIS files given by {@link ANNIS#FILE_ANNIS_FILES} if they
+   * exist in gold path with the createdPath. If they do not exist, the method
+   * throws an exception.
    *
    * @param goldPath
    * @param createdPath
    * @return number of successfully compared files
    * @throws IOException
    */
-  private int compareFiles(File goldPath, File createdPath) throws IOException
-  {
-    if (!goldPath.exists())
-    {
+  private int compareFiles(File goldPath, File createdPath) throws IOException {
+    if (!goldPath.exists()) {
       throw new FileNotFoundException("Cannot run test, because goldPath '"
-        + goldPath
-        + "' does not exist (Path, where the correct files are located).");
+              + goldPath
+              + "' does not exist (Path, where the correct files are located).");
     }
 
     Vector<File> filesToCompare = new Vector<>();
-    for (String raFileName : ANNIS.FILE_ANNIS_FILES)
-    {
+    for (String raFileName : ANNIS.FILE_ANNIS_FILES) {
       File raFile = new File(goldPath.getAbsolutePath() + File.separator
-        + raFileName);
-      if (raFile.exists())
-      {
+              + raFileName);
+      if (raFile.exists()) {
         filesToCompare.add(raFile);
       }
     }
 
-    if (filesToCompare.size() == 0)
-    {
+    if (filesToCompare.size() == 0) {
       return (0);
     }
 
     boolean oneComparisonWasUnsuccessful = false;
 
-    for (File goldFile : filesToCompare)
-    {
+    for (File goldFile : filesToCompare) {
       File createdFile = new File(createdPath.getAbsolutePath() + File.separator
-        + goldFile.getName());
-      if (!createdFile.exists())
-      {
+              + goldFile.getName());
+      if (!createdFile.exists()) {
         throw new FileNotFoundException("Missing file '" + goldFile.getName()
-          + "' in ANNIS path '" + createdPath.getAbsolutePath() + "'.");
+                + "' in ANNIS path '" + createdPath.getAbsolutePath() + "'.");
       }
 
       if ("node.annis".equalsIgnoreCase(goldFile.getName())
-        || "node_annotation.annis".equalsIgnoreCase(goldFile.getName()))
-      {
+              || "node_annotation.annis".equalsIgnoreCase(goldFile.getName())) {
         // we can ignore the ID column as long as the other columns are the same
         TabFileComparator.checkEqual(goldFile.getAbsolutePath(), createdFile.
-          getAbsolutePath(), 0);
-      }
-      else if ("rank.annis".equalsIgnoreCase(goldFile.getName()))
-      {
+                getAbsolutePath(), 0);
+      } else if ("rank.annis".equalsIgnoreCase(goldFile.getName())) {
         // we can ignore the node_ref column as long as the other columns are the same
         TabFileComparator.checkEqual(goldFile.getAbsolutePath(), createdFile.
-          getAbsolutePath(), 3);
-      }
-      else
-      {
+                getAbsolutePath(), 3);
+      } else {
         TabFileComparator.checkEqual(goldFile.getAbsolutePath(), createdFile.
-          getAbsolutePath());
+                getAbsolutePath());
       }
     }
-    if (oneComparisonWasUnsuccessful)
-    {
+    if (oneComparisonWasUnsuccessful) {
       return (0);
     }
 

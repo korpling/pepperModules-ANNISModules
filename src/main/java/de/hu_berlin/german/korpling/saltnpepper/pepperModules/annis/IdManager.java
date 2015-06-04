@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.regex.Pattern;
 
 public class IdManager {
 
@@ -40,7 +41,9 @@ public class IdManager {
   private EList<Long> virtualTokenIdList = null;
 
   protected ConcurrentMap<String, SegmentationInfo> segmentationInfoTable = null;
-
+  
+  private static final Pattern validIdPattern = Pattern.compile("[a-zA-Z_][a-zA-Z0-9_-]*");
+  
   public IdManager(GlobalIdManager globalIdManager) {
 
     this.globalIdManager = globalIdManager;
@@ -315,6 +318,14 @@ public class IdManager {
     } while(oldVal != null);
     
     return result;
+  }
+  
+  public void checkAQLIdentifier(AQLIdentifier.Type type, String ns, String name) {
+    AQLIdentifier id = new AQLIdentifier(type, ns, name);
+    // TODO: check first if already in the map and then apply pattern matching?
+    if(!validIdPattern.matcher(id.getName()).matches()) {
+      globalIdManager.getInvalidAQLIdentifier().put(id, Boolean.TRUE);
+    }
   }
 
   public GlobalIdManager getGlobal() {

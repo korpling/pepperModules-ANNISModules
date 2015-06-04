@@ -386,6 +386,9 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
   protected void mapComponent2ANNIS() {
 		// id		type	layer					name
     // unique	c/d/p	SLayer/default_layer	"NULL"/SType
+    
+    idManager.checkAQLIdentifier(AQLIdentifier.Type.EDGE_TYPE, null, currentComponentName);
+    
     EList<String> componentEntry = new BasicEList<>();
     componentEntry.add(currentComponentId.toString());
     componentEntry.add(currentComponentType);
@@ -447,14 +450,18 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
       throw new PepperModuleException("The given SAnnotation is null");
     }
     // rank_id 	namespace	name	value
-
+    
     EList<String> edgeAnnotationEntry = new BasicEList<>();
     edgeAnnotationEntry.add(rankId.toString());
     if (sAnnotation.getSNS() != null) {
       edgeAnnotationEntry.add(sAnnotation.getSNS());
+
     } else {
       edgeAnnotationEntry.add("default_ns");
     }
+    
+    idManager.checkAQLIdentifier(AQLIdentifier.Type.EDGE_ANNO, sAnnotation.getSNS(), sAnnotation.getSName());
+    
     edgeAnnotationEntry.add(sAnnotation.getSName());
     edgeAnnotationEntry.add(sAnnotation.getSValueSTEXT());
 
@@ -685,6 +692,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
     if (seg_name == null) {
       tableEntry.add("NULL");
     } else {
+      idManager.checkAQLIdentifier(AQLIdentifier.Type.SEGMENTATION, null, seg_name);
       tableEntry.add(seg_name);
     }
     if (span == null) {
@@ -707,6 +715,8 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
   }
 
   protected void mapSNodeAnnotation(Long node_ref, String namespace, String name, String value) {
+    
+    idManager.checkAQLIdentifier(AQLIdentifier.Type.NODE_ANNO, namespace, name);
 
     EList<String> tableEntry = new BasicEList<>();
     tableEntry.add(node_ref.toString());

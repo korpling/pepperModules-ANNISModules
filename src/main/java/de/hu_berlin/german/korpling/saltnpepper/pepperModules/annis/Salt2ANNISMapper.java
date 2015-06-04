@@ -665,6 +665,9 @@ public class Salt2ANNISMapper extends PepperMapperImpl implements SGraphTraverse
             if (namespace == null) {
               namespace = "NULL";
             }
+            
+            idManager.checkAQLIdentifier(AQLIdentifier.Type.META_ANNO, meta.getSNS(), meta.getSName());
+            
             tw_corpusMeta.addTuple(transactionId,
                     Arrays.asList(idString, namespace, meta.getSName(), meta.getSValue().toString()));
           }
