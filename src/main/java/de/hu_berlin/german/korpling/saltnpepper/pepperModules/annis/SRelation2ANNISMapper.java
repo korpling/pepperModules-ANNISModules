@@ -392,7 +392,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
     componentEntry.add(currentComponentId.toString());
     componentEntry.add(currentComponentType);
     componentEntry.add(currentComponentLayer);
-    componentEntry.add(idManager.getUniqueEscapedStringID(currentComponentName));
+    componentEntry.add(idManager.getEscapedIdentifier(currentComponentName));
     // add the tuple
     addTuple(OutputTable.COMPONENT, componentEntry);
 
@@ -458,8 +458,8 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
     } else {
       ns = "default_ns";
     }
-    edgeAnnotationEntry.add(idManager.getUniqueEscapedStringID(ns));
-    edgeAnnotationEntry.add(idManager.getUniqueEscapedStringID(sAnnotation.getSName()));
+    edgeAnnotationEntry.add(idManager.getEscapedIdentifier(ns));
+    edgeAnnotationEntry.add(idManager.getEscapedIdentifier(sAnnotation.getSName()));
     edgeAnnotationEntry.add(sAnnotation.getSValueSTEXT());
 
     addTuple(OutputTable.EDGE_ANNO, edgeAnnotationEntry);
@@ -689,7 +689,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
     if (seg_name == null) {
       tableEntry.add("NULL");
     } else {
-      tableEntry.add(idManager.getUniqueEscapedStringID(seg_name));
+      tableEntry.add(idManager.getEscapedIdentifier(seg_name));
     }
     if (span == null) {
       tableEntry.add("NULL");
@@ -714,8 +714,8 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
 
     EList<String> tableEntry = new BasicEList<>();
     tableEntry.add(node_ref.toString());
-    tableEntry.add(idManager.getUniqueEscapedStringID(namespace));
-    tableEntry.add(idManager.getUniqueEscapedStringID(name));
+    tableEntry.add(idManager.getEscapedIdentifier(namespace));
+    tableEntry.add(idManager.getEscapedIdentifier(name));
     tableEntry.add(value);
 
     addTuple(OutputTable.NODE_ANNOTATION, tableEntry);

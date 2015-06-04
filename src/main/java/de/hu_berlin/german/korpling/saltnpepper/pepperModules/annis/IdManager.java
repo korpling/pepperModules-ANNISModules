@@ -330,8 +330,8 @@ public class IdManager {
    * @param orig The original string ID
    * @return The replacement or null if the argument was null.
    */
-  public String getUniqueEscapedStringID(String orig) {
-    return globalIdManager.getUniqueEscapedStringID(orig);
+  public String getEscapedIdentifier(String orig) {
+    return globalIdManager.getEscapedIdentifier(orig);
   }
 
   public GlobalIdManager getGlobal() {

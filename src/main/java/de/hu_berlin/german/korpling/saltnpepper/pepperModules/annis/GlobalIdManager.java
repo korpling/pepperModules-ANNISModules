@@ -121,7 +121,7 @@ public class GlobalIdManager {
    * @param orig The original string ID
    * @return The replacement or null if the argument was null.
    */
-  public String getUniqueEscapedStringID(String orig) {
+  public String getEscapedIdentifier(String orig) {
     if (orig == null) {
       return null;
     }
