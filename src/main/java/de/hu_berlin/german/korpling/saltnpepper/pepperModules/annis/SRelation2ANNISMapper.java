@@ -452,12 +452,14 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
 
     EList<String> edgeAnnotationEntry = new BasicEList<>();
     edgeAnnotationEntry.add(rankId.toString());
+    String ns;
     if (sAnnotation.getSNS() != null) {
-      edgeAnnotationEntry.add(sAnnotation.getSNS());
+      ns = sAnnotation.getSNS();
     } else {
-      edgeAnnotationEntry.add("default_ns");
+      ns = "default_ns";
     }
-    edgeAnnotationEntry.add(sAnnotation.getSName());
+    edgeAnnotationEntry.add(idManager.getUniqueEscapedStringID(ns));
+    edgeAnnotationEntry.add(idManager.getUniqueEscapedStringID(sAnnotation.getSName()));
     edgeAnnotationEntry.add(sAnnotation.getSValueSTEXT());
 
     addTuple(OutputTable.EDGE_ANNO, edgeAnnotationEntry);

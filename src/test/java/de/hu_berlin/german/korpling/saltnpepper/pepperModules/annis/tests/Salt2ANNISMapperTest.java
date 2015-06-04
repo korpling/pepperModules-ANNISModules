@@ -21,7 +21,6 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructu
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualDS;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SLayer;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.samples.SampleGenerator;
@@ -826,6 +825,9 @@ public class Salt2ANNISMapperTest
     dep.addSType(generateRandomInvalidID(10));
     layer.getEdges().add(dep);
     getFixture().getSDocument().getSDocumentGraph().addEdge(dep);
+    
+    // invalid edge annotation
+    dep.createSAnnotation(generateRandomInvalidID(8), generateRandomInvalidID(9), "value");
     
     // invalid segmentation name
     SOrderRelation order = SaltFactory.eINSTANCE.createSOrderRelation();
