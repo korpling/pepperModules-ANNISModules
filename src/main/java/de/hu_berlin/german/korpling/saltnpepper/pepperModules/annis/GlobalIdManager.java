@@ -1,5 +1,6 @@
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis;
 
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -27,6 +28,9 @@ public class GlobalIdManager {
   private final AtomicBoolean pdfFound = new AtomicBoolean(false);
   
   private final ConcurrentMap<String, String> documentNames
+          = new ConcurrentHashMap<>();
+  
+  private final ConcurrentMap<String, String> stringIDMapping
           = new ConcurrentHashMap<>();
 
   public GlobalIdManager() {
@@ -101,6 +105,10 @@ public class GlobalIdManager {
   
   public boolean isPDFFound() {
     return pdfFound.get();
+  }
+
+  public ConcurrentMap<String, String> getStringIDMapping() {
+    return stringIDMapping;
   }
   
   

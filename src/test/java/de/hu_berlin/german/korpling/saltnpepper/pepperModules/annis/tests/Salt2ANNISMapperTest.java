@@ -15,11 +15,14 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SOrderRelation;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SPointingRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SStructuredNode;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STYPE_NAME;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualDS;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SLayer;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.samples.SampleGenerator;
 import de.hu_berlin.german.korpling.saltnpepper.salt.samples.exceptions.SaltSampleException;
@@ -31,6 +34,7 @@ import java.util.LinkedList;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.Vector;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
@@ -797,7 +801,72 @@ public class Salt2ANNISMapperTest
             new File(tmpPath, ANNIS.FILE_NODE).getAbsolutePath());
     
   }
+  
+  @Test
+  public void testIDEscape() throws IOException {
 
+    SampleGenerator.createPrimaryData(getFixture().getSDocument());
+    SampleGenerator.createTokens(getFixture().getSDocument());
+    getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
+    
+    SToken tok1 = getFixture().getSDocument().getSDocumentGraph().getSTokens().get(0);
+    SToken tok2 = getFixture().getSDocument().getSDocumentGraph().getSTokens().get(1);
+    
+    // invalid annotation
+    tok1.createSAnnotation(generateRandomInvalidID(10), generateRandomInvalidID(10), "value");
+    
+    // invalid edge name
+    SLayer layer = SaltFactory.eINSTANCE.createSLayer();
+		layer.setSName(generateRandomInvalidID(10));
+    getFixture().getSDocument().getSDocumentGraph().addSLayer(layer);
+    
+    SPointingRelation dep = SaltFactory.eINSTANCE.createSPointingRelation();
+    dep.setSSource(tok1);
+    dep.setSTarget(tok2);
+    dep.addSType(generateRandomInvalidID(10));
+    layer.getEdges().add(dep);
+    getFixture().getSDocument().getSDocumentGraph().addEdge(dep);
+    
+    // invalid segmentation name
+    SOrderRelation order = SaltFactory.eINSTANCE.createSOrderRelation();
+    order.setSSource(tok1);
+    order.setSTarget(tok2);
+    order.addSType(generateRandomInvalidID(10));
+    getFixture().getSDocument().getSDocumentGraph().addEdge(order);
+    
+    // invalid meta data (different annotation names with the same mapping)
+    getFixture().getSDocument().createSMetaAnnotation(
+            "ns",
+            "invalid%%name$", "value");
+    getFixture().getSDocument().createSMetaAnnotation(
+            "ns",
+            "invalid__name_", "value");
+    getFixture().getSDocument().createSMetaAnnotation(
+            "ns",
+            "invalid_§name_", "value");
+    
+    
+    
+    doMapping();
+
+    assertFalse("There was no file to be compared in folder '" + testPath.
+      getAbsolutePath() + "' and folder '" + tmpPath.getAbsolutePath() + "'.",
+      new Integer(0).equals(compareFiles(testPath, tmpPath)));
+  }
+  
+  private String generateRandomInvalidID(int length) {
+    String startChars = "0123456789-";
+    String suffixChars = "^!§$%&/()=?ß}][{}äöü#*+~.,;:<>|\\²³°¸`'";
+    
+    if(length > 1) {
+      return RandomStringUtils.random(1, startChars) 
+              + RandomStringUtils.random(length-1, suffixChars);
+    } else if (length == 1) {
+      RandomStringUtils.random(1, startChars);
+    }
+    return "";
+  }
+  
   /**
    * Deletes the directory with all contained directories/files
    *

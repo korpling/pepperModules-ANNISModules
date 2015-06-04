@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.regex.Pattern;
 import org.eclipse.emf.common.util.URI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,7 +62,8 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
 
   EList<? extends SNode> sRelationRoots = null;
   STYPE_NAME relationTypeName = null;
-
+  
+  
 // =================================== Constructor ============================ 
   /**
    * @param idManager
@@ -390,7 +392,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
     componentEntry.add(currentComponentId.toString());
     componentEntry.add(currentComponentType);
     componentEntry.add(currentComponentLayer);
-    componentEntry.add(currentComponentName);
+    componentEntry.add(idManager.getUniqueEscapedStringID(currentComponentName));
     // add the tuple
     addTuple(OutputTable.COMPONENT, componentEntry);
 
@@ -685,7 +687,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
     if (seg_name == null) {
       tableEntry.add("NULL");
     } else {
-      tableEntry.add(seg_name);
+      tableEntry.add(idManager.getUniqueEscapedStringID(seg_name));
     }
     if (span == null) {
       tableEntry.add("NULL");
@@ -710,8 +712,8 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
 
     EList<String> tableEntry = new BasicEList<>();
     tableEntry.add(node_ref.toString());
-    tableEntry.add(namespace);
-    tableEntry.add(name);
+    tableEntry.add(idManager.getUniqueEscapedStringID(namespace));
+    tableEntry.add(idManager.getUniqueEscapedStringID(name));
     tableEntry.add(value);
 
     addTuple(OutputTable.NODE_ANNOTATION, tableEntry);

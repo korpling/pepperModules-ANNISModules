@@ -666,7 +666,10 @@ public class Salt2ANNISMapper extends PepperMapperImpl implements SGraphTraverse
               namespace = "NULL";
             }
             tw_corpusMeta.addTuple(transactionId,
-                    Arrays.asList(idString, namespace, meta.getSName(), meta.getSValue().toString()));
+                    Arrays.asList(idString, 
+                            idManager.getUniqueEscapedStringID(namespace), 
+                            idManager.getUniqueEscapedStringID(meta.getSName()), 
+                            meta.getSValue().toString()));
           }
           tw_corpusMeta.commitTA(transactionId);
         } catch (FileNotFoundException ex) {

@@ -1,5 +1,6 @@
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis;
 
+import com.google.common.base.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -19,9 +20,14 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.regex.Pattern;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class IdManager {
 
+  private final static Logger log = LoggerFactory.getLogger(IdManager.class);
+  
   private final GlobalIdManager globalIdManager;
 
   private final ConcurrentMap<String, Long> textIdMap;
@@ -40,6 +46,10 @@ public class IdManager {
   private EList<Long> virtualTokenIdList = null;
 
   protected ConcurrentMap<String, SegmentationInfo> segmentationInfoTable = null;
+  
+  private static final Pattern validIdPattern = Pattern.compile("[a-zA-Z_][a-zA-Z0-9_-]*");
+  private static final Pattern invalidIdCharPattern = Pattern.compile("[^a-zA-Z0-9_-]");
+
 
   public IdManager(GlobalIdManager globalIdManager) {
 
@@ -313,6 +323,60 @@ public class IdManager {
         result = docName + "_" + appendix++;
       }
     } while(oldVal != null);
+    
+    return result;
+  }
+  
+  /**
+   * When string IDs are escaped it could happen that two different IDs are
+   * escaped to the same string. In order to avoid this the {@link IdManager}
+   * provides this function which maps any original ID to a unique escaped ID.
+   * @param orig The original string ID
+   * @return The replacement.
+   */
+  public String getUniqueEscapedStringID(String orig) {
+    String escaped = getValidIDString(orig);
+    
+    String key = escaped;
+    int appendix = 2;
+    
+    boolean tryNextAppendix;
+    do {
+      String oldVal = globalIdManager.getStringIDMapping().putIfAbsent(key, orig);
+      // if there is already an entry check if it is a mapping to a different original
+      tryNextAppendix = oldVal != null && !oldVal.equals(orig);
+      if (tryNextAppendix) {
+        // append a number until we find a non-existing ID
+        key = escaped + appendix++;
+      }
+    } while (tryNextAppendix);
+    
+    return key;
+  }
+  
+   /**
+   * Returns a string that is valid as ANNIS import format identifier.
+   * @param orig
+   * @return The valid string.
+   */
+  private String getValidIDString(String orig) {
+    String result = orig;
+    
+    // only apply substitution if regular expression does not match
+    if(orig != null && !orig.isEmpty() && !validIdPattern.matcher(orig).matches()) {      
+      
+      // first character must be a-zA-Z or _
+      char firstChar = orig.charAt(0);
+      if (!(firstChar == '_'
+              || (firstChar >= 'A' && firstChar <= 'Z')
+              || (firstChar >= 'a' && firstChar <= 'z'))) {
+        firstChar = '_';
+      }
+      String remaining = invalidIdCharPattern.matcher(orig.substring(1)).replaceAll("_");
+      result = firstChar + remaining;
+      
+      log.warn("replaced invalid ANNIS format ID {} with {}", orig, result);
+    }
     
     return result;
   }
