@@ -132,6 +132,30 @@ public class ResolverHeuristicsTest extends PepperExporterTest{
 	}
   
   @Test
+	public void testHeuristicsEscape() throws IOException
+	{
+    
+    SampleGenerator.createSyntaxStructure(doc1.getSDocument());
+    SampleGenerator.createSyntaxAnnotations(doc1.getSDocument());
+
+    SampleGenerator.createTokens(doc2.getSDocument());
+
+    SLayer abcLayer = SaltFactory.eINSTANCE.createSLayer();
+    abcLayer.setSName("abc");
+    doc2.addSLayer(abcLayer);
+
+    SStructure abcStruct = doc2.createSStructure(doc2.getSTokens().get(0));
+    abcStruct.createSAnnotation("?ns", "überschlag?", "ABC");
+    abcLayer.getSNodes().add(abcStruct);
+
+    start();
+
+    TabFileComparator.checkEqual(testPath.getAbsolutePath() + "/"
+            + ANNIS.FILE_VISUALIZATION,
+            outputDir.getAbsolutePath() + "/" + ANNIS.FILE_VISUALIZATION);
+	}
+  
+  @Test
 	public void testSimpleTreeHeuristics() throws IOException
 	{
     

@@ -47,10 +47,6 @@ public class IdManager {
 
   protected ConcurrentMap<String, SegmentationInfo> segmentationInfoTable = null;
   
-  private static final Pattern validIdPattern = Pattern.compile("[a-zA-Z_][a-zA-Z0-9_-]*");
-  private static final Pattern invalidIdCharPattern = Pattern.compile("[^a-zA-Z0-9_-]");
-
-
   public IdManager(GlobalIdManager globalIdManager) {
 
     this.globalIdManager = globalIdManager;
@@ -328,70 +324,14 @@ public class IdManager {
   }
   
   /**
-   * When string IDs are escaped it could happen that two different IDs are
+   * When string identifiers are escaped it could happen that two different IDs are
    * escaped to the same string. In order to avoid this the {@link IdManager}
    * provides this function which maps any original ID to a unique escaped ID.
    * @param orig The original string ID
    * @return The replacement or null if the argument was null.
    */
   public String getUniqueEscapedStringID(String orig) {
-    
-    if(orig == null) {
-      return null;
-    }
-    
-    String escaped = getValidIDString(orig);
-    
-    String key = escaped;
-    int appendix = 2;
-    
-    boolean tryNextAppendix;
-    boolean firstReplacement = false;
-    do {
-      String oldVal = globalIdManager.getStringIDMapping().putIfAbsent(key, orig);
-      
-      if(oldVal == null && !orig.equals(escaped)) {
-        firstReplacement = true;
-      }
-      
-      // if there is already an entry check if it is a mapping to a different original
-      tryNextAppendix = oldVal != null && !oldVal.equals(orig);
-      if (tryNextAppendix) {
-        // append a number until we find a non-existing ID
-        key = escaped + appendix++;
-      }
-    } while (tryNextAppendix);
-    
-    if(firstReplacement) {
-      // warn about the replacement at the first time
-      log.warn("replaced invalid ANNIS identifier {} with {}", orig, key);
-    }
-    
-    return key;
-  }
-  
-   /**
-   * Returns a string that is valid as ANNIS import format identifier.
-   * @param orig
-   * @return The valid string.
-   */
-  private String getValidIDString(String orig) {
-    String result = orig;
-    
-    // only apply substitution if regular expression does not match
-    if(orig != null && !orig.isEmpty() && !validIdPattern.matcher(orig).matches()) {      
-      
-      // first character must be a-zA-Z or _
-      char firstChar = orig.charAt(0);
-      if (!(firstChar == '_'
-              || (firstChar >= 'A' && firstChar <= 'Z')
-              || (firstChar >= 'a' && firstChar <= 'z'))) {
-        firstChar = '_';
-      }
-      result = firstChar + invalidIdCharPattern.matcher(orig.substring(1)).replaceAll("_");
-    }
-    
-    return result;
+    return globalIdManager.getUniqueEscapedStringID(orig);
   }
 
   public GlobalIdManager getGlobal() {
