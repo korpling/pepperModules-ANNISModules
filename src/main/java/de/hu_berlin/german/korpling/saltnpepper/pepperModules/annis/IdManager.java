@@ -17,6 +17,7 @@
  */
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis;
 
+import com.google.common.base.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -36,9 +37,14 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.regex.Pattern;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class IdManager {
 
+  private final static Logger log = LoggerFactory.getLogger(IdManager.class);
+  
   private final GlobalIdManager globalIdManager;
 
   private final ConcurrentMap<String, Long> textIdMap;
@@ -57,7 +63,7 @@ public class IdManager {
   private EList<Long> virtualTokenIdList = null;
 
   protected ConcurrentMap<String, SegmentationInfo> segmentationInfoTable = null;
-
+  
   public IdManager(GlobalIdManager globalIdManager) {
 
     this.globalIdManager = globalIdManager;
@@ -332,6 +338,17 @@ public class IdManager {
     } while(oldVal != null);
     
     return result;
+  }
+  
+  /**
+   * When string identifiers are escaped it could happen that two different IDs are
+   * escaped to the same string. In order to avoid this the {@link IdManager}
+   * provides this function which maps any original ID to a unique escaped ID.
+   * @param orig The original string ID
+   * @return The replacement or null if the argument was null.
+   */
+  public String getEscapedIdentifier(String orig) {
+    return globalIdManager.getEscapedIdentifier(orig);
   }
 
   public GlobalIdManager getGlobal() {

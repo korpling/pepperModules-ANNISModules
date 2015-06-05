@@ -62,6 +62,7 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SMetaAnnotation;
+import java.util.LinkedHashSet;
 
 @Component(name = "ANNISExporterComponent", factory = "PepperExporterComponentFactory")
 public class ANNISExporter extends PepperExporterImpl implements PepperExporter, ANNIS {
@@ -344,9 +345,9 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
 
       if(terminalAnnos.size() >= 1) {
         QName qname = terminalAnnos.iterator().next();
-        entry.getMappings().put("terminal_name", qname.getName());
+        entry.getMappings().put("terminal_name", globalIdManager.getEscapedIdentifier(qname.getName()));
         if(!QName.NULL.equals(qname.getNs())) {
-          entry.getMappings().put("terminal_ns", qname.getNs());
+          entry.getMappings().put("terminal_ns", globalIdManager.getEscapedIdentifier(qname.getNs()));
         }
       }
 
@@ -354,9 +355,9 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
 
       if(nodeAnnos.size() >= 1) {
         QName qname = nodeAnnos.get(nodeAnnos.lastKey());
-        entry.getMappings().put("node_key", qname.getName());
+        entry.getMappings().put("node_key", globalIdManager.getEscapedIdentifier(qname.getName()));
         if(!QName.NULL.equals(qname.getNs())) {
-          entry.getMappings().put("node_anno_ns", qname.getNs());
+          entry.getMappings().put("node_anno_ns", globalIdManager.getEscapedIdentifier(qname.getNs()));
         }
       }
 
@@ -364,9 +365,9 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
 
       if(edgeAnnos.size() >= 1) {
         QName qname = edgeAnnos.iterator().next();
-        entry.getMappings().put("edge_key", qname.getName());
+        entry.getMappings().put("edge_key", globalIdManager.getEscapedIdentifier(qname.getName()));
         if(!QName.NULL.equals(qname.getNs())) {
-          entry.getMappings().put("edge_anno_ns", qname.getNs());
+          entry.getMappings().put("edge_anno_ns", globalIdManager.getEscapedIdentifier(qname.getNs()));
         }
       }
 
@@ -383,8 +384,8 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
           primaryType = "null";
         }
 
-        entry.getMappings().put("edge_type", primaryType);
-        entry.getMappings().put("secedge_type", secondaryType);
+        entry.getMappings().put("edge_type", globalIdManager.getEscapedIdentifier(primaryType));
+        entry.getMappings().put("secedge_type", globalIdManager.getEscapedIdentifier(secondaryType));
       }
     }
     globalIdManager.getResolverEntryByDisplay().putIfAbsent(entry.getDisplay(), entry);
@@ -402,7 +403,7 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
       
       if (terminalAnnos.size() == 1) {
         QName qname = terminalAnnos.iterator().next();
-        entry.getMappings().put("node_key", qname.getName());
+        entry.getMappings().put("node_key", globalIdManager.getEscapedIdentifier(qname.getName()));
       }
     } else {
       
@@ -474,7 +475,13 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
       entryGrid.setVis(Vis.grid);
       entryGrid.setVisibility(ResolverEntry.Visibility.permanent);
       entryGrid.getMappings().put("hide_tok", "true");
-      entryGrid.getMappings().put("annos", Joiner.on(",").join(orderRels));
+      
+      Set<String> escapedOrderRels = new LinkedHashSet<>();
+      for(String origOrder : orderRels) {
+        escapedOrderRels.add(globalIdManager.getEscapedIdentifier(origOrder));
+      }
+      
+      entryGrid.getMappings().put("annos", Joiner.on(",").join(escapedOrderRels));
       globalIdManager.getResolverEntryByDisplay().putIfAbsent(entryGrid.getDisplay(), entryGrid);
     }
   }

@@ -32,6 +32,7 @@ import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.impl.PepperMapper
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.OrderStatistics;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.PointingStatistics;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.SpanStatistics;
+import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.GRAPH_TRAVERSE_TYPE;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpus;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
@@ -307,7 +308,7 @@ public class Salt2ANNISMapper extends PepperMapperImpl implements SGraphTraverse
                               getSDocument().getSDocumentGraph(), token2Index,
                               tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component,
                               this);
-
+              
               sOrderRelationMapper.setTraversionSType(entry.getKey());
               sOrderRelationMapper.mapSRelations2ANNIS(subComponentRoots.get(entry.getKey()), STYPE_NAME.SORDER_RELATION, null);
 
@@ -666,7 +667,10 @@ public class Salt2ANNISMapper extends PepperMapperImpl implements SGraphTraverse
               namespace = "NULL";
             }
             tw_corpusMeta.addTuple(transactionId,
-                    Arrays.asList(idString, namespace, meta.getSName(), meta.getSValue().toString()));
+                    Arrays.asList(idString, 
+                            idManager.getEscapedIdentifier(namespace), 
+                            idManager.getEscapedIdentifier(meta.getSName()), 
+                            meta.getSValue().toString()));
           }
           tw_corpusMeta.commitTA(transactionId);
         } catch (FileNotFoundException ex) {

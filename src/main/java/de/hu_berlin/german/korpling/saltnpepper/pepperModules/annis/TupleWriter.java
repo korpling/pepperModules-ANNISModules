@@ -22,7 +22,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.util.Collection;
-import java.util.Hashtable;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.io.IOException;
@@ -57,7 +56,7 @@ public class TupleWriter
 	private String sperator= "\t";
 	
 	private boolean escapeCharacters = false;
-	
+  
 	/**
 	 * output file 
 	 */
