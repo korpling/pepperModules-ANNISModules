@@ -129,9 +129,8 @@ public class GlobalIdManager {
   }
 
   /**
-   * When string identifiers are escaped it could happen that two different IDs are
-   * escaped to the same string. In order to avoid this the {@link IdManager}
-   * provides this function which maps any original ID to a unique escaped ID.
+   * Percent escapes a string if it not a valid string identifier.
+   *
    * @param orig The original string ID
    * @return The replacement or null if the argument was null.
    */
@@ -140,24 +139,16 @@ public class GlobalIdManager {
       return null;
     }
     String escaped = getValidIDString(orig);
-    String key = escaped;
-    int appendix = 2;
-    boolean tryNextAppendix;
-    boolean firstReplacement = false;
-    do {
-      String oldVal = stringIDMapping.putIfAbsent(key, orig);
-      if (oldVal == null && !orig.equals(escaped)) {
-        firstReplacement = true;
+    
+    if(!orig.equals(escaped)) {
+      String oldEscape = stringIDMapping.putIfAbsent(orig, escaped);
+      if(oldEscape == null) {
+        // warn the first time a new identifier was escaped
+        log.warn("replaced invalid ANNIS identifier {} with {}", orig, escaped);
       }
-      tryNextAppendix = oldVal != null && !oldVal.equals(orig);
-      if (tryNextAppendix) {
-        key = escaped + appendix++;
-      }
-    } while (tryNextAppendix);
-    if (firstReplacement) {
-      log.warn("replaced invalid ANNIS identifier {} with {}", orig, key);
     }
-    return key;
+    
+    return escaped;
   }
 
   /**
