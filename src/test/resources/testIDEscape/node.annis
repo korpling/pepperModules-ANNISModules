@@ -1,5 +1,5 @@
-0	0	1	morphology	sTok1	0	1	0	0	0	0	__________	Is	TRUE
-1	0	1	morphology	sTok2	3	6	1	1	1	1	__________	this	FALSE
+0	0	1	morphology	sTok1	0	1	0	0	0	0	%2D%2C%24%23%C2%B3%3E%C3%A4%7E%C3%9F%2E	Is	TRUE
+1	0	1	morphology	sTok2	3	6	1	1	1	1	%2D%2C%24%23%C2%B3%3E%C3%A4%7E%C3%9F%2E	this	FALSE
 2	0	1	morphology	sTok3	8	14	2	2	2	NULL	NULL	example	TRUE
 3	0	1	morphology	sTok4	16	19	3	3	3	NULL	NULL	more	TRUE
 4	0	1	morphology	sTok5	21	31	4	4	4	NULL	NULL	complicated	TRUE

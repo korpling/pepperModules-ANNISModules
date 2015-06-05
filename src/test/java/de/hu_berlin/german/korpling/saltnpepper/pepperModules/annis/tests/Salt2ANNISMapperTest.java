@@ -812,61 +812,46 @@ public class Salt2ANNISMapperTest
     SToken tok2 = getFixture().getSDocument().getSDocumentGraph().getSTokens().get(1);
     
     // invalid annotation
-    tok1.createSAnnotation(generateRandomInvalidID(10), generateRandomInvalidID(10), "value");
+    tok1.createSAnnotation("6>]`'[;+|]", "1\\.[`&[}²*", "value");
     
     // invalid edge name
     SLayer layer = SaltFactory.eINSTANCE.createSLayer();
-		layer.setSName(generateRandomInvalidID(10));
+		layer.setSName("7#=+}}ä?ö;");
     getFixture().getSDocument().getSDocumentGraph().addSLayer(layer);
     
     SPointingRelation dep = SaltFactory.eINSTANCE.createSPointingRelation();
     dep.setSSource(tok1);
     dep.setSTarget(tok2);
-    dep.addSType(generateRandomInvalidID(10));
+    dep.addSType("-7#=+}}ä?ö;");
     layer.getEdges().add(dep);
     getFixture().getSDocument().getSDocumentGraph().addEdge(dep);
     
     // invalid edge annotation
-    dep.createSAnnotation(generateRandomInvalidID(8), generateRandomInvalidID(9), "value");
+    dep.createSAnnotation("0>;;!]{§", "2ß{.:)²,¸", "value");
     
     // invalid segmentation name
     SOrderRelation order = SaltFactory.eINSTANCE.createSOrderRelation();
     order.setSSource(tok1);
     order.setSTarget(tok2);
-    order.addSType(generateRandomInvalidID(10));
+    order.addSType("-,$#³>ä~ß.");
     getFixture().getSDocument().getSDocumentGraph().addEdge(order);
     
     // invalid meta data (different annotation names with the same mapping)
     getFixture().getSDocument().createSMetaAnnotation(
             "ns",
-            "invalid%%name$", "value");
+            "%invalid%%name$", "value1");
     getFixture().getSDocument().createSMetaAnnotation(
             "ns",
-            "invalid__name_", "value");
+            "invalid__name_", "value2");
     getFixture().getSDocument().createSMetaAnnotation(
             "ns",
-            "invalid_§name_", "value");
-    
-    
+            "invalid_§name_", "value3");
     
     doMapping();
 
     assertFalse("There was no file to be compared in folder '" + testPath.
       getAbsolutePath() + "' and folder '" + tmpPath.getAbsolutePath() + "'.",
       new Integer(0).equals(compareFiles(testPath, tmpPath)));
-  }
-  
-  private String generateRandomInvalidID(int length) {
-    String startChars = "0123456789-";
-    String suffixChars = "^!§$%&/()=?ß}][{}äöü#*+~.,;:<>|\\²³°¸`'";
-    
-    if(length > 1) {
-      return RandomStringUtils.random(1, startChars) 
-              + RandomStringUtils.random(length-1, suffixChars);
-    } else if (length == 1) {
-      RandomStringUtils.random(1, startChars);
-    }
-    return "";
   }
   
   /**
