@@ -86,6 +86,10 @@ public class SOrderRelation2ANNISMapper extends SRelation2ANNISMapper {
     Long token_right;
 
     SToken tok = timelineRelation.getSToken();
+    if(tok == null) {
+      // We can't map timeline relation that don't have a token connected.
+      return;
+    }
     String virtualSpanSId = tok.getSId();
     virtualSpanSId = virtualSpanSId + "_virtualSpan";
     String virtualSpanName = tok.getSName() + "_virtualSpan";
@@ -222,12 +226,15 @@ public class SOrderRelation2ANNISMapper extends SRelation2ANNISMapper {
   private Map<String, STimelineRelation> sortTimelineRelationsByStart(EList<STimelineRelation> sTimelineRelations) {
     HashMap<String, STimelineRelation> retVal = new HashMap<>();
     for (STimelineRelation t : sTimelineRelations) {
-      String startTime = t.getSStart().toString();
-      if (retVal.containsKey(startTime)) {
-        log.warn("sortTimelineRelationsByStart: Both the timeline for Token " + t.getSToken().getSId() + " and "
-                + retVal.get(startTime).getSToken().getSId() + " is " + t.getSStart());
+      // only consider timeline items that actually have a connected token
+      if (t.getSToken() != null) {
+        String startTime = t.getSStart().toString();
+        if (retVal.containsKey(startTime)) {
+          log.warn("sortTimelineRelationsByStart: Both the timeline for Token " + t.getSToken().getSId() + " and "
+                  + retVal.get(startTime).getSToken().getSId() + " is " + t.getSStart());
+        }
+        retVal.put(startTime, t);
       }
-      retVal.put(startTime, t);
     }
     return retVal;
   }
