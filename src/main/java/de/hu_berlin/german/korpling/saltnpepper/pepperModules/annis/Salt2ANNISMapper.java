@@ -316,6 +316,14 @@ public class Salt2ANNISMapper extends PepperMapperImpl implements SGraphTraverse
           }
         }
 				// END Step 1: map SOrderRelation
+        
+        // also map the timeline (by creating a virtual tokenization if necessary)
+        STimelineRelation2ANNISMapper timelineMapper
+                    = new STimelineRelation2ANNISMapper(getIdManager(),
+                            getSDocument().getSDocumentGraph(), token2Index,
+                            tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component,
+                            this);
+        timelineMapper.run();
 
         // START Step 2: map SText
         if (idManager.hasVirtualTokenization()) {
