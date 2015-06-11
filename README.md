@@ -97,12 +97,11 @@ model.
 
 |Name of property                  |Type of property |optional/mandatory |default value|
 |----------------------------------|-----------------|-------------------|-------------|
-|escapeCharacters                  |Boolean          | optional          |true         |
+|escapeCharacters                  |Boolean           | optional          |true         |
 |escapeCharactersList              |String           | optional          |--           | 
-|clobber.visualisation             |Boolean          | optional          |true         |
-|clobber.corpus_annotation         |Boolean          | optional          |true         |
-|corpusName                        |String           | optional          |--           |
-|inheritDocLayerForNodes           |Boolean          | optional          |false        |
+|clobber.visualisation             |Boolean          |                   |true         |
+|clobber.corpus_annotation         |Boolean          |                   |true         |
+|corpusName                        |String           |                   |--           |
 
 ### escapeCharacters
 
@@ -149,7 +148,3 @@ If "true" overwrite any existing corpus_annotation.annis file in the output fold
 ### corpusName
 
 If set use this name as the toplevel corpus name instead of the one provided by Pepper.
-
-### inheritDocLayerForNodes
-If true add nodes to the same layer as the document when they are not part of any other layer
-

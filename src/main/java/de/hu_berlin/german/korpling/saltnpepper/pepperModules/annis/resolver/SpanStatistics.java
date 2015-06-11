@@ -17,6 +17,7 @@
  */
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver;
 
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SLayer;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;

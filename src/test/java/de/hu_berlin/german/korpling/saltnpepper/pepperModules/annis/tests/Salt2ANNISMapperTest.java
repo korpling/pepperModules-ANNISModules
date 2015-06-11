@@ -39,7 +39,6 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructu
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SLayer;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.samples.SampleGenerator;
 import de.hu_berlin.german.korpling.saltnpepper.salt.samples.exceptions.SaltSampleException;
@@ -51,6 +50,7 @@ import java.util.LinkedList;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.Vector;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
@@ -96,8 +96,6 @@ public class Salt2ANNISMapperTest
   public void setUp()
   {
     setFixture(new Salt2ANNISMapper());
-    
-    getFixture().setProperties(new ANNISExporterProperties());
 
     getFixture().mapRelationsInParallel(false);
 
@@ -865,38 +863,6 @@ public class Salt2ANNISMapperTest
     getFixture().getSDocument().createSMetaAnnotation(
             "ns",
             "invalid_§name_", "value3");
-    
-    doMapping();
-
-    assertFalse("There was no file to be compared in folder '" + testPath.
-      getAbsolutePath() + "' and folder '" + tmpPath.getAbsolutePath() + "'.",
-      new Integer(0).equals(compareFiles(testPath, tmpPath)));
-  }
-  
-  @Test
-  public void testInheritDocLayerForNode() throws IOException
-  {
-    // create the primary text
-    SampleGenerator.createPrimaryData(getFixture().getSDocument());
-    SampleGenerator.createTokens(getFixture().getSDocument());
-    SampleGenerator.createSyntaxStructure(getFixture().getSDocument());
-    SampleGenerator.createSyntaxAnnotations(getFixture().getSDocument());
-    getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
-    
-    SDocumentGraph g = getFixture().getSDocument().getSDocumentGraph();
-    
-    SNode t2 = g.getSNode(g.getSId() + "#sTok2");
-    t2.getSLayers().clear();
-    
-    SNode s7 = g.getSNode(g.getSId() +  "#structure7");
-    s7.getSLayers().clear();
-    
-    SLayer docLayer = SaltFactory.eINSTANCE.createSLayer();
-    docLayer.setSName("doclayer");
-    getFixture().getSDocument().getSLayers().add(docLayer);
-
-    getFixture().getProperties()
-            .getProperty(ANNISExporterProperties.PROP_INHERIT_DOC_LAYER_NODE).setValueString("true");
     
     doMapping();
 
