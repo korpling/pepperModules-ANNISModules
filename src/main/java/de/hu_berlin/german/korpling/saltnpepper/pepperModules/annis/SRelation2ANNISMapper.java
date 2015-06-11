@@ -19,6 +19,7 @@ package de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis;
 
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.DomStatistics;
 import com.google.common.io.Files;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperModuleProperties;
 import java.io.FileNotFoundException;
 import java.util.HashSet;
 
@@ -526,7 +527,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
     Long corpus_ref = this.idManager.getNewCorpusTabId(this.documentGraph.getSDocument().getSId());
 		// get the layer if there is one
     //@ TODO: Change this to DEFAULT_LAYER
-    String layer = DEFAULT_NS;
+    String layerName = DEFAULT_NS;
     // initialise the name with the unique identifier
     String name = getUniqueNodeName(node);
     // get the first covered character
@@ -546,14 +547,11 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
     // initialise the span
     //String span = null;
 
-    {// set the layer to the actual value
-      if (node.getSLayers() != null) {
-        if (node.getSLayers().size() != 0) {
-          layer = node.getSLayers().get(0).getSName();
-        }
-      }
-    }// set the layer to the actual value
-
+    SLayer nodeLayer = getFirstComponentLayer(node);
+    if(nodeLayer != null) {
+      layerName = nodeLayer.getSName();
+    }
+    
     if (node instanceof SToken) {
       // set the token index
       token_index = this.token2Index.get((SToken) node);
@@ -656,7 +654,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
       }
     }
 
-    this.writeNodeTabEntry(id, text_ref, corpus_ref, layer, name, left, right,
+    this.writeNodeTabEntry(id, text_ref, corpus_ref, layerName, name, left, right,
             token_index, left_token, right_token, seg_index, seg_name, span,
             isRoot(node));
 
@@ -834,6 +832,15 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
         componentLayer = layers.firstEntry().getValue();
       }
     }
+    
+    ANNISExporterProperties props = (ANNISExporterProperties) parentMapper.getProperties();
+    if(componentLayer == null && props != null && props.getInheritDocLayerNode()) {
+      if(documentGraph.getSDocument().getSLayers() != null
+              && !documentGraph.getSDocument().getSLayers().isEmpty()) {
+        componentLayer = documentGraph.getSDocument().getSLayers().get(0);
+      }
+    }
+    
     return componentLayer;
   }
   
