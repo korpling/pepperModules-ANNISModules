@@ -356,8 +356,15 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
       if(nodeAnnos.size() >= 1) {
         QName qname = nodeAnnos.get(nodeAnnos.lastKey());
         entry.getMappings().put("node_key", globalIdManager.getEscapedIdentifier(qname.getName()));
-        if(!QName.NULL.equals(qname.getNs())) {
-          entry.getMappings().put("node_anno_ns", globalIdManager.getEscapedIdentifier(qname.getNs()));
+        
+        String nodeNS = qname.getNs();
+        if(nodeNS == null || QName.NULL.equals(nodeNS)) {
+          nodeNS = SRelation2ANNISMapper.DEFAULT_NS;
+        }
+        // always output the anno namespace if it is not the same as the layer
+        // this visualization is triggered with
+        if(!nodeNS.equals(layerName)) {
+          entry.getMappings().put("node_anno_ns", globalIdManager.getEscapedIdentifier(nodeNS));
         }
       }
 

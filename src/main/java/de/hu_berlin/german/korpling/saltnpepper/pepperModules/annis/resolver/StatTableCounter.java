@@ -26,9 +26,9 @@ import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- *
+ * Counts the occurences of a certain value per layer.
  * @author Thomas Krause <krauseto@hu-berlin.de>
- * @param <ValueType>
+ * @param <ValueType> The type of the value to count.
  */
 public class StatTableCounter<ValueType> {
   
