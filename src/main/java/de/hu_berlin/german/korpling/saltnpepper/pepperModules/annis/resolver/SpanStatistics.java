@@ -17,10 +17,11 @@
  */
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver;
 
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SLayer;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import org.eclipse.emf.common.util.EList;
 
 /**
  * Statistics used for creating resolver entries for dominance components.
@@ -30,6 +31,13 @@ import java.util.Set;
 public class SpanStatistics {
 
   private final Set<String> layers = Collections.synchronizedSet(new HashSet<String>());
+  
+  private final StatMultiMap<String, QName> nodeAnnotations;
+  
+  
+  public SpanStatistics() {
+    nodeAnnotations = new StatMultiMap<>(layers);
+  }
 
   public void addLayer(String layerName) {
     layers.add(layerName);
@@ -38,6 +46,20 @@ public class SpanStatistics {
   public Set<String> getLayers() {
     return new HashSet<>(layers);
   }
+  
+  public void addNodeAnno(String layer, EList<SAnnotation> annos) {
+    if (annos != null) {
+      for (SAnnotation a : annos) {
+        QName qname = new QName(a.getSNS(), a.getSName());
+         this.nodeAnnotations.add(layer, qname);
+      }
+    }
+  }
+  
+  public Set<QName> getNodeAnnotations(String layer) {
+    return this.nodeAnnotations.get(layer);
+  }
+  
   
   /**
    * Merges the information from the other statistics object.
@@ -49,5 +71,6 @@ public class SpanStatistics {
    */
   public void merge(SpanStatistics other) {
     layers.addAll(other.layers);
+    nodeAnnotations.merge(other.nodeAnnotations);
   }
 }

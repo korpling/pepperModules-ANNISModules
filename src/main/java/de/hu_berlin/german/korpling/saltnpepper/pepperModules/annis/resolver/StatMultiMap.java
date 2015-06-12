@@ -23,7 +23,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- *
+ * A wrapper for a multi-map implementation
  * @author Thomas Krause <krauseto@hu-berlin.de>
  * @param <LayerType>
  * @param <ValueType>

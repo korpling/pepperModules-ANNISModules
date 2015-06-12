@@ -171,7 +171,8 @@ public class SSpanningRelation2ANNISMapper extends SRelation2ANNISMapper {
 
     // this method behaves exactly as the one in the super class
     super.nodeLeft(traversalType, traversalId, currNode, edge, fromNode, order);
-
+    
+    getSpanStats().addNodeAnno(currentComponentLayer, currNode.getSAnnotations());
   }
 
   @Override

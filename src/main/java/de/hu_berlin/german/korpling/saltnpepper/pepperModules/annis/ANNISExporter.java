@@ -62,6 +62,7 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SMetaAnnotation;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 
 @Component(name = "ANNISExporterComponent", factory = "PepperExporterComponentFactory")
@@ -305,13 +306,32 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
     if (layer != null) {
       displayName = displayName + " (" + layer + ")";
     }
+    
+    Set<QName> annosForLayer = spanStats.getNodeAnnotations(layer);
+    // check for entries that only differ in their namespace but have the same name
+    boolean showNamespace = false;
+    HashSet<String> annoNames = new HashSet<>();
+    for(QName n : annosForLayer) {
+      if(annoNames.contains(n.getName())) {
+        showNamespace = true;
+        break;
+      } else {
+        annoNames.add(n.getName());
+      }
+    }
+    
     ResolverEntry entry = new ResolverEntry();
+    entry.setVis(Vis.grid);
+    
     entry.setDisplay(displayName);
     if (layer != null) {    
       entry.setElement(ResolverEntry.Element.node);
       entry.setLayerName(layer);
     }
-    entry.setVis(Vis.grid);
+    if(showNamespace) {
+      entry.getMappings().put("show_ns", "true");
+    }
+    
     globalIdManager.getResolverEntryByDisplay().putIfAbsent(entry.getDisplay(), entry);
   }
   
