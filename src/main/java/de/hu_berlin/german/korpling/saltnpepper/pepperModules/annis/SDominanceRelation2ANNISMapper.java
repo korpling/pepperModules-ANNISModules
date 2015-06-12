@@ -129,8 +129,18 @@ public class SDominanceRelation2ANNISMapper extends SRelation2ANNISMapper {
         if (edge != null) {
           getDomStats().addTerminalEdgeType(currentComponentLayer, edge.getSTypes());
         }
-
-        if (!(currNode instanceof SToken)) {
+        
+        if(currNode instanceof SToken) {
+          if(idManager.getVirtualisedSpanId(currNode.getSId()) != null) {
+            // there is a virtual token for this token, thus the "real" token
+            // will be mapped to a span in ANNIS
+            SegmentationInfo segInfo = idManager.getSegmentInformation(currNode.getSId());
+            if(segInfo != null) {
+             getDomStats().getTerminalAnno().add(currentComponentLayer, new QName(segInfo.getSegmentationName()));
+            }
+          }
+        } else {
+          // non-token must be specified
           EList<SAnnotation> annos = currNode.getSAnnotations();
           if (annos != null && !annos.isEmpty()) {
             SAnnotation anno = annos.get(0);
