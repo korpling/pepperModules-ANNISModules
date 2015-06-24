@@ -531,7 +531,12 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
         if (corpusGraph.getSRootCorpus().size() > 0) {
           SCorpus rootCorpus = corpusGraph.getSRootCorpus().get(0);
           // set corpus name
-          corpusName = rootCorpus.getSName();
+          if(this.individualCorpusName != null) {
+            corpusName = this.individualCorpusName;
+          } else {
+            corpusName = rootCorpus.getSName();
+          }
+          
           // set corpus version
           SMetaAnnotation version = rootCorpus.getSMetaAnnotation("version");
           if (version != null) {
