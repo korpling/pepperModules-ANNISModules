@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.concurrent.ConcurrentMap;
 
+import org.eclipse.emf.common.util.URI;
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,6 +63,7 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SMetaAnnotation;
+
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 
@@ -134,6 +136,9 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
     super();
     setProperties(new ANNISExporterProperties());
     this.setName("ANNISExporter");
+    setSupplierContact(URI.createURI("saltnpepper@lists.hu-berlin.de"));
+	setSupplierHomepage(URI.createURI("https://github.com/korpling/pepperModules-ANNISModules"));
+	setDesc("This exporter transforms a Salt model into the annis format. ");
     this.addSupportedFormat("relANNIS", "3.3", null);
     this.addSupportedFormat("annis", "3.3", null);
   }
