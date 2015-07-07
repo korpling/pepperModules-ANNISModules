@@ -27,17 +27,18 @@ import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNISExporte
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNISExporterProperties;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.Salt2ANNISMapper;
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
+import de.hu_berlin.german.korpling.saltnpepper.salt.graph.Edge;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpus;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SOrderRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SPointingRelation;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpan;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SStructuredNode;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STYPE_NAME;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualDS;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualRelation;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STimelineRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SLayer;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
@@ -46,16 +47,17 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.samples.exceptions.SaltSamp
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import static java.lang.System.in;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.Vector;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.junit.After;
+import org.junit.Assert;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import org.junit.Before;
@@ -587,16 +589,48 @@ public class Salt2ANNISMapperTest
     // create the primary text
     SampleGenerator.createDialogue(getFixture().getSDocument());
     
+    SDocumentGraph g = getFixture().getSDocument().getSDocumentGraph();
+    
+    
+    // change the "yes!" to be two token instead of one.
+    SToken yesToken = g.getSTokens().get(13);
+    assertEquals("yes!", g.getSText(yesToken));
+    STextualDS ds = null;
+    int oldEnd = -1;
+    for(Edge e : g.getOutEdges(yesToken.getSId())) {
+      if(e instanceof STextualRelation) {
+        STextualRelation textRelYes = (STextualRelation) e;
+        oldEnd = textRelYes.getSEnd();
+        textRelYes.setSEnd(oldEnd-1);
+        ds = textRelYes.getSTextualDS();
+        break;
+      }
+    }
+    Assert.assertNotNull(ds);
+    SToken exclamationToken = g.createSToken(ds, oldEnd-1, oldEnd);
+    assertEquals("!", g.getSText(exclamationToken));
+    
+    SOrderRelation orderRelExclamation = SaltFactory.eINSTANCE.createSOrderRelation();
+    orderRelExclamation.setSSource(yesToken);
+    orderRelExclamation.setSTarget(exclamationToken);
+    g.addSRelation(orderRelExclamation);
+    STimelineRelation timeRelExclamation = SaltFactory.eINSTANCE.createSTimelineRelation();
+		timeRelExclamation.setSSource(exclamationToken);
+		timeRelExclamation.setSTarget(g.getSTimeline());
+		timeRelExclamation.setSStart(11);
+		timeRelExclamation.setSEnd(12);
+		sDocument.getSDocumentGraph().addSRelation(timeRelExclamation);
+    
     // add a span which overlaps a token which gets a new token-index after the
     // artificial tokenization was created
-    SDocumentGraph g = getFixture().getSDocument().getSDocumentGraph();
     EList<SToken> coveredBySpan = new BasicEList<>();
-    coveredBySpan.add(g.getSTokens().get(g.getSTokens().size()-2));
-    coveredBySpan.add(g.getSTokens().get(g.getSTokens().size()-1));
+    coveredBySpan.add(g.getSTokens().get(g.getSTokens().size()-3));
+    coveredBySpan.add(yesToken);
     assertEquals("oh", g.getSText(coveredBySpan.get(0)));
-    assertEquals("yes!", g.getSText(coveredBySpan.get(1)));
+    assertEquals("yes", g.getSText(coveredBySpan.get(1)));
     g.createSSpan(coveredBySpan);
 
+    
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
     
     doMapping();
