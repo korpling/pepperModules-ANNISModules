@@ -23,8 +23,11 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructu
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
@@ -55,7 +58,9 @@ public class STimelineRelation2ANNISMapper extends SRelation2ANNISMapper {
    * minimal, i.e. there is no other timeline which is contained in the given
    * one.
    */
-  private void mapSTimeline(STimelineRelation timelineRelation, Map<String, STimelineRelation> minimalTimelineRelations, EList<STimelineRelation> minimalTimelineRelationList, boolean minimal) {
+  private void mapSTimeline(STimelineRelation timelineRelation, 
+          Map<String, STimelineRelation> minimalTimelineRelations, 
+          List<STimelineRelation> minimalTimelineRelationList, boolean minimal) {
     currentComponentId = idManager.getGlobal().getNewComponentId();
     currentComponentType = "c";
     currentComponentLayer = "VIRTUAL";
@@ -155,7 +160,7 @@ public class STimelineRelation2ANNISMapper extends SRelation2ANNISMapper {
     EList<String> pointsOfTime = documentGraph.getSTimeline().getSPointsOfTime();
     HashSet<STimelineRelation> nonMinimalTimelineRelations = new HashSet<>();
     HashSet<STimelineRelation> minimalTimelineRelations = new HashSet<>();
-    EList<STimelineRelation> minimalTimelineRelationList = new BasicEList<>();
+    
     if (timelineRelations != null && !timelineRelations.isEmpty()) {
       {
         for (STimelineRelation timelineRel1 : timelineRelations) {
@@ -171,29 +176,33 @@ public class STimelineRelation2ANNISMapper extends SRelation2ANNISMapper {
           if (relationIsMinimal) {
             int interval = timelineRel1.getSEnd() - timelineRel1.getSStart();
             minimalTimelineRelations.add(timelineRel1);
-            minimalTimelineRelationList.add(timelineRel1);
           } else {
             nonMinimalTimelineRelations.add(timelineRel1);
           }
         }
       }
-      Map<String, STimelineRelation> minimalTimelineRelationsSortedByStart = this.sortTimelineRelationsByStart(minimalTimelineRelationList);
-      for (STimelineRelation t : minimalTimelineRelations) {
-        this.mapSTimeline(t, minimalTimelineRelationsSortedByStart, minimalTimelineRelationList, true);
-      }
-      for (STimelineRelation t : nonMinimalTimelineRelations) {
-        this.mapSTimeline(t, minimalTimelineRelationsSortedByStart, minimalTimelineRelationList, false);
-      }
-      {
-        EList<STimelineRelation> sortedMinimalTimelineRelationList = new BasicEList<>();
-        EList<Long> sortedMinimalIdList = new BasicEList<>();
-        for (String pot : pointsOfTime) {
-          for (String key : minimalTimelineRelationsSortedByStart.keySet()) {
-            if (key.equals(pot)) {
-              sortedMinimalTimelineRelationList.add(minimalTimelineRelationsSortedByStart.get(key));
-            }
+      
+      Map<String, STimelineRelation> minimalTimelineRelationsSortedByStart
+              = this.sortTimelineRelationsByStart(minimalTimelineRelations);
+      EList<STimelineRelation> sortedMinimalTimelineRelationList = new BasicEList<>();
+      for (String pot : pointsOfTime) {
+        for (String key : minimalTimelineRelationsSortedByStart.keySet()) {
+          if (key.equals(pot)) {
+            sortedMinimalTimelineRelationList.add(minimalTimelineRelationsSortedByStart.get(key));
           }
         }
+      }
+      
+      for (STimelineRelation t : minimalTimelineRelations) {
+        this.mapSTimeline(t, minimalTimelineRelationsSortedByStart, sortedMinimalTimelineRelationList, true);
+      }
+      for (STimelineRelation t : nonMinimalTimelineRelations) {
+        this.mapSTimeline(t, minimalTimelineRelationsSortedByStart, sortedMinimalTimelineRelationList, false);
+      }
+      {
+
+        
+        EList<Long> sortedMinimalIdList = new BasicEList<>();
         for (STimelineRelation tr : sortedMinimalTimelineRelationList) {
           EList<Long> tr_IdS = idManager.getVirtualisedTokenId(tr.getSToken().getSId());
           if (tr_IdS.size() > 1) {
@@ -204,7 +213,7 @@ public class STimelineRelation2ANNISMapper extends SRelation2ANNISMapper {
             sortedMinimalIdList.add(tr_IdS.get(0));
           }
         }
-        idManager.registerVirtualTokenIdList(sortedMinimalIdList);
+        idManager.registerMininmalVirtToken(sortedMinimalIdList);
       }
     }
   }
@@ -216,7 +225,7 @@ public class STimelineRelation2ANNISMapper extends SRelation2ANNISMapper {
    * @param sTimelineRelations the {@link STimelineRelation} objects to sort
    * @return The sorted {@link STimelineRelation} objects
    */
-  private Map<String, STimelineRelation> sortTimelineRelationsByStart(EList<STimelineRelation> sTimelineRelations) {
+  private Map<String, STimelineRelation> sortTimelineRelationsByStart(Collection<STimelineRelation> sTimelineRelations) {
     HashMap<String, STimelineRelation> retVal = new HashMap<>();
     for (STimelineRelation t : sTimelineRelations) {
       if (t.getSToken() != null) {

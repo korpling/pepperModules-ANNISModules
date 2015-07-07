@@ -17,12 +17,10 @@
  */
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis;
 
-import com.google.common.base.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpus;
@@ -34,10 +32,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,8 +58,9 @@ public class IdManager {
   private Long textId = 0l;
 
   // the virtual tokens which are sorted by their point of time
-  private EList<Long> virtualTokenIdList = null;
-
+  private final Lock lockVirtMinTokenID2Index = new ReentrantLock();
+  private final Map<Long, Long> virtMinTokenID2Index = new TreeMap<>();
+ 
   protected ConcurrentMap<String, SegmentationInfo> segmentationInfoTable = null;
   
   public IdManager(GlobalIdManager globalIdManager) {
@@ -71,8 +70,6 @@ public class IdManager {
     this.textIdMap = new ConcurrentHashMap<>();
     this.tokenVirtualisationMapping = new ConcurrentHashMap<>();
     this.spanVirtualisationMapping = new ConcurrentHashMap<>();
-
-    this.virtualTokenIdList = new BasicEList<>();
 
     this.textId = 0l;
 
@@ -89,18 +86,26 @@ public class IdManager {
   }
 
   /**
-   * This method returns the token id of the first and last covered virtual
-   * token.
+   * This method returns the token indexes for a list of virtual token IDs (ANNIS IDs).
+   * The token must be a minimal one. Use {@link #getVirtualisedTokenId(java.lang.String) }
+   * to get a list of all minimal token for a non-minimal token.
    *
-   * @param leftTokenRAId The ANNIS id of the first covered token
-   * @param rightTokenRAId The ANNIS id of the last covered token
-   * @return A pair of token ids
+   * @param tokenIDs
+   * @return An array with the token index for each requested ID. Has the same length as {@code tokenIDs}.
    */
-  public synchronized Pair<Long, Long> getLeftRightVirtualToken(Long leftTokenRAId, Long rightTokenRAId) {
-    Pair<Long, Long> returnVal;
-    returnVal = new ImmutablePair<>((long) virtualTokenIdList.indexOf(leftTokenRAId), (long) virtualTokenIdList.indexOf(rightTokenRAId));
+  public Long[] getMinimalVirtTokenIndex(Long... tokenIDs ) {
+    Long[] returnVal = new Long[tokenIDs.length];
+    lockVirtMinTokenID2Index.lock();
+    try {
+      for(int i=0; i < tokenIDs.length; i++) {
+        returnVal[i] = virtMinTokenID2Index.get(tokenIDs[i]);
+      }
+    } finally {
+      lockVirtMinTokenID2Index.unlock();
+    }
     return returnVal;
   }
+
 
   /**
    * This method registers a segment index, segment name and segment span for
@@ -128,13 +133,23 @@ public class IdManager {
   }
 
   /**
-   * This method is used to set the list of virtual tokens which is sorted by
-   * the Point Of Time of the respective vitrual tokens.
+   * This method is used to set the map of token indexes for virtual tokens.
    *
-   * @param virtTokIdList the sorted token id list
+   * @param mininalVirtTokenIDs A list of minimal virtual token IDs sorted according to their index.
    */
-  public synchronized void registerVirtualTokenIdList(EList<Long> virtTokIdList) {
-    this.virtualTokenIdList = virtTokIdList;
+  public void registerMininmalVirtToken(List<Long> mininalVirtTokenIDs) {
+    lockVirtMinTokenID2Index.lock();
+    try {
+      this.virtMinTokenID2Index.clear();
+      long i=0; 
+      for(Long l : mininalVirtTokenIDs) {
+        this.virtMinTokenID2Index.put(l, i);
+        i++;
+      }
+    }
+    finally {
+      lockVirtMinTokenID2Index.unlock();
+    }
   }
 
   /**
@@ -165,8 +180,15 @@ public class IdManager {
     return this.tokenVirtualisationMapping.get(tokenId);
   }
 
-  public synchronized int getNumberOfVirtualToken() {
-    return virtualTokenIdList == null ? 0 : virtualTokenIdList.size();
+  public int getNumberOfVirtualToken() {
+    int result = 0;
+    lockVirtMinTokenID2Index.lock();
+    try {
+      result = virtMinTokenID2Index.size();
+    } finally {
+      lockVirtMinTokenID2Index.unlock();
+    }
+    return result;
   }
 
   /**

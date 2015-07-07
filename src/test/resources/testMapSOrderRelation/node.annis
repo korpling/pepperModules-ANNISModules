@@ -6,14 +6,14 @@
 4	0	1	default_layer	sTok2_virtualSpan	1	1	NULL	1	1	1	default_seg0	this	TRUE
 7	0	1	default_layer	sTok3_virtualToken	2	2	2	2	2	NULL	NULL	 	FALSE
 6	0	1	default_layer	sTok3_virtualSpan	2	2	NULL	2	2	2	default_seg0	example	TRUE
-9	0	1	default_layer	sTok11_virtualToken	9	9	9	9	9	NULL	NULL	 	FALSE
-8	0	1	default_layer	sTok11_virtualSpan	9	9	NULL	9	9	10	default_seg0	?	TRUE
+9	0	1	default_layer	sTok11_virtualToken	11	11	11	11	11	NULL	NULL	 	FALSE
+8	0	1	default_layer	sTok11_virtualSpan	11	11	NULL	11	11	10	default_seg0	?	TRUE
 11	0	1	default_layer	sTok1_virtualToken	0	0	0	0	0	NULL	NULL	 	FALSE
 10	0	1	default_layer	sTok1_virtualSpan	0	0	NULL	0	0	0	default_seg0	Is	TRUE
-13	0	1	default_layer	sTok13_virtualToken	10	10	10	10	10	NULL	NULL	 	FALSE
-12	0	1	default_layer	sTok13_virtualSpan	9	9	NULL	9	9	1	default_seg1	oh	TRUE
-15	0	1	default_layer	sTok14_virtualToken	11	11	11	11	11	NULL	NULL	 	FALSE
-14	0	1	default_layer	sTok14_virtualSpan	10	10	NULL	10	10	2	default_seg1	yes!	TRUE
+13	0	1	default_layer	sTok13_virtualToken	9	9	9	9	9	NULL	NULL	 	FALSE
+12	0	1	default_layer	sTok13_virtualSpan	9	9	NULL	9	9	1	default_seg1	oh	FALSE
+15	0	1	default_layer	sTok14_virtualToken	10	10	10	10	10	NULL	NULL	 	FALSE
+14	0	1	default_layer	sTok14_virtualSpan	10	10	NULL	10	10	2	default_seg1	yes!	FALSE
 17	0	1	default_layer	sTok8_virtualToken	7	7	7	7	7	NULL	NULL	 	FALSE
 16	0	1	default_layer	sTok8_virtualSpan	7	7	NULL	7	7	7	default_seg0	appears	TRUE
 19	0	1	default_layer	sTok9_virtualToken	8	8	8	8	8	NULL	NULL	 	FALSE
