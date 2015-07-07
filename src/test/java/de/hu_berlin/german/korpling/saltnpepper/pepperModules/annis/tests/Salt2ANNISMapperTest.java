@@ -33,6 +33,7 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SOrderRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SPointingRelation;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpan;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SStructuredNode;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STYPE_NAME;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualDS;
@@ -585,6 +586,16 @@ public class Salt2ANNISMapperTest
   {
     // create the primary text
     SampleGenerator.createDialogue(getFixture().getSDocument());
+    
+    // add a span which overlaps a token which gets a new token-index after the
+    // artificial tokenization was created
+    SDocumentGraph g = getFixture().getSDocument().getSDocumentGraph();
+    EList<SToken> coveredBySpan = new BasicEList<>();
+    coveredBySpan.add(g.getSTokens().get(g.getSTokens().size()-2));
+    coveredBySpan.add(g.getSTokens().get(g.getSTokens().size()-1));
+    assertEquals("oh", g.getSText(coveredBySpan.get(0)));
+    assertEquals("yes!", g.getSText(coveredBySpan.get(1)));
+    g.createSSpan(coveredBySpan);
 
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
     
