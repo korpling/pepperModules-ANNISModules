@@ -939,28 +939,28 @@ public class Salt2ANNISMapperTest
     timeRelHello.setSTimeline(timeLine);
     timeRelHello.setSToken(tokHello);
     timeRelHello.setSStart(0);
-    timeRelHello.setSEnd(5);
+    timeRelHello.setSEnd(6);
     g.addSRelation(timeRelHello);
     
     STimelineRelation timeRelWorld = SaltFactory.eINSTANCE.createSTimelineRelation();
     timeRelWorld.setSTimeline(timeLine);
     timeRelWorld.setSToken(tokWorld);
     timeRelWorld.setSStart(1);
-    timeRelWorld.setSEnd(1);
+    timeRelWorld.setSEnd(2);
     g.addSRelation(timeRelWorld);
     
     STimelineRelation timeRelExclamation = SaltFactory.eINSTANCE.createSTimelineRelation();
     timeRelExclamation.setSTimeline(timeLine);
     timeRelExclamation.setSToken(tokExclamation);
     timeRelExclamation.setSStart(3);
-    timeRelExclamation.setSEnd(3);
+    timeRelExclamation.setSEnd(4);
     g.addSRelation(timeRelExclamation);
     
     STimelineRelation timeRelQuestion = SaltFactory.eINSTANCE.createSTimelineRelation();
     timeRelQuestion.setSTimeline(timeLine);
     timeRelQuestion.setSToken(tokQuestion);
     timeRelQuestion.setSStart(6);
-    timeRelQuestion.setSEnd(6);
+    timeRelQuestion.setSEnd(7);
     g.addSRelation(timeRelQuestion);
     
     SOrderRelation orderRel1 = SaltFactory.eINSTANCE.createSOrderRelation();

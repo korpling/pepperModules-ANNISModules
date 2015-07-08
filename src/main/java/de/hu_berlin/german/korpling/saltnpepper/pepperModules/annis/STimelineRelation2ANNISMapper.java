@@ -99,7 +99,7 @@ public class STimelineRelation2ANNISMapper extends SRelation2ANNISMapper {
    
     
     token_left = (long) timelineRelation.getSStart();
-    token_right = (long) timelineRelation.getSEnd();
+    token_right = (long) timelineRelation.getSEnd()-1;
 
     for(long i = token_left; i <= token_right; i++) {
        String virtualTokenName = "virtualToken" + i;
@@ -170,7 +170,7 @@ public class STimelineRelation2ANNISMapper extends SRelation2ANNISMapper {
         if (timelineRel1.getSToken() != null) {
 
           timlineRelationsSet.add(timelineRel1);
-          virtualCovered.set(timelineRel1.getSStart(), timelineRel1.getSEnd()+1);
+          virtualCovered.set(timelineRel1.getSStart(), timelineRel1.getSEnd());
         }
       } // end for each timeline relation
     }
