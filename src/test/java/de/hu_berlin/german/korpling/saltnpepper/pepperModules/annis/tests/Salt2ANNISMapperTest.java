@@ -927,18 +927,19 @@ public class Salt2ANNISMapperTest
       timeLine.addSPointOfTime("" + i);
     }
     
-    STextualDS text1 = g.createSTextualDS("Hello");
+    STextualDS text1 = g.createSTextualDS("Hello?");
     STextualDS text2 = g.createSTextualDS("World!");
     
     SToken tokHello = g.createSToken(text1, 0, 5);
     SToken tokWorld = g.createSToken(text2, 0, 5);
     SToken tokExclamation = g.createSToken(text2, 5, 6);
+    SToken tokQuestion = g.createSToken(text1, 5, 6);
     
     STimelineRelation timeRelHello = SaltFactory.eINSTANCE.createSTimelineRelation();
     timeRelHello.setSTimeline(timeLine);
     timeRelHello.setSToken(tokHello);
     timeRelHello.setSStart(0);
-    timeRelHello.setSEnd(6);
+    timeRelHello.setSEnd(5);
     g.addSRelation(timeRelHello);
     
     STimelineRelation timeRelWorld = SaltFactory.eINSTANCE.createSTimelineRelation();
@@ -955,11 +956,24 @@ public class Salt2ANNISMapperTest
     timeRelExclamation.setSEnd(3);
     g.addSRelation(timeRelExclamation);
     
-    SOrderRelation orderRel = SaltFactory.eINSTANCE.createSOrderRelation();
-    orderRel.setSSource(tokWorld);
-    orderRel.setSTarget(tokExclamation);
-    orderRel.addSType("tok2");
-    g.addSRelation(orderRel);
+    STimelineRelation timeRelQuestion = SaltFactory.eINSTANCE.createSTimelineRelation();
+    timeRelQuestion.setSTimeline(timeLine);
+    timeRelQuestion.setSToken(tokQuestion);
+    timeRelQuestion.setSStart(6);
+    timeRelQuestion.setSEnd(6);
+    g.addSRelation(timeRelQuestion);
+    
+    SOrderRelation orderRel1 = SaltFactory.eINSTANCE.createSOrderRelation();
+    orderRel1.setSSource(tokHello);
+    orderRel1.setSTarget(tokQuestion);
+    orderRel1.addSType("tok1");
+    g.addSRelation(orderRel1);
+    
+    SOrderRelation orderRel2 = SaltFactory.eINSTANCE.createSOrderRelation();
+    orderRel2.setSSource(tokWorld);
+    orderRel2.setSTarget(tokExclamation);
+    orderRel2.addSType("tok2");
+    g.addSRelation(orderRel2);
     
     doMapping();
     
