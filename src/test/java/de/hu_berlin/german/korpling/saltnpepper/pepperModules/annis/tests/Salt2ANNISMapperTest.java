@@ -38,6 +38,7 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructu
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STYPE_NAME;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualDS;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualRelation;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STimeline;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STimelineRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SLayer;
@@ -914,6 +915,58 @@ public class Salt2ANNISMapperTest
     assertFalse("There was no file to be compared in folder '" + testPath.
       getAbsolutePath() + "' and folder '" + tmpPath.getAbsolutePath() + "'.",
       new Integer(0).equals(compareFiles(testPath, tmpPath)));
+  }
+  
+  @Test
+  public void testMapVirtualTokenWithMissing() throws IOException
+  {
+    SDocumentGraph g = getFixture().getSDocument().getSDocumentGraph();
+    
+    STimeline timeLine = g.createSTimeline();
+    for(int i=0; i <= 7; i++) {
+      timeLine.addSPointOfTime("" + i);
+    }
+    
+    STextualDS text1 = g.createSTextualDS("Hello");
+    STextualDS text2 = g.createSTextualDS("World!");
+    
+    SToken tokHello = g.createSToken(text1, 0, 5);
+    SToken tokWorld = g.createSToken(text2, 0, 5);
+    SToken tokExclamation = g.createSToken(text2, 5, 6);
+    
+    STimelineRelation timeRelHello = SaltFactory.eINSTANCE.createSTimelineRelation();
+    timeRelHello.setSTimeline(timeLine);
+    timeRelHello.setSToken(tokHello);
+    timeRelHello.setSStart(0);
+    timeRelHello.setSEnd(6);
+    g.addSRelation(timeRelHello);
+    
+    STimelineRelation timeRelWorld = SaltFactory.eINSTANCE.createSTimelineRelation();
+    timeRelWorld.setSTimeline(timeLine);
+    timeRelWorld.setSToken(tokWorld);
+    timeRelWorld.setSStart(1);
+    timeRelWorld.setSEnd(1);
+    g.addSRelation(timeRelWorld);
+    
+    STimelineRelation timeRelExclamation = SaltFactory.eINSTANCE.createSTimelineRelation();
+    timeRelExclamation.setSTimeline(timeLine);
+    timeRelExclamation.setSToken(tokExclamation);
+    timeRelExclamation.setSStart(3);
+    timeRelExclamation.setSEnd(3);
+    g.addSRelation(timeRelExclamation);
+    
+    SOrderRelation orderRel = SaltFactory.eINSTANCE.createSOrderRelation();
+    orderRel.setSSource(tokWorld);
+    orderRel.setSTarget(tokExclamation);
+    orderRel.addSType("tok2");
+    g.addSRelation(orderRel);
+    
+    doMapping();
+    
+    TabFileComparator.checkEqual(testPath.getAbsolutePath() + "/" + ANNIS.FILE_NODE, 
+      tmpPath.getAbsolutePath() + "/" + ANNIS.FILE_NODE, 0);
+    
+
   }
   
   /**

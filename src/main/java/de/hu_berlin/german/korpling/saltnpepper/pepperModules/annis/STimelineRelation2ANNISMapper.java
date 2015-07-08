@@ -96,7 +96,7 @@ public class STimelineRelation2ANNISMapper extends SRelation2ANNISMapper {
         if(rel != null) {
           overlappedTimelines.add(rel);
         } else {
-          log.warn("No minimal timeline entry found for index {} when processing token {} (span {})", 
+          log.warn("No minimal timeline entry found for index {} when processing token {}", 
                   i, timelineRelation.getSToken().getSId());
         }
       }

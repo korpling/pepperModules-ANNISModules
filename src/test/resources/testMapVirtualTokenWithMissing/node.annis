@@ -1,0 +1,11 @@
+0	0	1	default_layer	virtualToken0	0	0	0	0	0	NULL	NULL	 	FALSE
+1	0	1	default_layer	virtualToken1	1	1	1	1	1	NULL	NULL	 	FALSE
+2	0	1	default_layer	virtualToken2	2	2	2	2	2	NULL	NULL	 	FALSE
+3	0	1	default_layer	virtualToken3	3	3	3	3	3	NULL	NULL	 	FALSE
+4	0	1	default_layer	virtualToken4	4	4	4	4	4	NULL	NULL	 	FALSE
+5	0	1	default_layer	virtualToken1	5	5	5	5	5	NULL	NULL	 	FALSE
+6	0	1	default_layer	virtualToken1	6	6	6	6	6	NULL	NULL	 	FALSE
+7	0	1	default_layer	virtualToken7	7	7	7	7	7	NULL	NULL	 	TRUE
+8	0	1	default_layer	sTok1_virtualSpan	0	0	NULL	0	0	0	default_seg0	Hello	TRUE
+9	0	1	default_ns	sTok2_virtualSpan	1	1	NULL	1	1	0	tok2	World	TRUE
+10	0	1	default_ns	sTok3_virtualSpan	3	3	NULL	3	3	1	tok2	!	TRUE
