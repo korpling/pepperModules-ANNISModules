@@ -24,11 +24,12 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructu
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.BitSet;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
+import java.util.Set;
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 import org.slf4j.Logger;
@@ -45,10 +46,28 @@ public class STimelineRelation2ANNISMapper extends SRelation2ANNISMapper {
   public STimelineRelation2ANNISMapper(IdManager idManager, SDocumentGraph documentGraph, Map<SToken, Long> token2Index, TupleWriter nodeTabWriter, TupleWriter nodeAnnoTabWriter, TupleWriter rankTabWriter, TupleWriter edgeAnnoTabWriter, TupleWriter componentTabWriter, Salt2ANNISMapper parentMapper) {
     super(idManager, documentGraph, token2Index, nodeTabWriter, nodeAnnoTabWriter, rankTabWriter, edgeAnnoTabWriter, componentTabWriter, parentMapper);
   }
+  
+  private VirtualNodeID mapPointOfTime(long tokenIndex, boolean isRoot) {
+    
+    String virtualTokenName = "virtualToken" + tokenIndex;
+    VirtualNodeID virtualTokenId = idManager.getVirtualNodeId(virtualTokenName);
+    Long corpus_ref = idManager.getNewCorpusTabId(documentGraph.getSDocument().getSId());
+
+    long token_left = tokenIndex;
+    long token_right = tokenIndex;
+    if (virtualTokenId.isFresh()) {
+      super.writeNodeTabEntry(virtualTokenId.getNodeID(),
+              0L, corpus_ref, SRelation2ANNISMapper.DEFAULT_LAYER,
+              virtualTokenName, tokenIndex, tokenIndex, tokenIndex,
+              token_left, token_right, null, null, " ", isRoot);
+    }
+    
+    return virtualTokenId;
+  }
 
   /**
    * This method maps the given {@link STimelineRelation} timelineRelation with
-   * use of the minimal timeline relations.
+   * use of the virtual tokens.
    *
    * @param timelineRelation The {@link STimelineRelation} to map
    * @param minimalTimelineRelations The set of {@link STimelineRelation}
@@ -58,9 +77,7 @@ public class STimelineRelation2ANNISMapper extends SRelation2ANNISMapper {
    * minimal, i.e. there is no other timeline which is contained in the given
    * one.
    */
-  private void mapSTimeline(STimelineRelation timelineRelation, 
-          Map<Integer, STimelineRelation> minimalTimelineRelations, 
-          Map<STimelineRelation, Long> timelineRel2TokenIndex, boolean minimal) {
+  private void mapSTimeline(STimelineRelation timelineRelation) {
     currentComponentId = idManager.getGlobal().getNewComponentId();
     currentComponentType = "c";
     currentComponentLayer = "VIRTUAL";
@@ -78,40 +95,20 @@ public class STimelineRelation2ANNISMapper extends SRelation2ANNISMapper {
     virtualSpanSId = virtualSpanSId + "_virtualSpan";
     String virtualSpanName = tok.getSName() + "_virtualSpan";
     VirtualNodeID virtualSpanId = idManager.getVirtualNodeId(virtualSpanSId);
-    EList<Long> virtualTokenIds = new BasicEList<>();
-    if (minimal) {
-      String virtualTokenName = tok.getSName() + "_virtualToken";
+    EList<Long> overlappedVirtualTokenIds = new BasicEList<>();
+   
+    
+    token_left = (long) timelineRelation.getSStart();
+    token_right = (long) timelineRelation.getSEnd();
+
+    for(long i = token_left; i <= token_right; i++) {
+       String virtualTokenName = "virtualToken" + i;
       VirtualNodeID virtualTokenId = idManager.getVirtualNodeId(virtualTokenName);
-      virtualTokenIds.add(virtualTokenId.getNodeID());
-      Long tokenIndex = timelineRel2TokenIndex.get(timelineRelation);
-      token_left = tokenIndex;
-      token_right = tokenIndex;
-      if (virtualTokenId.isFresh()) {
-        super.writeNodeTabEntry(virtualTokenId.getNodeID(), 0L, corpus_ref, SRelation2ANNISMapper.DEFAULT_LAYER, virtualTokenName, tokenIndex, tokenIndex, tokenIndex, token_left, token_right, null, null, " ", false);
-      }
-    } else {
-      List<STimelineRelation> overlappedTimelines = new ArrayList<>();
-      for (Integer i = timelineRelation.getSStart(); i < timelineRelation.getSEnd(); i++) {
-        STimelineRelation rel = minimalTimelineRelations.get(i);
-        if(rel != null) {
-          overlappedTimelines.add(rel);
-        } else {
-          log.warn("No minimal timeline entry found for index {} when processing token {}", 
-                  i, timelineRelation.getSToken().getSId());
-        }
-      }
-      {
-        token_left = timelineRel2TokenIndex.get(overlappedTimelines.get(0));
-        token_right = timelineRel2TokenIndex.get(overlappedTimelines.get(overlappedTimelines.size() - 1));
-      }
-      for (STimelineRelation overlappedRelation : overlappedTimelines) {
-        SToken overlappedToken = overlappedRelation.getSToken();
-        String virtualTokenName = overlappedToken.getSName() + "_virtualToken";
-        VirtualNodeID virtualTokenId = idManager.getVirtualNodeId(virtualTokenName);
-        virtualTokenIds.add(virtualTokenId.getNodeID());
-      }
+      overlappedVirtualTokenIds.add(virtualTokenId.getNodeID());
     }
-    idManager.registerTokenVirtMapping(tok.getSId(), virtualSpanId.getNodeID(), virtualTokenIds);
+    
+
+    idManager.registerTokenVirtMapping(tok.getSId(), virtualSpanId.getNodeID(), overlappedVirtualTokenIds);
     if (virtualSpanId.isFresh()) {
       Long segId = null;
       String segName = null;
@@ -134,7 +131,7 @@ public class STimelineRelation2ANNISMapper extends SRelation2ANNISMapper {
       prePostOrder = (long) 1;
       Long parentRank = idManager.getGlobal().getNewRankId();
       {
-        for (Long tokId : virtualTokenIds) {
+        for (Long tokId : overlappedVirtualTokenIds) {
           getNewPPOrder();
           getNewPPOrder();
         }
@@ -158,71 +155,39 @@ public class STimelineRelation2ANNISMapper extends SRelation2ANNISMapper {
    * overlapped by a {@link STimelineRelation}
    */
   private void createVirtualTokenization() {
-    EList<STimelineRelation> timelineRelations = documentGraph.getSTimelineRelations();
-    LinkedHashSet<STimelineRelation> nonMinimalTimelineRelations = new LinkedHashSet<>();
     
-    TreeMap<Integer, STimelineRelation> minimalTimelineRelations = new TreeMap<>();
+    
+    List<String> timelineItems = documentGraph.getSTimeline().getSPointsOfTime();
+    // create a set of token indexes
+    BitSet virtualCovered = new BitSet(timelineItems.size());
+    
+    EList<STimelineRelation> timelineRelations = documentGraph.getSTimelineRelations();
+    LinkedHashSet<STimelineRelation> timlineRelationsSet = new LinkedHashSet<>();
     
     if (timelineRelations != null && !timelineRelations.isEmpty()) {
-      {
-        for (STimelineRelation timelineRel1 : timelineRelations) {
-          
-          if(timelineRel1.getSToken() != null) {
+      for (STimelineRelation timelineRel1 : timelineRelations) {
 
-            boolean relationIsMinimal = true;
-            for (STimelineRelation timelineRel2 : timelineRelations) {
-              if (!timelineRel1.equals(timelineRel2)) {
-                if ((timelineRel2.getSStart() >= timelineRel1.getSStart() && timelineRel2.getSEnd() < timelineRel1.getSEnd()) || (timelineRel2.getSStart() > timelineRel1.getSStart() && timelineRel2.getSEnd() <= timelineRel1.getSEnd())) {
-                  relationIsMinimal = false;
-                  break;
-                }
-              }
-            }
-            if (relationIsMinimal) {
-              if(minimalTimelineRelations.containsKey(timelineRel1.getSStart())) {
-                // there is already a minimal virtual token for this start, mark this token as "non-minimal"
-                // "end" is not considered since a minimal token will distinctively definied by the start value
-                nonMinimalTimelineRelations.add(timelineRel1);
-              } else {
-                minimalTimelineRelations.put(timelineRel1.getSStart(), timelineRel1);
-              }
-            } else {
-              nonMinimalTimelineRelations.add(timelineRel1);
-            }
-          }
-        } // end for each timeline relation
-      }
-      
-      // since we a are using a TreeMap the values are already sorted
-      LinkedHashMap<STimelineRelation, Long> timelineRel2TokenIndex
-              = new LinkedHashMap<>();
-      long i=0;
-      for(STimelineRelation rel : minimalTimelineRelations.values()) {
-        timelineRel2TokenIndex.put(rel, i++);
-      }
-      
-      for (STimelineRelation t : minimalTimelineRelations.values()) {
-        this.mapSTimeline(t, minimalTimelineRelations, timelineRel2TokenIndex, true);
-      }
-      for (STimelineRelation t : nonMinimalTimelineRelations) {
-        this.mapSTimeline(t, minimalTimelineRelations, timelineRel2TokenIndex, false);
-      }
-      {
+        if (timelineRel1.getSToken() != null) {
 
-        
-        EList<Long> sortedMinimalIdList = new BasicEList<>();
-        for (STimelineRelation tr : minimalTimelineRelations.values()) {
-          EList<Long> tr_IdS = idManager.getVirtualisedTokenId(tr.getSToken().getSId());
-          if (tr_IdS.size() > 1) {
-            log.warn("minimal timeline relation has more than one virtual token id");
-          } else if (tr_IdS.isEmpty()) {
-            log.warn("token {} is not mapped to virtual one", tr.getSToken().getSId(), tr_IdS);
-          } else {
-            sortedMinimalIdList.add(tr_IdS.get(0));
-          }
+          timlineRelationsSet.add(timelineRel1);
+          virtualCovered.set(timelineRel1.getSStart(), timelineRel1.getSEnd()+1);
         }
-        idManager.registerMininmalVirtToken(sortedMinimalIdList);
-      }
+      } // end for each timeline relation
+    }
+    
+    List<Long> virtualTokenNodeIDs = new ArrayList<>(timelineItems.size());
+    
+    // create a virtual token for each point of time
+    int tokenIndex=0;
+    for(String pot : timelineItems) {
+      boolean isCovered = virtualCovered.get(tokenIndex);
+      VirtualNodeID tokID = mapPointOfTime(tokenIndex++, !isCovered);
+      virtualTokenNodeIDs.add(tokID.getNodeID());
+    }
+    idManager.registerMininmalVirtToken(virtualTokenNodeIDs);
+
+    for (STimelineRelation t : timlineRelationsSet) {
+      this.mapSTimeline(t);
     }
   }
 

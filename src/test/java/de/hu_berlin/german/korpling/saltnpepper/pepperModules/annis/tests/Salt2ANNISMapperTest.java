@@ -923,7 +923,7 @@ public class Salt2ANNISMapperTest
     SDocumentGraph g = getFixture().getSDocument().getSDocumentGraph();
     
     STimeline timeLine = g.createSTimeline();
-    for(int i=0; i <= 7; i++) {
+    for(int i=1; i <= 7; i++) {
       timeLine.addSPointOfTime("" + i);
     }
     
