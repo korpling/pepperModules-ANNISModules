@@ -12,4 +12,5 @@
 11	c	VIRTUAL	timelineRelationMapping
 12	c	VIRTUAL	timelineRelationMapping
 13	c	VIRTUAL	timelineRelationMapping
-14	c	default_ns	NULL
+14	c	VIRTUAL	timelineRelationMapping
+15	c	default_ns	NULL

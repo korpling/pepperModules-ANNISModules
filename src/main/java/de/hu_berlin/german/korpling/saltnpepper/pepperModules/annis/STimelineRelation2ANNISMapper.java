@@ -17,11 +17,6 @@
  */
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis;
 
-import com.google.common.base.Joiner;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Multimaps;
-import com.google.common.collect.TreeMultimap;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STYPE_NAME;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STimelineRelation;
@@ -29,11 +24,8 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructu
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -61,14 +53,14 @@ public class STimelineRelation2ANNISMapper extends SRelation2ANNISMapper {
    * @param timelineRelation The {@link STimelineRelation} to map
    * @param minimalTimelineRelations The set of {@link STimelineRelation}
    * objects indexed by their start Point of Time
-   * @param minimalTimelineRelationList A list of minimal timeline relations
+   * @param timelineRel2TokenIndex A map from a minimal timeline relation to it's token index
    * @param minimal States whether the given {@link STimelineRelation} is
    * minimal, i.e. there is no other timeline which is contained in the given
    * one.
    */
   private void mapSTimeline(STimelineRelation timelineRelation, 
-          Multimap<Integer, STimelineRelation> minimalTimelineRelations, 
-          List<STimelineRelation> minimalTimelineRelationList, boolean minimal) {
+          Map<Integer, STimelineRelation> minimalTimelineRelations, 
+          Map<STimelineRelation, Long> timelineRel2TokenIndex, boolean minimal) {
     currentComponentId = idManager.getGlobal().getNewComponentId();
     currentComponentType = "c";
     currentComponentLayer = "VIRTUAL";
@@ -91,20 +83,26 @@ public class STimelineRelation2ANNISMapper extends SRelation2ANNISMapper {
       String virtualTokenName = tok.getSName() + "_virtualToken";
       VirtualNodeID virtualTokenId = idManager.getVirtualNodeId(virtualTokenName);
       virtualTokenIds.add(virtualTokenId.getNodeID());
-      Long tokenIndex = (long) minimalTimelineRelationList.indexOf(timelineRelation);
+      Long tokenIndex = timelineRel2TokenIndex.get(timelineRelation);
       token_left = tokenIndex;
       token_right = tokenIndex;
       if (virtualTokenId.isFresh()) {
         super.writeNodeTabEntry(virtualTokenId.getNodeID(), 0L, corpus_ref, SRelation2ANNISMapper.DEFAULT_LAYER, virtualTokenName, tokenIndex, tokenIndex, tokenIndex, token_left, token_right, null, null, " ", false);
       }
     } else {
-      EList<STimelineRelation> overlappedTimelines = new BasicEList<>();
+      List<STimelineRelation> overlappedTimelines = new ArrayList<>();
       for (Integer i = timelineRelation.getSStart(); i < timelineRelation.getSEnd(); i++) {
-        overlappedTimelines.addAll(minimalTimelineRelations.get(i));
+        STimelineRelation rel = minimalTimelineRelations.get(i);
+        if(rel != null) {
+          overlappedTimelines.add(rel);
+        } else {
+          log.warn("No minimal timeline entry found for index {} when processing token {} (span {})", 
+                  i, timelineRelation.getSToken().getSId());
+        }
       }
       {
-        token_left = (long) minimalTimelineRelationList.indexOf(overlappedTimelines.get(0));
-        token_right = (long) minimalTimelineRelationList.indexOf(overlappedTimelines.get(overlappedTimelines.size() - 1));
+        token_left = timelineRel2TokenIndex.get(overlappedTimelines.get(0));
+        token_right = timelineRel2TokenIndex.get(overlappedTimelines.get(overlappedTimelines.size() - 1));
       }
       for (STimelineRelation overlappedRelation : overlappedTimelines) {
         SToken overlappedToken = overlappedRelation.getSToken();
@@ -161,60 +159,59 @@ public class STimelineRelation2ANNISMapper extends SRelation2ANNISMapper {
    */
   private void createVirtualTokenization() {
     EList<STimelineRelation> timelineRelations = documentGraph.getSTimelineRelations();
-    HashSet<STimelineRelation> nonMinimalTimelineRelations = new HashSet<>();
-    HashSet<STimelineRelation> minimalTimelineRelations = new HashSet<>();
+    LinkedHashSet<STimelineRelation> nonMinimalTimelineRelations = new LinkedHashSet<>();
+    
+    TreeMap<Integer, STimelineRelation> minimalTimelineRelations = new TreeMap<>();
     
     if (timelineRelations != null && !timelineRelations.isEmpty()) {
       {
         for (STimelineRelation timelineRel1 : timelineRelations) {
-          boolean relationIsMinimal = true;
-          for (STimelineRelation timelineRel2 : timelineRelations) {
-            if (!timelineRel1.equals(timelineRel2)) {
-              if ((timelineRel2.getSStart() >= timelineRel1.getSStart() && timelineRel2.getSEnd() < timelineRel1.getSEnd()) || (timelineRel2.getSStart() > timelineRel1.getSStart() && timelineRel2.getSEnd() <= timelineRel1.getSEnd())) {
-                relationIsMinimal = false;
-                break;
+          
+          if(timelineRel1.getSToken() != null) {
+
+            boolean relationIsMinimal = true;
+            for (STimelineRelation timelineRel2 : timelineRelations) {
+              if (!timelineRel1.equals(timelineRel2)) {
+                if ((timelineRel2.getSStart() >= timelineRel1.getSStart() && timelineRel2.getSEnd() < timelineRel1.getSEnd()) || (timelineRel2.getSStart() > timelineRel1.getSStart() && timelineRel2.getSEnd() <= timelineRel1.getSEnd())) {
+                  relationIsMinimal = false;
+                  break;
+                }
               }
             }
+            if (relationIsMinimal) {
+              if(minimalTimelineRelations.containsKey(timelineRel1.getSStart())) {
+                // there is already a minimal virtual token for this start, mark this token as "non-minimal"
+                // "end" is not considered since a minimal token will distinctively definied by the start value
+                nonMinimalTimelineRelations.add(timelineRel1);
+              } else {
+                minimalTimelineRelations.put(timelineRel1.getSStart(), timelineRel1);
+              }
+            } else {
+              nonMinimalTimelineRelations.add(timelineRel1);
+            }
           }
-          if (relationIsMinimal) {
-            int interval = timelineRel1.getSEnd() - timelineRel1.getSStart();
-            minimalTimelineRelations.add(timelineRel1);
-          } else {
-            nonMinimalTimelineRelations.add(timelineRel1);
-          }
-        }
+        } // end for each timeline relation
       }
       
-      Multimap<Integer, STimelineRelation> minimalTimelineRelationsSortedByStart
-              = this.timelineRelationsByStart(minimalTimelineRelations);
-      EList<STimelineRelation> sortedMinimalTimelineRelationList = new BasicEList<>();
-      List<Integer> timelineStartsSorted = new LinkedList<>(minimalTimelineRelationsSortedByStart.keySet());
-      Collections.sort(timelineStartsSorted);
-      for(Integer start : timelineStartsSorted) {
-        Collection<STimelineRelation> timeRels = minimalTimelineRelationsSortedByStart.get(start);
-        if(timeRels.size() > 1) {
-          List<String> illegalTokenIDs = new LinkedList<>();
-          for(STimelineRelation rel : timeRels) {
-            illegalTokenIDs.add(rel.getSToken().getSId());
-          }
-           log.warn("createVirtualTokenization: Multiple \"mininal\" token at timeline entry " 
-                   + start + ": " + Joiner.on(", ").join(illegalTokenIDs));
-        }
-        sortedMinimalTimelineRelationList.add(timeRels.iterator().next());
+      // since we a are using a TreeMap the values are already sorted
+      LinkedHashMap<STimelineRelation, Long> timelineRel2TokenIndex
+              = new LinkedHashMap<>();
+      long i=0;
+      for(STimelineRelation rel : minimalTimelineRelations.values()) {
+        timelineRel2TokenIndex.put(rel, i++);
       }
-   
       
-      for (STimelineRelation t : minimalTimelineRelations) {
-        this.mapSTimeline(t, minimalTimelineRelationsSortedByStart, sortedMinimalTimelineRelationList, true);
+      for (STimelineRelation t : minimalTimelineRelations.values()) {
+        this.mapSTimeline(t, minimalTimelineRelations, timelineRel2TokenIndex, true);
       }
       for (STimelineRelation t : nonMinimalTimelineRelations) {
-        this.mapSTimeline(t, minimalTimelineRelationsSortedByStart, sortedMinimalTimelineRelationList, false);
+        this.mapSTimeline(t, minimalTimelineRelations, timelineRel2TokenIndex, false);
       }
       {
 
         
         EList<Long> sortedMinimalIdList = new BasicEList<>();
-        for (STimelineRelation tr : sortedMinimalTimelineRelationList) {
+        for (STimelineRelation tr : minimalTimelineRelations.values()) {
           EList<Long> tr_IdS = idManager.getVirtualisedTokenId(tr.getSToken().getSId());
           if (tr_IdS.size() > 1) {
             log.warn("minimal timeline relation has more than one virtual token id");
@@ -227,24 +224,6 @@ public class STimelineRelation2ANNISMapper extends SRelation2ANNISMapper {
         idManager.registerMininmalVirtToken(sortedMinimalIdList);
       }
     }
-  }
-
-  /**
-   * This method sorts the {@link STimelineRelation} objects given as parameter
-   * by their start Point of Time
-   *
-   * @param sTimelineRelations the {@link STimelineRelation} objects to sort
-   * @return The sorted {@link STimelineRelation} objects
-   */
-  private Multimap<Integer, STimelineRelation> timelineRelationsByStart(Collection<STimelineRelation> sTimelineRelations) {
-    Multimap<Integer, STimelineRelation> retVal = HashMultimap.create();
-    for (STimelineRelation t : sTimelineRelations) {
-      if (t.getSToken() != null) {
-        int startTime = t.getSStart();
-        retVal.put(startTime, t);
-      }
-    }
-    return retVal;
   }
 
   @Override
