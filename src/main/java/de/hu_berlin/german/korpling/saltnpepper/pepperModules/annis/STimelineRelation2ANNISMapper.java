@@ -135,7 +135,6 @@ public class STimelineRelation2ANNISMapper extends SRelation2ANNISMapper {
           if (e instanceof STextualRelation) {
             STextualDS text = ((STextualRelation) e).getSTextualDS();
             textName = text.getSName();
-            getVirtualTokenStats().addOriginalText(textName);
           }
         }
       } else {
@@ -147,7 +146,10 @@ public class STimelineRelation2ANNISMapper extends SRelation2ANNISMapper {
       
       if(segName != null) {
         mapSNodeAnnotation(virtualSpanId.getNodeID(), SRelation2ANNISMapper.DEFAULT_LAYER + "_virtual", segName, span);
-      }  else if(textName != null) {
+
+        getVirtualTokenStats().addVirtualAnnoName(segName);
+      }  else if(textName != null) {        
+        getVirtualTokenStats().addVirtualAnnoName(textName);
         mapSNodeAnnotation(virtualSpanId.getNodeID(), SRelation2ANNISMapper.DEFAULT_LAYER + "_virtual", textName, span);
       }
       if (tok.getSAnnotations() != null) {

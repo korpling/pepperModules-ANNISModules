@@ -30,29 +30,19 @@ import java.util.regex.Pattern;
  * @author Thomas Krause <krauseto@hu-berlin.de>
  */
 public class VirtualTokenStatistics {
-
-  private final Set<String> orderRelations = Collections.synchronizedSet(new HashSet<String>());
   
-  private final Set<String> originalTexts = Collections.synchronizedSet(new HashSet<String>());
+  private final Set<String> virtualAnnoNames = Collections.synchronizedSet(new HashSet<String>());
   
   private final AtomicBoolean hasRealToken = new AtomicBoolean(false);
 
   private final Pattern patternNoToken = Pattern.compile("[0-9 ]*");
-  
-  public void addOrderRelation(String name) {
-    orderRelations.add(name);
-  }
-  
-  public void addOriginalText(String name) {
-    originalTexts.add(name);
-  }
-  
-  public Set<String> getOrderRelations() {
-    return new TreeSet<>(orderRelations);
-  }
 
-  public Set<String> getOriginalTexts() {
-    return new TreeSet<>(originalTexts);
+  public void addVirtualAnnoName(String name) {
+    virtualAnnoNames.add(name);
+  }
+  
+  public Set<String> getVirtualAnnoNames() {
+    return new TreeSet<>(virtualAnnoNames);
   }
   
   
@@ -78,8 +68,7 @@ public class VirtualTokenStatistics {
    * @param other 
    */
   public void merge(VirtualTokenStatistics other) {
-    orderRelations.addAll(other.orderRelations);
-    originalTexts.addAll(other.originalTexts);
+    virtualAnnoNames.addAll(other.virtualAnnoNames);
     hasRealToken.set(hasRealToken.get() || other.hasRealToken.get());
   }
 }

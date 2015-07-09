@@ -1,3 +1,3 @@
-rootCorpus	NULL	default_layer	node	grid		permanent	1	hide_tok:true;annos:default_seg0,default_seg1,spk1_v,spk2_v
-rootCorpus	NULL	default_ns	node	grid	grid (default_ns)	hidden	2	NULL
+rootCorpus	NULL	default_layer	node	grid		permanent	1	hide_tok:true;annos:default_seg0,default_seg1
+rootCorpus	NULL	NULL	node	grid	grid (default_ns)	hidden	2	hide_tok:true;annos:/::spk1_v/,/::spk2_v/,/default_layer_virtual::default_seg0/,/default_layer_virtual::default_seg1/
 rootCorpus	NULL	NULL	NULL	kwic	kwic	removed	3	NULL

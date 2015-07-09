@@ -317,7 +317,36 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
       displayName = displayName + " (" + layer + ")";
     }
     
+    ResolverEntry entry = new ResolverEntry();
+    
     Set<QName> annosForLayer = spanStats.getNodeAnnotations(layer);
+    
+    Set<String> virtualAnnoNames = virtualTokenStatistics.getVirtualAnnoNames();
+    if(!virtualAnnoNames.isEmpty()) {
+      // don't show the empty token but the virtual token annos instead
+      entry.getMappings().put("hide_tok", "true");
+      List<String> annoNameFilter = new LinkedList<>();
+    
+      for(QName a : annosForLayer) {
+        String ns = a.getNs();
+        if(QName.NULL.equals(ns)) {
+          ns = "";
+        }
+        annoNameFilter.add("/" + ns + "::" + a.getName() + "/");
+      }
+      String ns = SRelation2ANNISMapper.DEFAULT_LAYER 
+                + "_virtual";
+      for(String virtualAnno : virtualAnnoNames) {
+        annoNameFilter.add("/" + ns + "::" + virtualAnno + "/");
+        // also add the new annotation name to the overall list in case there are 
+        // duplicate annotation names in different namespaces
+        annosForLayer.add(new QName(ns, virtualAnno));
+      }
+      
+      entry.getMappings().put("annos", Joiner.on(",").join(annoNameFilter));
+      
+    }
+    
     // check for entries that only differ in their namespace but have the same name
     boolean showNamespace = false;
     HashSet<String> annoNames = new HashSet<>();
@@ -330,13 +359,14 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
       }
     }
     
-    ResolverEntry entry = new ResolverEntry();
     entry.setVis(Vis.grid);
     
     entry.setDisplay(displayName);
     if (layer != null) {    
       entry.setElement(ResolverEntry.Element.node);
-      entry.setLayerName(layer);
+      if(virtualAnnoNames.isEmpty()) {
+        entry.setLayerName(layer);
+      }
     }
     if(showNamespace) {
       entry.getMappings().put("show_ns", "true");
@@ -506,11 +536,9 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
   
   private void createVirtualTokenizationResolverEntries() {
     
-    Set<String> orderRels = virtualTokenStatistics.getOrderRelations();
-    Set<String> textNames = virtualTokenStatistics.getOriginalTexts();
-    
-    if((globalIdManager.containsVirtualTokens() || !virtualTokenStatistics.getHasRealToken()) 
-            && (!orderRels.isEmpty() || !textNames.isEmpty())) {
+    Set<String> virtualAnnoNames = virtualTokenStatistics.getVirtualAnnoNames();
+
+    if(!virtualAnnoNames.isEmpty()) {
       // deactivate the original kwic view
       ResolverEntry entryHideKWIC = new ResolverEntry();
       entryHideKWIC.setDisplay("kwic");
@@ -529,16 +557,11 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
       entryGrid.getMappings().put("hide_tok", "true");
       
       Set<String> escapedNames = new LinkedHashSet<>();
-      // only fallback to text names if there are no order relations
-      if(orderRels.isEmpty()) {
-        for(String origName : textNames) {
-          escapedNames.add(globalIdManager.getEscapedIdentifier(origName));
-        }
-      } else {
-        for(String origOrder : orderRels) {
-          escapedNames.add(globalIdManager.getEscapedIdentifier(origOrder));
-        }
+      
+      for (String origName : virtualAnnoNames) {
+        escapedNames.add(globalIdManager.getEscapedIdentifier(origName));
       }
+
       
       entryGrid.getMappings().put("annos", Joiner.on(",").join(escapedNames));
       globalIdManager.getResolverEntryByDisplay().putIfAbsent(entryGrid.getDisplay(), entryGrid);

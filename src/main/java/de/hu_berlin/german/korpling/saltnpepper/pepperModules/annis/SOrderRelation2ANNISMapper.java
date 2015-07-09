@@ -127,7 +127,6 @@ public class SOrderRelation2ANNISMapper extends SRelation2ANNISMapper {
       }
     }
     this.idManager.addSegmentInformation(currNode.getSId(), segIndex, name, segSpan);
-    getVirtualTokenStats().addOrderRelation(name);
   }
 
   @Override
