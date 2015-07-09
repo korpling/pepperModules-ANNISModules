@@ -27,6 +27,7 @@ import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNISExporte
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNISExporterProperties;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.Salt2ANNISMapper;
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
+import de.hu_berlin.german.korpling.saltnpepper.salt.graph.Edge;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpus;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
@@ -37,6 +38,8 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructu
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STYPE_NAME;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualDS;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualRelation;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STimeline;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STimelineRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SLayer;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
@@ -45,16 +48,17 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.samples.exceptions.SaltSamp
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import static java.lang.System.in;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.Vector;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.junit.After;
+import org.junit.Assert;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import org.junit.Before;
@@ -585,7 +589,49 @@ public class Salt2ANNISMapperTest
   {
     // create the primary text
     SampleGenerator.createDialogue(getFixture().getSDocument());
+    
+    SDocumentGraph g = getFixture().getSDocument().getSDocumentGraph();
+    
+    
+    // change the "yes!" to be two token instead of one.
+    SToken yesToken = g.getSTokens().get(13);
+    assertEquals("yes!", g.getSText(yesToken));
+    STextualDS ds = null;
+    int oldEnd = -1;
+    for(Edge e : g.getOutEdges(yesToken.getSId())) {
+      if(e instanceof STextualRelation) {
+        STextualRelation textRelYes = (STextualRelation) e;
+        oldEnd = textRelYes.getSEnd();
+        textRelYes.setSEnd(oldEnd-1);
+        ds = textRelYes.getSTextualDS();
+        break;
+      }
+    }
+    Assert.assertNotNull(ds);
+    SToken exclamationToken = g.createSToken(ds, oldEnd-1, oldEnd);
+    assertEquals("!", g.getSText(exclamationToken));
+    
+    SOrderRelation orderRelExclamation = SaltFactory.eINSTANCE.createSOrderRelation();
+    orderRelExclamation.setSSource(yesToken);
+    orderRelExclamation.setSTarget(exclamationToken);
+    g.addSRelation(orderRelExclamation);
+    STimelineRelation timeRelExclamation = SaltFactory.eINSTANCE.createSTimelineRelation();
+		timeRelExclamation.setSSource(exclamationToken);
+		timeRelExclamation.setSTarget(g.getSTimeline());
+		timeRelExclamation.setSStart(11);
+		timeRelExclamation.setSEnd(12);
+		sDocument.getSDocumentGraph().addSRelation(timeRelExclamation);
+    
+    // add a span which overlaps a token which gets a new token-index after the
+    // artificial tokenization was created
+    EList<SToken> coveredBySpan = new BasicEList<>();
+    coveredBySpan.add(g.getSTokens().get(g.getSTokens().size()-3));
+    coveredBySpan.add(yesToken);
+    assertEquals("oh", g.getSText(coveredBySpan.get(0)));
+    assertEquals("yes", g.getSText(coveredBySpan.get(1)));
+    g.createSSpan(coveredBySpan);
 
+    
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
     
     doMapping();
@@ -871,6 +917,72 @@ public class Salt2ANNISMapperTest
       new Integer(0).equals(compareFiles(testPath, tmpPath)));
   }
   
+  @Test
+  public void testMapVirtualTokenWithMissing() throws IOException
+  {
+    SDocumentGraph g = getFixture().getSDocument().getSDocumentGraph();
+    
+    STimeline timeLine = g.createSTimeline();
+    for(int i=1; i <= 7; i++) {
+      timeLine.addSPointOfTime("" + i);
+    }
+    
+    STextualDS text1 = g.createSTextualDS("Hello?");
+    STextualDS text2 = g.createSTextualDS("World!");
+    
+    SToken tokHello = g.createSToken(text1, 0, 5);
+    SToken tokWorld = g.createSToken(text2, 0, 5);
+    SToken tokExclamation = g.createSToken(text2, 5, 6);
+    SToken tokQuestion = g.createSToken(text1, 5, 6);
+    
+    STimelineRelation timeRelHello = SaltFactory.eINSTANCE.createSTimelineRelation();
+    timeRelHello.setSTimeline(timeLine);
+    timeRelHello.setSToken(tokHello);
+    timeRelHello.setSStart(0);
+    timeRelHello.setSEnd(6);
+    g.addSRelation(timeRelHello);
+    
+    STimelineRelation timeRelWorld = SaltFactory.eINSTANCE.createSTimelineRelation();
+    timeRelWorld.setSTimeline(timeLine);
+    timeRelWorld.setSToken(tokWorld);
+    timeRelWorld.setSStart(1);
+    timeRelWorld.setSEnd(2);
+    g.addSRelation(timeRelWorld);
+    
+    STimelineRelation timeRelExclamation = SaltFactory.eINSTANCE.createSTimelineRelation();
+    timeRelExclamation.setSTimeline(timeLine);
+    timeRelExclamation.setSToken(tokExclamation);
+    timeRelExclamation.setSStart(3);
+    timeRelExclamation.setSEnd(4);
+    g.addSRelation(timeRelExclamation);
+    
+    STimelineRelation timeRelQuestion = SaltFactory.eINSTANCE.createSTimelineRelation();
+    timeRelQuestion.setSTimeline(timeLine);
+    timeRelQuestion.setSToken(tokQuestion);
+    timeRelQuestion.setSStart(6);
+    timeRelQuestion.setSEnd(7);
+    g.addSRelation(timeRelQuestion);
+    
+    SOrderRelation orderRel1 = SaltFactory.eINSTANCE.createSOrderRelation();
+    orderRel1.setSSource(tokHello);
+    orderRel1.setSTarget(tokQuestion);
+    orderRel1.addSType("tok1");
+    g.addSRelation(orderRel1);
+    
+    SOrderRelation orderRel2 = SaltFactory.eINSTANCE.createSOrderRelation();
+    orderRel2.setSSource(tokWorld);
+    orderRel2.setSTarget(tokExclamation);
+    orderRel2.addSType("tok2");
+    g.addSRelation(orderRel2);
+    
+    doMapping();
+    
+    TabFileComparator.checkEqual(testPath.getAbsolutePath() + "/" + ANNIS.FILE_NODE, 
+      tmpPath.getAbsolutePath() + "/" + ANNIS.FILE_NODE, 0);
+    
+
+  }
+  
   /**
    * Deletes the directory with all contained directories/files
    *
@@ -951,7 +1063,7 @@ public class Salt2ANNISMapperTest
       {
         // we can ignore the node_ref column as long as the other columns are the same
         TabFileComparator.checkEqual(goldFile.getAbsolutePath(), createdFile.
-          getAbsolutePath(), 3);
+          getAbsolutePath(), 0, 3);
       }
       else
       {

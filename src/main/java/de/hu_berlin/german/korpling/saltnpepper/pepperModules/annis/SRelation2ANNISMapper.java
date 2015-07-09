@@ -554,7 +554,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
       }
     }// set the layer to the actual value
 
-    if (node instanceof SToken) {
+    if (node instanceof SToken) {      
       // set the token index
       token_index = this.token2Index.get((SToken) node);
       left_token = token_index;
@@ -598,6 +598,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
 
         SToken firstOverlappedToken = sortedOverlappedToken.get(0);
         SToken lastOverlappedToken = sortedOverlappedToken.get(sortedOverlappedToken.size() - 1);
+
         // set left_token
         left_token = (long) this.token2Index.get(firstOverlappedToken);
         // set right_token
@@ -639,22 +640,29 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
           }
         }
 
+        if (this.idManager.hasVirtualTokenization()) {
+          EList<Long> virtTokenFirst = this.idManager.getVirtualisedTokenId(firstOverlappedToken.getSId());
+          EList<Long> virtTokenLast = this.idManager.getVirtualisedTokenId(lastOverlappedToken.getSId());
+          if (virtTokenFirst != null && virtTokenLast != null) {
+            
+            left_token = this.idManager.getMinimalVirtTokenIndex(virtTokenFirst.get(0))[0];
+            right_token = this.idManager.getMinimalVirtTokenIndex(virtTokenLast.get(virtTokenLast.size()-1))[0];
+
+            // the token index is the same as the character for the virtual 
+            // tokenization since each virtual token has exactly one character (space)
+            left = left_token;
+            right = right_token;
+            
+            span = null;
+          }
+        }
+
       } else {
         // IGNORE CASE
       }
       // the node is a span or structure
     }
-    if (this.idManager.hasVirtualTokenization()) {
-      EList<Long> virtualisedTokenIds = this.idManager.getVirtualisedTokenId(node.getSId());
-      if (virtualisedTokenIds != null) {
-        left = 0l;
-        right = 0l;
-        Pair<Long, Long> leftRight = this.idManager.getLeftRightVirtualToken(virtualisedTokenIds.get(0), virtualisedTokenIds.get(virtualisedTokenIds.size() - 1));
-        left_token = leftRight.getLeft(); // get this
-        right_token = leftRight.getRight(); // get this
-        span = null;
-      }
-    }
+    
 
     this.writeNodeTabEntry(id, text_ref, corpus_ref, layer, name, left, right,
             token_index, left_token, right_token, seg_index, seg_name, span,
@@ -781,7 +789,8 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
 
   protected void copyLinkedFile(URI uri) {
 
-    if (uri != null && parentMapper != null && parentMapper.getOutputDir() != null) {
+    if (uri != null && parentMapper != null && parentMapper.getOutputDir() != null
+            && uri.toFileString() != null) {
       File outputDir = parentMapper.getOutputDir();
       File sourceFile = new File(uri.toFileString());
       if (sourceFile.isFile()) {
