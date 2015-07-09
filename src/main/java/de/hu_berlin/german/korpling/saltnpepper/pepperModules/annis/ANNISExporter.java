@@ -523,6 +523,8 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
       ResolverEntry entryGrid = new ResolverEntry();
       entryGrid.setDisplay("");
       entryGrid.setVis(Vis.grid);
+      entryGrid.setLayerName(SRelation2ANNISMapper.DEFAULT_LAYER);
+      entryGrid.setElement(ResolverEntry.Element.node);
       entryGrid.setVisibility(ResolverEntry.Visibility.permanent);
       entryGrid.getMappings().put("hide_tok", "true");
       
