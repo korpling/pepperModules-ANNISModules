@@ -789,10 +789,14 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
 
   protected void copyLinkedFile(URI uri) {
 
-    if (uri != null && parentMapper != null && parentMapper.getOutputDir() != null
-            && uri.toFileString() != null) {
+    if (uri != null && parentMapper != null && parentMapper.getOutputDir() != null) {
       File outputDir = parentMapper.getOutputDir();
-      File sourceFile = new File(uri.toFileString());
+      File sourceFile;
+      if(uri.toFileString() != null) {
+        sourceFile = new File(uri.toFileString());
+      } else {
+        sourceFile = new File(uri.toString());
+      }
       if (sourceFile.isFile()) {
         
         try {
