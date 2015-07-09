@@ -29,6 +29,7 @@ import org.eclipse.emf.common.util.EList;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.common.DOCUMENT_STATUS;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleException;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.impl.PepperMapperImpl;
+import static de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNISExporterProperties.PROP_INDIVIDUAL_CORPUS_NAME;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.OrderStatistics;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.PointingStatistics;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.SpanStatistics;
@@ -77,7 +78,9 @@ public class Salt2ANNISMapper extends PepperMapperImpl implements SGraphTraverse
   private OrderStatistics globalOrderStats;
 
   public Salt2ANNISMapper() {
+    this.mergeTextsWithTimeline = mergeTextsWithTimeline;
     this.init();
+   
   }
 
   private void init() {
@@ -148,6 +151,8 @@ public class Salt2ANNISMapper extends PepperMapperImpl implements SGraphTraverse
   private Pair<String, String> individualCorpusNameReplacement = null;
   
   public boolean isTestMode = false;
+  
+  private boolean mergeTextsWithTimeline = true;
 
 // -------------------------start: SCorpusGraph 	
   private SCorpusGraph sCorpusGraph = null;
@@ -322,7 +327,7 @@ public class Salt2ANNISMapper extends PepperMapperImpl implements SGraphTraverse
                     = new STimelineRelation2ANNISMapper(getIdManager(),
                             getSDocument().getSDocumentGraph(), token2Index,
                             tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component,
-                            this);
+                            this, mergeTextsWithTimeline);
         timelineMapper.run();
 
         // START Step 2: map SText
@@ -823,6 +828,10 @@ public class Salt2ANNISMapper extends PepperMapperImpl implements SGraphTraverse
 
   public void setGlobalOrderStats(OrderStatistics globalOrderStats) {
     this.globalOrderStats = globalOrderStats;
+  }
+
+  public void setMergeTextsWithTimeline(boolean mergeTextsWithTimeline) {
+    this.mergeTextsWithTimeline = mergeTextsWithTimeline;
   }
   
   

@@ -18,7 +18,6 @@
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis;
 
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SOrderRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STYPE_NAME;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STimelineRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
@@ -42,8 +41,18 @@ public class STimelineRelation2ANNISMapper extends SRelation2ANNISMapper {
 
   private final static Logger log = LoggerFactory.getLogger(STimelineRelation2ANNISMapper.class);
 
-  public STimelineRelation2ANNISMapper(IdManager idManager, SDocumentGraph documentGraph, Map<SToken, Long> token2Index, TupleWriter nodeTabWriter, TupleWriter nodeAnnoTabWriter, TupleWriter rankTabWriter, TupleWriter edgeAnnoTabWriter, TupleWriter componentTabWriter, Salt2ANNISMapper parentMapper) {
-    super(idManager, documentGraph, token2Index, nodeTabWriter, nodeAnnoTabWriter, rankTabWriter, edgeAnnoTabWriter, componentTabWriter, parentMapper);
+  private final boolean mergeTextsWithTimeline;
+  
+  public STimelineRelation2ANNISMapper(IdManager idManager, 
+          SDocumentGraph documentGraph, Map<SToken, Long> token2Index, 
+          TupleWriter nodeTabWriter, TupleWriter nodeAnnoTabWriter, 
+          TupleWriter rankTabWriter, TupleWriter edgeAnnoTabWriter, 
+          TupleWriter componentTabWriter, Salt2ANNISMapper parentMapper, 
+          boolean mergeTextsWithTimeline) {
+    super(idManager, documentGraph, token2Index, nodeTabWriter, 
+            nodeAnnoTabWriter, rankTabWriter, edgeAnnoTabWriter, componentTabWriter, 
+            parentMapper);
+    this.mergeTextsWithTimeline = mergeTextsWithTimeline;
   }
   
   private VirtualNodeID mapPointOfTime(long tokenIndex, boolean isRoot) {
@@ -111,15 +120,19 @@ public class STimelineRelation2ANNISMapper extends SRelation2ANNISMapper {
     if (virtualSpanId.isFresh()) {
       Long segId = null;
       String segName = null;
-      String span = null;
+      String span;
       SegmentationInfo segmentInfo = idManager.getSegmentInformation(tok.getSId());
-      if (segmentInfo != null) {
+      if(segmentInfo == null) {
+        span = documentGraph.getSText(tok);
+      } else {
         segId = segmentInfo.getANNISId();
         segName = segmentInfo.getSegmentationName();
         span = segmentInfo.getSpan();
       }
       writeNodeTabEntry(virtualSpanId.getNodeID(), 0L, corpus_ref, SRelation2ANNISMapper.DEFAULT_LAYER, virtualSpanName, token_left, token_right, null, token_left, token_right, segId, segName, span, isRoot(tok));
-      mapSNodeAnnotation(virtualSpanId.getNodeID(), SRelation2ANNISMapper.DEFAULT_LAYER + "_virtual", segName, span);
+      if(segName != null) {
+        mapSNodeAnnotation(virtualSpanId.getNodeID(), SRelation2ANNISMapper.DEFAULT_LAYER + "_virtual", segName, span);
+      }
       if (tok.getSAnnotations() != null) {
         for (SAnnotation anno : tok.getSAnnotations()) {
           mapSNodeAnnotation(null, virtualSpanId.getNodeID(), anno);
@@ -198,9 +211,8 @@ public class STimelineRelation2ANNISMapper extends SRelation2ANNISMapper {
   @Override
   public void run() {
     EList<STimelineRelation> timelineRelations = documentGraph.getSTimelineRelations();
-    EList<SOrderRelation> orderRelations = documentGraph.getSOrderRelations();
     if (timelineRelations != null && !timelineRelations.isEmpty()
-            && orderRelations != null && !orderRelations.isEmpty()) {
+            && mergeTextsWithTimeline) {
       beginTransaction();
 
       createVirtualTokenization();

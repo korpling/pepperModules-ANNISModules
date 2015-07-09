@@ -119,6 +119,8 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
 
   private ConcurrentMap<Character, String> characterEscapeTable = null;
   private boolean escapeCharacters = true;
+  
+  private boolean mergeTextsWithTimeline = true;
 
   // ------------------------- IdManager
   /**
@@ -156,6 +158,7 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
     mapper.setGlobalPointingStats(pointingStats);
     mapper.setGlobalSpanStats(spanStats);
     mapper.setGlobalOrderStats(orderStatistics);
+    mapper.setMergeTextsWithTimeline(mergeTextsWithTimeline);
     mapper.setOutputDir(new File(getCorpusDesc().getCorpusPath().toFileString()));
     mapper.tw_text = tw_text;
     mapper.tw_node = tw_node;
@@ -231,6 +234,8 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
       if (this.escapeCharacters) {
         this.characterEscapeTable = ((ANNISExporterProperties) this.getProperties()).getEscapeCharactersSet();
       }
+      
+      this.mergeTextsWithTimeline = ((ANNISExporterProperties) this.getProperties()).getMergeTextsWithTimeline();
     }
     String corpPath = getCorpusDesc().getCorpusPath().toFileString() + ((getCorpusDesc().getCorpusPath().toFileString().endsWith("/")) ? "" : "/");
     tw_text = createTupleWriter(new File(corpPath + FILE_TEXT), this.escapeCharacters, this.characterEscapeTable);

@@ -97,11 +97,12 @@ model.
 
 |Name of property                  |Type of property |optional/mandatory |default value|
 |----------------------------------|-----------------|-------------------|-------------|
-|escapeCharacters                  |Boolean           | optional          |true         |
+|escapeCharacters                  |Boolean          | optional          |true         |
 |escapeCharactersList              |String           | optional          |--           | 
 |clobber.visualisation             |Boolean          |                   |true         |
 |clobber.corpus_annotation         |Boolean          |                   |true         |
 |corpusName                        |String           |                   |--           |
+|mergeTextsWithTimeline            |Boolean          |optional           |true         |
 
 ### escapeCharacters
 
@@ -148,3 +149,7 @@ If "true" overwrite any existing corpus_annotation.annis file in the output fold
 ### corpusName
 
 If set use this name as the toplevel corpus name instead of the one provided by Pepper.
+
+### mergeTextsWithTimeline
+If "true" and the document has a timeline merge texts of one document to one text and create an artificial tokenization based on the timeline.
+
