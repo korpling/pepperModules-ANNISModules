@@ -1063,7 +1063,7 @@ public class Salt2ANNISMapperTest
       {
         // we can ignore the node_ref column as long as the other columns are the same
         TabFileComparator.checkEqual(goldFile.getAbsolutePath(), createdFile.
-          getAbsolutePath(), 3);
+          getAbsolutePath(), 0, 3);
       }
       else
       {
