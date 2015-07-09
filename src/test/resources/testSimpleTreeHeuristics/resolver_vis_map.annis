@@ -1,2 +1,2 @@
-rootCorpus	NULL	abc	node	tree	tree (abc)	hidden	1	node_key:const;node_anno_ns:default_ns
-rootCorpus	NULL	syntax	node	tree	tree (syntax)	hidden	2	node_key:const;node_anno_ns:default_ns
+rootCorpus	NULL	abc	node	tree	tree (abc)	hidden	1	node_key:const;node_anno_ns:default_ns;edge_type:null
+rootCorpus	NULL	syntax	node	tree	tree (syntax)	hidden	2	node_key:const;node_anno_ns:default_ns;edge_type:edge

@@ -404,20 +404,31 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
       }
 
       SortedMap<Integer, String> etypes = domStats.getEdgeTypeCounter().getBySize(layerName);
-      if(etypes.size() >= 2) {
+      if(etypes.isEmpty()) {
+        entry.getMappings().put("edge_type", globalIdManager.getEscapedIdentifier("null"));
+      }
+      else {
         // the primary edge type always has the greatest number of entries
         String primaryType = etypes.get(etypes.lastKey());
-        String secondaryType = etypes.get(etypes.firstKey());
+        String secondaryType = etypes.size() >= 2 ? etypes.get(etypes.firstKey()) : null;
 
         // check if the terminal nodes are reachable by the original types
         // use the special "null" type if not
         Set<String> terminalEdgeTypes = domStats.getTerminalEdgeType().get(layerName);
-        if(!terminalEdgeTypes.contains(primaryType) && !terminalEdgeTypes.contains(secondaryType)) {
-          primaryType = "null";
+        if(secondaryType == null) {
+          if (!terminalEdgeTypes.contains(primaryType)) {
+            primaryType = "null";
+          }
+        } else {
+          if (!terminalEdgeTypes.contains(primaryType) && !terminalEdgeTypes.contains(secondaryType)) {
+            primaryType = "null";
+          }
         }
 
         entry.getMappings().put("edge_type", globalIdManager.getEscapedIdentifier(primaryType));
-        entry.getMappings().put("secedge_type", globalIdManager.getEscapedIdentifier(secondaryType));
+        if(secondaryType != null) {
+          entry.getMappings().put("secedge_type", globalIdManager.getEscapedIdentifier(secondaryType));
+        }
       }
     }
     globalIdManager.getResolverEntryByDisplay().putIfAbsent(entry.getDisplay(), entry);
