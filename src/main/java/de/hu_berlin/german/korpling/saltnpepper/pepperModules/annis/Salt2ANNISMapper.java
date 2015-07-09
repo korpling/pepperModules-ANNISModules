@@ -621,6 +621,9 @@ public class Salt2ANNISMapper extends PepperMapperImpl implements SGraphTraverse
     CorpusType corpusType = CorpusType.createFromNode(sNode);
     
     String name = sNode.getSName();
+    if(name == null) {
+      name = "untitled";
+    }
     if (corpusType == CorpusType.DOCUMENT) {
       // make sure the document name is globally unique (not just for a sub-corpus)
       name = idManager.getUniqueDocumentName(name);
