@@ -18,6 +18,7 @@
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis;
 
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SOrderRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STYPE_NAME;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STimelineRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
@@ -25,11 +26,9 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 import java.util.ArrayList;
 import java.util.BitSet;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 import org.slf4j.Logger;
@@ -198,14 +197,15 @@ public class STimelineRelation2ANNISMapper extends SRelation2ANNISMapper {
 
   @Override
   public void run() {
-    if (documentGraph.getSTimelineRelations() != null) {
-      if (documentGraph.getSTimelineRelations().size() > 0) {
-        beginTransaction();
+    EList<STimelineRelation> timelineRelations = documentGraph.getSTimelineRelations();
+    EList<SOrderRelation> orderRelations = documentGraph.getSOrderRelations();
+    if (timelineRelations != null && !timelineRelations.isEmpty()
+            && orderRelations != null && !orderRelations.isEmpty()) {
+      beginTransaction();
 
-        createVirtualTokenization();
+      createVirtualTokenization();
 
-        commitTransaction();
-      }
+      commitTransaction();
     }
   }
 
