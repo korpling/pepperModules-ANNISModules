@@ -17,8 +17,11 @@
  */
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis;
 
+import de.hu_berlin.german.korpling.saltnpepper.salt.graph.Edge;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STYPE_NAME;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualDS;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STimelineRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
@@ -99,6 +102,7 @@ public class STimelineRelation2ANNISMapper extends SRelation2ANNISMapper {
       // We can't map timeline relation that don't have a token connected.
       return;
     }
+    
     String virtualSpanSId = tok.getSId();
     virtualSpanSId = virtualSpanSId + "_virtualSpan";
     String virtualSpanName = tok.getSName() + "_virtualSpan";
@@ -120,18 +124,31 @@ public class STimelineRelation2ANNISMapper extends SRelation2ANNISMapper {
     if (virtualSpanId.isFresh()) {
       Long segId = null;
       String segName = null;
+      String textName = null;
       String span;
       SegmentationInfo segmentInfo = idManager.getSegmentInformation(tok.getSId());
       if(segmentInfo == null) {
         span = documentGraph.getSText(tok);
+     
+        // find any connected texts of the original token for the statistics
+        for (Edge e : documentGraph.getOutEdges(tok.getSId())) {
+          if (e instanceof STextualRelation) {
+            STextualDS text = ((STextualRelation) e).getSTextualDS();
+            textName = text.getSName();
+            getVirtualTokenStats().addOriginalText(textName);
+          }
+        }
       } else {
         segId = segmentInfo.getANNISId();
         segName = segmentInfo.getSegmentationName();
         span = segmentInfo.getSpan();
       }
       writeNodeTabEntry(virtualSpanId.getNodeID(), 0L, corpus_ref, SRelation2ANNISMapper.DEFAULT_LAYER, virtualSpanName, token_left, token_right, null, token_left, token_right, segId, segName, span, isRoot(tok));
+      
       if(segName != null) {
         mapSNodeAnnotation(virtualSpanId.getNodeID(), SRelation2ANNISMapper.DEFAULT_LAYER + "_virtual", segName, span);
+      }  else if(textName != null) {
+        mapSNodeAnnotation(virtualSpanId.getNodeID(), SRelation2ANNISMapper.DEFAULT_LAYER + "_virtual", textName, span);
       }
       if (tok.getSAnnotations() != null) {
         for (SAnnotation anno : tok.getSAnnotations()) {

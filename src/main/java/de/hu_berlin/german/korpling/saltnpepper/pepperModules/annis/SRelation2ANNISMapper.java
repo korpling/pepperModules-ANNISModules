@@ -28,7 +28,7 @@ import org.eclipse.emf.common.util.EList;
 
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleException;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.Salt2ANNISMapper.TRAVERSION_TYPE;
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.OrderStatistics;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.VirtualTokenStatistics;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.PointingStatistics;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.SpanStatistics;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.Edge;
@@ -579,8 +579,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
           // set the overlapped text
           span = sTextualRelation.getSTextualDS().getSText().substring(left.intValue(), sTextualRelation.getSEnd());
           
-          getOrderStats().checkRealToken(span);
-          
+          getVirtualTokenStats().checkRealToken(span);
           break;
         }
       }
@@ -862,8 +861,8 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
     return parentMapper.getLocalPointingStats();
   }
   
-  public OrderStatistics getOrderStats() {
-    return parentMapper.getLocalOrderStats();
+  public VirtualTokenStatistics getVirtualTokenStats() {
+    return parentMapper.getLocalVirtualTokenStats();
   }
 
 }

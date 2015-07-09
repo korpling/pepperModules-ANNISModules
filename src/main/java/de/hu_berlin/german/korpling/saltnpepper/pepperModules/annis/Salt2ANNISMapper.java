@@ -30,7 +30,7 @@ import de.hu_berlin.german.korpling.saltnpepper.pepper.common.DOCUMENT_STATUS;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleException;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.impl.PepperMapperImpl;
 import static de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNISExporterProperties.PROP_INDIVIDUAL_CORPUS_NAME;
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.OrderStatistics;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.VirtualTokenStatistics;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.PointingStatistics;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.SpanStatistics;
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
@@ -70,15 +70,14 @@ public class Salt2ANNISMapper extends PepperMapperImpl implements SGraphTraverse
   private final DomStatistics localDomStats = new DomStatistics();
   private final SpanStatistics localSpanStats = new SpanStatistics();
   private final PointingStatistics localPointingStats = new PointingStatistics();
-  private final OrderStatistics localOrderStats = new OrderStatistics();
+  private final VirtualTokenStatistics localVirtualTokenStats = new VirtualTokenStatistics();
   
   private DomStatistics globalDomStats;
   private SpanStatistics globalSpanStats;
   private PointingStatistics globalPointingStats;
-  private OrderStatistics globalOrderStats;
+  private VirtualTokenStatistics globalVirtualTokenStats;
 
   public Salt2ANNISMapper() {
-    this.mergeTextsWithTimeline = mergeTextsWithTimeline;
     this.init();
    
   }
@@ -546,8 +545,8 @@ public class Salt2ANNISMapper extends PepperMapperImpl implements SGraphTraverse
     if(globalSpanStats != null) {
       globalSpanStats.merge(localSpanStats);
     }
-    if(globalOrderStats != null) {
-      globalOrderStats.merge(localOrderStats);
+    if(globalVirtualTokenStats != null) {
+      globalVirtualTokenStats.merge(localVirtualTokenStats);
     }
   }
 
@@ -594,7 +593,7 @@ public class Salt2ANNISMapper extends PepperMapperImpl implements SGraphTraverse
       } catch (FileNotFoundException e) {
         tw_text.abortTA(transactionId);
         throw new PepperModuleException(this, "Could not write to the node.tab, exception was" + e.getMessage());
-      }
+      }      
       textId++;
     }
   }
@@ -806,8 +805,8 @@ public class Salt2ANNISMapper extends PepperMapperImpl implements SGraphTraverse
     return localPointingStats;
   }  
 
-  public OrderStatistics getLocalOrderStats() {
-    return localOrderStats;
+  public VirtualTokenStatistics getLocalVirtualTokenStats() {
+    return localVirtualTokenStats;
   }
   
   public void setGlobalDomStats(DomStatistics globalDomStats) {
@@ -822,12 +821,12 @@ public class Salt2ANNISMapper extends PepperMapperImpl implements SGraphTraverse
     this.globalPointingStats = globalPointingStats;
   }
 
-  public OrderStatistics getGlobalOrderStats() {
-    return globalOrderStats;
+  public VirtualTokenStatistics getGlobalVirtualTokenStats() {
+    return globalVirtualTokenStats;
   }
 
-  public void setGlobalOrderStats(OrderStatistics globalOrderStats) {
-    this.globalOrderStats = globalOrderStats;
+  public void setGlobalVirtualTokenStats(VirtualTokenStatistics globalVirtualTokenStats) {
+    this.globalVirtualTokenStats = globalVirtualTokenStats;
   }
 
   public void setMergeTextsWithTimeline(boolean mergeTextsWithTimeline) {

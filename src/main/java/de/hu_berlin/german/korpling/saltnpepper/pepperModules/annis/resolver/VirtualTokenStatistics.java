@@ -29,9 +29,11 @@ import java.util.regex.Pattern;
  *
  * @author Thomas Krause <krauseto@hu-berlin.de>
  */
-public class OrderStatistics {
+public class VirtualTokenStatistics {
 
   private final Set<String> orderRelations = Collections.synchronizedSet(new HashSet<String>());
+  
+  private final Set<String> originalTexts = Collections.synchronizedSet(new HashSet<String>());
   
   private final AtomicBoolean hasRealToken = new AtomicBoolean(false);
 
@@ -41,9 +43,19 @@ public class OrderStatistics {
     orderRelations.add(name);
   }
   
+  public void addOriginalText(String name) {
+    originalTexts.add(name);
+  }
+  
   public Set<String> getOrderRelations() {
     return new TreeSet<>(orderRelations);
   }
+
+  public Set<String> getOriginalTexts() {
+    return new TreeSet<>(originalTexts);
+  }
+  
+  
  
   public void checkRealToken(String span) {
     if(!patternNoToken.matcher(span).matches()) {
@@ -65,8 +77,9 @@ public class OrderStatistics {
    * will be locked and suppports concurrent calls to this function.
    * @param other 
    */
-  public void merge(OrderStatistics other) {
+  public void merge(VirtualTokenStatistics other) {
     orderRelations.addAll(other.orderRelations);
+    originalTexts.addAll(other.originalTexts);
     hasRealToken.set(hasRealToken.get() || other.hasRealToken.get());
   }
 }

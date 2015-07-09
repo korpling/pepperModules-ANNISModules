@@ -55,7 +55,7 @@ import static de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNIS
 import static de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNIS.FILE_VISUALIZATION;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ResolverEntry.Vis;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.DomStatistics;
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.OrderStatistics;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.VirtualTokenStatistics;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.PointingStatistics;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.QName;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.SpanStatistics;
@@ -131,7 +131,7 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
   private DomStatistics domStats;
   private SpanStatistics spanStats;
   private PointingStatistics pointingStats;
-  private OrderStatistics orderStatistics;
+  private VirtualTokenStatistics virtualTokenStatistics;
 
   // =================================================== mandatory ===================================================
   public ANNISExporter() {
@@ -157,7 +157,7 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
     mapper.setGlobalDomStats(domStats);
     mapper.setGlobalPointingStats(pointingStats);
     mapper.setGlobalSpanStats(spanStats);
-    mapper.setGlobalOrderStats(orderStatistics);
+    mapper.setGlobalVirtualTokenStats(virtualTokenStatistics);
     mapper.setMergeTextsWithTimeline(mergeTextsWithTimeline);
     mapper.setOutputDir(new File(getCorpusDesc().getCorpusPath().toFileString()));
     mapper.tw_text = tw_text;
@@ -270,7 +270,7 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
     this.domStats = new DomStatistics();
     this.spanStats = new SpanStatistics();
     this.pointingStats = new PointingStatistics();
-    this.orderStatistics = new OrderStatistics();
+    this.virtualTokenStatistics = new VirtualTokenStatistics();
 
     // write versions file
     File versionFile = new File(getCorpusDesc().getCorpusPath().toFileString(), ANNIS.FILE_VERSION);
@@ -287,7 +287,7 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
   public void end() throws PepperModuleException {
     super.end();
     
-    createOrderResolverEntries();
+    createVirtualTokenizationResolverEntries();
     
     for(String l : spanStats.getLayers()) {
       createSpanResolverEntry(l);
@@ -504,11 +504,13 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
     }
   }
   
-  private void createOrderResolverEntries() {
+  private void createVirtualTokenizationResolverEntries() {
     
-    Set<String> orderRels = orderStatistics.getOrderRelations();
-    if((globalIdManager.containsVirtualTokens() || !orderStatistics.getHasRealToken()) 
-            && !orderRels.isEmpty()) {
+    Set<String> orderRels = virtualTokenStatistics.getOrderRelations();
+    Set<String> textNames = virtualTokenStatistics.getOriginalTexts();
+    
+    if((globalIdManager.containsVirtualTokens() || !virtualTokenStatistics.getHasRealToken()) 
+            && (!orderRels.isEmpty() || !textNames.isEmpty())) {
       // deactivate the original kwic view
       ResolverEntry entryHideKWIC = new ResolverEntry();
       entryHideKWIC.setDisplay("kwic");
@@ -524,12 +526,19 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
       entryGrid.setVisibility(ResolverEntry.Visibility.permanent);
       entryGrid.getMappings().put("hide_tok", "true");
       
-      Set<String> escapedOrderRels = new LinkedHashSet<>();
-      for(String origOrder : orderRels) {
-        escapedOrderRels.add(globalIdManager.getEscapedIdentifier(origOrder));
+      Set<String> escapedNames = new LinkedHashSet<>();
+      // only fallback to text names if there are no order relations
+      if(orderRels.isEmpty()) {
+        for(String origName : textNames) {
+          escapedNames.add(globalIdManager.getEscapedIdentifier(origName));
+        }
+      } else {
+        for(String origOrder : orderRels) {
+          escapedNames.add(globalIdManager.getEscapedIdentifier(origOrder));
+        }
       }
       
-      entryGrid.getMappings().put("annos", Joiner.on(",").join(escapedOrderRels));
+      entryGrid.getMappings().put("annos", Joiner.on(",").join(escapedNames));
       globalIdManager.getResolverEntryByDisplay().putIfAbsent(entryGrid.getDisplay(), entryGrid);
     }
   }
