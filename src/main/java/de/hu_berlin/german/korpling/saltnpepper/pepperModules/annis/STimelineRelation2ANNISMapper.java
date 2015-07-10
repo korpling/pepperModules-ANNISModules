@@ -17,6 +17,15 @@
  */
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis;
 
+import java.util.ArrayList;
+import java.util.BitSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.Edge;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STYPE_NAME;
@@ -26,15 +35,6 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructu
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import org.eclipse.emf.common.util.BasicEList;
-import org.eclipse.emf.common.util.EList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -107,7 +107,7 @@ public class STimelineRelation2ANNISMapper extends SRelation2ANNISMapper {
     virtualSpanSId = virtualSpanSId + "_virtualSpan";
     String virtualSpanName = tok.getSName() + "_virtualSpan";
     VirtualNodeID virtualSpanId = idManager.getVirtualNodeId(virtualSpanSId);
-    EList<Long> overlappedVirtualTokenIds = new BasicEList<>();
+    List<Long> overlappedVirtualTokenIds = new ArrayList<>();
    
     
     token_left = (long) timelineRelation.getSStart();
@@ -168,7 +168,7 @@ public class STimelineRelation2ANNISMapper extends SRelation2ANNISMapper {
         }
       }
       {
-        EList<String> rankEntry = new BasicEList<>();
+        List<String> rankEntry = new ArrayList<>();
         rankEntry.add(parentRank.toString());
         rankEntry.add("0");
         rankEntry.add(getNewPPOrder().toString());
@@ -192,7 +192,7 @@ public class STimelineRelation2ANNISMapper extends SRelation2ANNISMapper {
     // create a set of token indexes
     BitSet virtualCovered = new BitSet(timelineItems.size());
     
-    EList<STimelineRelation> timelineRelations = documentGraph.getSTimelineRelations();
+    List<STimelineRelation> timelineRelations = documentGraph.getSTimelineRelations();
     LinkedHashSet<STimelineRelation> timlineRelationsSet = new LinkedHashSet<>();
     
     if (timelineRelations != null && !timelineRelations.isEmpty()) {
@@ -223,13 +223,13 @@ public class STimelineRelation2ANNISMapper extends SRelation2ANNISMapper {
   }
 
   @Override
-  public void mapSRelations2ANNIS(EList<? extends SNode> sRelationRoots, STYPE_NAME relationTypeName, Salt2ANNISMapper.TRAVERSION_TYPE traversionType) {
+  public void mapSRelations2ANNIS(List<? extends SNode> sRelationRoots, STYPE_NAME relationTypeName, Salt2ANNISMapper.TRAVERSION_TYPE traversionType) {
     // we don't actually a timeline relation, but we create a  virtual tokenization if necessary
   }
 
   @Override
   public void run() {
-    EList<STimelineRelation> timelineRelations = documentGraph.getSTimelineRelations();
+    List<STimelineRelation> timelineRelations = documentGraph.getSTimelineRelations();
     if (timelineRelations != null && !timelineRelations.isEmpty()
             && mergeTextsWithTimeline) {
       beginTransaction();

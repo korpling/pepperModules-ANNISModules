@@ -18,10 +18,11 @@
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver;
 
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
+
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
-import org.eclipse.emf.common.util.EList;
 
 /**
  * Statistics used for creating resolver entries for dominance components.
@@ -51,7 +52,7 @@ public class DomStatistics {
   // edge type //
   ///////////////
   
-  public void addEdgeType(String layer, EList<String> types) {
+  public void addEdgeType(String layer, List<String> types) {
     
     if (types != null) {
       for(String edgeType : types) {
@@ -60,7 +61,7 @@ public class DomStatistics {
     }
   }
   
-  public void addEdgeAnno(String layer,  EList<SAnnotation> annos) {
+  public void addEdgeAnno(String layer,  List<SAnnotation> annos) {
     if (annos != null) {
       for(SAnnotation a : annos) {
         QName qname = new QName(a.getSNS(), a.getSName());
@@ -69,7 +70,7 @@ public class DomStatistics {
     }
   }
   
-  public void addNodeAnno(String layer, EList<SAnnotation> annos) {
+  public void addNodeAnno(String layer, List<SAnnotation> annos) {
     if (annos != null) {
       for (SAnnotation a : annos) {
         QName qname = new QName(a.getSNS(), a.getSName());
@@ -78,7 +79,7 @@ public class DomStatistics {
     }
   }
   
-  public void addTerminalEdgeType(String layer, EList<String> types) {
+  public void addTerminalEdgeType(String layer, List<String> types) {
     if (types != null) {
       for(String t : types) {
         terminalEdgeType.add(layer, t);

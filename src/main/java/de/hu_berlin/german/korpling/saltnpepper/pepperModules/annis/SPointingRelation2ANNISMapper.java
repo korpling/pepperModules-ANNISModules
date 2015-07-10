@@ -31,6 +31,8 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructu
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
+
+import java.util.List;
 import java.util.Map;
 
 public class SPointingRelation2ANNISMapper extends SRelation2ANNISMapper {
@@ -63,7 +65,7 @@ public class SPointingRelation2ANNISMapper extends SRelation2ANNISMapper {
 
         String componentLayer = DEFAULT_NS;
         /*
-         EList<SLayer> nodeLayer = node.getSLayers();
+         List<SLayer> nodeLayer = node.getSLayers();
          if (nodeLayer != null){
          if (nodeLayer.size() > 0){
          if (! "".equals(nodeLayer.get(0))){
@@ -79,7 +81,7 @@ public class SPointingRelation2ANNISMapper extends SRelation2ANNISMapper {
 
         }
 				//System.out.println("[DEBUG] Mapping pointingRelation with sType "+ this.currentTraversionSType);
-        // create an EList for the current root
+        // create an List for the current root
         EList<SNode> singleRootList = new BasicEList<>();
         singleRootList.add(node);
 
@@ -97,7 +99,7 @@ public class SPointingRelation2ANNISMapper extends SRelation2ANNISMapper {
   }
 
   @Override
-  public void mapSRelations2ANNIS(EList<? extends SNode> sRelationRoots,
+  public void mapSRelations2ANNIS(List<? extends SNode> sRelationRoots,
           STYPE_NAME relationTypeName, TRAVERSION_TYPE traversionType) {
     this.traversionType = traversionType;
     this.relationTypeName = relationTypeName;

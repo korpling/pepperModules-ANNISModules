@@ -17,27 +17,26 @@
  */
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.eclipse.emf.common.util.EList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpus;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualDS;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class IdManager {
 
@@ -46,7 +45,7 @@ public class IdManager {
   private final GlobalIdManager globalIdManager;
 
   private final ConcurrentMap<String, Long> textIdMap;
-  private final ConcurrentMap<String, EList<Long>> tokenVirtualisationMapping;
+  private final ConcurrentMap<String, List<Long>> tokenVirtualisationMapping;
   private final ConcurrentMap<String, Long> spanVirtualisationMapping;
 
   private final Lock lockNodeIdMap = new ReentrantLock();
@@ -162,7 +161,7 @@ public class IdManager {
    * @param virtualSpanId The ANNIS id of the virtual span
    * @param virtualTokenIds The ANNIS ids of the virtual tokens
    */
-  public synchronized void registerTokenVirtMapping(String tokenId, Long virtualSpanId, EList<Long> virtualTokenIds) {
+  public synchronized void registerTokenVirtMapping(String tokenId, Long virtualSpanId, List<Long> virtualTokenIds) {
     globalIdManager.setContainsVirtualTokens(true);
     tokenVirtualisationMapping.putIfAbsent(tokenId, virtualTokenIds);
     spanVirtualisationMapping.putIfAbsent(tokenId, virtualSpanId);
@@ -176,7 +175,7 @@ public class IdManager {
    * @return The list of ANNIS ids of the virtual tokens or null, if the
    * token was not virtualised.
    */
-  public synchronized EList<Long> getVirtualisedTokenId(String tokenId) {
+  public synchronized List<Long> getVirtualisedTokenId(String tokenId) {
     return this.tokenVirtualisationMapping.get(tokenId);
   }
 

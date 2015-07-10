@@ -32,6 +32,8 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructu
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
+
+import java.util.List;
 import java.util.Map;
 
 public class SOrderRelation2ANNISMapper extends SRelation2ANNISMapper {
@@ -63,7 +65,7 @@ public class SOrderRelation2ANNISMapper extends SRelation2ANNISMapper {
   }
 
   @Override
-  public void mapSRelations2ANNIS(EList<? extends SNode> sRelationRoots,
+  public void mapSRelations2ANNIS(List<? extends SNode> sRelationRoots,
           STYPE_NAME relationTypeName, TRAVERSION_TYPE traversionType) {
 
     beginTransaction();

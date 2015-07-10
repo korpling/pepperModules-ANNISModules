@@ -18,6 +18,7 @@
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis;
 
 import com.google.common.base.Preconditions;
+
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 
@@ -32,7 +33,9 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SLayer;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
+
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -91,7 +94,7 @@ public class SDominanceRelation2ANNISMapper extends SRelation2ANNISMapper {
   }
 
   @Override
-  public void mapSRelations2ANNIS(EList<? extends SNode> sRelationRoots,
+  public void mapSRelations2ANNIS(List<? extends SNode> sRelationRoots,
           STYPE_NAME relationTypeName, TRAVERSION_TYPE traversionType) {
     this.traversionType = traversionType;
     this.relationTypeName = relationTypeName;

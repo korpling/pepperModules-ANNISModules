@@ -18,13 +18,13 @@
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis;
 
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.DomStatistics;
+
 import com.google.common.io.Files;
+
 import java.io.FileNotFoundException;
 import java.util.HashSet;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.eclipse.emf.common.util.BasicEList;
-import org.eclipse.emf.common.util.EList;
 
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleException;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.Salt2ANNISMapper.TRAVERSION_TYPE;
@@ -48,15 +48,21 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SGraphTraverseHand
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SLayer;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
+
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Pattern;
+
+import org.eclipse.emf.common.util.BasicEList;
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,7 +83,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
   protected final static String DEFAULT_NS = "default_ns";
   protected final static String DEFAULT_LAYER = "default_layer";
 
-  EList<? extends SNode> sRelationRoots = null;
+  List<? extends SNode> sRelationRoots = null;
   STYPE_NAME relationTypeName = null;
   
   
@@ -244,7 +250,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
     // fromNode -> edge -> currNode
 
     Long rankId;
-    EList<Long> virtualTokenIds = this.idManager.getVirtualisedTokenId(currNode.getSId());
+    List<Long> virtualTokenIds = this.idManager.getVirtualisedTokenId(currNode.getSId());
 
     if (virtualTokenIds != null) {
       virtualNodes.add(currNode);
@@ -268,7 +274,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
         Long pre = this.getNewPPOrder();
         Long post = this.getNewPPOrder();
 
-        EList<String> rankEntry = new BasicEList<>();
+        List<String> rankEntry = new ArrayList<>();
         rankEntry.add(rankId.toString());
         rankEntry.add(pre.toString());
         rankEntry.add(post.toString());
@@ -396,7 +402,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
   }
 
 // =============================== Mapping of SRelations ======================
-  public abstract void mapSRelations2ANNIS(EList<? extends SNode> sRelationRoots, STYPE_NAME relationTypeName, TRAVERSION_TYPE traversionType);
+  public abstract void mapSRelations2ANNIS(List<? extends SNode> sRelationRoots, STYPE_NAME relationTypeName, TRAVERSION_TYPE traversionType);
 
   /**
    * This method maps the currently processed component to the ANNIS
@@ -405,7 +411,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
   protected void mapComponent2ANNIS() {
 		// id		type	layer					name
     // unique	c/d/p	SLayer/default_layer	"NULL"/SType
-    EList<String> componentEntry = new BasicEList<>();
+    List<String> componentEntry = new ArrayList<>();
     componentEntry.add(currentComponentId.toString());
     componentEntry.add(currentComponentType);
     componentEntry.add(currentComponentLayer);
@@ -435,11 +441,11 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
 
     /**
      * For rank, we need: rankId	pre	post	node_ref	component_ref	parentRank
-     * level Thus, we create an EList of SRelations and the index is the rankId
+     * level Thus, we create an List of SRelations and the index is the rankId
      *
      * @TODO: do we REALLY need this?
      */
-    EList<String> rankEntry = new BasicEList<>();
+    List<String> rankEntry = new ArrayList<>();
 
     rankEntry.add(rankId.toString());
     rankEntry.add(this.preorderTable.get(targetNodeID).toString());
@@ -467,7 +473,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
     }
     // rank_id 	namespace	name	value
 
-    EList<String> edgeAnnotationEntry = new BasicEList<>();
+    List<String> edgeAnnotationEntry = new ArrayList<>();
     edgeAnnotationEntry.add(rankId.toString());
     String ns;
     if (sAnnotation.getSNS() != null) {
@@ -487,7 +493,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
   protected final Map<SToken, Long> token2Index;
 
 // ================================= Mapping of SNodes ========================
-  public void mapSNodes(EList<SNode> nodes) {
+  public void mapSNodes(List<SNode> nodes) {
     for (SNode node : nodes) {
       this.mapSNode(node);
     }
@@ -561,7 +567,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
       right_token = token_index;
 
       // set the left and right value and the text_ref
-      EList<Edge> outEdges = documentGraph.getOutEdges(node.getSId());
+      List<Edge> outEdges = documentGraph.getOutEdges(node.getSId());
       if (outEdges == null) {
         throw new PepperModuleException("The token " + node.getSId() + " has no outgoing edges!");
       }
@@ -593,7 +599,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
         // get the overlapping token
         EList<SToken> overlappedToken = this.documentGraph.getOverlappedSTokens(node, overlappingTypes);
         // sort the token by left
-        EList<SToken> sortedOverlappedToken = this.documentGraph.getSortedSTokenByText(overlappedToken);
+        List<SToken> sortedOverlappedToken = this.documentGraph.getSortedSTokenByText(overlappedToken);
 
         SToken firstOverlappedToken = sortedOverlappedToken.get(0);
         SToken lastOverlappedToken = sortedOverlappedToken.get(sortedOverlappedToken.size() - 1);
@@ -603,7 +609,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
         // set right_token
         right_token = (long) this.token2Index.get(lastOverlappedToken);
         // get first and last overlapped character
-        EList<Edge> firstTokenOutEdges = documentGraph.getOutEdges(firstOverlappedToken.getSId());
+        List<Edge> firstTokenOutEdges = documentGraph.getOutEdges(firstOverlappedToken.getSId());
         if (firstTokenOutEdges == null) {
           throw new PepperModuleException("The token " + firstOverlappedToken.getSId() + " has no outgoing edges!");
         }
@@ -622,7 +628,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
           }
         }
 
-        EList<Edge> lastTokenOutEdges = documentGraph.getOutEdges(lastOverlappedToken.getSId());
+        List<Edge> lastTokenOutEdges = documentGraph.getOutEdges(lastOverlappedToken.getSId());
         if (lastTokenOutEdges == null) {
           throw new PepperModuleException("The token " + lastOverlappedToken.getSId() + " has no outgoing edges!");
         }
@@ -640,8 +646,8 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
         }
 
         if (this.idManager.hasVirtualTokenization()) {
-          EList<Long> virtTokenFirst = this.idManager.getVirtualisedTokenId(firstOverlappedToken.getSId());
-          EList<Long> virtTokenLast = this.idManager.getVirtualisedTokenId(lastOverlappedToken.getSId());
+          List<Long> virtTokenFirst = this.idManager.getVirtualisedTokenId(firstOverlappedToken.getSId());
+          List<Long> virtTokenLast = this.idManager.getVirtualisedTokenId(lastOverlappedToken.getSId());
           if (virtTokenFirst != null && virtTokenLast != null) {
             
             left_token = this.idManager.getMinimalVirtTokenIndex(virtTokenFirst.get(0))[0];
@@ -690,7 +696,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
           Long seg_index, String seg_name, String span,
           boolean isRoot) {
 
-    EList<String> tableEntry = new BasicEList<>();
+    List<String> tableEntry = new ArrayList<>();
     tableEntry.add(id.toString());
     tableEntry.add(text_ref.toString());
     tableEntry.add(corpus_ref.toString());
@@ -728,7 +734,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
   }
 
 // ======================== Mapping of SNodeAnnotations =======================
-  protected void mapSNodeAnnotations(SNode node, Long node_ref, EList<SAnnotation> annotations) {
+  protected void mapSNodeAnnotations(SNode node, Long node_ref, List<SAnnotation> annotations) {
     for (SAnnotation annotation : annotations) {
       this.mapSNodeAnnotation(node, node_ref, annotation);
     }
@@ -736,7 +742,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
 
   protected void mapSNodeAnnotation(Long node_ref, String namespace, String name, String value) {
 
-    EList<String> tableEntry = new BasicEList<>();
+    List<String> tableEntry = new ArrayList<>();
     tableEntry.add(node_ref.toString());
     tableEntry.add(idManager.getEscapedIdentifier(namespace));
     tableEntry.add(idManager.getEscapedIdentifier(name));
@@ -772,7 +778,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
       return false;
     }
 
-    EList<Edge> inEdges = documentGraph.getInEdges(n.getSId());
+    List<Edge> inEdges = documentGraph.getInEdges(n.getSId());
     if (inEdges != null) {
       for (Edge e : inEdges) {
         if (e instanceof SDominanceRelation
@@ -835,7 +841,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
 
   protected SLayer getFirstComponentLayer(SNode node) {
     SLayer componentLayer = null;
-    EList<SLayer> nodeLayer = node.getSLayers();
+    List<SLayer> nodeLayer = node.getSLayers();
     if (nodeLayer != null) {
       // get layer name which comes lexically first
       TreeMap<String, SLayer> layers = new TreeMap<>();

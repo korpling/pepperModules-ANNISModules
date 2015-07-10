@@ -17,8 +17,6 @@
  */
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis;
 
-import org.eclipse.emf.common.util.BasicEList;
-import org.eclipse.emf.common.util.EList;
 
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.Salt2ANNISMapper.TRAVERSION_TYPE;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.GRAPH_TRAVERSE_TYPE;
@@ -30,9 +28,14 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructu
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SLayer;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
+
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import org.eclipse.emf.common.util.BasicEList;
+import org.eclipse.emf.common.util.EList;
 
 public class SSpanningRelation2ANNISMapper extends SRelation2ANNISMapper {
 
@@ -90,7 +93,7 @@ public class SSpanningRelation2ANNISMapper extends SRelation2ANNISMapper {
   }
 
   @Override
-  public void mapSRelations2ANNIS(EList<? extends SNode> sRelationRoots,
+  public void mapSRelations2ANNIS(List<? extends SNode> sRelationRoots,
           STYPE_NAME relationTypeName, TRAVERSION_TYPE traversionType) {
     this.traversionType = traversionType;
     this.relationTypeName = relationTypeName;
@@ -128,10 +131,10 @@ public class SSpanningRelation2ANNISMapper extends SRelation2ANNISMapper {
       continuous = cachedValue;
     } else {
       // we need to compute wether the span is continuous
-      BasicEList<STYPE_NAME> spanRel = new BasicEList<>();
+      EList<STYPE_NAME> spanRel = new BasicEList<>();
       spanRel.add(STYPE_NAME.SSPANNING_RELATION);
 
-      EList<SToken> overlappedToken
+      List<SToken> overlappedToken
               = documentGraph.getOverlappedSTokens(span, spanRel);
 
       if (overlappedToken != null && !overlappedToken.isEmpty()) {
