@@ -18,7 +18,7 @@
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver;
 
 /**
- *
+ * A qualified name which consists of a name+":"+namespace
  * @author Thomas Krause <krauseto@hu-berlin.de>
  */
 public class QName
