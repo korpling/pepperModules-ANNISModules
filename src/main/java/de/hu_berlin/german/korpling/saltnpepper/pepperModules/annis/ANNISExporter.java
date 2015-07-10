@@ -139,8 +139,8 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
     setProperties(new ANNISExporterProperties());
     this.setName("ANNISExporter");
     setSupplierContact(URI.createURI("saltnpepper@lists.hu-berlin.de"));
-	setSupplierHomepage(URI.createURI("https://github.com/korpling/pepperModules-ANNISModules"));
-	setDesc("This exporter transforms a Salt model into the annis format. ");
+    //setSupplierHomepage(URI.createURI("https://github.com/korpling/pepperModules-ANNISModules"));
+    setDesc("This exporter transforms a Salt model into the annis format. ");
     this.addSupportedFormat("relANNIS", "3.3", null);
     this.addSupportedFormat("annis", "3.3", null);
   }
