@@ -17,10 +17,10 @@
  */
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver;
 
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 
@@ -31,18 +31,23 @@ import java.util.regex.Pattern;
  */
 public class VirtualTokenStatistics {
   
-  private final Set<String> virtualAnnoNames = Collections.synchronizedSet(new HashSet<String>());
+  /**
+   * Map from the name to the fully qualified name.
+   * This ensures a name is only added once and there are no "duplicates".
+   */
+  private final ConcurrentMap<String, QName> virtualAnnoNames = 
+          new ConcurrentHashMap<>();
   
   private final AtomicBoolean hasRealToken = new AtomicBoolean(false);
 
   private final Pattern patternNoToken = Pattern.compile("[0-9 ]*");
 
-  public void addVirtualAnnoName(String name) {
-    virtualAnnoNames.add(name);
+  public void addVirtualAnnoName(String ns, String name) {
+    virtualAnnoNames.put(name, new QName(ns, name));
   }
   
-  public Set<String> getVirtualAnnoNames() {
-    return new TreeSet<>(virtualAnnoNames);
+  public Set<QName> getVirtualAnnoNames() {
+    return new TreeSet<>(virtualAnnoNames.values());
   }
   
   
@@ -68,7 +73,7 @@ public class VirtualTokenStatistics {
    * @param other 
    */
   public void merge(VirtualTokenStatistics other) {
-    virtualAnnoNames.addAll(other.virtualAnnoNames);
+    virtualAnnoNames.putAll(other.virtualAnnoNames);
     hasRealToken.set(hasRealToken.get() || other.hasRealToken.get());
   }
 }

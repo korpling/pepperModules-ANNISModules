@@ -147,10 +147,10 @@ public class STimelineRelation2ANNISMapper extends SRelation2ANNISMapper {
       if(segName != null) {
         mapSNodeAnnotation(virtualSpanId.getNodeID(), SRelation2ANNISMapper.DEFAULT_LAYER + "_virtual", segName, span);
 
-        getVirtualTokenStats().addVirtualAnnoName(segName);
+        getVirtualTokenStats().addVirtualAnnoName(SRelation2ANNISMapper.DEFAULT_LAYER + "_virtual", segName);
       }  else if(textName != null) {        
-        getVirtualTokenStats().addVirtualAnnoName(textName);
         mapSNodeAnnotation(virtualSpanId.getNodeID(), SRelation2ANNISMapper.DEFAULT_LAYER + "_virtual", textName, span);
+        getVirtualTokenStats().addVirtualAnnoName( SRelation2ANNISMapper.DEFAULT_LAYER + "_virtual", textName);
       }
       if (tok.getSAnnotations() != null) {
         for (SAnnotation anno : tok.getSAnnotations()) {

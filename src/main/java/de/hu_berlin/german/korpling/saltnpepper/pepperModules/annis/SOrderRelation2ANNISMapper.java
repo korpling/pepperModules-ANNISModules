@@ -111,6 +111,7 @@ public class SOrderRelation2ANNISMapper extends SRelation2ANNISMapper {
     Long segIndex = this.seg_index;
     this.seg_index = this.seg_index + 1;
     String segSpan = "NULL";
+    String namespace = null;
     if (currNode instanceof SToken) {
       SDocumentGraph g = ((SToken) currNode).getSDocumentGraph();
       if (g != null) {
@@ -123,12 +124,14 @@ public class SOrderRelation2ANNISMapper extends SRelation2ANNISMapper {
         for (SAnnotation a : annos) {
           if (name.equals(a.getSName())) {
             segSpan = a.getSValueSTEXT();
+            namespace = a.getSNS();
             break;
           }
         }
       }
     }
     this.idManager.addSegmentInformation(currNode.getSId(), segIndex, name, segSpan);
+    getVirtualTokenStats().addVirtualAnnoName(namespace, name);
   }
 
   @Override

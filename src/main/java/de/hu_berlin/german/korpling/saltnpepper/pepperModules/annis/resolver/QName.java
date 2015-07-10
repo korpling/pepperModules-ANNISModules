@@ -17,11 +17,14 @@
  */
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver;
 
+import com.google.common.collect.ComparisonChain;
+import java.io.Serializable;
+
 /**
  * A qualified name which consists of a name+":"+namespace
  * @author Thomas Krause <krauseto@hu-berlin.de>
  */
-public class QName
+public class QName implements Serializable, Comparable<QName>
 {
   public static final String NULL = "null";
   
@@ -43,6 +46,10 @@ public class QName
 
   public String getName() {
     return name;
+  }
+  
+  public boolean hasNs() {
+    return !NULL.equals(ns);
   }
 
   @Override
@@ -75,5 +82,14 @@ public class QName
     }
     return true;
   }
+
+  @Override
+  public int compareTo(QName o) {
+    return ComparisonChain.start().compare(name, o.name)
+            .compare(ns, o.ns)
+            .result();
+  }
+
+  
   
 }
