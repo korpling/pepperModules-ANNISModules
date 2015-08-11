@@ -461,7 +461,9 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
       }
 
       SortedMap<Integer, String> etypes = domStats.getEdgeTypeCounter().getBySize(layerName);
-      if(etypes.isEmpty()) {
+      if(etypes.isEmpty()
+              || (((ANNISExporterProperties) getProperties()).getExcludeSingleDomType() 
+              && etypes.size() <= 1 )) {
         entry.getMappings().put("edge_type", globalIdManager.getEscapedIdentifier("null"));
       }
       else {
