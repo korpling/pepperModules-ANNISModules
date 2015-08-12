@@ -149,6 +149,8 @@ public class ResolverHeuristicsTest extends PepperExporterTest{
     abcStruct.createSAnnotation("?ns", "überschlag?", "ABC");
     abcLayer.getSNodes().add(abcStruct);
 
+    
+    
     start();
 
     TabFileComparator.checkEqual(testPath.getAbsolutePath() + "/"
@@ -179,7 +181,6 @@ public class ResolverHeuristicsTest extends PepperExporterTest{
     abcLayer.getSNodes().add(abcStruct);
     
     start();
-    
     TabFileComparator.checkEqual(testPath.getAbsolutePath() + "/" 
             + ANNIS.FILE_VISUALIZATION, 
       outputDir.getAbsolutePath() + "/" + ANNIS.FILE_VISUALIZATION);
