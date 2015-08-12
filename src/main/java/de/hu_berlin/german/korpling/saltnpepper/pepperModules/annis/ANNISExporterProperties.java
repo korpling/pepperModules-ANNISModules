@@ -57,6 +57,8 @@ public class ANNISExporterProperties extends PepperModuleProperties {
   public static final String PROP_ESCAPE_CHARACTERS_LIST =  "escapeCharactersList";
   
   public static final String PROP_MERGE_TEXTS_WITH_TIMELINE =  "mergeTextsWithTimeline";
+  
+  public static final String PROP_EXCLUDE_SINGLE_DOM_TYPE =  "excludeSingleDomType";
 
   public ANNISExporterProperties() {
     this.addProperty(new PepperModuleProperty<>(PROP_VISUALISATION_CLOBBER, Boolean.class, "This property defines whether the resolver_vis_map.tab is allowed to be overwritten if it is existent. By default, the table is overwritten(value:true)", Boolean.TRUE, false));
@@ -64,7 +66,11 @@ public class ANNISExporterProperties extends PepperModuleProperties {
     this.addProperty(new PepperModuleProperty<>(PROP_INDIVIDUAL_CORPUS_NAME, String.class, "This property defines an individual name for the top-level corpus. By default, the top-level corpus gets a generic name by the salt meta model.", null, false));
     this.addProperty(new PepperModuleProperty<>(PROP_ESCAPE_CHARACTERS, Boolean.class, "This property defines whether special characters are escaped during export. By default, characters which are incompatible with databases are escaped.", Boolean.TRUE, false));
     this.addProperty(new PepperModuleProperty<>(PROP_ESCAPE_CHARACTERS_LIST, String.class, "This property defines a set of special characters with their escape characters.", null, Boolean.FALSE));
-    this.addProperty(new PepperModuleProperty<>(PROP_MERGE_TEXTS_WITH_TIMELINE, Boolean.class, "If \"true\" and the document has a timeline merge texts of one document to one text and create an artificial tokenization based on the timeline.", Boolean.TRUE, false));
+    this.addProperty(new PepperModuleProperty<>(PROP_MERGE_TEXTS_WITH_TIMELINE, 
+            Boolean.class, "If \"true\" and the document has a timeline merge texts of one document to one text and create an artificial tokenization based on the timeline.", Boolean.TRUE, false));
+    this.addProperty(new PepperModuleProperty<>(PROP_EXCLUDE_SINGLE_DOM_TYPE, 
+            Boolean.class, "If there is only a single edge type for dominance relations and this property is set, "
+                    + "don't output the named component entries (but the general one with the empty name)", Boolean.FALSE, false));
   }
 
   /**
@@ -155,6 +161,10 @@ public class ANNISExporterProperties extends PepperModuleProperties {
   
   public boolean getMergeTextsWithTimeline() {
     return ((Boolean) this.getProperty(PROP_MERGE_TEXTS_WITH_TIMELINE).getValue());
+  }
+  
+  public boolean getExcludeSingleDomType() {
+    return ((Boolean) this.getProperty(PROP_EXCLUDE_SINGLE_DOM_TYPE).getValue());
   }
 
 }

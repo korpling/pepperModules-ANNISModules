@@ -103,6 +103,7 @@ model.
 |clobber.corpus_annotation         |Boolean          |                   |true         |
 |corpusName                        |String           |                   |--           |
 |mergeTextsWithTimeline            |Boolean          |optional           |true         |
+|excludeSingleDomType              |Boolean          |optional           |false        |
 
 ### escapeCharacters
 
@@ -152,4 +153,9 @@ If set use this name as the toplevel corpus name instead of the one provided by 
 
 ### mergeTextsWithTimeline
 If "true" and the document has a timeline merge texts of one document to one text and create an artificial tokenization based on the timeline.
+
+### excludeSingleDomType
+If there is only a single edge type for dominance relations and this property is set, 
+don't output the named component entries (but the general one with the empty name).
+
 

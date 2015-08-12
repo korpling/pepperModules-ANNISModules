@@ -29,11 +29,9 @@ import org.eclipse.emf.common.util.EList;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.common.DOCUMENT_STATUS;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleException;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.impl.PepperMapperImpl;
-import static de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNISExporterProperties.PROP_INDIVIDUAL_CORPUS_NAME;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.VirtualTokenStatistics;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.PointingStatistics;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.SpanStatistics;
-import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.GRAPH_TRAVERSE_TYPE;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpus;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
@@ -53,6 +51,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
@@ -424,19 +423,28 @@ public class Salt2ANNISMapper extends PepperMapperImpl implements SGraphTraverse
         if (subComponentRoots != null) {
           //System.out.println("The Dominance relation graphs have "+ subComponentRoots.size() + " STypes.");
           if (subComponentRoots.size() > 0) {
-            for (String key : subComponentRoots.keySet()) {
-              //System.out.println("Mapping DominanceRelation subcomponents with sType: "+key);
+            
+            Set<String> domComponentTypeNames = subComponentRoots.keySet();
+        
+            // only output the named edge types if there the user has not choosen
+            // to include them or if there are more than 1 named types
+            if(!((ANNISExporterProperties) this.getProperties()).getExcludeSingleDomType()
+                    || domComponentTypeNames.size() >= 2)
+            {
+              for (String key : domComponentTypeNames) {
+                //System.out.println("Mapping DominanceRelation subcomponents with sType: "+key);
 
-              SRelation2ANNISMapper sDominanceSubRelationMapper
-                      = new SDominanceRelation2ANNISMapper(getIdManager(),
-                              getSDocument().getSDocumentGraph(), token2Index,
-                              tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component, this);
-              sDominanceSubRelationMapper.setTraversionSType(key);
-              sDominanceSubRelationMapper.mapSRelations2ANNIS(subComponentRoots.get(key), STYPE_NAME.SDOMINANCE_RELATION, TRAVERSION_TYPE.DOCUMENT_STRUCTURE_DR);
-              if (exec != null) {
-                exec.execute(sDominanceSubRelationMapper);
-              } else {
-                sDominanceSubRelationMapper.run();
+                SRelation2ANNISMapper sDominanceSubRelationMapper
+                        = new SDominanceRelation2ANNISMapper(getIdManager(),
+                                getSDocument().getSDocumentGraph(), token2Index,
+                                tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component, this);
+                sDominanceSubRelationMapper.setTraversionSType(key);
+                sDominanceSubRelationMapper.mapSRelations2ANNIS(subComponentRoots.get(key), STYPE_NAME.SDOMINANCE_RELATION, TRAVERSION_TYPE.DOCUMENT_STRUCTURE_DR);
+                if (exec != null) {
+                  exec.execute(sDominanceSubRelationMapper);
+                } else {
+                  sDominanceSubRelationMapper.run();
+                }
               }
             }
           } else {
