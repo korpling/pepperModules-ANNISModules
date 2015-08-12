@@ -65,7 +65,7 @@ public class ANNISExporterTest extends PepperExporterTest{
     
 	}
 	@Test
-	public void testSpecialParams1() throws IOException
+	public void testCustomizationProperties1() throws IOException
 	{
 		File pepperParams= new File("./src/test/resources/testSpecialParams/test1.pepperParams");
 		getFixture().getProperties().addProperties(URI.createFileURI(pepperParams.getAbsolutePath()));
@@ -88,7 +88,7 @@ public class ANNISExporterTest extends PepperExporterTest{
 		//fail();
 	}
 	@Test
-	public void testSpecialParams2() throws IOException
+	public void testCustomizationProperties2() throws IOException
 	{
 		File pepperParams= new File("./src/test/resources/testSpecialParams/test2.pepperParams");
 		getFixture().getProperties().addProperties(URI.createFileURI(pepperParams.getAbsolutePath()));
