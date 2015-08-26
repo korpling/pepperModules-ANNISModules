@@ -341,7 +341,7 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
       for(QName a : annosForLayer) {
         String ns = a.getNs();
         if(QName.NULL.equals(ns)) {
-          ns = "";
+          ns = SRelation2ANNISMapper.DEFAULT_NS;
         }
         annoNameFilter.add("/" + ns + "::" + a.getName() + "/");
       }
