@@ -341,12 +341,12 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
       for(QName a : annosForLayer) {
         String ns = a.getNs();
         if(QName.NULL.equals(ns)) {
-          ns = "";
+          ns = SRelation2ANNISMapper.DEFAULT_NS;
         }
         annoNameFilter.add("/" + ns + "::" + a.getName() + "/");
       }
       for(QName virtualAnno : virtualAnnoNames) {
-        String ns = virtualAnno.hasNs() ? virtualAnno.getNs() : "";
+        String ns = virtualAnno.hasNs() ? virtualAnno.getNs() : SRelation2ANNISMapper.DEFAULT_NS;
         annoNameFilter.add("/" + ns + "::" + virtualAnno.getName() + "/");
         // also add the new annotation name to the overall list in case there are 
         // duplicate annotation names in different namespaces
