@@ -29,14 +29,9 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.corpus_tools.salt.core.SNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpus;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualDS;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 
 public class IdManager {
 
@@ -108,9 +103,9 @@ public class IdManager {
 
   /**
    * This method registers a segment index, segment name and segment span for
-   * the node specified by the {@link SElementId}
+   * the node specified by the {@link Identifier}
    *
-   * @param node The {@link SElementId} of the node
+   * @param node The {@link Identifier} of the node
    * @param segIndex the segment index
    * @param segName the segment name
    * @param segSpan the segment span
@@ -121,9 +116,9 @@ public class IdManager {
 
   /**
    * This method returns the segment information for the node specified by the
-   * {@link SElementId}.
+   * {@link Identifier}.
    *
-   * @param node The {@link SElementId} of the node
+   * @param node The {@link Identifier} of the node
    * @return the segmentation info or null if the node has no segment property
    */
   public synchronized SegmentationInfo getSegmentInformation(String node) {
@@ -157,7 +152,7 @@ public class IdManager {
    * virtual tokens (specified by virtualTokenIds) which are overlapped by the
    * virtual span.
    *
-   * @param tokenId The {@link SElementId} of the real token
+   * @param tokenId The {@link Identifier} of the real token
    * @param virtualSpanId The ANNIS id of the virtual span
    * @param virtualTokenIds The ANNIS ids of the virtual tokens
    */
@@ -171,7 +166,7 @@ public class IdManager {
    * This method returns the ANNIS ids of the virtual tokens which represent
    * the token specified by tokenId.
    *
-   * @param tokenId The {@link SElementId} of the node
+   * @param tokenId The {@link Identifier} of the node
    * @return The list of ANNIS ids of the virtual tokens or null, if the
    * token was not virtualised.
    */
@@ -194,7 +189,7 @@ public class IdManager {
    * This method returns the ANNIS id of the virtual span which represents
    * the token specified by tokenId.
    *
-   * @param tokenId The {@link SElementId} of the node
+   * @param tokenId The {@link Identifier} of the node
    * @return The ANNIS id of the virtual Span or null, if the token was not
    * virtualised.
    */
@@ -216,9 +211,9 @@ public class IdManager {
 
   /**
    * This method returns the corpus tab id of the {@link SCorpus} or
-   * {@link SDocument} specified by the {@link SElementId} sElementId
+   * {@link SDocument} specified by the {@link Identifier} sElementId
    *
-   * @param sElementId The {@link SElementId} of the {@link SCorpus} or
+   * @param sElementId The {@link Identifier} of the {@link SCorpus} or
    * {@link SDocument}
    * @return The corpus tab id.
    */
@@ -264,10 +259,10 @@ public class IdManager {
 
   /**
    * This method returns an unique node tab ANNIS id for the node with the
-   * specified {@link SElementId}. Also, the method returns a boolean which
+   * specified {@link Identifier}. Also, the method returns a boolean which
    * specifies whether the ANNIS id is fresh.
    *
-   * @param sElementId the {@link SElementId} of the node
+   * @param sElementId the {@link Identifier} of the node
    * @return a pair <Long,Boolean> which is the ANNIS node tab id and a
    * boolean which specifies whether the id is fresh.
    */
@@ -292,7 +287,7 @@ public class IdManager {
 
   /**
    * This method returns the unique node tab ANNIS id for the node with the
-   * specified {@link SElementId}.
+   * specified {@link Identifier}.
    *
    * @param node the node
    * @return the ID if an ID was already given, NULL otherwise
@@ -306,7 +301,7 @@ public class IdManager {
 
     lockNodeIdMap.lock();
     try {
-      id = nodeIdMap.get(node.getSId());
+      id = nodeIdMap.get(node.getId());
     } finally {
       lockNodeIdMap.unlock();
     }
@@ -315,9 +310,9 @@ public class IdManager {
 
   /**
    * This method returns the text tab id of the {@link STextualDS} specified by
-   * the {@link SElementId} sElementId
+   * the {@link Identifier} sElementId
    *
-   * @param sElementId The {@link SElementId} of the {@link STextualDS}
+   * @param sElementId The {@link Identifier} of the {@link STextualDS}
    * @return The text tab id which is 0, if this class currently manages virtual
    * tokens.
    */

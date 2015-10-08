@@ -25,7 +25,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Hashtable;
+import java.util.Map;
 
 import org.eclipse.emf.common.util.URI;
 import org.junit.Before;
@@ -36,7 +36,6 @@ import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperModulePrope
 import de.hu_berlin.german.korpling.saltnpepper.pepper.testFramework.PepperExporterTest;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNISExporter;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNISExporterProperties;
-import java.util.Map;
  
  
 public class ANNISExporterTest extends PepperExporterTest{ 

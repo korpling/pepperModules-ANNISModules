@@ -17,9 +17,9 @@
  */
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis;
 
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpus;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
+import org.corpus_tools.salt.common.SCorpus;
+import org.corpus_tools.salt.common.SDocument;
+import org.corpus_tools.salt.core.SNode;
 
 /**
  * Describes the position of a corpus in the corpus hierarchy.
@@ -48,7 +48,7 @@ public enum CorpusType {
       return DOCUMENT;
     } else if(n instanceof SCorpus) {
       SCorpus c = (SCorpus) n;
-      String[] path = c.getSElementPath().segments();
+      String[] path = c.getPath().segments();
       if(path == null || path.length <= 1) {
         return TOPLEVEL;
       } else {

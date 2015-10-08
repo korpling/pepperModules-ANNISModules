@@ -18,23 +18,24 @@
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis;
 
 
-import org.eclipse.emf.common.util.BasicEList;
-import org.eclipse.emf.common.util.EList;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.corpus_tools.salt.common.SDocumentGraph;
+import org.corpus_tools.salt.common.SOrderRelation;
+import org.corpus_tools.salt.common.SToken;
+import org.corpus_tools.salt.core.SAnnotation;
+import org.corpus_tools.salt.core.SGraph.GRAPH_TRAVERSE_TYPE;
+import org.corpus_tools.salt.core.SNode;
+import org.corpus_tools.salt.core.SRelation;
+import org.corpus_tools.salt.util.SALT_TYPE;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.Salt2ANNISMapper.TRAVERSION_TYPE;
-import de.hu_berlin.german.korpling.saltnpepper.salt.graph.GRAPH_TRAVERSE_TYPE;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SOrderRelation;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STYPE_NAME;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
-
-import java.util.List;
-import java.util.Map;
 
 public class SOrderRelation2ANNISMapper extends SRelation2ANNISMapper {
 
@@ -45,11 +46,11 @@ public class SOrderRelation2ANNISMapper extends SRelation2ANNISMapper {
           Map<SToken, Long> token2index,
           TupleWriter nodeTabWriter,
           TupleWriter nodeAnnoTabWriter, TupleWriter rankTabWriter,
-          TupleWriter edgeAnnoTabWriter, TupleWriter componentTabWriter,
+          TupleWriter relationAnnoTabWriter, TupleWriter componentTabWriter,
           Salt2ANNISMapper parentMapper) {
 
     super(idManager, documentGraph, token2index, nodeTabWriter, nodeAnnoTabWriter,
-            rankTabWriter, edgeAnnoTabWriter, componentTabWriter, parentMapper);
+            rankTabWriter, relationAnnoTabWriter, componentTabWriter, parentMapper);
 
   }
 
@@ -65,8 +66,8 @@ public class SOrderRelation2ANNISMapper extends SRelation2ANNISMapper {
   }
 
   @Override
-  public void mapSRelations2ANNIS(List<? extends SNode> sRelationRoots,
-          STYPE_NAME relationTypeName, TRAVERSION_TYPE traversionType) {
+  public void mapSRelations2ANNIS(Collection<? extends SNode> sRelationRoots,
+          SALT_TYPE relationTypeName, TRAVERSION_TYPE traversionType) {
 
     beginTransaction();
 
@@ -76,7 +77,7 @@ public class SOrderRelation2ANNISMapper extends SRelation2ANNISMapper {
 
       // Step 1: traverse the SOrderRelations
       for (SNode node : sRelationRoots) {
-        EList<SNode> singleRootList = new BasicEList<>();
+        List<SNode> singleRootList = new ArrayList<>();
         singleRootList.add(node);
 
         this.documentGraph.traverse(singleRootList, GRAPH_TRAVERSE_TYPE.TOP_DOWN_DEPTH_FIRST, "", this);
@@ -92,11 +93,11 @@ public class SOrderRelation2ANNISMapper extends SRelation2ANNISMapper {
 // ========================= Graph Traversion =================================
   @Override
   public void nodeReached(GRAPH_TRAVERSE_TYPE traversalType,
-          String traversalId, SNode currNode, SRelation sRelation,
+          String traversalId, SNode currNode, SRelation<SNode, SNode> sRelation,
           SNode fromNode, long order) {
 
 		//if (sRelation != null & sRelation instanceof SOrderRelation){
-    //System.out.println("found relation "+ fromNode.getSName() +" ->["+sRelation.getSId()+"] "+currNode.getSName());
+    //System.out.println("found relation "+ fromNode.getName() +" ->["+sRelation.getId()+"] "+currNode.getName());
     //System.out.println("Traversal id is: "+traversalId);
     //if (sRelation.getSTypes() != null){
     //if (sRelation.getSTypes().size() > 0){
@@ -113,44 +114,44 @@ public class SOrderRelation2ANNISMapper extends SRelation2ANNISMapper {
     String segSpan = "NULL";
     String namespace = null;
     if (currNode instanceof SToken) {
-      SDocumentGraph g = ((SToken) currNode).getSDocumentGraph();
+      SDocumentGraph g = ((SToken) currNode).getGraph();
       if (g != null) {
-        segSpan = g.getSText((SToken) currNode);
+        segSpan = g.getText((SToken) currNode);
       }
     } else {
       // find the annotation value with the same name as the segmentation chain
-      EList<SAnnotation> annos = currNode.getSAnnotations();
+      Set<SAnnotation> annos = currNode.getAnnotations();
       if (annos != null) {
         for (SAnnotation a : annos) {
-          if (name.equals(a.getSName())) {
-            segSpan = a.getSValueSTEXT();
-            namespace = a.getSNS();
+          if (name.equals(a.getName())) {
+            segSpan = a.getValue_STEXT();
+            namespace = a.getNamespace();
             break;
           }
         }
       }
     }
-    this.idManager.addSegmentInformation(currNode.getSId(), segIndex, name, segSpan);
+    this.idManager.addSegmentInformation(currNode.getId(), segIndex, name, segSpan);
     getVirtualTokenStats().addVirtualAnnoName(namespace, name);
   }
 
   @Override
   public void nodeLeft(GRAPH_TRAVERSE_TYPE traversalType, String traversalId,
-          SNode currNode, SRelation edge, SNode fromNode, long order) {
+          SNode currNode, SRelation relation, SNode fromNode, long order) {
 
 		// do nothing
   }
 
   @Override
   public boolean checkConstraint(GRAPH_TRAVERSE_TYPE traversalType,
-          String traversalId, SRelation edge, SNode currNode, long order) {
+          String traversalId, SRelation relation, SNode currNode, long order) {
     boolean returnVal = false;
 
-    // only traverse on, if the current edge is null (top rank) or instance of SOrderRelation
-    if (edge == null) {
+    // only traverse on, if the current relation is null (top rank) or instance of SOrderRelation
+    if (relation == null) {
       returnVal = true;
     } else {
-      if (edge instanceof SOrderRelation) {
+      if (relation instanceof SOrderRelation) {
         returnVal = true;
       }
     }

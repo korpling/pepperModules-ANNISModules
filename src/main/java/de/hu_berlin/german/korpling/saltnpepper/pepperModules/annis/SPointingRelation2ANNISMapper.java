@@ -17,23 +17,23 @@
  */
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis;
 
-import org.eclipse.emf.common.util.BasicEList;
-import org.eclipse.emf.common.util.EList;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.corpus_tools.salt.common.SDocumentGraph;
+import org.corpus_tools.salt.common.SPointingRelation;
+import org.corpus_tools.salt.common.SToken;
+import org.corpus_tools.salt.core.SAnnotation;
+import org.corpus_tools.salt.core.SGraph.GRAPH_TRAVERSE_TYPE;
+import org.corpus_tools.salt.core.SNode;
+import org.corpus_tools.salt.core.SRelation;
+import org.corpus_tools.salt.util.SALT_TYPE;
 
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.Salt2ANNISMapper.TRAVERSION_TYPE;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.QName;
-import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
-import de.hu_berlin.german.korpling.saltnpepper.salt.graph.GRAPH_TRAVERSE_TYPE;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SPointingRelation;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STYPE_NAME;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
-
-import java.util.List;
-import java.util.Map;
 
 public class SPointingRelation2ANNISMapper extends SRelation2ANNISMapper {
 
@@ -44,14 +44,14 @@ public class SPointingRelation2ANNISMapper extends SRelation2ANNISMapper {
           Map<SToken, Long> token2Index,
           TupleWriter nodeTabWriter,
           TupleWriter nodeAnnoTabWriter, TupleWriter rankTabWriter,
-          TupleWriter edgeAnnoTabWriter, TupleWriter componentTabWriter,
+          TupleWriter relationAnnoTabWriter, TupleWriter componentTabWriter,
           Salt2ANNISMapper parentMapper) {
 
     super(idManager,
             documentGraph,
             token2Index,
             nodeTabWriter, nodeAnnoTabWriter,
-            rankTabWriter, edgeAnnoTabWriter, componentTabWriter,
+            rankTabWriter, relationAnnoTabWriter, componentTabWriter,
             parentMapper);
 
   }
@@ -65,7 +65,7 @@ public class SPointingRelation2ANNISMapper extends SRelation2ANNISMapper {
 
         String componentLayer = DEFAULT_NS;
         /*
-         List<SLayer> nodeLayer = node.getSLayers();
+         List<SLayer> nodeLayer = node.getLayers();
          if (nodeLayer != null){
          if (nodeLayer.size() > 0){
          if (! "".equals(nodeLayer.get(0))){
@@ -82,7 +82,7 @@ public class SPointingRelation2ANNISMapper extends SRelation2ANNISMapper {
         }
 				//System.out.println("[DEBUG] Mapping pointingRelation with sType "+ this.currentTraversionSType);
         // create an List for the current root
-        EList<SNode> singleRootList = new BasicEList<>();
+        List<SNode> singleRootList = new ArrayList<>();
         singleRootList.add(node);
 
         this.documentGraph.traverse(singleRootList, GRAPH_TRAVERSE_TYPE.TOP_DOWN_DEPTH_FIRST, traversionType.toString(), this);
@@ -95,12 +95,12 @@ public class SPointingRelation2ANNISMapper extends SRelation2ANNISMapper {
     
     commitTransaction();
     
-    getPointingStats().setNodeCount(this.documentGraph.getNumOfNodes());
+    getPointingStats().setNodeCount(this.documentGraph.getNodes().size());
   }
 
   @Override
-  public void mapSRelations2ANNIS(List<? extends SNode> sRelationRoots,
-          STYPE_NAME relationTypeName, TRAVERSION_TYPE traversionType) {
+  public void mapSRelations2ANNIS(Collection<? extends SNode> sRelationRoots,
+          SALT_TYPE relationTypeName, TRAVERSION_TYPE traversionType) {
     this.traversionType = traversionType;
     this.relationTypeName = relationTypeName;
     this.sRelationRoots = sRelationRoots;
@@ -110,24 +110,19 @@ public class SPointingRelation2ANNISMapper extends SRelation2ANNISMapper {
 // ========================= Graph Traversion =================================
   @Override
   public void nodeReached(GRAPH_TRAVERSE_TYPE traversalType,
-          String traversalId, SNode currNode, SRelation sRelation,
+          String traversalId, SNode currNode, SRelation relation,
           SNode fromNode, long order) {
 
     // this method behaves exactly as the one in the super class
-    super.nodeReached(traversalType, traversalId, currNode, sRelation, fromNode, order);
+    super.nodeReached(traversalType, traversalId, currNode, relation, fromNode, order);
     
     lastEnteredNode = currNode;
 
-    if (sRelation != null & sRelation instanceof SPointingRelation) {
-			//System.out.println("found relation "+ fromNode.getSName() +" ->["+sRelation.getSId()+"] "+currNode.getSName());
-      //System.out.println("Traversal id is: "+traversalId);
-      if (sRelation.getSTypes() != null) {
-        if (sRelation.getSTypes().size() > 0) {
-          this.currentComponentName = sRelation.getSTypes().get(0);
-          //System.out.println("SType is "+this.currentComponentName);
-        }
+    if (relation != null && relation instanceof SPointingRelation) {
+	  if (relation.getType() != null && !relation.getType().isEmpty()) {
+          this.currentComponentName = relation.getType();
       } else {
-        this.currentComponentName = SaltFactory.DEFAULT_STYPE;
+        this.currentComponentName = "salt::NULL";
       }
     }
 
@@ -135,10 +130,10 @@ public class SPointingRelation2ANNISMapper extends SRelation2ANNISMapper {
 
   @Override
   public void nodeLeft(GRAPH_TRAVERSE_TYPE traversalType, String traversalId,
-          SNode currNode, SRelation edge, SNode fromNode, long order) {
+          SNode currNode, SRelation relation, SNode fromNode, long order) {
 
     // this method behaves exactly as the one in the super class
-    super.nodeLeft(traversalType, traversalId, currNode, edge, fromNode, order);
+    super.nodeLeft(traversalType, traversalId, currNode, relation, fromNode, order);
     
     if (lastEnteredNode == currNode) {
       // we left a leaf node
@@ -146,11 +141,11 @@ public class SPointingRelation2ANNISMapper extends SRelation2ANNISMapper {
       getPointingStats().addLayer(layer);
       
       if (!(currNode instanceof SToken)) {
-        EList<SAnnotation> annos = currNode.getSAnnotations();
+        Set<SAnnotation> annos = currNode.getAnnotations();
         if (annos != null) {
           for (SAnnotation anno : annos) {
             getPointingStats().getTerminalAnno().add(layer,
-                    new QName(anno.getSNS(), anno.getSName()));
+                    new QName(anno.getNamespace(), anno.getName()));
           }
         }
       }
@@ -160,30 +155,27 @@ public class SPointingRelation2ANNISMapper extends SRelation2ANNISMapper {
 
   @Override
   public boolean checkConstraint(GRAPH_TRAVERSE_TYPE traversalType,
-          String traversalId, SRelation edge, SNode currNode, long order) {
+          String traversalId, SRelation relation, SNode currNode, long order) {
     boolean returnVal = false;
 
-		// only traverse on, if the current edge is null (top rank) or instance of SPointingRelation
-    // only traverse on, if the current edge is null or a dominance relation
-    if (edge == null) {
+		// only traverse on, if the current relation is null (top rank) or instance of SPointingRelation
+    // only traverse on, if the current relation is null or a dominance relation
+    if (relation == null) {
       returnVal = true;
     } else {
-      if (edge instanceof SPointingRelation) {
+      if (relation instanceof SPointingRelation) {
         if (this.currentTraversionSType == null) {
           // traversing super component
           returnVal = true;
         } else {
           // traversing sub component. Only accept, if the SType is correct
-          EList<String> edgeSTypes = edge.getSTypes();
-          if (edgeSTypes != null) {
-            if (edgeSTypes.size() > 0) {
-              if (edgeSTypes.get(0).equals(this.currentTraversionSType)) {
+        	if (relation.getType() != null && !relation.getType().isEmpty()) {
+              if (relation.getType().equals(this.currentTraversionSType)) {
                 returnVal = true;
               }
-            }
           } else {
             // the current SType is NULL, i.e. SALT::NULL
-            if (this.currentTraversionSType.equals(SaltFactory.DEFAULT_STYPE)) {
+            if (this.currentTraversionSType.equals("salt::NULL")) {
               returnVal = true;
             }
 

@@ -17,23 +17,25 @@
  */
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis;
 
-import com.google.common.collect.Range;
-import de.hu_berlin.german.korpling.saltnpepper.salt.graph.GRAPH_TRAVERSE_TYPE;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SAudioDSRelation;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STYPE_NAME;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import org.eclipse.emf.common.util.BasicEList;
-import org.eclipse.emf.common.util.EList;
+
+import org.corpus_tools.salt.common.SDocumentGraph;
+import org.corpus_tools.salt.common.SMedialRelation;
+import org.corpus_tools.salt.common.SToken;
+import org.corpus_tools.salt.core.SGraph.GRAPH_TRAVERSE_TYPE;
+import org.corpus_tools.salt.core.SNode;
+import org.corpus_tools.salt.core.SRelation;
+import org.corpus_tools.salt.util.SALT_TYPE;
 import org.eclipse.emf.common.util.URI;
+
+import com.google.common.collect.Range;
 
 /**
  *
@@ -56,17 +58,17 @@ public class Audio2ANNISMapper extends SRelation2ANNISMapper {
           Map<SToken, Long> token2Index,
           TupleWriter nodeTabWriter,
           TupleWriter nodeAnnoTabWriter, TupleWriter rankTabWriter,
-          TupleWriter edgeAnnoTabWriter, TupleWriter componentTabWriter,
+          TupleWriter relationAnnoTabWriter, TupleWriter componentTabWriter,
           Salt2ANNISMapper parentMapper) {
     super(idManager, documentGraph,
             token2Index,
             nodeTabWriter, nodeAnnoTabWriter,
-            rankTabWriter, edgeAnnoTabWriter, componentTabWriter, parentMapper);
+            rankTabWriter, relationAnnoTabWriter, componentTabWriter, parentMapper);
     mappedFiles = Collections.synchronizedSet(new HashSet<URI>());
   }
 
   @Override
-  public void mapSRelations2ANNIS(List<? extends SNode> sRelationRoots, STYPE_NAME relationTypeName,
+  public void mapSRelations2ANNIS(Collection<? extends SNode> sRelationRoots, SALT_TYPE relationTypeName,
           Salt2ANNISMapper.TRAVERSION_TYPE traversionType) {
     this.traversionType = traversionType;
     this.relationTypeName = relationTypeName;
@@ -82,7 +84,7 @@ public class Audio2ANNISMapper extends SRelation2ANNISMapper {
         super.initialiseTraversion(null, null, null);
 
         // create an EList for the current root
-        EList<SNode> singleRootList = new BasicEList<>();
+        List<SNode> singleRootList = new ArrayList<>();
         singleRootList.add(node);
 
         documentGraph.traverse(singleRootList, GRAPH_TRAVERSE_TYPE.TOP_DOWN_DEPTH_FIRST, traversionType.toString(), this);
@@ -94,10 +96,10 @@ public class Audio2ANNISMapper extends SRelation2ANNISMapper {
   }
 
   @Override
-  public boolean checkConstraint(GRAPH_TRAVERSE_TYPE traversalType, String traversalId, SRelation edge, SNode currNode, long order) {
+  public boolean checkConstraint(GRAPH_TRAVERSE_TYPE traversalType, String traversalId, SRelation relation, SNode currNode, long order) {
 
     if (traversionType == Salt2ANNISMapper.TRAVERSION_TYPE.DOCUMENT_STRUCTURE_AUDIO) {
-      return currNode instanceof SToken || edge instanceof SAudioDSRelation;
+      return currNode instanceof SToken || relation instanceof SMedialRelation;
     }
 
     return false;
@@ -107,11 +109,11 @@ public class Audio2ANNISMapper extends SRelation2ANNISMapper {
   public void nodeReached(GRAPH_TRAVERSE_TYPE traversalType, String traversalId,
           SNode currNode, SRelation sRelation, SNode fromNode, long order) {
 
-    if (sRelation instanceof SAudioDSRelation
+    if (sRelation instanceof SMedialRelation
             && traversionType == Salt2ANNISMapper.TRAVERSION_TYPE.DOCUMENT_STRUCTURE_AUDIO) {
-      SAudioDSRelation dsRel = (SAudioDSRelation) sRelation;
-      Double start = dsRel.getSStart();
-      Double end = dsRel.getSEnd();
+      SMedialRelation dsRel = (SMedialRelation) sRelation;
+      Double start = dsRel.getStart();
+      Double end = dsRel.getEnd();
 
       String val;
       if (start != null && end != null) {
@@ -124,12 +126,12 @@ public class Audio2ANNISMapper extends SRelation2ANNISMapper {
         val = "";
       }
 
-      SToken tok = dsRel.getSToken();
-      List<Long> virtualToken = idManager.getVirtualisedTokenId(tok.getSId());
+      SToken tok = dsRel.getSource();
+      List<Long> virtualToken = idManager.getVirtualisedTokenId(tok.getId());
       if (virtualToken == null) {
 
-        tok.createSAnnotation("annis", "time", val);
-        mapSNode(dsRel.getSToken());
+        tok.createAnnotation("annis", "time", val);
+        mapSNode(dsRel.getSource());
       } else if (!virtualToken.isEmpty()) {
         // there is already a virtual span written for this token,
         // add the time information to the overlapped virtual token instead
@@ -156,12 +158,10 @@ public class Audio2ANNISMapper extends SRelation2ANNISMapper {
           if (end != null) {
             addVirtualRange(lastTokenID, Range.atMost(end));
           }
-
         }
-
       }
 
-      URI linkedFile = dsRel.getSAudioDS().getSAudioReference();
+      URI linkedFile = dsRel.getTarget().getMediaReference();
       if (linkedFile != null) {
         if (mappedFiles.add(linkedFile)) {
           copyLinkedFile(linkedFile);
@@ -173,7 +173,7 @@ public class Audio2ANNISMapper extends SRelation2ANNISMapper {
   }
 
   @Override
-  public void nodeLeft(GRAPH_TRAVERSE_TYPE traversalType, String traversalId, SNode currNode, SRelation edge, SNode fromNode, long order) {
+  public void nodeLeft(GRAPH_TRAVERSE_TYPE traversalType, String traversalId, SNode currNode, SRelation relation, SNode fromNode, long order) {
 
   }
   

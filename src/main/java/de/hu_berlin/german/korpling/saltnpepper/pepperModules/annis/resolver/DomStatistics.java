@@ -17,12 +17,11 @@
  */
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver;
 
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
-
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
+
+import org.corpus_tools.salt.core.SAnnotation;
 
 /**
  * Statistics used for creating resolver entries for dominance components.
@@ -33,58 +32,49 @@ public class DomStatistics {
   
   private final Set<String> layers = Collections.synchronizedSet(new HashSet<String>());
   
-  private final StatTableCounter<String> edgeTypeCounter
+  private final StatTableCounter<String> relationTypeCounter
           = new StatTableCounter<>(layers);
   
   private final StatMultiMap<String, QName> terminalAnno
           = new StatMultiMap<>(layers);
   
-  private final StatMultiMap<String, String> terminalEdgeType
+  private final StatMultiMap<String, String> terminalRelationType
           = new StatMultiMap<>(layers);
   
-  private final StatMultiMap<String, QName> edgeAnno
+  private final StatMultiMap<String, QName> relationAnno
           = new StatMultiMap<>(layers);
   
   private final StatTableCounter<QName> nodeAnnoCounter
           = new StatTableCounter<>(layers);
   
   ///////////////
-  // edge type //
+  // relation type //
   ///////////////
   
-  public void addEdgeType(String layer, List<String> types) {
-    
-    if (types != null) {
-      for(String edgeType : types) {
-        edgeTypeCounter.add(layer, edgeType, 1);
-      }
-    }
+  public void addRelationType(String layer, String type) {
+	  relationTypeCounter.add(layer, type, 1);
   }
   
-  public void addEdgeAnno(String layer,  List<SAnnotation> annos) {
+  public void addRelationAnno(String layer,  Set<SAnnotation> annos) {
     if (annos != null) {
       for(SAnnotation a : annos) {
-        QName qname = new QName(a.getSNS(), a.getSName());
-        edgeAnno.add(layer, qname);
+        QName qname = new QName(a.getNamespace(), a.getName());
+        relationAnno.add(layer, qname);
       }
     }
   }
   
-  public void addNodeAnno(String layer, List<SAnnotation> annos) {
+  public void addNodeAnno(String layer, Set<SAnnotation> annos) {
     if (annos != null) {
       for (SAnnotation a : annos) {
-        QName qname = new QName(a.getSNS(), a.getSName());
+        QName qname = new QName(a.getNamespace(), a.getName());
         nodeAnnoCounter.add(layer, qname, 1);
       }
     }
   }
   
-  public void addTerminalEdgeType(String layer, List<String> types) {
-    if (types != null) {
-      for(String t : types) {
-        terminalEdgeType.add(layer, t);
-      }
-    }
+  public void addTerminalRelationType(String layer, String type) {
+	  terminalRelationType.add(layer, type);
   }
   
   /**
@@ -96,11 +86,11 @@ public class DomStatistics {
    * @param other 
    */
   public void merge(DomStatistics other) {
-    edgeAnno.merge(other.edgeAnno);
-    edgeTypeCounter.merge(other.edgeTypeCounter);
+    relationAnno.merge(other.relationAnno);
+    relationTypeCounter.merge(other.relationTypeCounter);
     nodeAnnoCounter.merge(other.nodeAnnoCounter);
     terminalAnno.merge(other.terminalAnno);
-    terminalEdgeType.merge(other.terminalEdgeType);
+    terminalRelationType.merge(other.terminalRelationType);
   }
   
   public Set<String> getLayers() {
@@ -111,16 +101,16 @@ public class DomStatistics {
     return terminalAnno;
   }
 
-  public StatMultiMap<String, String> getTerminalEdgeType() {
-    return terminalEdgeType;
+  public StatMultiMap<String, String> getTerminalRelationType() {
+    return terminalRelationType;
   }
 
-  public StatMultiMap<String, QName> getEdgeAnno() {
-    return edgeAnno;
+  public StatMultiMap<String, QName> getRelationAnno() {
+    return relationAnno;
   }
 
-  public StatTableCounter<String> getEdgeTypeCounter() {
-    return edgeTypeCounter;
+  public StatTableCounter<String> getRelationTypeCounter() {
+    return relationTypeCounter;
   }
 
   public StatTableCounter<QName> getNodeAnnoCounter() {

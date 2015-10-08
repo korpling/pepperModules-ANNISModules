@@ -17,25 +17,24 @@
  */
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis;
 
-
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.Salt2ANNISMapper.TRAVERSION_TYPE;
-import de.hu_berlin.german.korpling.saltnpepper.salt.graph.GRAPH_TRAVERSE_TYPE;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpan;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpanningRelation;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STYPE_NAME;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SLayer;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
-
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.emf.common.util.BasicEList;
-import org.eclipse.emf.common.util.EList;
+import org.corpus_tools.salt.common.SDocumentGraph;
+import org.corpus_tools.salt.common.SSpan;
+import org.corpus_tools.salt.common.SSpanningRelation;
+import org.corpus_tools.salt.common.SToken;
+import org.corpus_tools.salt.core.SGraph.GRAPH_TRAVERSE_TYPE;
+import org.corpus_tools.salt.core.SLayer;
+import org.corpus_tools.salt.core.SNode;
+import org.corpus_tools.salt.core.SRelation;
+import org.corpus_tools.salt.util.SALT_TYPE;
+
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.Salt2ANNISMapper.TRAVERSION_TYPE;
 
 public class SSpanningRelation2ANNISMapper extends SRelation2ANNISMapper {
 
@@ -46,13 +45,13 @@ public class SSpanningRelation2ANNISMapper extends SRelation2ANNISMapper {
           Map<SToken, Long> token2Index,
           TupleWriter nodeTabWriter,
           TupleWriter nodeAnnoTabWriter, TupleWriter rankTabWriter,
-          TupleWriter edgeAnnoTabWriter, TupleWriter componentTabWriter,
+          TupleWriter relationAnnoTabWriter, TupleWriter componentTabWriter,
           Salt2ANNISMapper parentMapper) {
 
     super(idManager, documentGraph, 
             token2Index,
             nodeTabWriter, nodeAnnoTabWriter,
-            rankTabWriter, edgeAnnoTabWriter, componentTabWriter,
+            rankTabWriter, relationAnnoTabWriter, componentTabWriter,
             parentMapper);
 
     spanIsContinous = Collections.synchronizedMap(new HashMap<SSpan, Boolean>());
@@ -68,7 +67,7 @@ public class SSpanningRelation2ANNISMapper extends SRelation2ANNISMapper {
         String componentLayerName = DEFAULT_NS;
         SLayer componentLayer = getFirstComponentLayer(node);
         if (componentLayer != null) {
-          componentLayerName = componentLayer.getSName();
+          componentLayerName = componentLayer.getName();
         }
 
         if (this.currentTraversionSType == null) {
@@ -78,7 +77,7 @@ public class SSpanningRelation2ANNISMapper extends SRelation2ANNISMapper {
         }
 
         // create an EList for the current root
-        EList<SNode> singleRootList = new BasicEList<>();
+        List<SNode> singleRootList = new ArrayList<>();
         singleRootList.add(node);
 
         this.documentGraph.traverse(singleRootList, GRAPH_TRAVERSE_TYPE.TOP_DOWN_DEPTH_FIRST, traversionType.toString(), this);
@@ -93,8 +92,8 @@ public class SSpanningRelation2ANNISMapper extends SRelation2ANNISMapper {
   }
 
   @Override
-  public void mapSRelations2ANNIS(List<? extends SNode> sRelationRoots,
-          STYPE_NAME relationTypeName, TRAVERSION_TYPE traversionType) {
+  public void mapSRelations2ANNIS(Collection<? extends SNode> sRelationRoots,
+          SALT_TYPE relationTypeName, TRAVERSION_TYPE traversionType) {
     this.traversionType = traversionType;
     this.relationTypeName = relationTypeName;
     this.sRelationRoots = sRelationRoots;
@@ -106,12 +105,12 @@ public class SSpanningRelation2ANNISMapper extends SRelation2ANNISMapper {
           Long rankId, Long preOrder, Long postOrder, Long parentRank, Long level) {
     boolean doMapping = true;
     if (sRelation instanceof SSpanningRelation) {
-      if (sRelation.getSAnnotations() != null && !sRelation.getSAnnotations().isEmpty()) {
-        // always do mapping if the edge has annotations
+      if (sRelation.getAnnotations() != null && !sRelation.getAnnotations().isEmpty()) {
+        // always do mapping if the relation has annotations
         doMapping = true;
       } else {
         // otherwise check if the span is continuous
-        SSpan span = (SSpan) sRelation.getSSource();
+        SSpan span = (SSpan) sRelation.getSource();
         doMapping = !isContinuous(span);
 
       }
@@ -131,11 +130,11 @@ public class SSpanningRelation2ANNISMapper extends SRelation2ANNISMapper {
       continuous = cachedValue;
     } else {
       // we need to compute wether the span is continuous
-      EList<STYPE_NAME> spanRel = new BasicEList<>();
-      spanRel.add(STYPE_NAME.SSPANNING_RELATION);
+      List<SALT_TYPE> spanRel = new ArrayList<>();
+      spanRel.add(SALT_TYPE.SSPANNING_RELATION);
 
       List<SToken> overlappedToken
-              = documentGraph.getOverlappedSTokens(span, spanRel);
+              = documentGraph.getOverlappedTokens(span, spanRel);
 
       if (overlappedToken != null && !overlappedToken.isEmpty()) {
         long minIndex = Integer.MAX_VALUE;
@@ -170,24 +169,24 @@ public class SSpanningRelation2ANNISMapper extends SRelation2ANNISMapper {
 
   @Override
   public void nodeLeft(GRAPH_TRAVERSE_TYPE traversalType, String traversalId,
-          SNode currNode, SRelation edge, SNode fromNode, long order) {
+          SNode currNode, SRelation relation, SNode fromNode, long order) {
 
     // this method behaves exactly as the one in the super class
-    super.nodeLeft(traversalType, traversalId, currNode, edge, fromNode, order);
+    super.nodeLeft(traversalType, traversalId, currNode, relation, fromNode, order);
     
-    getSpanStats().addNodeAnno(currentComponentLayer, currNode.getSAnnotations());
+    getSpanStats().addNodeAnno(currentComponentLayer, currNode.getAnnotations());
   }
 
   @Override
   public boolean checkConstraint(GRAPH_TRAVERSE_TYPE traversalType,
-          String traversalId, SRelation edge, SNode currNode, long order) {
+          String traversalId, SRelation relation, SNode currNode, long order) {
     boolean returnVal = false;
 
-    // only traverse on, if the current node is a Span and edge is null
-    if (currNode instanceof SSpan && edge == null) {
+    // only traverse on, if the current node is a Span and relation is null
+    if (currNode instanceof SSpan && relation == null) {
       returnVal = true;
     }
-    if (currNode instanceof SToken && edge instanceof SSpanningRelation) {
+    if (currNode instanceof SToken && relation instanceof SSpanningRelation) {
       returnVal = true;
     }
 

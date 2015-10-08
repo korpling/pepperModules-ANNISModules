@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +32,11 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.concurrent.ConcurrentMap;
 
+import org.corpus_tools.salt.common.SCorpus;
+import org.corpus_tools.salt.common.SCorpusGraph;
+import org.corpus_tools.salt.common.SStructure;
+import org.corpus_tools.salt.core.SMetaAnnotation;
+import org.corpus_tools.salt.graph.Identifier;
 import org.eclipse.emf.common.util.URI;
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
@@ -44,28 +51,12 @@ import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperMapper;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleException;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleNotReadyException;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.impl.PepperExporterImpl;
-import static de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNIS.FILE_COMPONENT;
-import static de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNIS.FILE_CORPUS;
-import static de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNIS.FILE_CORPUS_META;
-import static de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNIS.FILE_EDGE_ANNO;
-import static de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNIS.FILE_NODE;
-import static de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNIS.FILE_NODE_ANNO;
-import static de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNIS.FILE_RANK;
-import static de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNIS.FILE_TEXT;
-import static de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNIS.FILE_VISUALIZATION;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ResolverEntry.Vis;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.DomStatistics;
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.VirtualTokenStatistics;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.PointingStatistics;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.QName;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.SpanStatistics;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpus;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SMetaAnnotation;
-
-import java.util.HashSet;
-import java.util.LinkedHashSet;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.VirtualTokenStatistics;
 
 @Component(name = "ANNISExporterComponent", factory = "PepperExporterComponentFactory")
 public class ANNISExporter extends PepperExporterImpl implements PepperExporter, ANNIS {
@@ -93,7 +84,7 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
   /**
    * tuple writer to write {@link ANNIS#FILE_EDGE_ANNO} *
    */
-  public TupleWriter tw_edgeAnno = null;
+  public TupleWriter tw_relationAnno = null;
   /**
    * tuple writer to write {@link ANNIS#FILE_COMPONENT} *
    */
@@ -151,7 +142,7 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
    * {@link IdManager} etc..
    */
   @Override
-  public PepperMapper createPepperMapper(SElementId sElementId) {
+  public PepperMapper createPepperMapper(Identifier sElementId) {
     Salt2ANNISMapper mapper = new Salt2ANNISMapper();
     mapper.setIdManager(new IdManager(globalIdManager));
     mapper.setGlobalDomStats(domStats);
@@ -164,7 +155,7 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
     mapper.tw_node = tw_node;
     mapper.tw_nodeAnno = tw_nodeAnno;
     mapper.tw_rank = tw_rank;
-    mapper.tw_edgeAnno = tw_edgeAnno;
+    mapper.tw_relationAnno = tw_relationAnno;
     mapper.tw_component = tw_component;
     mapper.tw_corpus = tw_corpus;
     mapper.tw_corpusMeta = tw_corpusMeta;
@@ -174,9 +165,9 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
     mapper.mapRelationsInParallel(true);
 
     //a fix: it seems to be a bug, that ScorpusGraph is not set automatically for mapper
-    if (sElementId.getSIdentifiableElement() != null) {
-      if (sElementId.getSIdentifiableElement() instanceof SCorpus) {
-        mapper.setSCorpusGraph(((SCorpus) sElementId.getSIdentifiableElement()).getSCorpusGraph());
+    if (sElementId.getIdentifiableElement() != null) {
+      if (sElementId.getIdentifiableElement() instanceof SCorpus) {
+        mapper.setCorpusGraph(((SCorpus) sElementId.getIdentifiableElement()).getGraph());
       }
     }
 
@@ -242,7 +233,7 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
     tw_node = createTupleWriter(new File(corpPath + FILE_NODE), this.escapeCharacters, this.characterEscapeTable);
     tw_nodeAnno = createTupleWriter(new File(corpPath + FILE_NODE_ANNO), this.escapeCharacters, this.characterEscapeTable);
     tw_rank = createTupleWriter(new File(corpPath + FILE_RANK), this.escapeCharacters, this.characterEscapeTable);
-    tw_edgeAnno = createTupleWriter(new File(corpPath + FILE_EDGE_ANNO), this.escapeCharacters, this.characterEscapeTable);
+    tw_relationAnno = createTupleWriter(new File(corpPath + FILE_EDGE_ANNO), this.escapeCharacters, this.characterEscapeTable);
     tw_component = createTupleWriter(new File(corpPath + FILE_COMPONENT), this.escapeCharacters, this.characterEscapeTable);
     tw_corpus = createTupleWriter(new File(corpPath + FILE_CORPUS), this.escapeCharacters, this.characterEscapeTable);
 
@@ -314,7 +305,7 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
     
     createMediaResolverEntries();
     
-    for (SCorpusGraph corpusGraph : getSaltProject().getSCorpusGraphs()) {
+    for (SCorpusGraph corpusGraph : getSaltProject().getCorpusGraphs()) {
       if (tw_visualization != null) {
         printResolverVisMap(corpusGraph);
       }
@@ -450,43 +441,43 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
         }
       }
 
-      Set<QName> edgeAnnos = domStats.getEdgeAnno().get(layerName);
+      Set<QName> relationAnnos = domStats.getRelationAnno().get(layerName);
 
-      if(edgeAnnos.size() >= 1) {
-        QName qname = edgeAnnos.iterator().next();
-        entry.getMappings().put("edge_key", globalIdManager.getEscapedIdentifier(qname.getName()));
+      if(relationAnnos.size() >= 1) {
+        QName qname = relationAnnos.iterator().next();
+        entry.getMappings().put("relation_key", globalIdManager.getEscapedIdentifier(qname.getName()));
         if(!QName.NULL.equals(qname.getNs())) {
-          entry.getMappings().put("edge_anno_ns", globalIdManager.getEscapedIdentifier(qname.getNs()));
+          entry.getMappings().put("relation_anno_ns", globalIdManager.getEscapedIdentifier(qname.getNs()));
         }
       }
 
-      SortedMap<Integer, String> etypes = domStats.getEdgeTypeCounter().getBySize(layerName);
+      SortedMap<Integer, String> etypes = domStats.getRelationTypeCounter().getBySize(layerName);
       if(etypes.isEmpty()
               || (((ANNISExporterProperties) getProperties()).getExcludeSingleDomType() 
               && etypes.size() <= 1 )) {
-        entry.getMappings().put("edge_type", globalIdManager.getEscapedIdentifier("null"));
+        entry.getMappings().put("relation_type", globalIdManager.getEscapedIdentifier("null"));
       }
       else {
-        // the primary edge type always has the greatest number of entries
+        // the primary relation type always has the greatest number of entries
         String primaryType = etypes.get(etypes.lastKey());
         String secondaryType = etypes.size() >= 2 ? etypes.get(etypes.firstKey()) : null;
 
         // check if the terminal nodes are reachable by the original types
         // use the special "null" type if not
-        Set<String> terminalEdgeTypes = domStats.getTerminalEdgeType().get(layerName);
+        Set<String> terminalRelationTypes = domStats.getTerminalRelationType().get(layerName);
         if(secondaryType == null) {
-          if (!terminalEdgeTypes.contains(primaryType)) {
+          if (!terminalRelationTypes.contains(primaryType)) {
             primaryType = "null";
           }
         } else {
-          if (!terminalEdgeTypes.contains(primaryType) && !terminalEdgeTypes.contains(secondaryType)) {
+          if (!terminalRelationTypes.contains(primaryType) && !terminalRelationTypes.contains(secondaryType)) {
             primaryType = "null";
           }
         }
 
-        entry.getMappings().put("edge_type", globalIdManager.getEscapedIdentifier(primaryType));
+        entry.getMappings().put("relation_type", globalIdManager.getEscapedIdentifier(primaryType));
         if(secondaryType != null) {
-          entry.getMappings().put("secedge_type", globalIdManager.getEscapedIdentifier(secondaryType));
+          entry.getMappings().put("secrelation_type", globalIdManager.getEscapedIdentifier(secondaryType));
         }
       }
     }
@@ -523,7 +514,7 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
     }
     entry.setDisplay(displayName);
     if (layerName != null) {    
-      entry.setElement(ResolverEntry.Element.edge);
+      entry.setElement(ResolverEntry.Element.relation);
       entry.setLayerName(layerName.getNs());
     }
 
@@ -614,21 +605,21 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
       String corpusName = "NULL";
       String corpusVersion = "NULL";
       // get the version of the corpus but initialise the default NULL
-      if (corpusGraph.getSRootCorpus() != null) {
-        if (corpusGraph.getSRootCorpus().size() > 0) {
-          SCorpus rootCorpus = corpusGraph.getSRootCorpus().get(0);
+      if (corpusGraph.getRoots() != null) {
+        if (corpusGraph.getRoots().size() > 0) {
+          SCorpus rootCorpus = (SCorpus) corpusGraph.getRoots().get(0);
           // set corpus name
           if(this.individualCorpusName != null) {
             corpusName = this.individualCorpusName;
           } else {
-            corpusName = rootCorpus.getSName();
+            corpusName = rootCorpus.getName();
           }
           
           // set corpus version
-          SMetaAnnotation version = rootCorpus.getSMetaAnnotation("version");
+          SMetaAnnotation version = rootCorpus.getMetaAnnotation("version");
           if (version != null) {
-            if (version.getSValueSTEXT() != null) {
-              corpusVersion = version.getSValueSTEXT();
+            if (version.getValue_STEXT() != null) {
+              corpusVersion = version.getValue_STEXT();
             }
           }
         }

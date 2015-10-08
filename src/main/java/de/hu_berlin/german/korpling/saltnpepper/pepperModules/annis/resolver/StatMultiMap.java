@@ -17,10 +17,11 @@
  */
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
 import java.util.HashSet;
 import java.util.Set;
+
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 
 /**
  * A wrapper for a multi-map implementation

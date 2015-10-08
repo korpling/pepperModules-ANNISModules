@@ -17,8 +17,6 @@
  */
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis;
 
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
-
 /**
  * Contains general ANNIS format information
  *
@@ -59,7 +57,7 @@ public interface ANNIS {
   /**
    * Name of the file, to store the annotations of the relations. *
    */
-  public static final String FILE_EDGE_ANNO = "edge_annotation" + FILE_ENDING;
+  public static final String FILE_EDGE_ANNO = "relation_annotation" + FILE_ENDING;
   /**
    * Name of the file, to store the components of the relations. *
    */

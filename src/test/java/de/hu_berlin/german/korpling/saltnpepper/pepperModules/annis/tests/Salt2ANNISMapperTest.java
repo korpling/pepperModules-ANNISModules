@@ -17,54 +17,57 @@
  */
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.tests;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.Files;
-import com.google.common.io.LineProcessor;
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.GlobalIdManager;
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.IdManager;
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNIS;
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNISExporter;
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNISExporterProperties;
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.Salt2ANNISMapper;
-import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
-import de.hu_berlin.german.korpling.saltnpepper.salt.graph.Edge;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpus;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SOrderRelation;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SPointingRelation;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SStructuredNode;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STYPE_NAME;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualDS;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualRelation;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STimeline;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STimelineRelation;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SLayer;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
-import de.hu_berlin.german.korpling.saltnpepper.salt.samples.SampleGenerator;
-import de.hu_berlin.german.korpling.saltnpepper.salt.samples.exceptions.SaltSampleException;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import static java.lang.System.in;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.Vector;
-import org.eclipse.emf.common.util.BasicEList;
-import org.eclipse.emf.common.util.EList;
+
+import org.corpus_tools.salt.SaltFactory;
+import org.corpus_tools.salt.common.SCorpus;
+import org.corpus_tools.salt.common.SCorpusGraph;
+import org.corpus_tools.salt.common.SDocument;
+import org.corpus_tools.salt.common.SDocumentGraph;
+import org.corpus_tools.salt.common.SOrderRelation;
+import org.corpus_tools.salt.common.SPointingRelation;
+import org.corpus_tools.salt.common.SStructuredNode;
+import org.corpus_tools.salt.common.STextualDS;
+import org.corpus_tools.salt.common.STextualRelation;
+import org.corpus_tools.salt.common.STimeline;
+import org.corpus_tools.salt.common.STimelineRelation;
+import org.corpus_tools.salt.common.SToken;
+import org.corpus_tools.salt.core.SLayer;
+import org.corpus_tools.salt.core.SRelation;
+import org.corpus_tools.salt.exceptions.SaltSampleException;
+import org.corpus_tools.salt.graph.Relation;
+import org.corpus_tools.salt.samples.SampleGenerator;
+import org.corpus_tools.salt.util.SALT_TYPE;
 import org.eclipse.emf.common.util.URI;
 import org.junit.After;
 import org.junit.Assert;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
+
+import com.google.common.base.Charsets;
+import com.google.common.io.Files;
+import com.google.common.io.LineProcessor;
+
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNIS;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNISExporter;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNISExporterProperties;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.GlobalIdManager;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.IdManager;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.Salt2ANNISMapper;
 
 public class Salt2ANNISMapperTest
 {
@@ -108,18 +111,18 @@ public class Salt2ANNISMapperTest
       globalTmpPath.mkdirs();
     }
 
-    SCorpusGraph sCorpGraph = SaltFactory.eINSTANCE.createSCorpusGraph();
-    rootCorpus = SaltFactory.eINSTANCE.createSCorpus();
-    rootCorpus.setSName("mainCorp");
-    sCorpGraph.addSNode(rootCorpus);
+    SCorpusGraph sCorpGraph = SaltFactory.createSCorpusGraph();
+    rootCorpus = SaltFactory.createSCorpus();
+    rootCorpus.setName("mainCorp");
+    sCorpGraph.addNode(rootCorpus);
 
-    fixture.setSCorpusGraph(sCorpGraph);
+    fixture.setCorpusGraph(sCorpGraph);
 
-    sDocument = SaltFactory.eINSTANCE.createSDocument();
-    sCorpGraph.addSDocument(rootCorpus, sDocument);
+    sDocument = SaltFactory.createSDocument();
+    sCorpGraph.addDocument(rootCorpus, sDocument);
 
-    sDocument.setSDocumentGraph(SaltFactory.eINSTANCE.createSDocumentGraph());
-    getFixture().setSDocument(sDocument);
+    sDocument.setDocumentGraph(SaltFactory.createSDocumentGraph());
+    getFixture().setDocument(sDocument);
 
     getFixture().isTestMode = true;
 
@@ -135,9 +138,9 @@ public class Salt2ANNISMapperTest
   
   private void doMapping()
   {
-	  getFixture().setSCorpus(rootCorpus);
+	  getFixture().setCorpus(rootCorpus);
 	  getFixture().mapSCorpus();
-	  getFixture().setSDocument(sDocument);
+	  getFixture().setDocument(sDocument);
 	  getFixture().mapSDocument();
   }
 
@@ -155,7 +158,7 @@ public class Salt2ANNISMapperTest
     getFixture().tw_rank = ANNISExporter.createTupleWriter(
             new File(path.getAbsolutePath() + File.separator + ANNIS.FILE_RANK),
             props.getEscapeCharacters(), props.getEscapeCharactersSet());
-    getFixture().tw_edgeAnno = ANNISExporter.createTupleWriter(
+    getFixture().tw_relationAnno = ANNISExporter.createTupleWriter(
             new File(path.getAbsolutePath() + File.separator + ANNIS.FILE_EDGE_ANNO),
             props.getEscapeCharacters(), props.getEscapeCharactersSet());
     getFixture().tw_component = ANNISExporter.createTupleWriter(
@@ -196,7 +199,7 @@ public class Salt2ANNISMapperTest
   public void testMapSText() throws IOException
   {
     // create the primary text
-    SampleGenerator.createPrimaryData(getFixture().getSDocument());
+    SampleGenerator.createPrimaryData(getFixture().getDocument());
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 
     doMapping();
@@ -218,7 +221,7 @@ public class Salt2ANNISMapperTest
   public void testMapIndividualCorpusName() throws IOException
   {
     // create the primary text
-	SampleGenerator.createPrimaryData(getFixture().getSDocument());
+	SampleGenerator.createPrimaryData(getFixture().getDocument());
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 
     getFixture().individualCorpusName = "NewTopLevelCorpus";
@@ -242,8 +245,8 @@ public class Salt2ANNISMapperTest
   public void testMapSToken() throws IOException
   {
     // create the primary text
-    SampleGenerator.createPrimaryData(getFixture().getSDocument());
-    SampleGenerator.createTokens(getFixture().getSDocument());
+    SampleGenerator.createPrimaryData(getFixture().getDocument());
+    SampleGenerator.createTokens(getFixture().getDocument());
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
     
     doMapping();
@@ -269,11 +272,11 @@ public class Salt2ANNISMapperTest
   public void testMapSeveralTokenizations() throws IOException
   {
     // create the primary text
-    SampleGenerator.createPrimaryData(getFixture().getSDocument());
-    SampleGenerator.createTokens(getFixture().getSDocument());
+    SampleGenerator.createPrimaryData(getFixture().getDocument());
+    SampleGenerator.createTokens(getFixture().getDocument());
     STextualDS primaryData_DE = SampleGenerator.createPrimaryData(getFixture().
-      getSDocument(), SampleGenerator.LANG_DE);
-    SampleGenerator.createTokens(getFixture().getSDocument(), primaryData_DE);
+      getDocument(), SampleGenerator.LANG_DE);
+    SampleGenerator.createTokens(getFixture().getDocument(), primaryData_DE);
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 
     doMapping();
@@ -300,7 +303,7 @@ public class Salt2ANNISMapperTest
   public void testMapParallelData() throws IOException
   {
     // create the primary text
-    SampleGenerator.createParallelData(getFixture().getSDocument());
+    SampleGenerator.createParallelData(getFixture().getDocument());
 	  
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 
@@ -329,7 +332,7 @@ public class Salt2ANNISMapperTest
   public void testMapUntypedPointingRelation() throws IOException
   {
     // create the primary text
-    SampleGenerator.createParallelData(getFixture().getSDocument(), false);
+    SampleGenerator.createParallelData(getFixture().getDocument(), false);
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
     
     doMapping();
@@ -353,9 +356,9 @@ public class Salt2ANNISMapperTest
   public void testMapSTokenAnnotation() throws IOException
   {
     // create the primary text
-    SampleGenerator.createPrimaryData(getFixture().getSDocument());
-    SampleGenerator.createTokens(getFixture().getSDocument());
-    SampleGenerator.createMorphologyAnnotations(getFixture().getSDocument());
+    SampleGenerator.createPrimaryData(getFixture().getDocument());
+    SampleGenerator.createTokens(getFixture().getDocument());
+    SampleGenerator.createMorphologyAnnotations(getFixture().getDocument());
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 
     doMapping();
@@ -380,11 +383,11 @@ public class Salt2ANNISMapperTest
   public void testMapSSpans() throws IOException
   {
     // create the primary text
-    SampleGenerator.createPrimaryData(getFixture().getSDocument());
-    SampleGenerator.createTokens(getFixture().getSDocument());
-    SampleGenerator.createInformationStructureSpan(getFixture().getSDocument());
+    SampleGenerator.createPrimaryData(getFixture().getDocument());
+    SampleGenerator.createTokens(getFixture().getDocument());
+    SampleGenerator.createInformationStructureSpan(getFixture().getDocument());
     SampleGenerator.
-      createInformationStructureAnnotations(getFixture().getSDocument());
+      createInformationStructureAnnotations(getFixture().getDocument());
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 
     doMapping();
@@ -409,10 +412,10 @@ public class Salt2ANNISMapperTest
   public void testMapSSyntax() throws IOException
   {
     // create the primary text
-    SampleGenerator.createPrimaryData(getFixture().getSDocument());
-    SampleGenerator.createTokens(getFixture().getSDocument());
-    SampleGenerator.createSyntaxStructure(getFixture().getSDocument());
-    SampleGenerator.createSyntaxAnnotations(getFixture().getSDocument());
+    SampleGenerator.createPrimaryData(getFixture().getDocument());
+    SampleGenerator.createTokens(getFixture().getDocument());
+    SampleGenerator.createSyntaxStructure(getFixture().getDocument());
+    SampleGenerator.createSyntaxAnnotations(getFixture().getDocument());
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 
     doMapping();
@@ -442,21 +445,21 @@ public class Salt2ANNISMapperTest
     
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
     
-    SDocumentGraph graph = SaltFactory.eINSTANCE.createSDocumentGraph();
-    getFixture().getSDocument().setSDocumentGraph(graph);
+    SDocumentGraph graph = SaltFactory.createSDocumentGraph();
+    getFixture().getDocument().setDocumentGraph(graph);
     
     
-    STextualDS textDS = graph.createSTextualDS("a");
+    STextualDS textDS = graph.createTextualDS("a");
     
-    SToken tok = graph.createSToken(textDS, 0, 1);
+    SToken tok = graph.createToken(textDS, 0, 1);
     
     SStructuredNode struct4 = graph.createSStructure(tok);
     SStructuredNode struct3 = graph.createSStructure(struct4);
     SStructuredNode struct2 = graph.createSStructure(struct4);
-    EList<SStructuredNode> struct1Targets = new BasicEList<>();
+    List<SStructuredNode> struct1Targets = new ArrayList<>();
     struct1Targets.add(struct2);
     struct1Targets.add(struct3);
-    SStructuredNode struct1 = graph.createSStructure(struct1Targets);
+    SStructuredNode struct1 = graph.createStructure(struct1Targets);
 
     doMapping();
     
@@ -479,9 +482,9 @@ public class Salt2ANNISMapperTest
   public void testMapAnaphoric() throws IOException
   {
     // create the primary text
-    SampleGenerator.createPrimaryData(getFixture().getSDocument());
-    SampleGenerator.createTokens(getFixture().getSDocument());
-    SampleGenerator.createAnaphoricAnnotations(getFixture().getSDocument());
+    SampleGenerator.createPrimaryData(getFixture().getDocument());
+    SampleGenerator.createTokens(getFixture().getDocument());
+    SampleGenerator.createAnaphoricAnnotations(getFixture().getDocument());
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
     
     doMapping();
@@ -510,7 +513,7 @@ public class Salt2ANNISMapperTest
   public void testMapFullGraph() throws IOException
   {
     // create the primary text
-    SampleGenerator.createSDocumentStructure(getFixture().getSDocument());
+    SampleGenerator.createSDocumentStructure(getFixture().getDocument());
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 
     doMapping();
@@ -524,10 +527,10 @@ public class Salt2ANNISMapperTest
   public void testMultiThreadingSpeed()
   {
     // create the primary text
-    SampleGenerator.createSDocumentStructure(getFixture().getSDocument());
+    SampleGenerator.createSDocumentStructure(getFixture().getDocument());
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 
-	getFixture().setSCorpus(rootCorpus);
+	getFixture().setCorpus(rootCorpus);
     getFixture().mapSCorpus();
 
     long startTime = 0l;
@@ -540,7 +543,7 @@ public class Salt2ANNISMapperTest
     for (int i = 0; i < 100; i++)
     {
       startTime = System.currentTimeMillis();
-	  getFixture().setSDocument(sDocument);
+	  getFixture().setDocument(sDocument);
       getFixture().mapSDocument();
       stopTime = System.currentTimeMillis();
       elapsedTime = stopTime - startTime;
@@ -588,48 +591,48 @@ public class Salt2ANNISMapperTest
   public void testMapSOrderRelation() throws IOException
   {
     // create the primary text
-    SampleGenerator.createDialogue(getFixture().getSDocument());
+    SampleGenerator.createDialogue(getFixture().getDocument());
     
-    SDocumentGraph g = getFixture().getSDocument().getSDocumentGraph();
+    SDocumentGraph g = getFixture().getDocument().getDocumentGraph();
     
     
     // change the "yes!" to be two token instead of one.
-    SToken yesToken = g.getSTokens().get(13);
-    assertEquals("yes!", g.getSText(yesToken));
+    SToken yesToken = g.getTokens().get(13);
+    assertEquals("yes!", g.getText(yesToken));
     STextualDS ds = null;
     int oldEnd = -1;
-    for(Edge e : g.getOutEdges(yesToken.getSId())) {
+    for(Relation e : g.getOutRelations(yesToken.getId())) {
       if(e instanceof STextualRelation) {
         STextualRelation textRelYes = (STextualRelation) e;
-        oldEnd = textRelYes.getSEnd();
-        textRelYes.setSEnd(oldEnd-1);
-        ds = textRelYes.getSTextualDS();
+        oldEnd = textRelYes.getEnd();
+        textRelYes.setEnd(oldEnd-1);
+        ds = textRelYes.getTarget();
         break;
       }
     }
     Assert.assertNotNull(ds);
-    SToken exclamationToken = g.createSToken(ds, oldEnd-1, oldEnd);
-    assertEquals("!", g.getSText(exclamationToken));
+    SToken exclamationToken = g.createToken(ds, oldEnd-1, oldEnd);
+    assertEquals("!", g.getText(exclamationToken));
     
-    SOrderRelation orderRelExclamation = SaltFactory.eINSTANCE.createSOrderRelation();
-    orderRelExclamation.setSSource(yesToken);
-    orderRelExclamation.setSTarget(exclamationToken);
-    g.addSRelation(orderRelExclamation);
-    STimelineRelation timeRelExclamation = SaltFactory.eINSTANCE.createSTimelineRelation();
-		timeRelExclamation.setSSource(exclamationToken);
-		timeRelExclamation.setSTarget(g.getSTimeline());
-		timeRelExclamation.setSStart(11);
-		timeRelExclamation.setSEnd(12);
-		sDocument.getSDocumentGraph().addSRelation(timeRelExclamation);
+    SOrderRelation orderRelExclamation = SaltFactory.createSOrderRelation();
+    orderRelExclamation.setSource(yesToken);
+    orderRelExclamation.setTarget(exclamationToken);
+    g.addRelation(orderRelExclamation);
+    STimelineRelation timeRelExclamation = SaltFactory.createSTimelineRelation();
+		timeRelExclamation.setSource(exclamationToken);
+		timeRelExclamation.setTarget(g.getTimeline());
+		timeRelExclamation.setStart(11);
+		timeRelExclamation.setEnd(12);
+		sDocument.getDocumentGraph().addRelation(timeRelExclamation);
     
     // add a span which overlaps a token which gets a new token-index after the
     // artificial tokenization was created
-    EList<SToken> coveredBySpan = new BasicEList<>();
-    coveredBySpan.add(g.getSTokens().get(g.getSTokens().size()-3));
+    List<SToken> coveredBySpan = new ArrayList<>();
+    coveredBySpan.add(g.getTokens().get(g.getTokens().size()-3));
     coveredBySpan.add(yesToken);
-    assertEquals("oh", g.getSText(coveredBySpan.get(0)));
-    assertEquals("yes", g.getSText(coveredBySpan.get(1)));
-    g.createSSpan(coveredBySpan);
+    assertEquals("oh", g.getText(coveredBySpan.get(0)));
+    assertEquals("yes", g.getText(coveredBySpan.get(1)));
+    g.createSpan(coveredBySpan);
 
     
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
@@ -660,14 +663,14 @@ public class Salt2ANNISMapperTest
   public void testComplexMapSOrderRelation() throws IOException
   {
     // create the primary text
-    SampleGenerator.createDialogue(getFixture().getSDocument());
-    EList<SToken> sDocumentTokens = getFixture().getSDocument().
-      getSDocumentGraph().getSTokens();
-    SRelation pointing = getFixture().getSDocument().getSDocumentGraph().createSRelation(
+    SampleGenerator.createDialogue(getFixture().getDocument());
+    List<SToken> sDocumentTokens = getFixture().getDocument().
+      getDocumentGraph().getTokens();
+    SRelation pointing = getFixture().getDocument().getDocumentGraph().createSRelation(
       sDocumentTokens.get(0), sDocumentTokens.get(1),
-      STYPE_NAME.SPOINTING_RELATION, "anno=test");
-    pointing.addSType("dep");
-    getFixture().getSDocument().getSDocumentGraph().createSSpan(sDocumentTokens.
+      SALT_TYPE.SPOINTING_RELATION, "anno=test");
+    pointing.setType("dep");
+    getFixture().getDocument().getDocumentGraph().createSpan(sDocumentTokens.
       get(0));
     
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
@@ -683,21 +686,21 @@ public class Salt2ANNISMapperTest
   public void testReuseExistingSOrderName() throws IOException
   {
     // create the primary text
-    SampleGenerator.createPrimaryData(getFixture().getSDocument());
-    SampleGenerator.createTokens(getFixture().getSDocument());
+    SampleGenerator.createPrimaryData(getFixture().getDocument());
+    SampleGenerator.createTokens(getFixture().getDocument());
 
     // create a single SOrderRelation chain
     SToken previousToken = null;
-    for (SToken t : getFixture().getSDocument().getSDocumentGraph().
-      getSortedSTokenByText())
+    for (SToken t : getFixture().getDocument().getDocumentGraph().
+      getSortedTokenByText())
     {
       if (previousToken != null)
       {
-        SOrderRelation r = SaltFactory.eINSTANCE.createSOrderRelation();
-        r.addSType("order");
-        r.setSSource(previousToken);
-        r.setSTarget(t);
-        getFixture().getSDocument().getSDocumentGraph().addSRelation(r);
+        SOrderRelation r = SaltFactory.createSOrderRelation();
+        r.setType("order");
+        r.setSource(previousToken);
+        r.setTarget(t);
+        getFixture().getDocument().getDocumentGraph().addRelation(r);
       }
 
       previousToken = t;
@@ -734,28 +737,28 @@ public class Salt2ANNISMapperTest
   @Test
   public void testAppendIndexForSOrderWithMultipleRoots() throws IOException {
     // create the primary text
-    SampleGenerator.createPrimaryData(getFixture().getSDocument());
-    SampleGenerator.createTokens(getFixture().getSDocument());
+    SampleGenerator.createPrimaryData(getFixture().getDocument());
+    SampleGenerator.createTokens(getFixture().getDocument());
 
     // create a several SOrderRelation chains (pairwise)
-    EList<SToken> tokens = getFixture().getSDocument().getSDocumentGraph().
-            getSortedSTokenByText();
+    List<SToken> tokens = getFixture().getDocument().getDocumentGraph().
+            getSortedTokenByText();
     int remainder = tokens.size() % 2;
     int numberOfChains = (tokens.size() - remainder) / 2;
     LinkedList<String> expectedNames = new LinkedList<>();
     for (int i = 0; i < numberOfChains; i++) {
-      SOrderRelation r = SaltFactory.eINSTANCE.createSOrderRelation();
-      r.addSType("order");
-      r.setSSource(tokens.get(i * 2));
-      r.setSTarget(tokens.get((i * 2) + 1));
-      getFixture().getSDocument().getSDocumentGraph().addSRelation(r);
+      SOrderRelation r = SaltFactory.createSOrderRelation();
+      r.setType("order");
+      r.setSource(tokens.get(i * 2));
+      r.setTarget(tokens.get((i * 2) + 1));
+      getFixture().getDocument().getDocumentGraph().addRelation(r);
 
       if (i == numberOfChains - 1 && remainder == 1) {
-        SOrderRelation additionalRel = SaltFactory.eINSTANCE.createSOrderRelation();
-        additionalRel.addSType("order");
-        additionalRel.setSSource(tokens.get((i * 2) + 1));
-        additionalRel.setSTarget(tokens.get((i * 2) + 2));
-        getFixture().getSDocument().getSDocumentGraph().addSRelation(additionalRel);
+        SOrderRelation additionalRel = SaltFactory.createSOrderRelation();
+        additionalRel.setType("order");
+        additionalRel.setSource(tokens.get((i * 2) + 1));
+        additionalRel.setTarget(tokens.get((i * 2) + 2));
+        getFixture().getDocument().getDocumentGraph().addRelation(additionalRel);
       }
 
       expectedNames.add("order" + i);
@@ -794,25 +797,25 @@ public class Salt2ANNISMapperTest
     if (sDocument == null) {
 			throw new SaltSampleException("Cannot create example, because the given sDocument is empty.");
 		}
-		if (sDocument.getSDocumentGraph() == null) {
-			sDocument.setSDocumentGraph(SaltFactory.eINSTANCE.createSDocumentGraph());
+		if (sDocument.getDocumentGraph() == null) {
+			sDocument.setDocumentGraph(SaltFactory.createSDocumentGraph());
 		}
 		STextualDS sTextualDS = null;
 		// creating the primary text depending on the language
-		sTextualDS = SaltFactory.eINSTANCE.createSTextualDS();
-		sTextualDS.setSText(sampleText);
+		sTextualDS = SaltFactory.createSTextualDS();
+		sTextualDS.setText(sampleText);
 		// adding the text to the document-graph
-		sDocument.getSDocumentGraph().addSNode(sTextualDS);
+		sDocument.getDocumentGraph().addNode(sTextualDS);
     
-    SToken sToken = SaltFactory.eINSTANCE.createSToken();
-		sDocument.getSDocumentGraph().addSNode(sToken);
+    SToken sToken = SaltFactory.createSToken();
+		sDocument.getDocumentGraph().addNode(sToken);
 		
-		STextualRelation sTextRel = SaltFactory.eINSTANCE.createSTextualRelation();
-		sTextRel.setSToken(sToken);
-		sTextRel.setSTextualDS(sTextualDS);
-		sTextRel.setSStart(0);
-		sTextRel.setSEnd(sampleText.length());
-		sDocument.getSDocumentGraph().addSRelation(sTextRel);
+		STextualRelation sTextRel = SaltFactory.createSTextualRelation();
+		sTextRel.setSource(sToken);
+		sTextRel.setTarget(sTextualDS);
+		sTextRel.setStart(0);
+		sTextRel.setEnd(sampleText.length());
+		sDocument.getDocumentGraph().addRelation(sTextRel);
     
     doMapping();
     
@@ -837,25 +840,25 @@ public class Salt2ANNISMapperTest
     if (sDocument == null) {
 			throw new SaltSampleException("Cannot create example, because the given sDocument is empty.");
 		}
-		if (sDocument.getSDocumentGraph() == null) {
-			sDocument.setSDocumentGraph(SaltFactory.eINSTANCE.createSDocumentGraph());
+		if (sDocument.getDocumentGraph() == null) {
+			sDocument.setDocumentGraph(SaltFactory.createSDocumentGraph());
 		}
 		STextualDS sTextualDS = null;
 		// creating the primary text depending on the language
-		sTextualDS = SaltFactory.eINSTANCE.createSTextualDS();
-		sTextualDS.setSText(sampleText);
+		sTextualDS = SaltFactory.createSTextualDS();
+		sTextualDS.setText(sampleText);
 		// adding the text to the document-graph
-		sDocument.getSDocumentGraph().addSNode(sTextualDS);
+		sDocument.getDocumentGraph().addNode(sTextualDS);
     
-    SToken sToken = SaltFactory.eINSTANCE.createSToken();
-		sDocument.getSDocumentGraph().addSNode(sToken);
+    SToken sToken = SaltFactory.createSToken();
+		sDocument.getDocumentGraph().addNode(sToken);
 		
-		STextualRelation sTextRel = SaltFactory.eINSTANCE.createSTextualRelation();
-		sTextRel.setSToken(sToken);
-		sTextRel.setSTextualDS(sTextualDS);
-		sTextRel.setSStart(0);
-		sTextRel.setSEnd(sampleText.length());
-		sDocument.getSDocumentGraph().addSRelation(sTextRel);
+		STextualRelation sTextRel = SaltFactory.createSTextualRelation();
+		sTextRel.setSource(sToken);
+		sTextRel.setTarget(sTextualDS);
+		sTextRel.setStart(0);
+		sTextRel.setEnd(sampleText.length());
+		sDocument.getDocumentGraph().addRelation(sTextRel);
     
     doMapping();
     
@@ -867,46 +870,46 @@ public class Salt2ANNISMapperTest
   @Test
   public void testIDEscape() throws IOException {
 
-    SampleGenerator.createPrimaryData(getFixture().getSDocument());
-    SampleGenerator.createTokens(getFixture().getSDocument());
+    SampleGenerator.createPrimaryData(getFixture().getDocument());
+    SampleGenerator.createTokens(getFixture().getDocument());
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
     
-    SToken tok1 = getFixture().getSDocument().getSDocumentGraph().getSTokens().get(0);
-    SToken tok2 = getFixture().getSDocument().getSDocumentGraph().getSTokens().get(1);
+    SToken tok1 = getFixture().getDocument().getDocumentGraph().getTokens().get(0);
+    SToken tok2 = getFixture().getDocument().getDocumentGraph().getTokens().get(1);
     
     // invalid annotation
-    tok1.createSAnnotation("6>]`'[;+|]", "1\\.[`&[}²*", "value");
+    tok1.createAnnotation("6>]`'[;+|]", "1\\.[`&[}²*", "value");
     
-    // invalid edge name
-    SLayer layer = SaltFactory.eINSTANCE.createSLayer();
-		layer.setSName("7#=+}}ä?ö;");
-    getFixture().getSDocument().getSDocumentGraph().addSLayer(layer);
+    // invalid relation name
+    SLayer layer = SaltFactory.createSLayer();
+		layer.setName("7#=+}}ä?ö;");
+    getFixture().getDocument().getDocumentGraph().addLayer(layer);
     
-    SPointingRelation dep = SaltFactory.eINSTANCE.createSPointingRelation();
-    dep.setSSource(tok1);
-    dep.setSTarget(tok2);
-    dep.addSType("-7#=+}}ä?ö;");
-    layer.getEdges().add(dep);
-    getFixture().getSDocument().getSDocumentGraph().addEdge(dep);
+    SPointingRelation dep = SaltFactory.createSPointingRelation();
+    dep.setSource(tok1);
+    dep.setTarget(tok2);
+    dep.setType("-7#=+}}ä?ö;");
+    layer.addRelation(dep);
+    getFixture().getDocument().getDocumentGraph().addRelation(dep);
     
-    // invalid edge annotation
-    dep.createSAnnotation("0>;;!]{§", "2ß{.:)²,¸", "value");
+    // invalid relation annotation
+    dep.createAnnotation("0>;;!]{§", "2ß{.:)²,¸", "value");
     
     // invalid segmentation name
-    SOrderRelation order = SaltFactory.eINSTANCE.createSOrderRelation();
-    order.setSSource(tok1);
-    order.setSTarget(tok2);
-    order.addSType("-,$#³>ä~ß.");
-    getFixture().getSDocument().getSDocumentGraph().addEdge(order);
+    SOrderRelation order = SaltFactory.createSOrderRelation();
+    order.setSource(tok1);
+    order.setTarget(tok2);
+    order.setType("-,$#³>ä~ß.");
+    getFixture().getDocument().getDocumentGraph().addRelation(order);
     
     // invalid meta data (different annotation names with the same mapping)
-    getFixture().getSDocument().createSMetaAnnotation(
+    getFixture().getDocument().createMetaAnnotation(
             "ns",
             "%invalid%%name$", "value1");
-    getFixture().getSDocument().createSMetaAnnotation(
+    getFixture().getDocument().createMetaAnnotation(
             "ns",
             "invalid__name_", "value2");
-    getFixture().getSDocument().createSMetaAnnotation(
+    getFixture().getDocument().createMetaAnnotation(
             "ns",
             "invalid_§name_", "value3");
     
@@ -920,60 +923,60 @@ public class Salt2ANNISMapperTest
   @Test
   public void testMapVirtualTokenWithMissing() throws IOException
   {
-    SDocumentGraph g = getFixture().getSDocument().getSDocumentGraph();
+    SDocumentGraph g = getFixture().getDocument().getDocumentGraph();
     
-    STimeline timeLine = g.createSTimeline();
+    STimeline timeLine = g.createTimeline();
     for(int i=1; i <= 7; i++) {
-      timeLine.addSPointOfTime("" + i);
+    	timeLine.increasePointOfTime();
     }
     
-    STextualDS text1 = g.createSTextualDS("Hello?");
-    STextualDS text2 = g.createSTextualDS("World!");
+    STextualDS text1 = g.createTextualDS("Hello?");
+    STextualDS text2 = g.createTextualDS("World!");
     
-    SToken tokHello = g.createSToken(text1, 0, 5);
-    SToken tokWorld = g.createSToken(text2, 0, 5);
-    SToken tokExclamation = g.createSToken(text2, 5, 6);
-    SToken tokQuestion = g.createSToken(text1, 5, 6);
+    SToken tokHello = g.createToken(text1, 0, 5);
+    SToken tokWorld = g.createToken(text2, 0, 5);
+    SToken tokExclamation = g.createToken(text2, 5, 6);
+    SToken tokQuestion = g.createToken(text1, 5, 6);
     
-    STimelineRelation timeRelHello = SaltFactory.eINSTANCE.createSTimelineRelation();
-    timeRelHello.setSTimeline(timeLine);
-    timeRelHello.setSToken(tokHello);
-    timeRelHello.setSStart(0);
-    timeRelHello.setSEnd(6);
-    g.addSRelation(timeRelHello);
+    STimelineRelation timeRelHello = SaltFactory.createSTimelineRelation();
+    timeRelHello.setTarget(timeLine);
+    timeRelHello.setSource(tokHello);
+    timeRelHello.setStart(0);
+    timeRelHello.setEnd(6);
+    g.addRelation(timeRelHello);
     
-    STimelineRelation timeRelWorld = SaltFactory.eINSTANCE.createSTimelineRelation();
-    timeRelWorld.setSTimeline(timeLine);
-    timeRelWorld.setSToken(tokWorld);
-    timeRelWorld.setSStart(1);
-    timeRelWorld.setSEnd(2);
-    g.addSRelation(timeRelWorld);
+    STimelineRelation timeRelWorld = SaltFactory.createSTimelineRelation();
+    timeRelWorld.setTarget(timeLine);
+    timeRelWorld.setSource(tokWorld);
+    timeRelWorld.setStart(1);
+    timeRelWorld.setEnd(2);
+    g.addRelation(timeRelWorld);
     
-    STimelineRelation timeRelExclamation = SaltFactory.eINSTANCE.createSTimelineRelation();
-    timeRelExclamation.setSTimeline(timeLine);
-    timeRelExclamation.setSToken(tokExclamation);
-    timeRelExclamation.setSStart(3);
-    timeRelExclamation.setSEnd(4);
-    g.addSRelation(timeRelExclamation);
+    STimelineRelation timeRelExclamation = SaltFactory.createSTimelineRelation();
+    timeRelExclamation.setTarget(timeLine);
+    timeRelExclamation.setSource(tokExclamation);
+    timeRelExclamation.setStart(3);
+    timeRelExclamation.setEnd(4);
+    g.addRelation(timeRelExclamation);
     
-    STimelineRelation timeRelQuestion = SaltFactory.eINSTANCE.createSTimelineRelation();
-    timeRelQuestion.setSTimeline(timeLine);
-    timeRelQuestion.setSToken(tokQuestion);
-    timeRelQuestion.setSStart(6);
-    timeRelQuestion.setSEnd(7);
-    g.addSRelation(timeRelQuestion);
+    STimelineRelation timeRelQuestion = SaltFactory.createSTimelineRelation();
+    timeRelQuestion.setTarget(timeLine);
+    timeRelQuestion.setSource(tokQuestion);
+    timeRelQuestion.setStart(6);
+    timeRelQuestion.setEnd(7);
+    g.addRelation(timeRelQuestion);
     
-    SOrderRelation orderRel1 = SaltFactory.eINSTANCE.createSOrderRelation();
-    orderRel1.setSSource(tokHello);
-    orderRel1.setSTarget(tokQuestion);
-    orderRel1.addSType("tok1");
-    g.addSRelation(orderRel1);
+    SOrderRelation orderRel1 = SaltFactory.createSOrderRelation();
+    orderRel1.setSource(tokHello);
+    orderRel1.setTarget(tokQuestion);
+    orderRel1.setType("tok1");
+    g.addRelation(orderRel1);
     
-    SOrderRelation orderRel2 = SaltFactory.eINSTANCE.createSOrderRelation();
-    orderRel2.setSSource(tokWorld);
-    orderRel2.setSTarget(tokExclamation);
-    orderRel2.addSType("tok2");
-    g.addSRelation(orderRel2);
+    SOrderRelation orderRel2 = SaltFactory.createSOrderRelation();
+    orderRel2.setSource(tokWorld);
+    orderRel2.setTarget(tokExclamation);
+    orderRel2.setType("tok2");
+    g.addRelation(orderRel2);
     
     doMapping();
     

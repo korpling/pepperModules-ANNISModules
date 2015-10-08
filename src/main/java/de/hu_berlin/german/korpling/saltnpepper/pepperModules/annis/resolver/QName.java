@@ -17,8 +17,9 @@
  */
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver;
 
-import com.google.common.collect.ComparisonChain;
 import java.io.Serializable;
+
+import com.google.common.collect.ComparisonChain;
 
 /**
  * A qualified name which consists of a name+":"+namespace

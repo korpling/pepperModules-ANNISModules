@@ -17,13 +17,14 @@
  */
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver;
 
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Table;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
 
 /**
  * Counts the occurences of a certain value per layer.
@@ -56,7 +57,7 @@ public class StatTableCounter<ValueType> {
   }
   
   /**
-   * Merges the edge type information from the other statistics object.
+   * Merges the relation type information from the other statistics object.
    * 
    * The other object is not allowed to be modified while
    * executing this functions since no explicit locking will occur. This object

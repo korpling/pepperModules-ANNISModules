@@ -19,22 +19,22 @@ package de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis;
 
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
+import org.corpus_tools.salt.common.SDocumentGraph;
+import org.corpus_tools.salt.common.STextualDS;
+import org.corpus_tools.salt.common.STextualRelation;
+import org.corpus_tools.salt.common.STimelineRelation;
+import org.corpus_tools.salt.common.SToken;
+import org.corpus_tools.salt.core.SAnnotation;
+import org.corpus_tools.salt.core.SNode;
+import org.corpus_tools.salt.graph.Relation;
+import org.corpus_tools.salt.util.SALT_TYPE;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import de.hu_berlin.german.korpling.saltnpepper.salt.graph.Edge;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STYPE_NAME;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualDS;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualRelation;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STimelineRelation;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 
 /**
  *
@@ -49,11 +49,11 @@ public class STimelineRelation2ANNISMapper extends SRelation2ANNISMapper {
   public STimelineRelation2ANNISMapper(IdManager idManager, 
           SDocumentGraph documentGraph, Map<SToken, Long> token2Index, 
           TupleWriter nodeTabWriter, TupleWriter nodeAnnoTabWriter, 
-          TupleWriter rankTabWriter, TupleWriter edgeAnnoTabWriter, 
+          TupleWriter rankTabWriter, TupleWriter relationAnnoTabWriter, 
           TupleWriter componentTabWriter, Salt2ANNISMapper parentMapper, 
           boolean mergeTextsWithTimeline) {
     super(idManager, documentGraph, token2Index, nodeTabWriter, 
-            nodeAnnoTabWriter, rankTabWriter, edgeAnnoTabWriter, componentTabWriter, 
+            nodeAnnoTabWriter, rankTabWriter, relationAnnoTabWriter, componentTabWriter, 
             parentMapper);
     this.mergeTextsWithTimeline = mergeTextsWithTimeline;
   }
@@ -62,7 +62,7 @@ public class STimelineRelation2ANNISMapper extends SRelation2ANNISMapper {
     
     String virtualTokenName = "virtualToken" + tokenIndex;
     VirtualNodeID virtualTokenId = idManager.getVirtualNodeId(virtualTokenName);
-    Long corpus_ref = idManager.getNewCorpusTabId(documentGraph.getSDocument().getSId());
+    Long corpus_ref = idManager.getNewCorpusTabId(documentGraph.getDocument().getId());
 
     long token_left = tokenIndex;
     long token_right = tokenIndex;
@@ -94,24 +94,24 @@ public class STimelineRelation2ANNISMapper extends SRelation2ANNISMapper {
     currentComponentLayer = "VIRTUAL";
     currentComponentName = "timelineRelationMapping";
     mapComponent2ANNIS();
-    Long corpus_ref = idManager.getNewCorpusTabId(documentGraph.getSDocument().getSId());
+    Long corpus_ref = idManager.getNewCorpusTabId(documentGraph.getDocument().getId());
     Long token_left;
     Long token_right;
-    SToken tok = timelineRelation.getSToken();
+    SToken tok = timelineRelation.getSource();
     if (tok == null) {
       // We can't map timeline relation that don't have a token connected.
       return;
     }
     
-    String virtualSpanSId = tok.getSId();
+    String virtualSpanSId = tok.getId();
     virtualSpanSId = virtualSpanSId + "_virtualSpan";
-    String virtualSpanName = tok.getSName() + "_virtualSpan";
+    String virtualSpanName = tok.getName() + "_virtualSpan";
     VirtualNodeID virtualSpanId = idManager.getVirtualNodeId(virtualSpanSId);
     List<Long> overlappedVirtualTokenIds = new ArrayList<>();
    
     
-    token_left = (long) timelineRelation.getSStart();
-    token_right = (long) timelineRelation.getSEnd()-1;
+    token_left = (long) timelineRelation.getStart();
+    token_right = (long) timelineRelation.getEnd()-1;
 
     for(long i = token_left; i <= token_right; i++) {
        String virtualTokenName = "virtualToken" + i;
@@ -120,21 +120,21 @@ public class STimelineRelation2ANNISMapper extends SRelation2ANNISMapper {
     }
     
 
-    idManager.registerTokenVirtMapping(tok.getSId(), virtualSpanId.getNodeID(), overlappedVirtualTokenIds);
+    idManager.registerTokenVirtMapping(tok.getId(), virtualSpanId.getNodeID(), overlappedVirtualTokenIds);
     if (virtualSpanId.isFresh()) {
       Long segId = null;
       String segName = null;
       String textName = null;
       String span;
-      SegmentationInfo segmentInfo = idManager.getSegmentInformation(tok.getSId());
+      SegmentationInfo segmentInfo = idManager.getSegmentInformation(tok.getId());
       if(segmentInfo == null) {
-        span = documentGraph.getSText(tok);
+        span = documentGraph.getText(tok);
      
         // find any connected texts of the original token for the statistics
-        for (Edge e : documentGraph.getOutEdges(tok.getSId())) {
+        for (Relation e : documentGraph.getOutRelations(tok.getId())) {
           if (e instanceof STextualRelation) {
-            STextualDS text = ((STextualRelation) e).getSTextualDS();
-            textName = text.getSName();
+            STextualDS text = ((STextualRelation) e).getTarget();
+            textName = text.getName();
           }
         }
       } else {
@@ -152,8 +152,8 @@ public class STimelineRelation2ANNISMapper extends SRelation2ANNISMapper {
         mapSNodeAnnotation(virtualSpanId.getNodeID(), SRelation2ANNISMapper.DEFAULT_LAYER + "_virtual", textName, span);
         getVirtualTokenStats().addVirtualAnnoName( SRelation2ANNISMapper.DEFAULT_LAYER + "_virtual", textName);
       }
-      if (tok.getSAnnotations() != null) {
-        for (SAnnotation anno : tok.getSAnnotations()) {
+      if (tok.getAnnotations() != null) {
+        for (SAnnotation anno : tok.getAnnotations()) {
           mapSNodeAnnotation(null, virtualSpanId.getNodeID(), anno);
         }
       }
@@ -186,31 +186,30 @@ public class STimelineRelation2ANNISMapper extends SRelation2ANNISMapper {
    * overlapped by a {@link STimelineRelation}
    */
   private void createVirtualTokenization() {
+//    List<String> timelineItems = documentGraph.getTimeline().getEnd();
     
-    
-    List<String> timelineItems = documentGraph.getSTimeline().getSPointsOfTime();
     // create a set of token indexes
-    BitSet virtualCovered = new BitSet(timelineItems.size());
+    BitSet virtualCovered = new BitSet(documentGraph.getTimeline().getEnd());
     
-    List<STimelineRelation> timelineRelations = documentGraph.getSTimelineRelations();
+    List<STimelineRelation> timelineRelations = documentGraph.getTimelineRelations();
     LinkedHashSet<STimelineRelation> timlineRelationsSet = new LinkedHashSet<>();
     
     if (timelineRelations != null && !timelineRelations.isEmpty()) {
       for (STimelineRelation timelineRel1 : timelineRelations) {
 
-        if (timelineRel1.getSToken() != null) {
+        if (timelineRel1.getTarget() != null) {
 
           timlineRelationsSet.add(timelineRel1);
-          virtualCovered.set(timelineRel1.getSStart(), timelineRel1.getSEnd());
+          virtualCovered.set(timelineRel1.getStart(), timelineRel1.getEnd());
         }
       } // end for each timeline relation
     }
     
-    List<Long> virtualTokenNodeIDs = new ArrayList<>(timelineItems.size());
+    List<Long> virtualTokenNodeIDs = new ArrayList<>(documentGraph.getTimeline().getEnd());
     
     // create a virtual token for each point of time
     int tokenIndex=0;
-    for(String pot : timelineItems) {
+    for(int i=0; i<  documentGraph.getTimeline().getEnd();i++) {
       boolean isCovered = virtualCovered.get(tokenIndex);
       VirtualNodeID tokID = mapPointOfTime(tokenIndex++, !isCovered);
       virtualTokenNodeIDs.add(tokID.getNodeID());
@@ -223,13 +222,13 @@ public class STimelineRelation2ANNISMapper extends SRelation2ANNISMapper {
   }
 
   @Override
-  public void mapSRelations2ANNIS(List<? extends SNode> sRelationRoots, STYPE_NAME relationTypeName, Salt2ANNISMapper.TRAVERSION_TYPE traversionType) {
+  public void mapSRelations2ANNIS(Collection<? extends SNode> sRelationRoots, SALT_TYPE relationTypeName, Salt2ANNISMapper.TRAVERSION_TYPE traversionType) {
     // we don't actually a timeline relation, but we create a  virtual tokenization if necessary
   }
 
   @Override
   public void run() {
-    List<STimelineRelation> timelineRelations = documentGraph.getSTimelineRelations();
+    List<STimelineRelation> timelineRelations = documentGraph.getTimelineRelations();
     if (timelineRelations != null && !timelineRelations.isEmpty()
             && mergeTextsWithTimeline) {
       beginTransaction();
@@ -239,5 +238,4 @@ public class STimelineRelation2ANNISMapper extends SRelation2ANNISMapper {
       commitTransaction();
     }
   }
-
 }

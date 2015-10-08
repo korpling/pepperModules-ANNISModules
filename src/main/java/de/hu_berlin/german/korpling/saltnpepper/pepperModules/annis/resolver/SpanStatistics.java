@@ -17,12 +17,11 @@
  */
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver;
 
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
-
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
+
+import org.corpus_tools.salt.core.SAnnotation;
 
 /**
  * Statistics used for creating resolver entries for dominance components.
@@ -48,10 +47,10 @@ public class SpanStatistics {
     return new HashSet<>(layers);
   }
   
-  public void addNodeAnno(String layer, List<SAnnotation> annos) {
+  public void addNodeAnno(String layer, Set<SAnnotation> annos) {
     if (annos != null) {
       for (SAnnotation a : annos) {
-        QName qname = new QName(a.getSNS(), a.getSName());
+        QName qname = new QName(a.getNamespace(), a.getName());
          this.nodeAnnotations.add(layer, qname);
       }
     }

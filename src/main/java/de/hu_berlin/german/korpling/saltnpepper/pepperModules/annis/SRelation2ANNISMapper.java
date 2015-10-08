@@ -17,57 +17,52 @@
  */
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis;
 
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.DomStatistics;
-
-import com.google.common.io.Files;
-
-import java.io.FileNotFoundException;
-import java.util.HashSet;
-
-import org.apache.commons.lang3.tuple.Pair;
-
-import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleException;
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.Salt2ANNISMapper.TRAVERSION_TYPE;
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.VirtualTokenStatistics;
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.PointingStatistics;
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.SpanStatistics;
-import de.hu_berlin.german.korpling.saltnpepper.salt.graph.Edge;
-import de.hu_berlin.german.korpling.saltnpepper.salt.graph.GRAPH_TRAVERSE_TYPE;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDominanceRelation;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SPointingRelation;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpan;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpanningRelation;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SStructure;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STYPE_NAME;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualRelation;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SDATATYPE;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SGraphTraverseHandler;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SLayer;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
-
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.regex.Pattern;
 
-import org.eclipse.emf.common.util.BasicEList;
-import org.eclipse.emf.common.util.EList;
+import org.apache.commons.lang3.tuple.Pair;
+import org.corpus_tools.salt.SDATATYPE;
+import org.corpus_tools.salt.common.SDocumentGraph;
+import org.corpus_tools.salt.common.SDominanceRelation;
+import org.corpus_tools.salt.common.SPointingRelation;
+import org.corpus_tools.salt.common.SSpan;
+import org.corpus_tools.salt.common.SSpanningRelation;
+import org.corpus_tools.salt.common.SStructure;
+import org.corpus_tools.salt.common.STextualRelation;
+import org.corpus_tools.salt.common.SToken;
+import org.corpus_tools.salt.core.GraphTraverseHandler;
+import org.corpus_tools.salt.core.SAnnotation;
+import org.corpus_tools.salt.core.SGraph.GRAPH_TRAVERSE_TYPE;
+import org.corpus_tools.salt.core.SLayer;
+import org.corpus_tools.salt.core.SNode;
+import org.corpus_tools.salt.core.SRelation;
+import org.corpus_tools.salt.graph.Relation;
+import org.corpus_tools.salt.util.SALT_TYPE;
 import org.eclipse.emf.common.util.URI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseHandler {
+import com.google.common.io.Files;
+
+import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleException;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.Salt2ANNISMapper.TRAVERSION_TYPE;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.DomStatistics;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.PointingStatistics;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.SpanStatistics;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.VirtualTokenStatistics;
+
+public abstract class SRelation2ANNISMapper implements Runnable, GraphTraverseHandler {
 
 // =============================== Globally used objects ======================
   private final static Logger log = LoggerFactory.getLogger(SRelation2ANNISMapper.class);
@@ -83,8 +78,8 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
   protected final static String DEFAULT_NS = "default_ns";
   protected final static String DEFAULT_LAYER = "default_layer";
 
-  List<? extends SNode> sRelationRoots = null;
-  STYPE_NAME relationTypeName = null;
+  Collection<? extends SNode> sRelationRoots = null;
+  SALT_TYPE relationTypeName = null;
   
   
 // =================================== Constructor ============================ 
@@ -95,14 +90,14 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
    * @param nodeTabWriter
    * @param nodeAnnoTabWriter
    * @param rankTabWriter
-   * @param edgeAnnoTabWriter
+   * @param relationAnnoTabWriter
    * @param componentTabWriter
    * @param parentMapper
    */
   public SRelation2ANNISMapper(IdManager idManager, SDocumentGraph documentGraph,
           Map<SToken, Long> token2Index,
           TupleWriter nodeTabWriter, TupleWriter nodeAnnoTabWriter,
-          TupleWriter rankTabWriter, TupleWriter edgeAnnoTabWriter,
+          TupleWriter rankTabWriter, TupleWriter relationAnnoTabWriter,
           TupleWriter componentTabWriter,
           Salt2ANNISMapper parentMapper) {
 
@@ -116,7 +111,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
     writers.put(OutputTable.NODE, nodeTabWriter);
     writers.put(OutputTable.NODE_ANNOTATION, nodeAnnoTabWriter);
     writers.put(OutputTable.RANK, rankTabWriter);
-    writers.put(OutputTable.EDGE_ANNO, edgeAnnoTabWriter);
+    writers.put(OutputTable.EDGE_ANNO, relationAnnoTabWriter);
     writers.put(OutputTable.COMPONENT, componentTabWriter);
   }
 
@@ -243,14 +238,14 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
 
   @Override
   public void nodeReached(GRAPH_TRAVERSE_TYPE traversalType,
-          String traversalId, SNode currNode, SRelation sRelation,
+          String traversalId, SNode currNode, SRelation<SNode, SNode> sRelation,
           SNode fromNode, long order) {
 		// A node was reached.
     // We've got the rank
-    // fromNode -> edge -> currNode
+    // fromNode -> relation -> currNode
 
     Long rankId;
-    List<Long> virtualTokenIds = this.idManager.getVirtualisedTokenId(currNode.getSId());
+    List<Long> virtualTokenIds = this.idManager.getVirtualisedTokenId(currNode.getId());
 
     if (virtualTokenIds != null) {
       virtualNodes.add(currNode);
@@ -290,8 +285,8 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
         // map the SAnnotations
         boolean hasAnnotations = false;
         if (sRelation != null) {
-          if (sRelation.getSAnnotations() != null) {
-            for (SAnnotation sAnnotation : sRelation.getSAnnotations()) {
+          if (sRelation.getAnnotations() != null) {
+            for (SAnnotation sAnnotation : sRelation.getAnnotations()) {
               this.mapSAnnotation2ANNIS(rankId, sAnnotation);
               hasAnnotations = true;
             }
@@ -306,7 +301,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
       // replace the current node with the virtual span if necessary
       Long currentNodeID;
       if (virtualTokenIds != null) {
-        currentNodeID = idManager.getVirtualisedSpanId(currNode.getSId());
+        currentNodeID = idManager.getVirtualisedSpanId(currNode.getId());
       } else {
         // map the target node
         currentNodeID = this.mapSNode(currNode);
@@ -324,8 +319,8 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
       this.rankTable.put(currentNodeID, rankId);
 
       if (sRelation != null) {
-        if (sRelation.getSAnnotations() != null) {
-          for (SAnnotation sAnnotation : sRelation.getSAnnotations()) {
+        if (sRelation.getAnnotations() != null) {
+          for (SAnnotation sAnnotation : sRelation.getAnnotations()) {
             this.mapSAnnotation2ANNIS(rankId, sAnnotation);
           }
         }
@@ -338,13 +333,13 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
 
   @Override
   public void nodeLeft(GRAPH_TRAVERSE_TYPE traversalType, String traversalId,
-          SNode currNode, SRelation edge, SNode fromNode, long order) {
+          SNode currNode, SRelation relation, SNode fromNode, long order) {
 
 		// We've got the rank
-    // fromNode -> edge -> currNode
+    // fromNode -> relation -> currNode
     Long currNodeID;
     if (virtualNodes.contains(currNode)) {
-      currNodeID = idManager.getVirtualisedSpanId(currNode.getSId());
+      currNodeID = idManager.getVirtualisedSpanId(currNode.getId());
     } else {
       currNodeID = idManager.getNodeId(currNode);
     }
@@ -353,7 +348,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
     if (fromNode != null) {
       Long fromNodeID;
       if (virtualNodes.contains(fromNode)) {
-        fromNodeID = idManager.getVirtualisedSpanId(fromNode.getSId());
+        fromNodeID = idManager.getVirtualisedSpanId(fromNode.getId());
       } else {
         fromNodeID = idManager.getNodeId(fromNode);
       }
@@ -368,7 +363,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
       // decrease the rank level
       this.rankLevel -= 1;
 
-      this.mapRank2ANNIS(edge, currNodeID, rankId, pre, post, parentRank, rankLevel);
+      this.mapRank2ANNIS(relation, currNodeID, rankId, pre, post, parentRank, rankLevel);
     } else {
       this.rankLevel -= 1;
     }
@@ -395,14 +390,14 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
 
   @Override
   public boolean checkConstraint(GRAPH_TRAVERSE_TYPE traversalType,
-          String traversalId, SRelation edge, SNode currNode, long order) {
+          String traversalId, SRelation relation, SNode currNode, long order) {
     boolean returnVal = false;
 
     return returnVal;
   }
 
 // =============================== Mapping of SRelations ======================
-  public abstract void mapSRelations2ANNIS(List<? extends SNode> sRelationRoots, STYPE_NAME relationTypeName, TRAVERSION_TYPE traversionType);
+  public abstract void mapSRelations2ANNIS(Collection<? extends SNode> sRelationRoots, SALT_TYPE relationTypeName, TRAVERSION_TYPE traversionType);
 
   /**
    * This method maps the currently processed component to the ANNIS
@@ -473,19 +468,19 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
     }
     // rank_id 	namespace	name	value
 
-    List<String> edgeAnnotationEntry = new ArrayList<>();
-    edgeAnnotationEntry.add(rankId.toString());
+    List<String> relationAnnotationEntry = new ArrayList<>();
+    relationAnnotationEntry.add(rankId.toString());
     String ns;
-    if (sAnnotation.getSNS() != null) {
-      ns = sAnnotation.getSNS();
+    if (sAnnotation.getNamespace() != null) {
+      ns = sAnnotation.getNamespace();
     } else {
       ns = "default_ns";
     }
-    edgeAnnotationEntry.add(idManager.getEscapedIdentifier(ns));
-    edgeAnnotationEntry.add(idManager.getEscapedIdentifier(sAnnotation.getSName()));
-    edgeAnnotationEntry.add(sAnnotation.getSValueSTEXT());
+    relationAnnotationEntry.add(idManager.getEscapedIdentifier(ns));
+    relationAnnotationEntry.add(idManager.getEscapedIdentifier(sAnnotation.getName()));
+    relationAnnotationEntry.add(sAnnotation.getValue_STEXT());
 
-    addTuple(OutputTable.EDGE_ANNO, edgeAnnotationEntry);
+    addTuple(OutputTable.EDGE_ANNO, relationAnnotationEntry);
 
   }
 
@@ -500,7 +495,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
   }
 
   public Long mapSNode(SNode sNode) {
-    SegmentationInfo segInfo = this.idManager.getSegmentInformation(sNode.getSId());
+    SegmentationInfo segInfo = this.idManager.getSegmentInformation(sNode.getId());
     if (segInfo != null) {
       return this.mapSNode(sNode, segInfo.getANNISId(), segInfo.getSegmentationName(), segInfo.getSpan());
     } else {
@@ -509,16 +504,16 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
   }
 
   public Long mapSNode(SNode node, Long seg_index, String seg_name, String span) {
-    /// get the SElementId of the node since we will need it many times
-    String nodeSElementId = node.getSId();
+    /// get the Identifier of the node since we will need it many times
+    String nodeIdentifier = node.getId();
 
     /// if the node already has a nodeId, it was already mapped
-    Pair<Long, Boolean> idPair = idManager.getNewNodeId(nodeSElementId);
+    Pair<Long, Boolean> idPair = idManager.getNewNodeId(nodeIdentifier);
     if (idPair.getRight() == false) {
       // the node is not new
       return idPair.getLeft();
     }
-    Long virtualSpanID = idManager.getVirtualisedSpanId(nodeSElementId);
+    Long virtualSpanID = idManager.getVirtualisedSpanId(nodeIdentifier);
     if (virtualSpanID != null) {
       // the node is not new
       return virtualSpanID;
@@ -529,7 +524,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
     // get the text ref
     Long text_ref = null;
     // get the document ref
-    Long corpus_ref = this.idManager.getNewCorpusTabId(this.documentGraph.getSDocument().getSId());
+    Long corpus_ref = this.idManager.getNewCorpusTabId(this.documentGraph.getDocument().getId());
 		// get the layer if there is one
     //@ TODO: Change this to DEFAULT_LAYER
     String layer = DEFAULT_NS;
@@ -553,9 +548,9 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
     //String span = null;
 
     {// set the layer to the actual value
-      if (node.getSLayers() != null) {
-        if (node.getSLayers().size() != 0) {
-          layer = node.getSLayers().get(0).getSName();
+      if (node.getLayers() != null) {
+        if (node.getLayers().size() != 0) {
+          layer = node.getLayers().iterator().next().getName();
         }
       }
     }// set the layer to the actual value
@@ -567,23 +562,23 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
       right_token = token_index;
 
       // set the left and right value and the text_ref
-      List<Edge> outEdges = documentGraph.getOutEdges(node.getSId());
-      if (outEdges == null) {
-        throw new PepperModuleException("The token " + node.getSId() + " has no outgoing edges!");
+      List<SRelation<SNode, SNode>> outRelations = documentGraph.getOutRelations(node.getId());
+      if (outRelations == null) {
+        throw new PepperModuleException("The token " + node.getId() + " has no outgoing relations!");
       }
       /// find the STextualRelation
-      for (Edge edge : outEdges) {
-        // get the edge which is of the type STextual relation
-        if (edge instanceof STextualRelation) {
-          STextualRelation sTextualRelation = ((STextualRelation) edge);
+      for (Relation relation : outRelations) {
+        // get the relation which is of the type STextual relation
+        if (relation instanceof STextualRelation) {
+          STextualRelation sTextualRelation = ((STextualRelation) relation);
           // set the left value
-          left = new Long(sTextualRelation.getSStart());
+          left = new Long(sTextualRelation.getStart());
           // set the right value which is end -1 since SEnd points to the index of the last char +1
-          right = new Long(sTextualRelation.getSEnd() - 1);
+          right = new Long(sTextualRelation.getEnd() - 1);
           // set the reference to the text
-          text_ref = idManager.getNewTextId(sTextualRelation.getSTextualDS().getSId());
+          text_ref = idManager.getNewTextId(sTextualRelation.getTarget().getId());
           // set the overlapped text
-          span = sTextualRelation.getSTextualDS().getSText().substring(left.intValue(), sTextualRelation.getSEnd());
+          span = sTextualRelation.getTarget().getText().substring(left.intValue(), sTextualRelation.getEnd());
           
           getVirtualTokenStats().checkRealToken(span);
           break;
@@ -591,15 +586,15 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
       }
     } else {
       if (node instanceof SSpan || node instanceof SStructure) {
-        EList<STYPE_NAME> overlappingTypes = new BasicEList<>();
-        overlappingTypes.add(STYPE_NAME.SSPANNING_RELATION);
+        List<SALT_TYPE> overlappingTypes = new ArrayList<>();
+        overlappingTypes.add(SALT_TYPE.SSPANNING_RELATION);
         if (node instanceof SStructure) {
-          overlappingTypes.add(STYPE_NAME.SDOMINANCE_RELATION);
+          overlappingTypes.add(SALT_TYPE.SDOMINANCE_RELATION);
         }
         // get the overlapping token
-        EList<SToken> overlappedToken = this.documentGraph.getOverlappedSTokens(node, overlappingTypes);
+        List<SToken> overlappedToken = this.documentGraph.getOverlappedTokens(node, overlappingTypes);
         // sort the token by left
-        List<SToken> sortedOverlappedToken = this.documentGraph.getSortedSTokenByText(overlappedToken);
+        List<SToken> sortedOverlappedToken = this.documentGraph.getSortedTokenByText(overlappedToken);
 
         SToken firstOverlappedToken = sortedOverlappedToken.get(0);
         SToken lastOverlappedToken = sortedOverlappedToken.get(sortedOverlappedToken.size() - 1);
@@ -609,45 +604,45 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
         // set right_token
         right_token = (long) this.token2Index.get(lastOverlappedToken);
         // get first and last overlapped character
-        List<Edge> firstTokenOutEdges = documentGraph.getOutEdges(firstOverlappedToken.getSId());
-        if (firstTokenOutEdges == null) {
-          throw new PepperModuleException("The token " + firstOverlappedToken.getSId() + " has no outgoing edges!");
+        List<SRelation<SNode, SNode>> firstTokenOutRelations = documentGraph.getOutRelations(firstOverlappedToken.getId());
+        if (firstTokenOutRelations == null) {
+          throw new PepperModuleException("The token " + firstOverlappedToken.getId() + " has no outgoing relations!");
         }
 
         /// find the STextualRelation
-        for (Edge edge : firstTokenOutEdges) {
-          // get the edge which is of the type STextual relation
-          if (edge instanceof STextualRelation) {
-            STextualRelation sTextualRelation = ((STextualRelation) edge);
+        for (Relation relation : firstTokenOutRelations) {
+          // get the relation which is of the type STextual relation
+          if (relation instanceof STextualRelation) {
+            STextualRelation sTextualRelation = ((STextualRelation) relation);
             // set the left value
-            left = new Long(sTextualRelation.getSStart());
+            left = new Long(sTextualRelation.getStart());
 
-            text_ref = idManager.getNewTextId(sTextualRelation.getSTextualDS().getSId());
+            text_ref = idManager.getNewTextId(sTextualRelation.getTarget().getId());
             //System.out.println("Setting text_ref to"+ text_ref.toString());
             break;
           }
         }
 
-        List<Edge> lastTokenOutEdges = documentGraph.getOutEdges(lastOverlappedToken.getSId());
-        if (lastTokenOutEdges == null) {
-          throw new PepperModuleException("The token " + lastOverlappedToken.getSId() + " has no outgoing edges!");
+        List<SRelation<SNode, SNode>> lastTokenOutRelations = documentGraph.getOutRelations(lastOverlappedToken.getId());
+        if (lastTokenOutRelations == null) {
+          throw new PepperModuleException("The token " + lastOverlappedToken.getId() + " has no outgoing relations!");
         }
 
         /// find the STextualRelation
-        for (Edge edge : lastTokenOutEdges) {
-          // get the edge which is of the type STextual relation
-          if (edge instanceof STextualRelation) {
-            STextualRelation sTextualRelation = ((STextualRelation) edge);
+        for (Relation relation : lastTokenOutRelations) {
+          // get the relation which is of the type STextual relation
+          if (relation instanceof STextualRelation) {
+            STextualRelation sTextualRelation = ((STextualRelation) relation);
             // set the left value
-            right = new Long(sTextualRelation.getSEnd() - 1);
-            text_ref = idManager.getNewTextId(sTextualRelation.getSTextualDS().getSId());
+            right = new Long(sTextualRelation.getEnd() - 1);
+            text_ref = idManager.getNewTextId(sTextualRelation.getTarget().getId());
             break;
           }
         }
 
         if (this.idManager.hasVirtualTokenization()) {
-          List<Long> virtTokenFirst = this.idManager.getVirtualisedTokenId(firstOverlappedToken.getSId());
-          List<Long> virtTokenLast = this.idManager.getVirtualisedTokenId(lastOverlappedToken.getSId());
+          List<Long> virtTokenFirst = this.idManager.getVirtualisedTokenId(firstOverlappedToken.getId());
+          List<Long> virtTokenLast = this.idManager.getVirtualisedTokenId(lastOverlappedToken.getId());
           if (virtTokenFirst != null && virtTokenLast != null) {
             
             left_token = this.idManager.getMinimalVirtTokenIndex(virtTokenFirst.get(0))[0];
@@ -673,8 +668,8 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
             token_index, left_token, right_token, seg_index, seg_name, span,
             isRoot(node));
 
-    if (node.getSAnnotations() != null) {
-      this.mapSNodeAnnotations(node, id, node.getSAnnotations());
+    if (node.getAnnotations() != null) {
+      mapSNodeAnnotations(node, id, node.getAnnotations());
     }
 
     // report progress
@@ -684,7 +679,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
   }
   
   private String getUniqueNodeName(SNode node) {
-    URI nodeID = node.getSElementPath();
+    URI nodeID = node.getPath();
     return nodeID.fragment();
   }
 
@@ -734,7 +729,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
   }
 
 // ======================== Mapping of SNodeAnnotations =======================
-  protected void mapSNodeAnnotations(SNode node, Long node_ref, List<SAnnotation> annotations) {
+  protected void mapSNodeAnnotations(SNode node, Long node_ref, Set<SAnnotation> annotations) {
     for (SAnnotation annotation : annotations) {
       this.mapSNodeAnnotation(node, node_ref, annotation);
     }
@@ -761,12 +756,12 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
       namespace = DEFAULT_NS;
     }
 
-    if (annotation.getSValueType() == SDATATYPE.SURI) {
+    if (annotation.getValueType() == SDATATYPE.SURI) {
       // copy the linked file
-      copyLinkedFile(annotation.getSValueSURI());
+      copyLinkedFile(annotation.getValue_SURI());
     }
-    String name = annotation.getSName();
-    String value = annotation.getSValueSTEXT();
+    String name = annotation.getName();
+    String value = annotation.getValue_STEXT();
 
     mapSNodeAnnotation(node_ref, namespace, name, value);
 
@@ -778,9 +773,9 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
       return false;
     }
 
-    List<Edge> inEdges = documentGraph.getInEdges(n.getSId());
-    if (inEdges != null) {
-      for (Edge e : inEdges) {
+    List<SRelation<SNode, SNode>> inRelations = documentGraph.getInRelations(n.getId());
+    if (inRelations != null) {
+      for (Relation e : inRelations) {
         if (e instanceof SDominanceRelation
                 || e instanceof SPointingRelation
                 || e instanceof SSpanningRelation) {
@@ -822,7 +817,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
 
 
         File extData = new File(outputDir, "ExtData");
-        File docDir = new File(extData, documentGraph.getSDocument().getSName());
+        File docDir = new File(extData, documentGraph.getDocument().getName());
         if (!docDir.isDirectory()) {
           if (!docDir.mkdirs()) {
             log.error("Could not create directory " + docDir.getAbsolutePath());
@@ -841,12 +836,12 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
 
   protected SLayer getFirstComponentLayer(SNode node) {
     SLayer componentLayer = null;
-    List<SLayer> nodeLayer = node.getSLayers();
+    Set<SLayer> nodeLayer = node.getLayers();
     if (nodeLayer != null) {
       // get layer name which comes lexically first
       TreeMap<String, SLayer> layers = new TreeMap<>();
       for (SLayer l : nodeLayer) {
-        layers.put(l.getSName(), l);
+        layers.put(l.getName(), l);
       }
       if (!layers.isEmpty()) {
         componentLayer = layers.firstEntry().getValue();
