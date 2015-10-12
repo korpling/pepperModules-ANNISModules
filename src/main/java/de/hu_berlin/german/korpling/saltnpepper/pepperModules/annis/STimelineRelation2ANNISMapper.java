@@ -209,7 +209,7 @@ public class STimelineRelation2ANNISMapper extends SRelation2ANNISMapper {
     
     // create a virtual token for each point of time
     int tokenIndex=0;
-    for(int i=0; i<  documentGraph.getTimeline().getEnd();i++) {
+    for(int i=0; i <= documentGraph.getTimeline().getEnd();i++) {
       boolean isCovered = virtualCovered.get(tokenIndex);
       VirtualNodeID tokID = mapPointOfTime(tokenIndex++, !isCovered);
       virtualTokenNodeIDs.add(tokID.getNodeID());

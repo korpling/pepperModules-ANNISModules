@@ -315,7 +315,11 @@ public class Salt2ANNISMapper extends PepperMapperImpl implements GraphTraverseH
                               tw_node, tw_nodeAnno, tw_rank, tw_relationAnno, tw_component,
                               this);
               
-              sOrderRelationMapper.setTraversionSType(entry.getKey());
+              String traversionType = entry.getKey();
+              if(SaltUtil.SALT_NULL_VALUE.equals(traversionType)) {
+                traversionType = "default_seg";
+              }
+              sOrderRelationMapper.setTraversionSType(traversionType);
               sOrderRelationMapper.mapSRelations2ANNIS(subComponentRoots.get(entry.getKey()), SALT_TYPE.SORDER_RELATION, null);
 
             }

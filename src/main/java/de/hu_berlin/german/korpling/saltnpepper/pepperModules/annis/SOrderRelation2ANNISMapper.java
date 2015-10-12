@@ -71,7 +71,7 @@ public class SOrderRelation2ANNISMapper extends SRelation2ANNISMapper {
 
     beginTransaction();
 
-    if (sRelationRoots != null && sRelationRoots.size() != 0) {
+    if (sRelationRoots != null && !sRelationRoots.isEmpty()) {
 
       appendIndex = sRelationRoots.size() > 1;
 
