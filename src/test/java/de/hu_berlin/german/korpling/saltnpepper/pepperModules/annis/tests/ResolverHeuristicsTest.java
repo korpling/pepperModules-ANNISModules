@@ -121,7 +121,7 @@ public class ResolverHeuristicsTest extends PepperExporterTest{
     abcLayer.setName("abc");
     doc2.addLayer(abcLayer);
     SSpan abcSpan = doc2.createSpan(doc2.getTokens().get(0));
-    abcLayer.getNodes().add(abcSpan);
+    abcLayer.addNode(abcSpan);
     
     start();
     
@@ -146,7 +146,7 @@ public class ResolverHeuristicsTest extends PepperExporterTest{
 
     SStructure abcStruct = doc2.createSStructure(doc2.getTokens().get(0));
     abcStruct.createAnnotation("?ns", "überschlag?", "ABC");
-    abcLayer.getNodes().add(abcStruct);
+    abcLayer.addNode(abcStruct);
 
     
     
@@ -177,7 +177,7 @@ public class ResolverHeuristicsTest extends PepperExporterTest{
     
     SStructure abcStruct = doc2.createSStructure(doc2.getTokens().get(0));
     abcStruct.createAnnotation(null, "const", "ABC");
-    abcLayer.getNodes().add(abcStruct);
+    abcLayer.addNode(abcStruct);
     
     start();
     TabFileComparator.checkEqual(testPath.getAbsolutePath() + "/" 
