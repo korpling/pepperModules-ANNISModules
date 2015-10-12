@@ -69,7 +69,7 @@ public class ANNISExporterProperties extends PepperModuleProperties {
     this.addProperty(new PepperModuleProperty<>(PROP_MERGE_TEXTS_WITH_TIMELINE, 
             Boolean.class, "If \"true\" and the document has a timeline merge texts of one document to one text and create an artificial tokenization based on the timeline.", Boolean.TRUE, false));
     this.addProperty(new PepperModuleProperty<>(PROP_EXCLUDE_SINGLE_DOM_TYPE, 
-            Boolean.class, "If there is only a single relation type for dominance relations and this property is set, "
+            Boolean.class, "If there is only a single edge type for dominance relations and this property is set, "
                     + "don't output the named component entries (but the general one with the empty name)", Boolean.FALSE, false));
   }
 

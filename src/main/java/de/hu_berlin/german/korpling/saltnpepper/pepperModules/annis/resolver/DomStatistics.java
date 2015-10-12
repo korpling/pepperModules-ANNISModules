@@ -32,28 +32,28 @@ public class DomStatistics {
   
   private final Set<String> layers = Collections.synchronizedSet(new HashSet<String>());
   
-  private final StatTableCounter<String> relationTypeCounter
+  private final StatTableCounter<String> edgeTypeCounter
           = new StatTableCounter<>(layers);
   
   private final StatMultiMap<String, QName> terminalAnno
           = new StatMultiMap<>(layers);
   
-  private final StatMultiMap<String, String> terminalRelationType
+  private final StatMultiMap<String, String> terminalEdgeType
           = new StatMultiMap<>(layers);
   
-  private final StatMultiMap<String, QName> relationAnno
+  private final StatMultiMap<String, QName> edgeAnno
           = new StatMultiMap<>(layers);
   
   private final StatTableCounter<QName> nodeAnnoCounter
           = new StatTableCounter<>(layers);
   
   ///////////////
-  // relation type //
+  // edge type //
   ///////////////
   
   public void addRelationType(String layer, String type) {
     if(type != null) {
-  	  relationTypeCounter.add(layer, type, 1);
+  	  edgeTypeCounter.add(layer, type, 1);
     }
   }
   
@@ -61,7 +61,7 @@ public class DomStatistics {
     if (annos != null) {
       for(SAnnotation a : annos) {
         QName qname = new QName(a.getNamespace(), a.getName());
-        relationAnno.add(layer, qname);
+        edgeAnno.add(layer, qname);
       }
     }
   }
@@ -75,8 +75,8 @@ public class DomStatistics {
     }
   }
   
-  public void addTerminalRelationType(String layer, String type) {
-	  terminalRelationType.add(layer, type);
+  public void addTerminalEdgeType(String layer, String type) {
+	  terminalEdgeType.add(layer, type);
   }
   
   /**
@@ -88,11 +88,11 @@ public class DomStatistics {
    * @param other 
    */
   public void merge(DomStatistics other) {
-    relationAnno.merge(other.relationAnno);
-    relationTypeCounter.merge(other.relationTypeCounter);
+    edgeAnno.merge(other.edgeAnno);
+    edgeTypeCounter.merge(other.edgeTypeCounter);
     nodeAnnoCounter.merge(other.nodeAnnoCounter);
     terminalAnno.merge(other.terminalAnno);
-    terminalRelationType.merge(other.terminalRelationType);
+    terminalEdgeType.merge(other.terminalEdgeType);
   }
   
   public Set<String> getLayers() {
@@ -103,16 +103,16 @@ public class DomStatistics {
     return terminalAnno;
   }
 
-  public StatMultiMap<String, String> getTerminalRelationType() {
-    return terminalRelationType;
+  public StatMultiMap<String, String> getTerminalEdgeType() {
+    return terminalEdgeType;
   }
 
-  public StatMultiMap<String, QName> getRelationAnno() {
-    return relationAnno;
+  public StatMultiMap<String, QName> getEdgeAnno() {
+    return edgeAnno;
   }
 
-  public StatTableCounter<String> getRelationTypeCounter() {
-    return relationTypeCounter;
+  public StatTableCounter<String> getEdgeTypeCounter() {
+    return edgeTypeCounter;
   }
 
   public StatTableCounter<QName> getNodeAnnoCounter() {

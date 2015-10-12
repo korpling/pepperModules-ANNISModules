@@ -32,7 +32,7 @@ public class ResolverEntry {
   
   public enum Element {
 
-    node, relation, NULL
+    node, edge, NULL
   }
 
   public enum Visibility {

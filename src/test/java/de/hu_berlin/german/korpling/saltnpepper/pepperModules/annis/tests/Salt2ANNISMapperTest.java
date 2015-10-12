@@ -159,7 +159,7 @@ public class Salt2ANNISMapperTest
     getFixture().tw_rank = ANNISExporter.createTupleWriter(
             new File(path.getAbsolutePath() + File.separator + ANNIS.FILE_RANK),
             props.getEscapeCharacters(), props.getEscapeCharactersSet());
-    getFixture().tw_relationAnno = ANNISExporter.createTupleWriter(
+    getFixture().tw_edgeAnno = ANNISExporter.createTupleWriter(
             new File(path.getAbsolutePath() + File.separator + ANNIS.FILE_EDGE_ANNO),
             props.getEscapeCharacters(), props.getEscapeCharactersSet());
     getFixture().tw_component = ANNISExporter.createTupleWriter(

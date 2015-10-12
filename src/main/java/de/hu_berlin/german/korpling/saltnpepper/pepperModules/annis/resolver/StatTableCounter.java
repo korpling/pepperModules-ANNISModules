@@ -57,7 +57,7 @@ public class StatTableCounter<ValueType> {
   }
   
   /**
-   * Merges the relation type information from the other statistics object.
+   * Merges the edge type information from the other statistics object.
    * 
    * The other object is not allowed to be modified while
    * executing this functions since no explicit locking will occur. This object

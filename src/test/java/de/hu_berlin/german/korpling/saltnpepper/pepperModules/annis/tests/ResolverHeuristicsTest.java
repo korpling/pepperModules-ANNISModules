@@ -168,7 +168,7 @@ public class ResolverHeuristicsTest extends PepperExporterTest{
     
     // make sure the created syntactic relations have a type
     for(SDominanceRelation domRel : doc1.getDominanceRelations()) {
-      domRel.setType("relation");
+      domRel.setType("edge");
     }
     
     SLayer abcLayer = SaltFactory.createSLayer();

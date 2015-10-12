@@ -126,7 +126,7 @@ public class Salt2ANNISMapper extends PepperMapperImpl implements GraphTraverseH
   /**
    * tuple writer to write {@link ANNIS#FILE_EDGE_ANNO} *
    */
-  public TupleWriter tw_relationAnno = null;
+  public TupleWriter tw_edgeAnno = null;
   /**
    * tuple writer to write {@link ANNIS#FILE_COMPONENT} *
    */
@@ -293,7 +293,7 @@ public class Salt2ANNISMapper extends PepperMapperImpl implements GraphTraverseH
          * PointingRelations Subcomponents: DOCUMENT_STRUCTURE_PR_SUB
          *
          * Dominance relations may consist of different subcomponents since
-         * there are "relation" and "secrelation" types
+         * there are "edge" and "secedge" types
          *
          * Since every root node has it's own component, the pre and post order
          * needs to be 0 for the root node. You need to handle this.
@@ -312,7 +312,7 @@ public class Salt2ANNISMapper extends PepperMapperImpl implements GraphTraverseH
               SRelation2ANNISMapper sOrderRelationMapper
                       = new SOrderRelation2ANNISMapper(getIdManager(),
                               getDocument().getDocumentGraph(), token2Index,
-                              tw_node, tw_nodeAnno, tw_rank, tw_relationAnno, tw_component,
+                              tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component,
                               this);
               
               String traversionType = entry.getKey();
@@ -331,7 +331,7 @@ public class Salt2ANNISMapper extends PepperMapperImpl implements GraphTraverseH
         STimelineRelation2ANNISMapper timelineMapper
                     = new STimelineRelation2ANNISMapper(getIdManager(),
                             getDocument().getDocumentGraph(), token2Index,
-                            tw_node, tw_nodeAnno, tw_rank, tw_relationAnno, tw_component,
+                            tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component,
                             this, mergeTextsWithTimeline);
         timelineMapper.run();
 
@@ -386,7 +386,7 @@ public class Salt2ANNISMapper extends PepperMapperImpl implements GraphTraverseH
               SRelation2ANNISMapper sPointingSubRelationMapper
                       = new SPointingRelation2ANNISMapper(getIdManager(),
                               getDocument().getDocumentGraph(), token2Index,
-                              tw_node, tw_nodeAnno, tw_rank, tw_relationAnno, tw_component,
+                              tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component,
                               this
                       );
               sPointingSubRelationMapper.mapSRelations2ANNIS(subComponentRoots.get(key), SALT_TYPE.SPOINTING_RELATION, TRAVERSION_TYPE.DOCUMENT_STRUCTURE_PR);
@@ -412,7 +412,7 @@ public class Salt2ANNISMapper extends PepperMapperImpl implements GraphTraverseH
             SRelation2ANNISMapper sDominanceRelationMapper
                     = new SDominanceRelation2ANNISMapper(getIdManager(),
                             getDocument().getDocumentGraph(), token2Index,
-                            tw_node, tw_nodeAnno, tw_rank, tw_relationAnno, tw_component,
+                            tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component,
                             this
                     );
             sDominanceRelationMapper.mapSRelations2ANNIS(sRelationRoots, SALT_TYPE.SDOMINANCE_RELATION, TRAVERSION_TYPE.DOCUMENT_STRUCTURE_DR);
@@ -445,7 +445,7 @@ public class Salt2ANNISMapper extends PepperMapperImpl implements GraphTraverseH
                   SRelation2ANNISMapper sDominanceSubRelationMapper
                           = new SDominanceRelation2ANNISMapper(getIdManager(),
                                   getDocument().getDocumentGraph(), token2Index,
-                                  tw_node, tw_nodeAnno, tw_rank, tw_relationAnno, tw_component, this);
+                                  tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component, this);
                   sDominanceSubRelationMapper.setTraversionSType(key);
                   sDominanceSubRelationMapper.mapSRelations2ANNIS(subComponentRoots.get(key), SALT_TYPE.SDOMINANCE_RELATION, TRAVERSION_TYPE.DOCUMENT_STRUCTURE_DR);
                   if (exec != null) {
@@ -471,7 +471,7 @@ public class Salt2ANNISMapper extends PepperMapperImpl implements GraphTraverseH
             SRelation2ANNISMapper spanningRelationMapper
                     = new SSpanningRelation2ANNISMapper(getIdManager(),
                             getDocument().getDocumentGraph(), token2Index,
-                            tw_node, tw_nodeAnno, tw_rank, tw_relationAnno, tw_component, this);
+                            tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component, this);
             spanningRelationMapper.mapSRelations2ANNIS(sRelationRoots, SALT_TYPE.SSPANNING_RELATION, TRAVERSION_TYPE.DOCUMENT_STRUCTURE_CR);
             if (exec != null) {
               exec.execute(spanningRelationMapper);
@@ -490,7 +490,7 @@ public class Salt2ANNISMapper extends PepperMapperImpl implements GraphTraverseH
                     = new Audio2ANNISMapper(getIdManager(),
                             getDocument().getDocumentGraph(),
                             token2Index,
-                            tw_node, tw_nodeAnno, tw_rank, tw_relationAnno, tw_component, this);
+                            tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component, this);
             audioRelationMapper.mapSRelations2ANNIS(sRelationRoots,
                     SALT_TYPE.STIME_OVERLAPPING_RELATION,
                     TRAVERSION_TYPE.DOCUMENT_STRUCTURE_AUDIO);
@@ -514,7 +514,7 @@ public class Salt2ANNISMapper extends PepperMapperImpl implements GraphTraverseH
         SRelation2ANNISMapper mapper
                 = new SSpanningRelation2ANNISMapper(getIdManager(),
                         getDocument().getDocumentGraph(), token2Index,
-                        tw_node, tw_nodeAnno, tw_rank, tw_relationAnno, tw_component, this);
+                        tw_node, tw_nodeAnno, tw_rank, tw_edgeAnno, tw_component, this);
         mapper.beginTransaction();
         for (SNode node : getDocument().getDocumentGraph().getTokens()) {
           if (this.idManager.getVirtualisedSpanId(node.getId()) == null) {

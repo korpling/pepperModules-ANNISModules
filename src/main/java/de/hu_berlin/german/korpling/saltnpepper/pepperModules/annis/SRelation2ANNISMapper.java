@@ -79,7 +79,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, GraphTraverseHa
   protected final static String DEFAULT_LAYER = "default_layer";
 
   Collection<? extends SNode> sRelationRoots = null;
-  SALT_TYPE relationTypeName = null;
+  SALT_TYPE edgeTypeName = null;
   
   
 // =================================== Constructor ============================ 
@@ -90,14 +90,14 @@ public abstract class SRelation2ANNISMapper implements Runnable, GraphTraverseHa
    * @param nodeTabWriter
    * @param nodeAnnoTabWriter
    * @param rankTabWriter
-   * @param relationAnnoTabWriter
+   * @param edgeAnnoTabWriter
    * @param componentTabWriter
    * @param parentMapper
    */
   public SRelation2ANNISMapper(IdManager idManager, SDocumentGraph documentGraph,
           Map<SToken, Long> token2Index,
           TupleWriter nodeTabWriter, TupleWriter nodeAnnoTabWriter,
-          TupleWriter rankTabWriter, TupleWriter relationAnnoTabWriter,
+          TupleWriter rankTabWriter, TupleWriter edgeAnnoTabWriter,
           TupleWriter componentTabWriter,
           Salt2ANNISMapper parentMapper) {
 
@@ -111,7 +111,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, GraphTraverseHa
     writers.put(OutputTable.NODE, nodeTabWriter);
     writers.put(OutputTable.NODE_ANNOTATION, nodeAnnoTabWriter);
     writers.put(OutputTable.RANK, rankTabWriter);
-    writers.put(OutputTable.EDGE_ANNO, relationAnnoTabWriter);
+    writers.put(OutputTable.EDGE_ANNO, edgeAnnoTabWriter);
     writers.put(OutputTable.COMPONENT, componentTabWriter);
   }
 
@@ -397,7 +397,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, GraphTraverseHa
   }
 
 // =============================== Mapping of SRelations ======================
-  public abstract void mapSRelations2ANNIS(Collection<? extends SNode> sRelationRoots, SALT_TYPE relationTypeName, TRAVERSION_TYPE traversionType);
+  public abstract void mapSRelations2ANNIS(Collection<? extends SNode> sRelationRoots, SALT_TYPE edgeTypeName, TRAVERSION_TYPE traversionType);
 
   /**
    * This method maps the currently processed component to the ANNIS
@@ -468,19 +468,19 @@ public abstract class SRelation2ANNISMapper implements Runnable, GraphTraverseHa
     }
     // rank_id 	namespace	name	value
 
-    List<String> relationAnnotationEntry = new ArrayList<>();
-    relationAnnotationEntry.add(rankId.toString());
+    List<String> edgeAnnotationEntry = new ArrayList<>();
+    edgeAnnotationEntry.add(rankId.toString());
     String ns;
     if (sAnnotation.getNamespace() != null) {
       ns = sAnnotation.getNamespace();
     } else {
       ns = "default_ns";
     }
-    relationAnnotationEntry.add(idManager.getEscapedIdentifier(ns));
-    relationAnnotationEntry.add(idManager.getEscapedIdentifier(sAnnotation.getName()));
-    relationAnnotationEntry.add(sAnnotation.getValue_STEXT());
+    edgeAnnotationEntry.add(idManager.getEscapedIdentifier(ns));
+    edgeAnnotationEntry.add(idManager.getEscapedIdentifier(sAnnotation.getName()));
+    edgeAnnotationEntry.add(sAnnotation.getValue_STEXT());
 
-    addTuple(OutputTable.EDGE_ANNO, relationAnnotationEntry);
+    addTuple(OutputTable.EDGE_ANNO, edgeAnnotationEntry);
 
   }
 

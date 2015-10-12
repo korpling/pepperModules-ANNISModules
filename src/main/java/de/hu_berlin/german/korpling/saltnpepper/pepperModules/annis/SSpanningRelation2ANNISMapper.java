@@ -45,13 +45,13 @@ public class SSpanningRelation2ANNISMapper extends SRelation2ANNISMapper {
           Map<SToken, Long> token2Index,
           TupleWriter nodeTabWriter,
           TupleWriter nodeAnnoTabWriter, TupleWriter rankTabWriter,
-          TupleWriter relationAnnoTabWriter, TupleWriter componentTabWriter,
+          TupleWriter edgeAnnoTabWriter, TupleWriter componentTabWriter,
           Salt2ANNISMapper parentMapper) {
 
     super(idManager, documentGraph, 
             token2Index,
             nodeTabWriter, nodeAnnoTabWriter,
-            rankTabWriter, relationAnnoTabWriter, componentTabWriter,
+            rankTabWriter, edgeAnnoTabWriter, componentTabWriter,
             parentMapper);
 
     spanIsContinous = Collections.synchronizedMap(new HashMap<SSpan, Boolean>());
@@ -93,9 +93,9 @@ public class SSpanningRelation2ANNISMapper extends SRelation2ANNISMapper {
 
   @Override
   public void mapSRelations2ANNIS(Collection<? extends SNode> sRelationRoots,
-          SALT_TYPE relationTypeName, TRAVERSION_TYPE traversionType) {
+          SALT_TYPE edgeTypeName, TRAVERSION_TYPE traversionType) {
     this.traversionType = traversionType;
-    this.relationTypeName = relationTypeName;
+    this.edgeTypeName = edgeTypeName;
     this.sRelationRoots = sRelationRoots;
 
   }

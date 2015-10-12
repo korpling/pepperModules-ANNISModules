@@ -51,15 +51,15 @@ public interface ANNIS {
    */
   public static final String FILE_NODE_ANNO = "node_annotation" + FILE_ENDING;
   /**
-   * Name of the file, to store the relations. *
+   * Name of the file, to store the edges. *
    */
   public static final String FILE_RANK = "rank" + FILE_ENDING;
   /**
-   * Name of the file, to store the annotations of the relations. *
+   * Name of the file, to store the annotations of the edges. *
    */
-  public static final String FILE_EDGE_ANNO = "relation_annotation" + FILE_ENDING;
+  public static final String FILE_EDGE_ANNO = "edge_annotation" + FILE_ENDING;
   /**
-   * Name of the file, to store the components of the relations. *
+   * Name of the file, to store the components of the edges. *
    */
   public static final String FILE_COMPONENT = "component" + FILE_ENDING;
   /**

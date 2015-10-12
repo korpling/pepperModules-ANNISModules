@@ -49,11 +49,11 @@ public class STimelineRelation2ANNISMapper extends SRelation2ANNISMapper {
   public STimelineRelation2ANNISMapper(IdManager idManager, 
           SDocumentGraph documentGraph, Map<SToken, Long> token2Index, 
           TupleWriter nodeTabWriter, TupleWriter nodeAnnoTabWriter, 
-          TupleWriter rankTabWriter, TupleWriter relationAnnoTabWriter, 
+          TupleWriter rankTabWriter, TupleWriter edgeAnnoTabWriter, 
           TupleWriter componentTabWriter, Salt2ANNISMapper parentMapper, 
           boolean mergeTextsWithTimeline) {
     super(idManager, documentGraph, token2Index, nodeTabWriter, 
-            nodeAnnoTabWriter, rankTabWriter, relationAnnoTabWriter, componentTabWriter, 
+            nodeAnnoTabWriter, rankTabWriter, edgeAnnoTabWriter, componentTabWriter, 
             parentMapper);
     this.mergeTextsWithTimeline = mergeTextsWithTimeline;
   }
@@ -222,7 +222,7 @@ public class STimelineRelation2ANNISMapper extends SRelation2ANNISMapper {
   }
 
   @Override
-  public void mapSRelations2ANNIS(Collection<? extends SNode> sRelationRoots, SALT_TYPE relationTypeName, Salt2ANNISMapper.TRAVERSION_TYPE traversionType) {
+  public void mapSRelations2ANNIS(Collection<? extends SNode> sRelationRoots, SALT_TYPE edgeTypeName, Salt2ANNISMapper.TRAVERSION_TYPE traversionType) {
     // we don't actually a timeline relation, but we create a  virtual tokenization if necessary
   }
 

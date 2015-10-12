@@ -84,7 +84,7 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
   /**
    * tuple writer to write {@link ANNIS#FILE_EDGE_ANNO} *
    */
-  public TupleWriter tw_relationAnno = null;
+  public TupleWriter tw_edgeAnno = null;
   /**
    * tuple writer to write {@link ANNIS#FILE_COMPONENT} *
    */
@@ -155,7 +155,7 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
     mapper.tw_node = tw_node;
     mapper.tw_nodeAnno = tw_nodeAnno;
     mapper.tw_rank = tw_rank;
-    mapper.tw_relationAnno = tw_relationAnno;
+    mapper.tw_edgeAnno = tw_edgeAnno;
     mapper.tw_component = tw_component;
     mapper.tw_corpus = tw_corpus;
     mapper.tw_corpusMeta = tw_corpusMeta;
@@ -233,7 +233,7 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
     tw_node = createTupleWriter(new File(corpPath + FILE_NODE), this.escapeCharacters, this.characterEscapeTable);
     tw_nodeAnno = createTupleWriter(new File(corpPath + FILE_NODE_ANNO), this.escapeCharacters, this.characterEscapeTable);
     tw_rank = createTupleWriter(new File(corpPath + FILE_RANK), this.escapeCharacters, this.characterEscapeTable);
-    tw_relationAnno = createTupleWriter(new File(corpPath + FILE_EDGE_ANNO), this.escapeCharacters, this.characterEscapeTable);
+    tw_edgeAnno = createTupleWriter(new File(corpPath + FILE_EDGE_ANNO), this.escapeCharacters, this.characterEscapeTable);
     tw_component = createTupleWriter(new File(corpPath + FILE_COMPONENT), this.escapeCharacters, this.characterEscapeTable);
     tw_corpus = createTupleWriter(new File(corpPath + FILE_CORPUS), this.escapeCharacters, this.characterEscapeTable);
 
@@ -441,30 +441,30 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
         }
       }
 
-      Set<QName> relationAnnos = domStats.getRelationAnno().get(layerName);
+      Set<QName> edgeAnnos = domStats.getEdgeAnno().get(layerName);
 
-      if(relationAnnos.size() >= 1) {
-        QName qname = relationAnnos.iterator().next();
-        entry.getMappings().put("relation_key", globalIdManager.getEscapedIdentifier(qname.getName()));
+      if(edgeAnnos.size() >= 1) {
+        QName qname = edgeAnnos.iterator().next();
+        entry.getMappings().put("edge_key", globalIdManager.getEscapedIdentifier(qname.getName()));
         if(!QName.NULL.equals(qname.getNs())) {
-          entry.getMappings().put("relation_anno_ns", globalIdManager.getEscapedIdentifier(qname.getNs()));
+          entry.getMappings().put("edge_anno_ns", globalIdManager.getEscapedIdentifier(qname.getNs()));
         }
       }
 
-      SortedMap<Integer, String> etypes = domStats.getRelationTypeCounter().getBySize(layerName);
+      SortedMap<Integer, String> etypes = domStats.getEdgeTypeCounter().getBySize(layerName);
       if(etypes.isEmpty()
               || (((ANNISExporterProperties) getProperties()).getExcludeSingleDomType() 
               && etypes.size() <= 1 )) {
-        entry.getMappings().put("relation_type", globalIdManager.getEscapedIdentifier("null"));
+        entry.getMappings().put("edge_type", globalIdManager.getEscapedIdentifier("null"));
       }
       else {
-        // the primary relation type always has the greatest number of entries
+        // the primary edge type always has the greatest number of entries
         String primaryType = etypes.get(etypes.lastKey());
         String secondaryType = etypes.size() >= 2 ? etypes.get(etypes.firstKey()) : null;
 
         // check if the terminal nodes are reachable by the original types
         // use the special "null" type if not
-        Set<String> terminalRelationTypes = domStats.getTerminalRelationType().get(layerName);
+        Set<String> terminalRelationTypes = domStats.getTerminalEdgeType().get(layerName);
         if(secondaryType == null) {
           if (!terminalRelationTypes.contains(primaryType)) {
             primaryType = "null";
@@ -475,9 +475,9 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
           }
         }
 
-        entry.getMappings().put("relation_type", globalIdManager.getEscapedIdentifier(primaryType));
+        entry.getMappings().put("edge_type", globalIdManager.getEscapedIdentifier(primaryType));
         if(secondaryType != null) {
-          entry.getMappings().put("secrelation_type", globalIdManager.getEscapedIdentifier(secondaryType));
+          entry.getMappings().put("secedge_type", globalIdManager.getEscapedIdentifier(secondaryType));
         }
       }
     }
@@ -514,7 +514,7 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
     }
     entry.setDisplay(displayName);
     if (layerName != null) {    
-      entry.setElement(ResolverEntry.Element.relation);
+      entry.setElement(ResolverEntry.Element.edge);
       entry.setLayerName(layerName.getNs());
     }
 

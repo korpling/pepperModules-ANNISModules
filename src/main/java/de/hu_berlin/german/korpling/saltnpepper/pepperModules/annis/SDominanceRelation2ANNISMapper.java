@@ -43,9 +43,9 @@ public class SDominanceRelation2ANNISMapper extends SRelation2ANNISMapper {
 
 	private SNode lastEnteredNode;
 
-	public SDominanceRelation2ANNISMapper(IdManager idManager, SDocumentGraph documentGraph, Map<SToken, Long> token2index, TupleWriter nodeTabWriter, TupleWriter nodeAnnoTabWriter, TupleWriter rankTabWriter, TupleWriter relationAnnoTabWriter, TupleWriter componentTabWriter, Salt2ANNISMapper parentMapper) {
+	public SDominanceRelation2ANNISMapper(IdManager idManager, SDocumentGraph documentGraph, Map<SToken, Long> token2index, TupleWriter nodeTabWriter, TupleWriter nodeAnnoTabWriter, TupleWriter rankTabWriter, TupleWriter edgeAnnoTabWriter, TupleWriter componentTabWriter, Salt2ANNISMapper parentMapper) {
 
-		super(idManager, documentGraph, token2index, nodeTabWriter, nodeAnnoTabWriter, rankTabWriter, relationAnnoTabWriter, componentTabWriter, parentMapper);
+		super(idManager, documentGraph, token2index, nodeTabWriter, nodeAnnoTabWriter, rankTabWriter, edgeAnnoTabWriter, componentTabWriter, parentMapper);
 
 	}
 
@@ -87,9 +87,9 @@ public class SDominanceRelation2ANNISMapper extends SRelation2ANNISMapper {
 	}
 
 	@Override
-	public void mapSRelations2ANNIS(Collection<? extends SNode> sRelationRoots, SALT_TYPE relationTypeName, TRAVERSION_TYPE traversionType) {
+	public void mapSRelations2ANNIS(Collection<? extends SNode> sRelationRoots, SALT_TYPE edgeTypeName, TRAVERSION_TYPE traversionType) {
 		this.traversionType = traversionType;
-		this.relationTypeName = relationTypeName;
+		this.edgeTypeName = edgeTypeName;
 		this.sRelationRoots = sRelationRoots;
 
 	}
@@ -120,7 +120,7 @@ public class SDominanceRelation2ANNISMapper extends SRelation2ANNISMapper {
 				// we left a leaf node
 
 				if (relation != null) {
-					getDomStats().addTerminalRelationType(currentComponentLayer, relation.getType());
+					getDomStats().addTerminalEdgeType(currentComponentLayer, relation.getType());
 				}
 
 				if (currNode instanceof SToken) {

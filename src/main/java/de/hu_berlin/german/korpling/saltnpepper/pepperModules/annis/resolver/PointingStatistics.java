@@ -24,7 +24,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * Statistics used for creating resolver entries for pointing relation components.
+ * Statistics used for creating resolver entries for pointing edge components.
  *
  * @author Thomas Krause <krauseto@hu-berlin.de>
  */
