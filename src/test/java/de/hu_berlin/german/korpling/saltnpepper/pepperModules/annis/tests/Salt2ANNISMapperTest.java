@@ -105,6 +105,7 @@ public class Salt2ANNISMapperTest
     setFixture(new Salt2ANNISMapper());
 
     getFixture().mapRelationsInParallel(false);
+    getFixture().setProperties(new ANNISExporterProperties());
 
     if (!globalTmpPath.exists())
     {
@@ -530,7 +531,7 @@ public class Salt2ANNISMapperTest
     SampleGenerator.createSDocumentStructure(getFixture().getDocument());
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 
-	getFixture().setCorpus(rootCorpus);
+    getFixture().setCorpus(rootCorpus);
     getFixture().mapSCorpus();
 
     long startTime = 0l;
@@ -543,7 +544,7 @@ public class Salt2ANNISMapperTest
     for (int i = 0; i < 100; i++)
     {
       startTime = System.currentTimeMillis();
-	  getFixture().setDocument(sDocument);
+      getFixture().setDocument(sDocument);
       getFixture().mapSDocument();
       stopTime = System.currentTimeMillis();
       elapsedTime = stopTime - startTime;
