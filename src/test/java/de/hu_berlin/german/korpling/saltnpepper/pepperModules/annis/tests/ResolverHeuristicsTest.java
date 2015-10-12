@@ -186,14 +186,16 @@ public class ResolverHeuristicsTest extends PepperExporterTest{
 	}
   
   @Test
-	public void testTreeWithoutRelationType() throws IOException
+	public void testTreeWithoutEdgeType() throws IOException
 	{
     
     SampleGenerator.createSyntaxStructure(doc1.getDocument());
     SampleGenerator.createSyntaxAnnotations(doc1.getDocument());
     
     for(SStructure struct : doc1.getStructures()) {
-      struct.getLayers().clear();
+      for(SLayer layer : struct.getLayers()) {
+        layer.removeNode(struct);
+      }
     }
     
     start();
