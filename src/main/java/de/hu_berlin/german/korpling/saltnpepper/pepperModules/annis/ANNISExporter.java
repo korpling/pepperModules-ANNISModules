@@ -32,6 +32,11 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.concurrent.ConcurrentMap;
 
+import org.corpus_tools.pepper.impl.PepperExporterImpl;
+import org.corpus_tools.pepper.modules.PepperExporter;
+import org.corpus_tools.pepper.modules.PepperMapper;
+import org.corpus_tools.pepper.modules.exceptions.PepperModuleException;
+import org.corpus_tools.pepper.modules.exceptions.PepperModuleNotReadyException;
 import org.corpus_tools.salt.common.SCorpus;
 import org.corpus_tools.salt.common.SCorpusGraph;
 import org.corpus_tools.salt.common.SStructure;
@@ -46,11 +51,6 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.io.Files;
 
-import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperExporter;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperMapper;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleException;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleNotReadyException;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.impl.PepperExporterImpl;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ResolverEntry.Vis;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.DomStatistics;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.PointingStatistics;

@@ -23,7 +23,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
-import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleTestException;
+import org.corpus_tools.pepper.modules.exceptions.PepperModuleTestException;
 
 public class FileComparator 
 {

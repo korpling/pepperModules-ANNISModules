@@ -23,6 +23,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import org.corpus_tools.pepper.common.CorpusDesc;
+import org.corpus_tools.pepper.common.FormatDesc;
+import org.corpus_tools.pepper.testFramework.PepperExporterTest;
 import org.corpus_tools.salt.SaltFactory;
 import org.corpus_tools.salt.common.SCorpus;
 import org.corpus_tools.salt.common.SCorpusGraph;
@@ -43,9 +46,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
 
-import de.hu_berlin.german.korpling.saltnpepper.pepper.common.CorpusDesc;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.common.FormatDesc;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.testFramework.PepperExporterTest;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNIS;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNISExporter; 
  

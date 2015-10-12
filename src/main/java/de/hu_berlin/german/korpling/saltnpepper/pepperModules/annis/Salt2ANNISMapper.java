@@ -36,6 +36,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.corpus_tools.pepper.common.DOCUMENT_STATUS;
+import org.corpus_tools.pepper.impl.PepperMapperImpl;
+import org.corpus_tools.pepper.modules.exceptions.PepperModuleException;
+import org.corpus_tools.salt.SALT_TYPE;
 import org.corpus_tools.salt.common.SCorpus;
 import org.corpus_tools.salt.common.SCorpusGraph;
 import org.corpus_tools.salt.common.SDocument;
@@ -48,16 +52,12 @@ import org.corpus_tools.salt.core.SGraph.GRAPH_TRAVERSE_TYPE;
 import org.corpus_tools.salt.core.SMetaAnnotation;
 import org.corpus_tools.salt.core.SNode;
 import org.corpus_tools.salt.core.SRelation;
-import org.corpus_tools.salt.util.SALT_TYPE;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Multimap;
 
-import de.hu_berlin.german.korpling.saltnpepper.pepper.common.DOCUMENT_STATUS;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleException;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.impl.PepperMapperImpl;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.DomStatistics;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.PointingStatistics;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.SpanStatistics;

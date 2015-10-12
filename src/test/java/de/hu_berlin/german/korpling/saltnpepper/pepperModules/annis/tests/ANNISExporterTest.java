@@ -27,13 +27,13 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
+import org.corpus_tools.pepper.common.FormatDesc;
+import org.corpus_tools.pepper.modules.PepperModuleProperties;
+import org.corpus_tools.pepper.testFramework.PepperExporterTest;
 import org.eclipse.emf.common.util.URI;
 import org.junit.Before;
 import org.junit.Test;
 
-import de.hu_berlin.german.korpling.saltnpepper.pepper.common.FormatDesc;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperModuleProperties;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.testFramework.PepperExporterTest;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNISExporter;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.ANNISExporterProperties;
  

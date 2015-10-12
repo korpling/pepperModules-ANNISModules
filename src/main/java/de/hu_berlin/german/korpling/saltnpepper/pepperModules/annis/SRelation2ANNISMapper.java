@@ -32,6 +32,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.corpus_tools.pepper.modules.exceptions.PepperModuleException;
+import org.corpus_tools.salt.SALT_TYPE;
 import org.corpus_tools.salt.SDATATYPE;
 import org.corpus_tools.salt.common.SDocumentGraph;
 import org.corpus_tools.salt.common.SDominanceRelation;
@@ -48,14 +50,12 @@ import org.corpus_tools.salt.core.SLayer;
 import org.corpus_tools.salt.core.SNode;
 import org.corpus_tools.salt.core.SRelation;
 import org.corpus_tools.salt.graph.Relation;
-import org.corpus_tools.salt.util.SALT_TYPE;
 import org.eclipse.emf.common.util.URI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.io.Files;
 
-import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleException;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.Salt2ANNISMapper.TRAVERSION_TYPE;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.DomStatistics;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.PointingStatistics;

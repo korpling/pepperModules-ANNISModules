@@ -24,6 +24,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
+import org.corpus_tools.salt.SALT_TYPE;
 import org.corpus_tools.salt.common.SDocumentGraph;
 import org.corpus_tools.salt.common.STextualDS;
 import org.corpus_tools.salt.common.STextualRelation;
@@ -32,7 +33,6 @@ import org.corpus_tools.salt.common.SToken;
 import org.corpus_tools.salt.core.SAnnotation;
 import org.corpus_tools.salt.core.SNode;
 import org.corpus_tools.salt.graph.Relation;
-import org.corpus_tools.salt.util.SALT_TYPE;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
