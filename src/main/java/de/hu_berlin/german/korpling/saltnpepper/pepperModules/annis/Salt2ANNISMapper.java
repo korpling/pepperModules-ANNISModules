@@ -62,6 +62,7 @@ import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.Dom
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.PointingStatistics;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.SpanStatistics;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.VirtualTokenStatistics;
+import org.corpus_tools.salt.util.SaltUtil;
 
 public class Salt2ANNISMapper extends PepperMapperImpl implements GraphTraverseHandler {
 
@@ -434,18 +435,20 @@ public class Salt2ANNISMapper extends PepperMapperImpl implements GraphTraverseH
                     || domComponentTypeNames.size() >= 2)
             {
               for (String key : domComponentTypeNames) {
-                //System.out.println("Mapping DominanceRelation subcomponents with sType: "+key);
-
-                SRelation2ANNISMapper sDominanceSubRelationMapper
-                        = new SDominanceRelation2ANNISMapper(getIdManager(),
-                                getDocument().getDocumentGraph(), token2Index,
-                                tw_node, tw_nodeAnno, tw_rank, tw_relationAnno, tw_component, this);
-                sDominanceSubRelationMapper.setTraversionSType(key);
-                sDominanceSubRelationMapper.mapSRelations2ANNIS(subComponentRoots.get(key), SALT_TYPE.SDOMINANCE_RELATION, TRAVERSION_TYPE.DOCUMENT_STRUCTURE_DR);
-                if (exec != null) {
-                  exec.execute(sDominanceSubRelationMapper);
-                } else {
-                  sDominanceSubRelationMapper.run();
+                
+                if(!SaltUtil.SALT_NULL_VALUE.equals(key)) {
+                
+                  SRelation2ANNISMapper sDominanceSubRelationMapper
+                          = new SDominanceRelation2ANNISMapper(getIdManager(),
+                                  getDocument().getDocumentGraph(), token2Index,
+                                  tw_node, tw_nodeAnno, tw_rank, tw_relationAnno, tw_component, this);
+                  sDominanceSubRelationMapper.setTraversionSType(key);
+                  sDominanceSubRelationMapper.mapSRelations2ANNIS(subComponentRoots.get(key), SALT_TYPE.SDOMINANCE_RELATION, TRAVERSION_TYPE.DOCUMENT_STRUCTURE_DR);
+                  if (exec != null) {
+                    exec.execute(sDominanceSubRelationMapper);
+                  } else {
+                    sDominanceSubRelationMapper.run();
+                  }
                 }
               }
             }
