@@ -1,6 +1,6 @@
-0	0	1	default_ns	sSpan1	0	1	NULL	0	0	NULL	NULL	NULL	TRUE
+0	0	1	default_ns	IS_span1	0	1	NULL	0	0	NULL	NULL	NULL	TRUE
 1	0	1	morphology	sTok1	0	1	0	0	0	NULL	NULL	Is	FALSE
-2	0	1	default_ns	sSpan2	3	54	NULL	1	10	NULL	NULL	NULL	TRUE
+2	0	1	default_ns	IS_span2	3	54	NULL	1	10	NULL	NULL	NULL	TRUE
 3	0	1	morphology	sTok2	3	6	1	1	1	NULL	NULL	this	FALSE
 4	0	1	morphology	sTok3	8	14	2	2	2	NULL	NULL	example	FALSE
 5	0	1	morphology	sTok4	16	19	3	3	3	NULL	NULL	more	FALSE
