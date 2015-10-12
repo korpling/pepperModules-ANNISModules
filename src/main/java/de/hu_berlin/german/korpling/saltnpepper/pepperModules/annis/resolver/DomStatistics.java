@@ -52,7 +52,9 @@ public class DomStatistics {
   ///////////////
   
   public void addRelationType(String layer, String type) {
-	  relationTypeCounter.add(layer, type, 1);
+    if(type != null) {
+  	  relationTypeCounter.add(layer, type, 1);
+    }
   }
   
   public void addRelationAnno(String layer,  Set<SAnnotation> annos) {
