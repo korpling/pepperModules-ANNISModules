@@ -667,7 +667,7 @@ public class Salt2ANNISMapperTest
     SampleGenerator.createDialogue(getFixture().getDocument());
     List<SToken> sDocumentTokens = getFixture().getDocument().
       getDocumentGraph().getTokens();
-    SRelation pointing = getFixture().getDocument().getDocumentGraph().createSRelation(
+    SRelation pointing = getFixture().getDocument().getDocumentGraph().createRelation(
       sDocumentTokens.get(0), sDocumentTokens.get(1),
       SALT_TYPE.SPOINTING_RELATION, "anno=test");
     pointing.setType("dep");
