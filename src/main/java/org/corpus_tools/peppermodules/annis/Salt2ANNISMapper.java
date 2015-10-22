@@ -687,7 +687,7 @@ public class Salt2ANNISMapper extends PepperMapperImpl implements GraphTraverseH
               + ANNIS.FILE_CORPUS + ", exception was" + e.getMessage());
     }
 
-    if (tw_corpusMeta != null && sNode instanceof SAnnotationContainer) {
+    if (tw_corpusMeta != null) {
       SAnnotationContainer metaOwner = (SAnnotationContainer) sNode;
       if (metaOwner.getMetaAnnotations() != null) {
         transactionId = tw_corpusMeta.beginTA();
@@ -702,7 +702,7 @@ public class Salt2ANNISMapper extends PepperMapperImpl implements GraphTraverseH
                     Arrays.asList(idString, 
                             idManager.getEscapedIdentifier(namespace), 
                             idManager.getEscapedIdentifier(meta.getName()), 
-                            meta.getValue().toString()));
+                            (meta.getValue()== null)?"NULL":meta.getValue_STEXT()));
           }
           tw_corpusMeta.commitTA(transactionId);
         } catch (FileNotFoundException ex) {
