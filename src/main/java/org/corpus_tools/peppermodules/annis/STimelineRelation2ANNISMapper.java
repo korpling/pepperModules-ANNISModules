@@ -24,6 +24,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
+import org.corpus_tools.pepper.modules.exceptions.PepperModuleDataException;
+import org.corpus_tools.pepper.modules.exceptions.PepperModuleException;
 import org.corpus_tools.salt.SALT_TYPE;
 import org.corpus_tools.salt.common.SDocumentGraph;
 import org.corpus_tools.salt.common.STextualDS;
@@ -186,8 +188,12 @@ public class STimelineRelation2ANNISMapper extends SRelation2ANNISMapper {
    * overlapped by a {@link STimelineRelation}
    */
   private void createVirtualTokenization() {
-//    List<String> timelineItems = documentGraph.getTimeline().getEnd();
-    
+	  if (documentGraph.getTimeline()== null){
+		  throw new PepperModuleException("Cannot create virtual tokenization, because no timeline exists in Salt model. ");
+	  }else  if (documentGraph.getTimeline().getEnd()== null){
+		  throw new PepperModuleException("Cannot create virtual tokenization, because the timeline's end value is null. ");
+	  }
+	  
     // create a set of token indexes
     BitSet virtualCovered = new BitSet(documentGraph.getTimeline().getEnd());
     
