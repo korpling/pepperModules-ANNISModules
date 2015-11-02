@@ -99,7 +99,7 @@ public class Audio2ANNISMapper extends SRelation2ANNISMapper {
   public boolean checkConstraint(GRAPH_TRAVERSE_TYPE traversalType, String traversalId, SRelation relation, SNode currNode, long order) {
 
     if (traversionType == Salt2ANNISMapper.TRAVERSION_TYPE.DOCUMENT_STRUCTURE_AUDIO) {
-      return currNode instanceof SToken || relation instanceof SMedialRelation;
+      return (currNode instanceof SToken && relation == null) || relation instanceof SMedialRelation;
     }
 
     return false;
