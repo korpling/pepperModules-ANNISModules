@@ -573,12 +573,17 @@ public abstract class SRelation2ANNISMapper implements Runnable, GraphTraverseHa
           STextualRelation sTextualRelation = ((STextualRelation) relation);
           // set the left value
           left = new Long(sTextualRelation.getStart());
+          // set the right value
+          /* 
+          Note to future me: 
+          While "left" is inclusive "right" is exclusive. This does not only
+          hold for Salt but also for (rel)ANNIS. The implementation always
+          assumed this at certain points (e.g. when extracting spans for matrix queries)
+          but the documentation did state otherwise for a certain time.
+          Also the legacy ANNIS exporter used this semantics.
+          Using an exclusive end is important because otherwise the empty string can't be represented.
+          */
           right = new Long(sTextualRelation.getEnd());
-          if(left < right)
-          {
-            // set the right value which is end -1 since SEnd points to the index of the last char +1
-            right = right - 1;
-          }
           // set the reference to the text
           text_ref = idManager.getNewTextId(sTextualRelation.getTarget().getId());
           // set the overlapped text
