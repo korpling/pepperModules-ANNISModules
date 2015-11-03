@@ -643,7 +643,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, GraphTraverseHa
           if (relation instanceof STextualRelation) {
             STextualRelation sTextualRelation = ((STextualRelation) relation);
             // set the left value
-            right = new Long(sTextualRelation.getEnd() - 1);
+            right = new Long(sTextualRelation.getEnd());
             text_ref = idManager.getNewTextId(sTextualRelation.getTarget().getId());
             break;
           }
