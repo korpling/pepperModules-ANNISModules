@@ -20,6 +20,7 @@ package org.corpus_tools.peppermodules.annis.resolver;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.corpus_tools.salt.core.SAnnotation;
 
@@ -57,7 +58,7 @@ public class SpanStatistics {
   }
   
   public Set<QName> getNodeAnnotations(String layer) {
-    return this.nodeAnnotations.get(layer);
+    return new TreeSet<>(this.nodeAnnotations.get(layer));
   }
   
   
