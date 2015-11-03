@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Statistics used for creating resolver entries for dominance components.
@@ -58,7 +59,7 @@ public class SpanStatistics {
   }
   
   public Set<QName> getNodeAnnotations(String layer) {
-    return this.nodeAnnotations.get(layer);
+    return new TreeSet<>(this.nodeAnnotations.get(layer));
   }
   
   
