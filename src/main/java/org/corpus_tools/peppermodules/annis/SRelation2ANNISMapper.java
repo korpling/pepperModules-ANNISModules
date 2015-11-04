@@ -604,7 +604,10 @@ public abstract class SRelation2ANNISMapper implements Runnable, GraphTraverseHa
         List<SToken> overlappedToken = this.documentGraph.getOverlappedTokens(node, overlappingTypes);
         // sort the token by left
         List<SToken> sortedOverlappedToken = this.documentGraph.getSortedTokenByText(overlappedToken);
-
+        if (sortedOverlappedToken.size()== 0){
+        	return(id);
+        }
+        
         SToken firstOverlappedToken = sortedOverlappedToken.get(0);
         SToken lastOverlappedToken = sortedOverlappedToken.get(sortedOverlappedToken.size() - 1);
 
