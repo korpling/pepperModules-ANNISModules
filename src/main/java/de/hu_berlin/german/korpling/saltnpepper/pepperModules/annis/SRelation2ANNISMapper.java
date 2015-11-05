@@ -21,6 +21,7 @@ import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.Dom
 
 import com.google.common.io.Files;
 
+import com.google.common.base.Preconditions;
 import java.io.FileNotFoundException;
 import java.util.HashSet;
 
@@ -696,6 +697,13 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
           Long seg_index, String seg_name, String span,
           boolean isRoot) {
 
+    Preconditions.checkArgument(left_token <= right_token, "Left-most covered token index (" 
+            + left_token + ") must be less or equal to the right-most covered token index (" 
+            + right_token + ")" );
+    Preconditions.checkArgument(left <= right, "Left-most covered character index (" 
+            + left + ") must be less or equal to the right-most covered character index (" 
+            + right + ")" );
+    
     List<String> tableEntry = new ArrayList<>();
     tableEntry.add(id.toString());
     tableEntry.add(text_ref.toString());
