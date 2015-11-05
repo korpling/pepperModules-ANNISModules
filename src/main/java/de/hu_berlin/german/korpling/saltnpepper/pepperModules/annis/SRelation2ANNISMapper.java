@@ -21,6 +21,7 @@ import de.hu_berlin.german.korpling.saltnpepper.pepperModules.annis.resolver.Dom
 
 import com.google.common.io.Files;
 
+import com.google.common.base.Preconditions;
 import java.io.FileNotFoundException;
 import java.util.HashSet;
 
@@ -578,8 +579,17 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
           STextualRelation sTextualRelation = ((STextualRelation) edge);
           // set the left value
           left = new Long(sTextualRelation.getSStart());
-          // set the right value which is end -1 since SEnd points to the index of the last char +1
-          right = new Long(sTextualRelation.getSEnd() - 1);
+          // set the right value
+          /* 
+          Note to future me: 
+          While "left" is inclusive "right" is exclusive. This does not only
+          hold for Salt but also for (rel)ANNIS. The implementation always
+          assumed this at certain points (e.g. when extracting spans for matrix queries)
+          but the documentation did state otherwise for a certain time.
+          Also the legacy ANNIS exporter used this semantics.
+          Using an exclusive end is important because otherwise the empty string can't be represented.
+          */
+          right = new Long(sTextualRelation.getSEnd());
           // set the reference to the text
           text_ref = idManager.getNewTextId(sTextualRelation.getSTextualDS().getSId());
           // set the overlapped text
@@ -639,8 +649,8 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
           if (edge instanceof STextualRelation) {
             STextualRelation sTextualRelation = ((STextualRelation) edge);
             // set the left value
-            right = new Long(sTextualRelation.getSEnd() - 1);
-            text_ref = idManager.getNewTextId(sTextualRelation.getSTextualDS().getSId());
+            right = new Long(sTextualRelation.getSEnd());
+            text_ref = idManager.getNewTextId(sTextualRelation.getTarget().getId());
             break;
           }
         }
@@ -696,6 +706,13 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
           Long seg_index, String seg_name, String span,
           boolean isRoot) {
 
+    Preconditions.checkArgument(left_token <= right_token, "Left-most covered token index (" 
+            + left_token + ") must be less or equal to the right-most covered token index (" 
+            + right_token + "), node " + name + " corpus " + corpus_ref);
+    Preconditions.checkArgument(left <= right, "Left-most covered character index (" 
+            + left + ") must be less or equal to the right-most covered character index (" 
+            + right + "), node " +  name + " corpus " + corpus_ref );
+    
     List<String> tableEntry = new ArrayList<>();
     tableEntry.add(id.toString());
     tableEntry.add(text_ref.toString());
