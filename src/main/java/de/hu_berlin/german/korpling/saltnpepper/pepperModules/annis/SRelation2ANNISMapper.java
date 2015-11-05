@@ -649,8 +649,8 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
           if (edge instanceof STextualRelation) {
             STextualRelation sTextualRelation = ((STextualRelation) edge);
             // set the left value
-            right = new Long(sTextualRelation.getSEnd() - 1);
-            text_ref = idManager.getNewTextId(sTextualRelation.getSTextualDS().getSId());
+            right = new Long(sTextualRelation.getSEnd());
+            text_ref = idManager.getNewTextId(sTextualRelation.getTarget().getId());
             break;
           }
         }
