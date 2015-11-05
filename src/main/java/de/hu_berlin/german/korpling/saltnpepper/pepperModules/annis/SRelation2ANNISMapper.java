@@ -579,8 +579,12 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
           STextualRelation sTextualRelation = ((STextualRelation) edge);
           // set the left value
           left = new Long(sTextualRelation.getSStart());
-          // set the right value which is end -1 since SEnd points to the index of the last char +1
-          right = new Long(sTextualRelation.getSEnd() - 1);
+          right = new Long(sTextualRelation.getSEnd());
+          if(left < right)
+          {
+            // set the right value which is end -1 since SEnd points to the index of the last char +1
+            right = right - 1;
+          }
           // set the reference to the text
           text_ref = idManager.getNewTextId(sTextualRelation.getSTextualDS().getSId());
           // set the overlapped text
@@ -699,10 +703,10 @@ public abstract class SRelation2ANNISMapper implements Runnable, SGraphTraverseH
 
     Preconditions.checkArgument(left_token <= right_token, "Left-most covered token index (" 
             + left_token + ") must be less or equal to the right-most covered token index (" 
-            + right_token + ")" );
+            + right_token + "), node " + name + " corpus " + corpus_ref);
     Preconditions.checkArgument(left <= right, "Left-most covered character index (" 
             + left + ") must be less or equal to the right-most covered character index (" 
-            + right + ")" );
+            + right + "), node " +  name + " corpus " + corpus_ref );
     
     List<String> tableEntry = new ArrayList<>();
     tableEntry.add(id.toString());
