@@ -602,10 +602,13 @@ public abstract class SRelation2ANNISMapper implements Runnable, GraphTraverseHa
         }
         // get the overlapping token
         List<SToken> overlappedToken = this.documentGraph.getOverlappedTokens(node, overlappingTypes);
+        if (overlappedToken.isEmpty()){
+        	throw new PepperModuleException("Node " + node.getId() + " is not connected to any token. This is invalid for ANNIS.");
+        }
         // sort the token by left
         List<SToken> sortedOverlappedToken = this.documentGraph.getSortedTokenByText(overlappedToken);
-        if (sortedOverlappedToken.size()== 0){
-        	return(id);
+        if (sortedOverlappedToken.isEmpty()){
+        	throw new PepperModuleException("Node " + node.getId() + " is not connected to any token. This is invalid for ANNIS.");
         }
         
         SToken firstOverlappedToken = sortedOverlappedToken.get(0);
