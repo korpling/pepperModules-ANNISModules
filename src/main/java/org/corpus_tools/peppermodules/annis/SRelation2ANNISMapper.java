@@ -61,6 +61,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.io.Files;
+import org.corpus_tools.salt.common.STextualDS;
 
 public abstract class SRelation2ANNISMapper implements Runnable, GraphTraverseHandler {
 
@@ -306,26 +307,23 @@ public abstract class SRelation2ANNISMapper implements Runnable, GraphTraverseHa
         // map the target node
         currentNodeID = this.mapSNode(currNode);
       }
-//			if (this.preorderTable.containsKey(currentNodeID)) {
-//				// this should NOT happen
-//				throw new RuntimeException("Impossible traversal state, ID " + currentNodeID + " traversed twice");
-//
-//			}
-      // set the rank id
-      rankId = idManager.getGlobal().getNewRankId();
-      // It does not have a pre-order. Set it.
-      this.preorderTable.put(currentNodeID, this.getNewPPOrder());
+      
+      if (currentNodeID != null) {
+        // set the rank id
+        rankId = idManager.getGlobal().getNewRankId();
+        // It does not have a pre-order. Set it.
+        this.preorderTable.put(currentNodeID, this.getNewPPOrder());
 
-      this.rankTable.put(currentNodeID, rankId);
+        this.rankTable.put(currentNodeID, rankId);
 
-      if (sRelation != null) {
-        if (sRelation.getAnnotations() != null) {
-          for (SAnnotation sAnnotation : sRelation.getAnnotations()) {
-            this.mapSAnnotation2ANNIS(rankId, sAnnotation);
+        if (sRelation != null) {
+          if (sRelation.getAnnotations() != null) {
+            for (SAnnotation sAnnotation : sRelation.getAnnotations()) {
+              this.mapSAnnotation2ANNIS(rankId, sAnnotation);
+            }
           }
         }
-      }
-
+      } // end if currentNodeID not null
     }
 
     this.rankLevel += 1;
@@ -488,12 +486,6 @@ public abstract class SRelation2ANNISMapper implements Runnable, GraphTraverseHa
   protected final Map<SToken, Long> token2Index;
 
 // ================================= Mapping of SNodes ========================
-  public void mapSNodes(List<SNode> nodes) {
-    for (SNode node : nodes) {
-      this.mapSNode(node);
-    }
-  }
-
   public Long mapSNode(SNode sNode) {
     SegmentationInfo segInfo = this.idManager.getSegmentInformation(sNode.getId());
     if (segInfo != null) {
@@ -503,7 +495,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, GraphTraverseHa
     }
   }
 
-  public Long mapSNode(SNode node, Long seg_index, String seg_name, String span) {
+  private Long mapSNode(SNode node, Long seg_index, String seg_name, String span) {
     /// get the Identifier of the node since we will need it many times
     String nodeIdentifier = node.getId();
 
@@ -549,7 +541,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, GraphTraverseHa
 
     {// set the layer to the actual value
       if (node.getLayers() != null) {
-        if (node.getLayers().size() != 0) {
+        if (!node.getLayers().isEmpty()) {
           layer = node.getLayers().iterator().next().getName();
         }
       }
@@ -603,13 +595,35 @@ public abstract class SRelation2ANNISMapper implements Runnable, GraphTraverseHa
         // get the overlapping token
         List<SToken> overlappedToken = this.documentGraph.getOverlappedTokens(node, overlappingTypes);
         if (overlappedToken.isEmpty()){
-        	throw new PepperModuleException("Node " + node.getId() + " is not connected to any token. This is invalid for ANNIS.");
+          log.warn("Node {} is not connected to any token. This is invalid for ANNIS and the node will be excluded.", node.getId());
+          return null;
         }
+        
+        // get the textual datasource the node is connected to and check there is only one
+        STextualDS textualDataSource = null;
+        for(SToken t : overlappedToken) {
+          for(SRelation rel : t.getOutRelations()) {
+            if(rel instanceof STextualRelation) {
+              STextualRelation textRel = (STextualRelation) rel;
+              if(textualDataSource == null) {
+                textualDataSource = textRel.getTarget();
+              } else if(textualDataSource != textRel.getTarget()) {
+                log.warn("Node {} is connected to more than one textual data source. This is invalid for ANNIS and the node will be excluded.", 
+                        node.getId());
+                return null;
+              }
+            }
+          }
+        }
+        if(textualDataSource == null) {
+          log.warn("Node {} is connected to no textual data source. This is invalid for ANNIS and the node will be excluded.", 
+                        node.getId());
+          return null;
+        }
+        text_ref = idManager.getNewTextId(textualDataSource.getId());
+        
         // sort the token by left
         List<SToken> sortedOverlappedToken = this.documentGraph.getSortedTokenByText(overlappedToken);
-        if (sortedOverlappedToken.isEmpty()){
-        	throw new PepperModuleException("Node " + node.getId() + " is not connected to any token. This is invalid for ANNIS.");
-        }
         
         SToken firstOverlappedToken = sortedOverlappedToken.get(0);
         SToken lastOverlappedToken = sortedOverlappedToken.get(sortedOverlappedToken.size() - 1);
@@ -618,10 +632,13 @@ public abstract class SRelation2ANNISMapper implements Runnable, GraphTraverseHa
         left_token = (long) this.token2Index.get(firstOverlappedToken);
         // set right_token
         right_token = (long) this.token2Index.get(lastOverlappedToken);
+
         // get first and last overlapped character
         List<SRelation<SNode, SNode>> firstTokenOutRelations = documentGraph.getOutRelations(firstOverlappedToken.getId());
         if (firstTokenOutRelations == null) {
-          throw new PepperModuleException("The token " + firstOverlappedToken.getId() + " has no outgoing relations!");
+          log.warn("The token {} has no outgoing relations. Node {} will be excluded.!", firstOverlappedToken.getId(),
+                  node.getId());
+          return null;
         }
 
         /// find the STextualRelation
@@ -631,9 +648,6 @@ public abstract class SRelation2ANNISMapper implements Runnable, GraphTraverseHa
             STextualRelation sTextualRelation = ((STextualRelation) relation);
             // set the left value
             left = new Long(sTextualRelation.getStart());
-
-            text_ref = idManager.getNewTextId(sTextualRelation.getTarget().getId());
-            //System.out.println("Setting text_ref to"+ text_ref.toString());
             break;
           }
         }
@@ -650,7 +664,6 @@ public abstract class SRelation2ANNISMapper implements Runnable, GraphTraverseHa
             STextualRelation sTextualRelation = ((STextualRelation) relation);
             // set the left value
             right = new Long(sTextualRelation.getEnd());
-            text_ref = idManager.getNewTextId(sTextualRelation.getTarget().getId());
             break;
           }
         }
