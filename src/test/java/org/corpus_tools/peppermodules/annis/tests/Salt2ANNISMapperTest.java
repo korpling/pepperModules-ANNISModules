@@ -513,7 +513,7 @@ public class Salt2ANNISMapperTest
   public void testMapFullGraph() throws IOException
   {
     // create the primary text
-    SampleGenerator.createSDocumentStructure(getFixture().getDocument());
+    SampleGenerator.createDocumentStructure(getFixture().getDocument());
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 
     doMapping();
@@ -527,7 +527,7 @@ public class Salt2ANNISMapperTest
   public void testMultiThreadingSpeed()
   {
     // create the primary text
-    SampleGenerator.createSDocumentStructure(getFixture().getDocument());
+    SampleGenerator.createDocumentStructure(getFixture().getDocument());
     getFixture().setResourceURI(URI.createFileURI(tmpPath.getAbsolutePath()));
 
     getFixture().setCorpus(rootCorpus);
