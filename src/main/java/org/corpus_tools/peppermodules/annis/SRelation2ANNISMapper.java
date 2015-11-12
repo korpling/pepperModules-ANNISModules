@@ -61,6 +61,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.io.Files;
+import java.util.Arrays;
+import java.util.LinkedList;
 import org.corpus_tools.salt.common.STextualDS;
 
 public abstract class SRelation2ANNISMapper implements Runnable, GraphTraverseHandler {
@@ -599,92 +601,108 @@ public abstract class SRelation2ANNISMapper implements Runnable, GraphTraverseHa
           return null;
         }
         
-        // get the textual datasource the node is connected to and check there is only one
-        STextualDS textualDataSource = null;
-        for(SToken t : overlappedToken) {
-          for(SRelation rel : t.getOutRelations()) {
-            if(rel instanceof STextualRelation) {
-              STextualRelation textRel = (STextualRelation) rel;
-              if(textualDataSource == null) {
-                textualDataSource = textRel.getTarget();
-              } else if(textualDataSource != textRel.getTarget()) {
-                log.warn("Node {} is connected to more than one textual data source. This is invalid for ANNIS and the node will be excluded.", 
-                        node.getId());
-                return null;
+        if(this.idManager.hasVirtualTokenization()) {
+          
+          List<Long> overlappedVirtualTokenIDs = new LinkedList<>();
+          for(SToken tok : overlappedToken) {
+            List<Long> tmp = this.idManager.getVirtualisedTokenId(tok.getId());
+            if(tmp != null) {
+              overlappedVirtualTokenIDs.addAll(tmp);
+            }
+          }
+          if(overlappedVirtualTokenIDs.isEmpty()) {
+            log.warn("Node {} is not connected to any virtual token. This is invalid for ANNIS and the node will be excluded.", node.getId());
+            return null;
+          }
+          
+          Long[] overlappedTokenIndexes = this.idManager.getMinimalVirtTokenIndex(
+                  overlappedVirtualTokenIDs.toArray(new Long[overlappedVirtualTokenIDs.size()]));
+          Arrays.sort(overlappedTokenIndexes);
+          
+          left_token = overlappedTokenIndexes[0];
+          right_token = overlappedTokenIndexes[overlappedTokenIndexes.length-1];
+
+          // the token index is the same as the character for the virtual 
+          // tokenization since each virtual token has exactly one character (space)
+          left = left_token;
+          right = right_token;
+
+          span = null;
+          // always the same for virtual tokenization
+          text_ref = 0l;
+
+        } else {
+        
+          // get the textual datasource the node is connected to and check there is only one
+          STextualDS textualDataSource = null;
+          for(SToken t : overlappedToken) {
+            for(SRelation rel : t.getOutRelations()) {
+              if(rel instanceof STextualRelation) {
+                STextualRelation textRel = (STextualRelation) rel;
+                if(textualDataSource == null) {
+                  textualDataSource = textRel.getTarget();
+                } else if(textualDataSource != textRel.getTarget()) {
+                  log.warn("Node {} is connected to more than one textual data source. This is invalid for ANNIS and the node will be excluded.", 
+                          node.getId());
+                  return null;
+                }
               }
             }
           }
-        }
-        if(textualDataSource == null) {
-          log.warn("Node {} is connected to no textual data source. This is invalid for ANNIS and the node will be excluded.", 
-                        node.getId());
-          return null;
-        }
-        text_ref = idManager.getNewTextId(textualDataSource.getId());
-        
-        // sort the token by left
-        List<SToken> sortedOverlappedToken = this.documentGraph.getSortedTokenByText(overlappedToken);
-        
-        SToken firstOverlappedToken = sortedOverlappedToken.get(0);
-        SToken lastOverlappedToken = sortedOverlappedToken.get(sortedOverlappedToken.size() - 1);
-
-        // set left_token
-        left_token = (long) this.token2Index.get(firstOverlappedToken);
-        // set right_token
-        right_token = (long) this.token2Index.get(lastOverlappedToken);
-
-        // get first and last overlapped character
-        List<SRelation<SNode, SNode>> firstTokenOutRelations = documentGraph.getOutRelations(firstOverlappedToken.getId());
-        if (firstTokenOutRelations == null) {
-          log.warn("The token {} has no outgoing relations. Node {} will be excluded.!", firstOverlappedToken.getId(),
-                  node.getId());
-          return null;
-        }
-
-        /// find the STextualRelation
-        for (Relation relation : firstTokenOutRelations) {
-          // get the relation which is of the type STextual relation
-          if (relation instanceof STextualRelation) {
-            STextualRelation sTextualRelation = ((STextualRelation) relation);
-            // set the left value
-            left = new Long(sTextualRelation.getStart());
-            break;
+          if(textualDataSource == null) {
+            log.warn("Node {} is connected to no textual data source. This is invalid for ANNIS and the node will be excluded.", 
+                          node.getId());
+            return null;
           }
-        }
+          text_ref = idManager.getNewTextId(textualDataSource.getId());
 
-        List<SRelation<SNode, SNode>> lastTokenOutRelations = documentGraph.getOutRelations(lastOverlappedToken.getId());
-        if (lastTokenOutRelations == null) {
-          throw new PepperModuleException("The token " + lastOverlappedToken.getId() + " has no outgoing relations!");
-        }
+          // sort the token by left
+          List<SToken> sortedOverlappedToken = this.documentGraph.getSortedTokenByText(overlappedToken);
 
-        /// find the STextualRelation
-        for (Relation relation : lastTokenOutRelations) {
-          // get the relation which is of the type STextual relation
-          if (relation instanceof STextualRelation) {
-            STextualRelation sTextualRelation = ((STextualRelation) relation);
-            // set the left value
-            right = new Long(sTextualRelation.getEnd());
-            break;
+          SToken firstOverlappedToken = sortedOverlappedToken.get(0);
+          SToken lastOverlappedToken = sortedOverlappedToken.get(sortedOverlappedToken.size() - 1);
+
+          // set left_token
+          left_token = (long) this.token2Index.get(firstOverlappedToken);
+          // set right_token
+          right_token = (long) this.token2Index.get(lastOverlappedToken);
+
+          // get first and last overlapped character
+          List<SRelation<SNode, SNode>> firstTokenOutRelations = documentGraph.getOutRelations(firstOverlappedToken.getId());
+          if (firstTokenOutRelations == null) {
+            log.warn("The token {} has no outgoing relations. Node {} will be excluded.!", firstOverlappedToken.getId(),
+                    node.getId());
+            return null;
           }
-        }
 
-        if (this.idManager.hasVirtualTokenization()) {
-          List<Long> virtTokenFirst = this.idManager.getVirtualisedTokenId(firstOverlappedToken.getId());
-          List<Long> virtTokenLast = this.idManager.getVirtualisedTokenId(lastOverlappedToken.getId());
-          if (virtTokenFirst != null && virtTokenLast != null) {
-            
-            left_token = this.idManager.getMinimalVirtTokenIndex(virtTokenFirst.get(0))[0];
-            right_token = this.idManager.getMinimalVirtTokenIndex(virtTokenLast.get(virtTokenLast.size()-1))[0];
-
-            // the token index is the same as the character for the virtual 
-            // tokenization since each virtual token has exactly one character (space)
-            left = left_token;
-            right = right_token;
-            
-            span = null;
+          /// find the STextualRelation
+          for (Relation relation : firstTokenOutRelations) {
+            // get the relation which is of the type STextual relation
+            if (relation instanceof STextualRelation) {
+              STextualRelation sTextualRelation = ((STextualRelation) relation);
+              // set the left value
+              left = new Long(sTextualRelation.getStart());
+              break;
+            }
           }
-        }
 
+          List<SRelation<SNode, SNode>> lastTokenOutRelations = documentGraph.getOutRelations(lastOverlappedToken.getId());
+          if (lastTokenOutRelations == null) {
+            throw new PepperModuleException("The token " + lastOverlappedToken.getId() + " has no outgoing relations!");
+          }
+
+          /// find the STextualRelation
+          for (Relation relation : lastTokenOutRelations) {
+            // get the relation which is of the type STextual relation
+            if (relation instanceof STextualRelation) {
+              STextualRelation sTextualRelation = ((STextualRelation) relation);
+              // set the left value
+              right = new Long(sTextualRelation.getEnd());
+              break;
+            }
+          }
+
+        } // end if no virtual tokenization
       } else {
         // IGNORE CASE
       }
