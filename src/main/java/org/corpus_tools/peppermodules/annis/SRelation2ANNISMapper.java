@@ -589,13 +589,15 @@ public abstract class SRelation2ANNISMapper implements Runnable, GraphTraverseHa
       }
     } else {
       if (node instanceof SSpan || node instanceof SStructure) {
-        List<SALT_TYPE> overlappingTypes = new ArrayList<>();
-        overlappingTypes.add(SALT_TYPE.SSPANNING_RELATION);
-        if (node instanceof SStructure) {
-          overlappingTypes.add(SALT_TYPE.SDOMINANCE_RELATION);
-        }
         // get the overlapping token
-        List<SToken> overlappedToken = this.documentGraph.getOverlappedTokens(node, overlappingTypes);
+        List<SToken> overlappedToken;
+        if (node instanceof SStructure) {
+          overlappedToken = this.documentGraph.getOverlappedTokens(node, SALT_TYPE.SSPANNING_RELATION, 
+                  SALT_TYPE.SDOMINANCE_RELATION);
+        } else {
+          overlappedToken = this.documentGraph.getOverlappedTokens(node, SALT_TYPE.SSPANNING_RELATION);
+
+        }
         if (overlappedToken.isEmpty()){
           log.warn("Node {} is not connected to any token. This is invalid for ANNIS and the node will be excluded.", node.getId());
           return null;

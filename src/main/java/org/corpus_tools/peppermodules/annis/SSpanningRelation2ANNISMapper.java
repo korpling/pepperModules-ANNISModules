@@ -129,11 +129,8 @@ public class SSpanningRelation2ANNISMapper extends SRelation2ANNISMapper {
       continuous = cachedValue;
     } else {
       // we need to compute wether the span is continuous
-      List<SALT_TYPE> spanRel = new ArrayList<>();
-      spanRel.add(SALT_TYPE.SSPANNING_RELATION);
-
       List<SToken> overlappedToken
-              = documentGraph.getOverlappedTokens(span, spanRel);
+              = documentGraph.getOverlappedTokens(span, SALT_TYPE.SSPANNING_RELATION);
 
       if (overlappedToken != null && !overlappedToken.isEmpty()) {
         long minIndex = Integer.MAX_VALUE;
