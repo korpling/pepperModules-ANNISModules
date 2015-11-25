@@ -24,7 +24,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
-import org.corpus_tools.pepper.modules.exceptions.PepperModuleDataException;
 import org.corpus_tools.pepper.modules.exceptions.PepperModuleException;
 import org.corpus_tools.salt.SALT_TYPE;
 import org.corpus_tools.salt.common.SDocumentGraph;
@@ -147,12 +146,12 @@ public class STimelineRelation2ANNISMapper extends SRelation2ANNISMapper {
       writeNodeTabEntry(virtualSpanId.getNodeID(), 0L, corpus_ref, SRelation2ANNISMapper.DEFAULT_LAYER, virtualSpanName, token_left, token_right, null, token_left, token_right, segId, segName, span, isRoot(tok));
       
       if(segName != null) {
-        mapSNodeAnnotation(virtualSpanId.getNodeID(), SRelation2ANNISMapper.DEFAULT_LAYER + "_virtual", segName, span);
+        mapSNodeAnnotation(virtualSpanId.getNodeID(), SRelation2ANNISMapper.DEFAULT_NS, segName, span);
 
-        getVirtualTokenStats().addVirtualAnnoName(SRelation2ANNISMapper.DEFAULT_LAYER + "_virtual", segName);
+        getVirtualTokenStats().addVirtualAnnoName(SRelation2ANNISMapper.DEFAULT_NS, segName);
       }  else if(textName != null) {        
-        mapSNodeAnnotation(virtualSpanId.getNodeID(), SRelation2ANNISMapper.DEFAULT_LAYER + "_virtual", textName, span);
-        getVirtualTokenStats().addVirtualAnnoName( SRelation2ANNISMapper.DEFAULT_LAYER + "_virtual", textName);
+        mapSNodeAnnotation(virtualSpanId.getNodeID(), SRelation2ANNISMapper.DEFAULT_NS, textName, span);
+        getVirtualTokenStats().addVirtualAnnoName( SRelation2ANNISMapper.DEFAULT_NS, textName);
       }
       if (tok.getAnnotations() != null) {
         for (SAnnotation anno : tok.getAnnotations()) {
