@@ -453,9 +453,9 @@ public class Salt2ANNISMapperTest
     
     SToken tok = graph.createToken(textDS, 0, 1);
     
-    SStructuredNode struct4 = graph.createSStructure(tok);
-    SStructuredNode struct3 = graph.createSStructure(struct4);
-    SStructuredNode struct2 = graph.createSStructure(struct4);
+    SStructuredNode struct4 = graph.createStructure(tok);
+    SStructuredNode struct3 = graph.createStructure(struct4);
+    SStructuredNode struct2 = graph.createStructure(struct4);
     List<SStructuredNode> struct1Targets = new ArrayList<>();
     struct1Targets.add(struct2);
     struct1Targets.add(struct3);

@@ -143,7 +143,7 @@ public class ResolverHeuristicsTest extends PepperExporterTest{
     abcLayer.setName("abc");
     doc2.addLayer(abcLayer);
 
-    SStructure abcStruct = doc2.createSStructure(doc2.getTokens().get(0));
+    SStructure abcStruct = doc2.createStructure(doc2.getTokens().get(0));
     abcStruct.createAnnotation("?ns", "überschlag?", "ABC");
     abcLayer.addNode(abcStruct);
 
@@ -174,7 +174,7 @@ public class ResolverHeuristicsTest extends PepperExporterTest{
     abcLayer.setName("abc");
     doc2.addLayer(abcLayer);
     
-    SStructure abcStruct = doc2.createSStructure(doc2.getTokens().get(0));
+    SStructure abcStruct = doc2.createStructure(doc2.getTokens().get(0));
     abcStruct.createAnnotation(null, "const", "ABC");
     abcLayer.addNode(abcStruct);
     
