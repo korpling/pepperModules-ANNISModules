@@ -27,7 +27,6 @@
 		<connection>scm:git:git://github.com/korpling/pepperModules-ANNISModules.git</connection>
 		<developerConnection>scm:git:git@github.com:korpling/pepperModules-ANNISModules.git</developerConnection>
 		<url>https://github.com/korpling/pepperModules-ANNISModules</url>
-	  <tag>HEAD</tag>
   </scm>
 	<dependencies>
 		<dependency>
