@@ -55,7 +55,10 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.io.Files;
+import com.sun.org.apache.bcel.internal.util.Objects;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
+import java.util.LinkedHashMap;
 
 @Component(name = "ANNISExporterComponent", factory = "PepperExporterComponentFactory")
 public class ANNISExporter extends PepperExporterImpl implements PepperExporter, ANNIS {
@@ -646,6 +649,10 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
       List<ResolverEntry> entries = new ArrayList<>(
               getGlobalIdManager().getResolverEntryByDisplay().values());
       
+      if(mergeResolverVisMap && originalResolverVisMap != null && !originalResolverVisMap.isEmpty()) {
+        
+      }
+      
       // sort the entries
       Collections.sort(entries, new ResolverComparator());
       
@@ -682,6 +689,45 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
       tw_visualization.abortTA(transactionId);
       throw new PepperModuleException(this, "Could not write to the file " + tw_visualization.getFile().getAbsolutePath() + ". Reason: " + e.getMessage(), e);
     }
+  }
+  
+  private static Collection<ResolverEntry> mergeResolverEntries(Collection<ResolverEntry> orig, Collection<ResolverEntry> additional) {
+    // make sure there is only one entry in the result with the same display name
+    Map<String, ResolverEntry> merged = new LinkedHashMap<>();
+    
+    // add each original entry first
+    for(ResolverEntry e : orig) {
+      merged.put(e.getDisplay(), e);
+    }
+    
+    // add and overwrite existing entries
+    for(ResolverEntry newVal : additional) {
+      ResolverEntry existing = merged.put(newVal.getDisplay(), newVal);
+      if(existing != null) {
+        // check if only the mappings differ
+        if(existing.getElement() == newVal.getElement() 
+                && Objects.equals(newVal.getLayerName(), existing.getLayerName())
+                && Objects.equals(newVal.getVis(), existing.getVis())
+                && newVal.getVisibility() == existing.getVisibility()) {
+          // merge mappings
+          Map<String, String> newMapping = mergeVisMappings(existing.getMappings(), newVal.getMappings());
+          newVal.getMappings().clear();
+          newVal.getMappings().putAll(newMapping);
+        }
+      }
+    }
+    
+    return merged.values();
+  }
+  
+  private static Map<String, String> mergeVisMappings(Map<String, String> origVal, Map<String, String> newVal) {
+   Map<String, String> merged = new LinkedHashMap<>();
+   
+   merged.putAll(origVal);
+   merged.putAll(newVal);
+   // TODO: handle special cases like the "anno" mappings
+   
+   return merged;
   }
 
   /**
