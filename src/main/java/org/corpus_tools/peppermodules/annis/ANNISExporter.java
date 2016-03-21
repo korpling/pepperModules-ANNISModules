@@ -55,6 +55,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.io.Files;
+import java.nio.charset.StandardCharsets;
 
 @Component(name = "ANNISExporterComponent", factory = "PepperExporterComponentFactory")
 public class ANNISExporter extends PepperExporterImpl implements PepperExporter, ANNIS {
@@ -101,6 +102,8 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
   public TupleWriter tw_visualization = null;
 
   boolean overwriteResolverVisMap = true;
+  boolean mergeResolverVisMap = false;
+  private List<ResolverEntry> originalResolverVisMap = null;
 
   boolean overwriteCorpusAnnotations = true;
 
@@ -211,6 +214,7 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
   public boolean isReadyToStart() throws PepperModuleNotReadyException {
     if (this.getProperties() != null) {
       overwriteResolverVisMap = ((ANNISExporterProperties) this.getProperties()).getClobberResolverVisMap();
+      mergeResolverVisMap = ((ANNISExporterProperties) this.getProperties()).getMergeResolverVisMap();
       overwriteCorpusAnnotations = ((ANNISExporterProperties) this.getProperties()).getClobberCorpusAnnotations();
       String individualCorpusName_tmp = ((ANNISExporterProperties) this.getProperties()).getIndividualCorpusName();
 
@@ -237,13 +241,29 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
 
     // set the visualisation tuple writer
     File resolverVisFile = new File(corpPath + FILE_VISUALIZATION);
-    if (!resolverVisFile.exists()) {
-      tw_visualization = createTupleWriter(resolverVisFile, this.escapeCharacters, this.characterEscapeTable);
-    } else {
-      if (overwriteResolverVisMap) {
-        tw_visualization = createTupleWriter(resolverVisFile, this.escapeCharacters, this.characterEscapeTable);
+    
+    if(mergeResolverVisMap && resolverVisFile.exists()) {
+      // load the old file
+      originalResolverVisMap = new ArrayList<>();
+      try { 
+        List<String> resolverLines = Files.readLines(resolverVisFile, StandardCharsets.UTF_8);
+        for(String line : resolverLines) {
+          try {
+            originalResolverVisMap.add(ResolverEntry.parseLine(line));
+          } catch(IllegalArgumentException ex) {
+            log.warn("Original resolver_vis_map.annis file contains illegal line which will be ignored when merged:\n" + line, ex);
+          }
+        }
+      } catch(IOException ex) {
+        log.warn("Could not read existing resolver_vis_map.annis file", ex);
       }
     }
+    
+    if (!resolverVisFile.exists() || overwriteResolverVisMap || mergeResolverVisMap) {
+      tw_visualization = createTupleWriter(resolverVisFile, this.escapeCharacters, this.characterEscapeTable);
+    }
+    
+    
 
     // set the corpus meta annotation tuple writer
     File corpusAnnotationFile = new File(corpPath + FILE_CORPUS_META);

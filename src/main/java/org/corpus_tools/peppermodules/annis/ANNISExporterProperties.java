@@ -59,6 +59,8 @@ public class ANNISExporterProperties extends PepperModuleProperties {
   public static final String PROP_MERGE_TEXTS_WITH_TIMELINE =  "mergeTextsWithTimeline";
   
   public static final String PROP_EXCLUDE_SINGLE_DOM_TYPE =  "excludeSingleDomType";
+  
+  public static final String PROP_VISUALISATION_MERGE =  "mergeVisualisation";
 
   public ANNISExporterProperties() {
     this.addProperty(new PepperModuleProperty<>(PROP_VISUALISATION_CLOBBER, Boolean.class, "This property defines whether the resolver_vis_map.tab is allowed to be overwritten if it is existent. By default, the table is overwritten(value:true)", Boolean.TRUE, false));
@@ -71,6 +73,9 @@ public class ANNISExporterProperties extends PepperModuleProperties {
     this.addProperty(new PepperModuleProperty<>(PROP_EXCLUDE_SINGLE_DOM_TYPE, 
             Boolean.class, "If there is only a single edge type for dominance relations and this property is set, "
                     + "don't output the named component entries (but the general one with the empty name)", Boolean.FALSE, false));
+    this.addProperty(new PepperModuleProperty<>(PROP_VISUALISATION_MERGE, Boolean.class, 
+            "If there is an existing resolver visualization mapping table attempt to merge the existing entries instead of overwriting them.", 
+            Boolean.FALSE, false));
   }
 
   /**
@@ -137,6 +142,10 @@ public class ANNISExporterProperties extends PepperModuleProperties {
    */
   public boolean getClobberResolverVisMap() {
     return ((Boolean) this.getProperty(PROP_VISUALISATION_CLOBBER).getValue());
+  }
+  
+   public boolean getMergeResolverVisMap() {
+    return ((Boolean) this.getProperty(PROP_VISUALISATION_MERGE).getValue());
   }
 
   /**
