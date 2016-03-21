@@ -37,7 +37,6 @@ import org.corpus_tools.pepper.modules.PepperExporter;
 import org.corpus_tools.pepper.modules.PepperMapper;
 import org.corpus_tools.pepper.modules.exceptions.PepperModuleException;
 import org.corpus_tools.pepper.modules.exceptions.PepperModuleNotReadyException;
-import org.corpus_tools.peppermodules.annis.ResolverEntry.Vis;
 import org.corpus_tools.peppermodules.annis.resolver.DomStatistics;
 import org.corpus_tools.peppermodules.annis.resolver.PointingStatistics;
 import org.corpus_tools.peppermodules.annis.resolver.QName;
@@ -359,7 +358,7 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
       }
     }
     
-    entry.setVis(Vis.grid);
+    entry.setVis(ResolverEntry.GRID);
     
     entry.setDisplay(displayName);
     if (layer != null) {    
@@ -396,7 +395,7 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
     if(layerName != null && 
             (layerName.equalsIgnoreCase("rst") || layerName.startsWith("rhet"))) {
       
-      entry.setVis(Vis.rstdoc);
+      entry.setVis(ResolverEntry.RSTDOC);
       entry.setDisplay("rst (" + layerName + ")");
       entry.setLayerName(layerName);
       entry.setElement(ResolverEntry.Element.node);
@@ -411,7 +410,7 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
         entry.setElement(ResolverEntry.Element.node);
         entry.setLayerName(layerName);
       }
-      entry.setVis(Vis.tree);
+      entry.setVis(ResolverEntry.TREE);
 
       Set<QName> terminalAnnos = domStats.getTerminalAnno().get(layerName);
 
@@ -491,7 +490,7 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
     
     if(terminalAnnos.size() <= 1) {
       // use arch_dependency visualizer
-      entry.setVis(Vis.arch_dependency);
+      entry.setVis(ResolverEntry.ARCH_DEPENDENCY);
       
       if (terminalAnnos.size() == 1) {
         QName qname = terminalAnnos.iterator().next();
@@ -501,13 +500,13 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
       
       // use coref visualizer for "large" documents and discourse (fulltext) otherwise
       if(pointingStats.getMaxNodeCount() <= MAX_NUM_OF_NODES_FOR_DISCOURSE) {
-        entry.setVis(Vis.discourse);
+        entry.setVis(ResolverEntry.DISCOURSE);
       } else {
-        entry.setVis(Vis.coref);
+        entry.setVis(ResolverEntry.COREF);
       }
     }
 
-    String displayName = entry.getVis().name();
+    String displayName = entry.getVis();
     if (layerName != null) {
       displayName = layerName.getName() + " (" + layerName.getNs() + ")";
     }
@@ -526,7 +525,7 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
     if(globalIdManager.isAudioFound()) {
       ResolverEntry entry = new ResolverEntry();
       entry.setDisplay("audio");
-      entry.setVis(Vis.audio);
+      entry.setVis(ResolverEntry.AUDIO);
       entry.setVisibility(ResolverEntry.Visibility.preloaded);
       globalIdManager.getResolverEntryByDisplay().putIfAbsent(entry.getDisplay(), entry);
     }
@@ -534,7 +533,7 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
     if(globalIdManager.isVideoFound()) {
       ResolverEntry entry = new ResolverEntry();
       entry.setDisplay("video");
-      entry.setVis(Vis.video);
+      entry.setVis(ResolverEntry.VIDEO);
       entry.setVisibility(ResolverEntry.Visibility.preloaded);
       globalIdManager.getResolverEntryByDisplay().putIfAbsent(entry.getDisplay(), entry);
     }
@@ -542,7 +541,7 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
     if(globalIdManager.isPDFFound()) {
       ResolverEntry entry = new ResolverEntry();
       entry.setDisplay("pdf");
-      entry.setVis(Vis.pdf);
+      entry.setVis(ResolverEntry.PDF);
       entry.setVisibility(ResolverEntry.Visibility.preloaded);
       globalIdManager.getResolverEntryByDisplay().putIfAbsent(entry.getDisplay(), entry);
     }
@@ -566,14 +565,14 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
       ResolverEntry entryHideKWIC = new ResolverEntry();
       entryHideKWIC.setDisplay("kwic");
       entryHideKWIC.setVisibility(ResolverEntry.Visibility.removed);
-      entryHideKWIC.setVis(Vis.kwic);
+      entryHideKWIC.setVis(ResolverEntry.KWIC);
       globalIdManager.getResolverEntryByDisplay().putIfAbsent(
               entryHideKWIC.getDisplay(), entryHideKWIC);
       
       // create a permanent grid which displays all order relations
       ResolverEntry entryGrid = new ResolverEntry();
       entryGrid.setDisplay("");
-      entryGrid.setVis(Vis.grid);
+      entryGrid.setVis(ResolverEntry.GRID);
       entryGrid.setElement(ResolverEntry.Element.node);
       entryGrid.setVisibility(ResolverEntry.Visibility.permanent);
       entryGrid.getMappings().put("hide_tok", "true");
@@ -640,7 +639,7 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
         resolverTuple.add(corpusVersion);
         resolverTuple.add(e.getLayerName() == null ? "NULL" : e.getLayerName());
         resolverTuple.add(e.getElement().name());
-        resolverTuple.add(e.getVis().name());
+        resolverTuple.add(e.getVis());
         resolverTuple.add(e.getDisplay());
         resolverTuple.add(e.getVisibility().name());
         resolverTuple.add("" + e.getOrder());

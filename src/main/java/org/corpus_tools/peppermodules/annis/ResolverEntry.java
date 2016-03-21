@@ -17,8 +17,13 @@
  */
 package org.corpus_tools.peppermodules.annis;
 
+import com.google.common.base.CharMatcher;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Splitter;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  *
@@ -26,9 +31,16 @@ import java.util.Map;
  */
 public class ResolverEntry {
 
-  public enum Vis {
-    grid, tree, arch_dependency, discourse, coref, rstdoc, audio, video, pdf, kwic
-  }
+  public static final String GRID = "grid";
+  public static final String TREE = "tree";
+  public static final String ARCH_DEPENDENCY = "arch_dependency";
+  public static final String DISCOURSE = "discourse";
+  public static final String COREF = "coref";
+  public static final String RSTDOC = "rstdoc";
+  public static final String AUDIO = "audio";
+  public static final String VIDEO = "video";
+  public static final String PDF = "pdf";
+  public static final String KWIC = "kwic";
   
   public enum Element {
 
@@ -42,7 +54,7 @@ public class ResolverEntry {
 
   private String layerName = null;
   private Element element = Element.NULL;
-  private Vis vis = Vis.grid;
+  private String vis = GRID;
   private String display = "visualization";
   private Visibility visibility = Visibility.hidden;
   private int order = 0;
@@ -65,11 +77,13 @@ public class ResolverEntry {
     this.element = element;
   }
 
-  public Vis getVis() {
+  public String getVis() {
     return vis;
   }
 
-  public void setVis(Vis vis) {
+  public void setVis(String vis) throws IllegalArgumentException {
+    Preconditions.checkArgument(vis != null);
+    Preconditions.checkArgument(!vis.isEmpty());
     this.vis = vis;
   }
 
@@ -99,6 +113,101 @@ public class ResolverEntry {
 
   public Map<String, String> getMappings() {
     return mappings;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = 71 * hash + Objects.hashCode(this.layerName);
+    hash = 71 * hash + Objects.hashCode(this.element);
+    hash = 71 * hash + Objects.hashCode(this.vis);
+    hash = 71 * hash + Objects.hashCode(this.display);
+    hash = 71 * hash + Objects.hashCode(this.visibility);
+    hash = 71 * hash + Objects.hashCode(this.mappings);
+    return hash;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final ResolverEntry other = (ResolverEntry) obj;
+    if (!Objects.equals(this.layerName, other.layerName)) {
+      return false;
+    }
+    if (!Objects.equals(this.vis, other.vis)) {
+      return false;
+    }
+    if (!Objects.equals(this.display, other.display)) {
+      return false;
+    }
+    if (this.element != other.element) {
+      return false;
+    }
+    if (this.visibility != other.visibility) {
+      return false;
+    }
+    if (!Objects.equals(this.mappings, other.mappings)) {
+      return false;
+    }
+    return true;
+  }
+
+  
+  
+  /**
+   * Parses a resolver_vis_map.annis line as defined in the "ANNIS import format version 3.3".
+   * 
+   * This will ignore the corpus name and version as they are not part of this data structure.
+   * 
+   * @param line
+   * @return A parsed representation of the resolver entry.
+   * @throws IllegalArgumentException Thrown when the input line could not be parsed
+   */
+  public static ResolverEntry parseLine(String line) throws IllegalArgumentException {
+    ResolverEntry result = new ResolverEntry();
+    
+    List<String> cells = Splitter.on('\t').limit(9).splitToList(line);
+    if(cells.size() != 9) {
+      throw new IllegalArgumentException("Wrong number of columns if resolver line, expected 9 but got " + cells.size());
+    }
+    
+    result.layerName = cells.get(2);
+    String elementRaw = cells.get(3);
+    if("edge".equals(elementRaw)) {
+      result.element = Element.edge;
+    } else if ("node".equals(elementRaw)) {
+      result.element = Element.node;
+    } else {
+      result.element = Element.NULL;
+    }
+    result.vis = cells.get(4);
+    result.display = cells.get(5);
+    result.visibility = Visibility.valueOf(cells.get(6));
+    try {
+      result.order = Integer.parseInt(cells.get(7));
+    } catch(NumberFormatException ex) {
+      throw new IllegalArgumentException("\"order\" column does not contain a number but \"" + cells.get(7) + "\"", ex);
+    }
+    
+    // the mappings have to be parsed as well
+    String mappingsRaw = cells.get(8);
+    for(String entry : Splitter.on(';').omitEmptyStrings().trimResults().split(mappingsRaw)) {
+      // split into key and value
+      List<String> keyValue = Splitter.on(':').limit(2).omitEmptyStrings().splitToList(entry);
+      if(keyValue.size() == 2) {
+        result.mappings.put(keyValue.get(0), keyValue.get(1));
+      }
+    }
+    
+    return result;
   }
 
 }
