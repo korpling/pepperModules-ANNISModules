@@ -55,10 +55,10 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.io.Files;
-import com.sun.org.apache.bcel.internal.util.Objects;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.Objects;
 
 @Component(name = "ANNISExporterComponent", factory = "PepperExporterComponentFactory")
 public class ANNISExporter extends PepperExporterImpl implements PepperExporter, ANNIS {
@@ -650,7 +650,7 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
               getGlobalIdManager().getResolverEntryByDisplay().values());
       
       if(mergeResolverVisMap && originalResolverVisMap != null && !originalResolverVisMap.isEmpty()) {
-        
+        entries = mergeResolverEntries(originalResolverVisMap, entries);
       }
       
       // sort the entries
@@ -691,7 +691,7 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
     }
   }
   
-  private static Collection<ResolverEntry> mergeResolverEntries(Collection<ResolverEntry> orig, Collection<ResolverEntry> additional) {
+  private static List<ResolverEntry> mergeResolverEntries(Collection<ResolverEntry> orig, Collection<ResolverEntry> additional) {
     // make sure there is only one entry in the result with the same display name
     Map<String, ResolverEntry> merged = new LinkedHashMap<>();
     
@@ -717,7 +717,7 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
       }
     }
     
-    return merged.values();
+    return new ArrayList<>(merged.values());
   }
   
   private static Map<String, String> mergeVisMappings(Map<String, String> origVal, Map<String, String> newVal) {
