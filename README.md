@@ -104,6 +104,7 @@ model.
 |corpusName                        |String           |                   |--           |
 |mergeTextsWithTimeline            |Boolean          |optional           |true         |
 |excludeSingleDomType              |Boolean          |optional           |false        |
+|mergeVisualisation                |Boolean          |optional           |false        |
 
 ### escapeCharacters
 
@@ -158,4 +159,6 @@ If "true" and the document has a timeline merge texts of one document to one tex
 If there is only a single edge type for dominance relations and this property is set, 
 don't output the named component entries (but the general one with the empty name).
 
+### mergeVisualisation
+If there is an existing resolver visualization mapping table attempt to merge the existing entries instead of overwriting them.
 
