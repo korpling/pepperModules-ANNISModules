@@ -54,6 +54,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
 import com.google.common.io.Files;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
@@ -725,7 +726,24 @@ public class ANNISExporter extends PepperExporterImpl implements PepperExporter,
    
    merged.putAll(origVal);
    merged.putAll(newVal);
-   // TODO: handle special cases like the "anno" mappings
+   
+   if(origVal.containsKey("annos") && newVal.containsKey("annos")) {
+    // the annos mappings is a list of definitions, merge both lists together
+    
+     Splitter split = Splitter.on(',').omitEmptyStrings().trimResults();
+    
+    List<String> origAnnos = new LinkedList<>(split.splitToList(origVal.get("annos")));
+    List<String> newAnnos = new LinkedList<>(split.splitToList(newVal.get("annos")));
+    
+    LinkedHashSet<String> mergedAnnos = new LinkedHashSet<>();
+    // add the orignal ones first so the order is preserved
+    mergedAnnos.addAll(origAnnos);
+    mergedAnnos.addAll(newAnnos);
+    merged.put("annos", Joiner.on(",").join(mergedAnnos));
+   }
+   
+   // TODO: handle more special cases like the "anno" mappings
+   
    
    return merged;
   }

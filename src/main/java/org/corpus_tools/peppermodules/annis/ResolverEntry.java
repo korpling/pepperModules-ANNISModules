@@ -180,6 +180,9 @@ public class ResolverEntry {
     }
     
     result.layerName = cells.get(2);
+    if("NULL".equals(result.layerName)) {
+      result.layerName = null;
+    }
     String elementRaw = cells.get(3);
     if("edge".equals(elementRaw)) {
       result.element = Element.edge;
