@@ -241,7 +241,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, GraphTraverseHa
 
   @Override
   public void nodeReached(GRAPH_TRAVERSE_TYPE traversalType,
-          String traversalId, SNode currNode, SRelation<SNode, SNode> sRelation,
+          String traversalId, SNode currNode, SRelation<? extends SNode, ? extends SNode> sRelation,
           SNode fromNode, long order) {
 		// A node was reached.
     // We've got the rank
@@ -556,7 +556,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, GraphTraverseHa
       right_token = token_index;
 
       // set the left and right value and the text_ref
-      List<SRelation<SNode, SNode>> outRelations = documentGraph.getOutRelations(node.getId());
+      List<SRelation<?,?>> outRelations = documentGraph.getOutRelations(node.getId());
       if (outRelations == null) {
         throw new PepperModuleException("The token " + node.getId() + " has no outgoing relations!");
       }
@@ -670,7 +670,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, GraphTraverseHa
           right_token = (long) this.token2Index.get(lastOverlappedToken);
 
           // get first and last overlapped character
-          List<SRelation<SNode, SNode>> firstTokenOutRelations = documentGraph.getOutRelations(firstOverlappedToken.getId());
+          List<SRelation<?,?>> firstTokenOutRelations = documentGraph.getOutRelations(firstOverlappedToken.getId());
           if (firstTokenOutRelations == null) {
             log.warn("The token {} has no outgoing relations. Node {} will be excluded.!", firstOverlappedToken.getId(),
                     node.getId());
@@ -688,7 +688,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, GraphTraverseHa
             }
           }
 
-          List<SRelation<SNode, SNode>> lastTokenOutRelations = documentGraph.getOutRelations(lastOverlappedToken.getId());
+          List<SRelation<?,?>> lastTokenOutRelations = documentGraph.getOutRelations(lastOverlappedToken.getId());
           if (lastTokenOutRelations == null) {
             throw new PepperModuleException("The token " + lastOverlappedToken.getId() + " has no outgoing relations!");
           }
@@ -828,7 +828,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, GraphTraverseHa
       return false;
     }
 
-    List<SRelation<SNode, SNode>> inRelations = documentGraph.getInRelations(n.getId());
+    List<SRelation<?,?>> inRelations = documentGraph.getInRelations(n.getId());
     if (inRelations != null) {
       for (Relation e : inRelations) {
         if (e instanceof SDominanceRelation
