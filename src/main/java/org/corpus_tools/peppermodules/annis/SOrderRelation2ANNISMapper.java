@@ -92,7 +92,7 @@ public class SOrderRelation2ANNISMapper extends SRelation2ANNISMapper {
 // ========================= Graph Traversion =================================
   @Override
   public void nodeReached(GRAPH_TRAVERSE_TYPE traversalType,
-          String traversalId, SNode currNode, SRelation<SNode, SNode> sRelation,
+          String traversalId, SNode currNode, SRelation<? extends SNode, ? extends SNode> sRelation,
           SNode fromNode, long order) {
 
 		//if (sRelation != null & sRelation instanceof SOrderRelation){
