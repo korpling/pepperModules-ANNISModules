@@ -75,7 +75,7 @@ public class SSpanningRelation2ANNISMapper extends SRelation2ANNISMapper {
           super.initialiseTraversion("c", componentLayerName, this.currentTraversionSType);
         }
 
-        // create an EList for the current root
+        // create an list for the current root
         List<SNode> singleRootList = new ArrayList<>();
         singleRootList.add(node);
 
