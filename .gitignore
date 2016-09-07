@@ -4,3 +4,6 @@
 /file:
 /log
 /target
+*.classpath
+/.settings
+/.project
