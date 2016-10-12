@@ -60,633 +60,662 @@ import com.google.common.io.Files;
 @Component(name = "ANNISExporterComponent", factory = "PepperExporterComponentFactory")
 public class ANNISExporter extends PepperExporterImpl implements PepperExporter, ANNIS {
 
-  private static final Logger log = LoggerFactory.getLogger(ANNISExporter.class);
-  
-  public static final long MAX_NUM_OF_NODES_FOR_DISCOURSE = 5000l;
+	private static final Logger log = LoggerFactory.getLogger(ANNISExporter.class);
 
-  /**
-   * tuple writer to write {@link ANNIS#FILE_TEXT} *
-   */
-  public TupleWriter tw_text = null;
-  /**
-   * tuple writer to write {@link ANNIS#FILE_NODE} *
-   */
-  public TupleWriter tw_node = null;
-  /**
-   * tuple writer to write {@link ANNIS#FILE_NODE_ANNO} *
-   */
-  public TupleWriter tw_nodeAnno = null;
-  /**
-   * tuple writer to write {@link ANNIS#FILE_RANK} *
-   */
-  public TupleWriter tw_rank = null;
-  /**
-   * tuple writer to write {@link ANNIS#FILE_EDGE_ANNO} *
-   */
-  public TupleWriter tw_edgeAnno = null;
-  /**
-   * tuple writer to write {@link ANNIS#FILE_COMPONENT} *
-   */
-  public TupleWriter tw_component = null;
-  /**
-   * tuple writer to write {@link ANNIS#FILE_CORPUS} *
-   */
-  public TupleWriter tw_corpus = null;
-  /**
-   * tuple writer to write {@link ANNIS#FILE_CORPUS_META} *
-   */
-  public TupleWriter tw_corpusMeta = null;
-  /**
-   * tuple writer to write {@link ANNIS#FILE_VISUALIZATION} *
-   */
-  public TupleWriter tw_visualization = null;
+	public static final long MAX_NUM_OF_NODES_FOR_DISCOURSE = 5000l;
 
-  boolean overwriteResolverVisMap = true;
+	/**
+	 * tuple writer to write {@link ANNIS#FILE_TEXT} *
+	 */
+	public TupleWriter tw_text = null;
+	/**
+	 * tuple writer to write {@link ANNIS#FILE_NODE} *
+	 */
+	public TupleWriter tw_node = null;
+	/**
+	 * tuple writer to write {@link ANNIS#FILE_NODE_ANNO} *
+	 */
+	public TupleWriter tw_nodeAnno = null;
+	/**
+	 * tuple writer to write {@link ANNIS#FILE_RANK} *
+	 */
+	public TupleWriter tw_rank = null;
+	/**
+	 * tuple writer to write {@link ANNIS#FILE_EDGE_ANNO} *
+	 */
+	public TupleWriter tw_edgeAnno = null;
+	/**
+	 * tuple writer to write {@link ANNIS#FILE_COMPONENT} *
+	 */
+	public TupleWriter tw_component = null;
+	/**
+	 * tuple writer to write {@link ANNIS#FILE_CORPUS} *
+	 */
+	public TupleWriter tw_corpus = null;
+	/**
+	 * tuple writer to write {@link ANNIS#FILE_CORPUS_META} *
+	 */
+	public TupleWriter tw_corpusMeta = null;
+	/**
+	 * tuple writer to write {@link ANNIS#FILE_VISUALIZATION} *
+	 */
+	public TupleWriter tw_visualization = null;
 
-  boolean overwriteCorpusAnnotations = true;
+	boolean overwriteResolverVisMap = true;
 
-  public String individualCorpusName = null;
+	boolean overwriteCorpusAnnotations = true;
 
-  private ConcurrentMap<Character, String> characterEscapeTable = null;
-  private boolean escapeCharacters = true;
-  
-  private boolean mergeTextsWithTimeline = true;
+	public String individualCorpusName = null;
 
-  // ------------------------- IdManager
-  /**
-   * object to manage ANNIS ids*
-   */
-  private GlobalIdManager globalIdManager;
-  
-  private DomStatistics domStats;
-  private SpanStatistics spanStats;
-  private PointingStatistics pointingStats;
-  private VirtualTokenStatistics virtualTokenStatistics;
+	private ConcurrentMap<Character, String> characterEscapeTable = null;
+	private boolean escapeCharacters = true;
 
-  // =================================================== mandatory ===================================================
-  public ANNISExporter() {
-    super();
-    setProperties(new ANNISExporterProperties());
-    this.setName("ANNISExporter");
-    setSupplierContact(URI.createURI("saltnpepper@lists.hu-berlin.de"));
-    //setSupplierHomepage(URI.createURI("https://github.com/korpling/pepperModules-ANNISModules"));
-    setDesc("This exporter transforms a Salt model into the annis format. ");
-    this.addSupportedFormat("relANNIS", "3.3", null);
-    this.addSupportedFormat("annis", "3.3", null);
-  }
+	private boolean mergeTextsWithTimeline = true;
 
-  /**
-   * Creates a {@link Salt2ANNISMapper} object and passes this object, so
-   * that all {@link Salt2ANNISMapper} object can access the
-   * {@link IdManager} etc..
-   */
-  @Override
-  public PepperMapper createPepperMapper(Identifier sElementId) {
-    Salt2ANNISMapper mapper = new Salt2ANNISMapper();
-    mapper.setIdManager(new IdManager(globalIdManager));
-    mapper.setGlobalDomStats(domStats);
-    mapper.setGlobalPointingStats(pointingStats);
-    mapper.setGlobalSpanStats(spanStats);
-    mapper.setGlobalVirtualTokenStats(virtualTokenStatistics);
-    mapper.setMergeTextsWithTimeline(mergeTextsWithTimeline);
-    mapper.setOutputDir(new File(getCorpusDesc().getCorpusPath().toFileString()));
-    mapper.tw_text = tw_text;
-    mapper.tw_node = tw_node;
-    mapper.tw_nodeAnno = tw_nodeAnno;
-    mapper.tw_rank = tw_rank;
-    mapper.tw_edgeAnno = tw_edgeAnno;
-    mapper.tw_component = tw_component;
-    mapper.tw_corpus = tw_corpus;
-    mapper.tw_corpusMeta = tw_corpusMeta;
-    mapper.tw_visualization = tw_visualization;
-    mapper.individualCorpusName = this.individualCorpusName;
-    
-    mapper.mapRelationsInParallel(true);
+	// ------------------------- IdManager
+	/**
+	 * object to manage ANNIS ids*
+	 */
+	private GlobalIdManager globalIdManager;
 
-    //a fix: it seems to be a bug, that ScorpusGraph is not set automatically for mapper
-    if (sElementId.getIdentifiableElement() != null) {
-      if (sElementId.getIdentifiableElement() instanceof SCorpus) {
-        mapper.setCorpusGraph(((SCorpus) sElementId.getIdentifiableElement()).getGraph());
-      }
-    }
+	private DomStatistics domStats;
+	private SpanStatistics spanStats;
+	private PointingStatistics pointingStats;
+	private VirtualTokenStatistics virtualTokenStatistics;
 
-    return mapper;
+	// =================================================== mandatory
+	// ===================================================
+	public ANNISExporter() {
+		super();
+		setProperties(new ANNISExporterProperties());
+		this.setName("ANNISExporter");
+		setSupplierContact(URI.createURI("saltnpepper@lists.hu-berlin.de"));
+		// setSupplierHomepage(URI.createURI("https://github.com/korpling/pepperModules-ANNISModules"));
+		setDesc("This exporter transforms a Salt model into the annis format. ");
+		this.addSupportedFormat("relANNIS", "3.3", null);
+		this.addSupportedFormat("annis", "3.3", null);
+	}
 
-  }
+	/**
+	 * Creates a {@link Salt2ANNISMapper} object and passes this object, so that
+	 * all {@link Salt2ANNISMapper} object can access the {@link IdManager}
+	 * etc..
+	 */
+	@Override
+	public PepperMapper createPepperMapper(Identifier sElementId) {
+		Salt2ANNISMapper mapper = new Salt2ANNISMapper();
+		mapper.setIdManager(new IdManager(globalIdManager));
+		mapper.setGlobalDomStats(domStats);
+		mapper.setGlobalPointingStats(pointingStats);
+		mapper.setGlobalSpanStats(spanStats);
+		mapper.setGlobalVirtualTokenStats(virtualTokenStatistics);
+		mapper.setMergeTextsWithTimeline(mergeTextsWithTimeline);
+		mapper.setOutputDir(new File(getCorpusDesc().getCorpusPath().toFileString()));
+		mapper.tw_text = tw_text;
+		mapper.tw_node = tw_node;
+		mapper.tw_nodeAnno = tw_nodeAnno;
+		mapper.tw_rank = tw_rank;
+		mapper.tw_edgeAnno = tw_edgeAnno;
+		mapper.tw_component = tw_component;
+		mapper.tw_corpus = tw_corpus;
+		mapper.tw_corpusMeta = tw_corpusMeta;
+		mapper.tw_visualization = tw_visualization;
+		mapper.individualCorpusName = this.individualCorpusName;
 
-  // =================================================== optional ===================================================	
-  /**
-   * Creates a {@link TupleWriter} responsible for the given file.
-   *
-   * @param outFile
-   * @param escapeCharacters states whether characters should be escaped
-   * @param characterEscapeTable contains the character-escape-mapping
-   * @return
-   */
-  public static synchronized TupleWriter createTupleWriter(File outFile, boolean escapeCharacters, ConcurrentMap<Character, String> characterEscapeTable) {
-    if (!outFile.getParentFile().exists()) {
-      outFile.getParentFile().mkdirs();
-    }
-    if (!outFile.exists()) {
-      try {
-        outFile.createNewFile();
-      } catch (IOException e) {
-        throw new PepperModuleException("Could not create the corpus tab file " + outFile.getAbsolutePath() + " Exception:" + e.getMessage());
-      }
-    }
-    TupleWriter tWriter = new TupleWriter();
+		mapper.mapRelationsInParallel(true);
 
-    tWriter.setEscaping(escapeCharacters);
-    if (characterEscapeTable != null) {
-      tWriter.setEscapeTable(characterEscapeTable);
-    }
+		// a fix: it seems to be a bug, that ScorpusGraph is not set
+		// automatically for mapper
+		if (sElementId.getIdentifiableElement() != null) {
+			if (sElementId.getIdentifiableElement() instanceof SCorpus) {
+				mapper.setCorpusGraph(((SCorpus) sElementId.getIdentifiableElement()).getGraph());
+			}
+		}
 
-    tWriter.setFile(outFile);
-    return (tWriter);
-  }
+		return mapper;
 
-  /**
-   * Initializes all {@link TupleWriter} objects.
-   */
-  @Override
-  public boolean isReadyToStart() throws PepperModuleNotReadyException {
-    if (this.getProperties() != null) {
-      overwriteResolverVisMap = ((ANNISExporterProperties) this.getProperties()).getClobberResolverVisMap();
-      overwriteCorpusAnnotations = ((ANNISExporterProperties) this.getProperties()).getClobberCorpusAnnotations();
-      String individualCorpusName_tmp = ((ANNISExporterProperties) this.getProperties()).getIndividualCorpusName();
+	}
 
-      // remove leading and trailing whitespaces of the individual corpus name, if it is set.
-      if (individualCorpusName_tmp != null) {
-        this.individualCorpusName = individualCorpusName_tmp.trim();
-      }
+	// =================================================== optional
+	// ===================================================
+	private synchronized TupleWriter createTupleWriter(File outFile) {
+		return createTupleWriter(outFile, this.escapeCharacters, this.characterEscapeTable);
+	}
 
-      this.escapeCharacters = ((ANNISExporterProperties) this.getProperties()).getEscapeCharacters();
-      if (this.escapeCharacters) {
-        this.characterEscapeTable = ((ANNISExporterProperties) this.getProperties()).getEscapeCharactersSet();
-      }
-      
-      this.mergeTextsWithTimeline = ((ANNISExporterProperties) this.getProperties()).getMergeTextsWithTimeline();
-    }
-    String corpPath = getCorpusDesc().getCorpusPath().toFileString() + ((getCorpusDesc().getCorpusPath().toFileString().endsWith("/")) ? "" : "/");
-    tw_text = createTupleWriter(new File(corpPath + FILE_TEXT), this.escapeCharacters, this.characterEscapeTable);
-    tw_node = createTupleWriter(new File(corpPath + FILE_NODE), this.escapeCharacters, this.characterEscapeTable);
-    tw_nodeAnno = createTupleWriter(new File(corpPath + FILE_NODE_ANNO), this.escapeCharacters, this.characterEscapeTable);
-    tw_rank = createTupleWriter(new File(corpPath + FILE_RANK), this.escapeCharacters, this.characterEscapeTable);
-    tw_edgeAnno = createTupleWriter(new File(corpPath + FILE_EDGE_ANNO), this.escapeCharacters, this.characterEscapeTable);
-    tw_component = createTupleWriter(new File(corpPath + FILE_COMPONENT), this.escapeCharacters, this.characterEscapeTable);
-    tw_corpus = createTupleWriter(new File(corpPath + FILE_CORPUS), this.escapeCharacters, this.characterEscapeTable);
+	/**
+	 * Creates a {@link TupleWriter} responsible for the given file.
+	 *
+	 * @param outFile
+	 * @param escapeCharacters
+	 *            states whether characters should be escaped
+	 * @param characterEscapeTable
+	 *            contains the character-escape-mapping
+	 * @return
+	 */
+	public static synchronized TupleWriter createTupleWriter(File outFile, boolean escapeCharacters,
+			ConcurrentMap<Character, String> characterEscapeTable) {
+		if (!outFile.getParentFile().exists()) {
+			outFile.getParentFile().mkdirs();
+		}
+		if (!outFile.exists()) {
+			try {
+				outFile.createNewFile();
+			} catch (IOException e) {
+				throw new PepperModuleException("Could not create the corpus tab file " + outFile.getAbsolutePath()
+						+ " Exception:" + e.getMessage());
+			}
+		}
+		TupleWriter tWriter = new TupleWriter();
 
-    // set the visualisation tuple writer
-    File resolverVisFile = new File(corpPath + FILE_VISUALIZATION);
-    if (!resolverVisFile.exists()) {
-      tw_visualization = createTupleWriter(resolverVisFile, this.escapeCharacters, this.characterEscapeTable);
-    } else {
-      if (overwriteResolverVisMap) {
-        tw_visualization = createTupleWriter(resolverVisFile, this.escapeCharacters, this.characterEscapeTable);
-      }
-    }
+		tWriter.setEscaping(escapeCharacters);
+		if (characterEscapeTable != null) {
+			tWriter.setEscapeTable(characterEscapeTable);
+		}
 
-    // set the corpus meta annotation tuple writer
-    File corpusAnnotationFile = new File(corpPath + FILE_CORPUS_META);
-    if (!corpusAnnotationFile.exists()) {
-      tw_corpusMeta = createTupleWriter(corpusAnnotationFile, this.escapeCharacters, this.characterEscapeTable);
-    } else {
-      if (overwriteCorpusAnnotations) {
-        tw_corpusMeta = createTupleWriter(corpusAnnotationFile, this.escapeCharacters, this.characterEscapeTable);
-      }
-    }
+		tWriter.setFile(outFile);
+		return (tWriter);
+	}
 
-    this.globalIdManager = new GlobalIdManager();
-    this.domStats = new DomStatistics();
-    this.spanStats = new SpanStatistics();
-    this.pointingStats = new PointingStatistics();
-    this.virtualTokenStatistics = new VirtualTokenStatistics();
+	private ANNISExporterProperties getProps() {
+		return ((ANNISExporterProperties) this.getProperties());
+	}
 
-    // write versions file
-    File versionFile = new File(getCorpusDesc().getCorpusPath().toFileString(), ANNIS.FILE_VERSION);
-    try {
-      Files.write("3.3", versionFile, Charsets.UTF_8);
-    } catch (IOException ex) {
-      log.error("Can't write {} file", ex, ANNIS.FILE_VERSION);
-    }
+	/**
+	 * Initializes all {@link TupleWriter} objects.
+	 */
+	@Override
+	public boolean isReadyToStart() throws PepperModuleNotReadyException {
+		if (this.getProperties() != null) {
+			overwriteResolverVisMap = getProps().getClobberResolverVisMap();
+			overwriteCorpusAnnotations = getProps().getClobberCorpusAnnotations();
+			String individualCorpusName_tmp = getProps().getIndividualCorpusName();
 
-    return (super.isReadyToStart());
-  }
+			// remove leading and trailing whitespaces of the individual corpus
+			// name, if it is set.
+			if (individualCorpusName_tmp != null) {
+				this.individualCorpusName = individualCorpusName_tmp.trim();
+			}
 
-  /**
-   * Creates resolver entries for:
-   * <ul>
-   * <li>all virtual tokens (artificial tokens in case there are several
-   * segmentations)</li>
-   * <li>all layers in {@link #spanStats}</li>
-   * <li>all layers in {@link #domStats}</li>
-   * <li>all layers in {@link #pointingStats}</li>
-   * <li>media data</li>
-   * </ul>
-   */
-  @Override
-  public void end() throws PepperModuleException {
-    super.end();
-    
-    createVirtualTokenizationResolverEntries();
-    
-    for(String l : spanStats.getLayers()) {
-      createSpanResolverEntry(l);
-    }
+			this.escapeCharacters = getProps().getEscapeCharacters();
+			if (this.escapeCharacters) {
+				this.characterEscapeTable = getProps().getEscapeCharactersSet();
+			}
 
-    for(String l : domStats.getLayers()) {
-      createDominanceResolverEntry(l);
-    }
-    
-    for(QName l : pointingStats.getLayers()) {
-      createPointingResolverEntry(l);
-    }
-    
-    createMediaResolverEntries();
-    
-    for (SCorpusGraph corpusGraph : getSaltProject().getCorpusGraphs()) {
-      if (tw_visualization != null) {
-        printResolverVisMap(corpusGraph);
-      }
-    }
-    
-  }
-  
-  private void createSpanResolverEntry(String layer) {
-    String displayName = "grid";
-    if (layer != null) {
-      displayName = displayName + " (" + layer + ")";
-    }
-    
-    ResolverEntry entry = new ResolverEntry();
-    
-    Set<QName> annosForLayer = spanStats.getNodeAnnotations(layer);
-    
-    Set<QName> virtualAnnoNames = virtualTokenStatistics.getVirtualAnnoNames();
-    if(!virtualAnnoNames.isEmpty()) {
-      // don't show the empty token but the virtual token annos instead
-      entry.getMappings().put("hide_tok", "true");
-      LinkedHashSet<String> annoNameFilter = new LinkedHashSet<>();
-    
-      for(QName a : annosForLayer) {
-        String ns = a.getNs();
-        if(QName.NULL.equals(ns)) {
-          ns = SRelation2ANNISMapper.DEFAULT_NS;
-        }
-        annoNameFilter.add("/" + ns + "::" + a.getName() + "/");
-      }
-      for(QName virtualAnno : virtualAnnoNames) {
-        String ns = virtualAnno.hasNs() ? virtualAnno.getNs() : SRelation2ANNISMapper.DEFAULT_NS;
-        annoNameFilter.add("/" + ns + "::" + virtualAnno.getName() + "/");
-        // also add the new annotation name to the overall list in case there are 
-        // duplicate annotation names in different namespaces
-        annosForLayer.add(virtualAnno);
-      }
-      
-      entry.getMappings().put("annos", Joiner.on(",").join(annoNameFilter));
-      
-    }
-    
-    // check for entries that only differ in their namespace but have the same name
-    boolean showNamespace = false;
-    HashSet<String> annoNames = new HashSet<>();
-    for(QName n : annosForLayer) {
-      if(annoNames.contains(n.getName())) {
-        showNamespace = true;
-        break;
-      } else {
-        annoNames.add(n.getName());
-      }
-    }
-    
-    entry.setVis(Vis.grid);
-    
-    entry.setDisplay(displayName);
-    if (layer != null) {    
-      entry.setElement(ResolverEntry.Element.node);
-      if(virtualAnnoNames.isEmpty()) {
-        entry.setLayerName(layer);
-      }
-    }
-    if(showNamespace) {
-      entry.getMappings().put("show_ns", "true");
-    }
-    
-    globalIdManager.getResolverEntryByDisplay().putIfAbsent(entry.getDisplay(), entry);
-  }
+			this.mergeTextsWithTimeline = getProps().getMergeTextsWithTimeline();
+		}
+		this.globalIdManager = new GlobalIdManager();
+		this.domStats = new DomStatistics();
+		this.spanStats = new SpanStatistics();
+		this.pointingStats = new PointingStatistics();
+		this.virtualTokenStatistics = new VirtualTokenStatistics();
 
-  /**
-   * Creates a resolver entry for the passed layer. The passed layer must be a
-   * layer containing {@link SStructure} nodes. The visualizer is chosen
-   * following this heuristic:
-   * <table border="1">
-   * <tr><td>rstdoc</td><td>layerName starts with 'rhet' or is equal to
-   * 'rst'</td></tr>
-   * <tr><td>tree</td><td>otherwise</td></tr>
-   * </table>
-   *
-   * @param layerName
-   */  
-  private void createDominanceResolverEntry(String layerName) {
-    
-    
-    ResolverEntry entry = new ResolverEntry();
-    
-    
-    if(layerName != null && 
-            (layerName.equalsIgnoreCase("rst") || layerName.startsWith("rhet"))) {
-      
-      entry.setVis(Vis.rstdoc);
-      entry.setDisplay("rst (" + layerName + ")");
-      entry.setLayerName(layerName);
-      entry.setElement(ResolverEntry.Element.node);
+		return (super.isReadyToStart());
+	}
 
-    } else {
-      String displayName = "tree";
-      if (layerName != null) {
-        displayName = displayName + " (" + layerName + ")";
-      }
-      entry.setDisplay(displayName);
-      if (layerName != null) {    
-        entry.setElement(ResolverEntry.Element.node);
-        entry.setLayerName(layerName);
-      }
-      entry.setVis(Vis.tree);
+	private void writeVersionFiles() {
+		final File versionFile = new File(getCorpusDesc().getCorpusPath().toFileString(), ANNIS.FILE_VERSION);
+		try {
+			Files.write(ANNIS.ANNIS_VERSION, versionFile, Charsets.UTF_8);
+		} catch (IOException ex) {
+			log.error("Can't write {} file", ex, ANNIS.FILE_VERSION);
+		}
+	}
 
-      Set<QName> terminalAnnos = domStats.getTerminalAnno().get(layerName);
+	private void createTupleWriters() {
+		final String corpPath = getCorpusDesc().getCorpusPath().toFileString()
+				+ ((getCorpusDesc().getCorpusPath().toFileString().endsWith("/")) ? "" : "/");
+		tw_text = createTupleWriter(new File(corpPath + FILE_TEXT));
+		tw_node = createTupleWriter(new File(corpPath + FILE_NODE));
+		tw_nodeAnno = createTupleWriter(new File(corpPath + FILE_NODE_ANNO));
+		tw_rank = createTupleWriter(new File(corpPath + FILE_RANK));
+		tw_edgeAnno = createTupleWriter(new File(corpPath + FILE_EDGE_ANNO));
+		tw_component = createTupleWriter(new File(corpPath + FILE_COMPONENT));
+		tw_corpus = createTupleWriter(new File(corpPath + FILE_CORPUS));
 
-      if(terminalAnnos.size() >= 1) {
-        QName qname = terminalAnnos.iterator().next();
-        entry.getMappings().put("terminal_name", globalIdManager.getEscapedIdentifier(qname.getName()));
-        if(!QName.NULL.equals(qname.getNs())) {
-          entry.getMappings().put("terminal_ns", globalIdManager.getEscapedIdentifier(qname.getNs()));
-        }
-      }
+		// set the visualisation tuple writer
+		final File resolverVisFile = new File(corpPath + FILE_VISUALIZATION);
+		if (!resolverVisFile.exists()) {
+			tw_visualization = createTupleWriter(resolverVisFile);
+		} else if (overwriteResolverVisMap) {
+			tw_visualization = createTupleWriter(resolverVisFile);
+		}
 
-      SortedMap<Integer, QName> nodeAnnos = domStats.getNodeAnnoCounter().getBySize(layerName);
+		// set the corpus meta annotation tuple writer
+		final File corpusAnnotationFile = new File(corpPath + FILE_CORPUS_META);
+		if (!corpusAnnotationFile.exists()) {
+			tw_corpusMeta = createTupleWriter(corpusAnnotationFile);
+		} else if (overwriteCorpusAnnotations) {
+			tw_corpusMeta = createTupleWriter(corpusAnnotationFile);
+		}
+	}
 
-      if(nodeAnnos.size() >= 1) {
-        QName qname = nodeAnnos.get(nodeAnnos.lastKey());
-        entry.getMappings().put("node_key", globalIdManager.getEscapedIdentifier(qname.getName()));
-        
-        String nodeNS = qname.getNs();
-        if(nodeNS == null || QName.NULL.equals(nodeNS)) {
-          nodeNS = SRelation2ANNISMapper.DEFAULT_NS;
-        }
-        // always output the anno namespace if it is not the same as the layer
-        // this visualization is triggered with
-        if(!nodeNS.equals(layerName)) {
-          entry.getMappings().put("node_anno_ns", globalIdManager.getEscapedIdentifier(nodeNS));
-        }
-      }
+	@Override
+	public void start() throws PepperModuleException {
+		createTupleWriters();
+		writeVersionFiles();
+		super.start();
+	}
 
-      Set<QName> edgeAnnos = domStats.getEdgeAnno().get(layerName);
+	/**
+	 * Creates resolver entries for:
+	 * <ul>
+	 * <li>all virtual tokens (artificial tokens in case there are several
+	 * segmentations)</li>
+	 * <li>all layers in {@link #spanStats}</li>
+	 * <li>all layers in {@link #domStats}</li>
+	 * <li>all layers in {@link #pointingStats}</li>
+	 * <li>media data</li>
+	 * </ul>
+	 */
+	@Override
+	public void end() throws PepperModuleException {
+		super.end();
 
-      if(edgeAnnos.size() >= 1) {
-        QName qname = edgeAnnos.iterator().next();
-        entry.getMappings().put("edge_key", globalIdManager.getEscapedIdentifier(qname.getName()));
-        if(!QName.NULL.equals(qname.getNs())) {
-          entry.getMappings().put("edge_anno_ns", globalIdManager.getEscapedIdentifier(qname.getNs()));
-        }
-      }
+		createVirtualTokenizationResolverEntries();
 
-      SortedMap<Integer, String> etypes = domStats.getEdgeTypeCounter().getBySize(layerName);
-      if(etypes.isEmpty()
-              || (((ANNISExporterProperties) getProperties()).getExcludeSingleDomType() 
-              && etypes.size() <= 1 )) {
-        entry.getMappings().put("edge_type", globalIdManager.getEscapedIdentifier("null"));
-      }
-      else {
-        // the primary edge type always has the greatest number of entries
-        String primaryType = etypes.get(etypes.lastKey());
-        String secondaryType = etypes.size() >= 2 ? etypes.get(etypes.firstKey()) : null;
+		for (String l : spanStats.getLayers()) {
+			createSpanResolverEntry(l);
+		}
 
-        // check if the terminal nodes are reachable by the original types
-        // use the special "null" type if not
-        Set<String> terminalRelationTypes = domStats.getTerminalEdgeType().get(layerName);
-        if(secondaryType == null) {
-          if (!terminalRelationTypes.contains(primaryType)) {
-            primaryType = "null";
-          }
-        } else {
-          if (!terminalRelationTypes.contains(primaryType) && !terminalRelationTypes.contains(secondaryType)) {
-            primaryType = "null";
-          }
-        }
+		for (String l : domStats.getLayers()) {
+			createDominanceResolverEntry(l);
+		}
 
-        entry.getMappings().put("edge_type", globalIdManager.getEscapedIdentifier(primaryType));
-        if(secondaryType != null) {
-          entry.getMappings().put("secedge_type", globalIdManager.getEscapedIdentifier(secondaryType));
-        }
-      }
-    }
-    globalIdManager.getResolverEntryByDisplay().putIfAbsent(entry.getDisplay(), entry);
+		for (QName l : pointingStats.getLayers()) {
+			createPointingResolverEntry(l);
+		}
 
-  }
-  
-  private void createPointingResolverEntry(QName layerName) {
+		createMediaResolverEntries();
 
-    ResolverEntry entry = new ResolverEntry();
-    Set<QName> terminalAnnos = pointingStats.getTerminalAnno().get(layerName);
-    
-    if(terminalAnnos.size() <= 1) {
-      // use arch_dependency visualizer
-      entry.setVis(Vis.arch_dependency);
-      
-      if (terminalAnnos.size() == 1) {
-        QName qname = terminalAnnos.iterator().next();
-        entry.getMappings().put("node_key", globalIdManager.getEscapedIdentifier(qname.getName()));
-      }
-    } else {
-      
-      // use coref visualizer for "large" documents and discourse (fulltext) otherwise
-      if(pointingStats.getMaxNodeCount() <= MAX_NUM_OF_NODES_FOR_DISCOURSE) {
-        entry.setVis(Vis.discourse);
-      } else {
-        entry.setVis(Vis.coref);
-      }
-    }
+		for (SCorpusGraph corpusGraph : getSaltProject().getCorpusGraphs()) {
+			if (tw_visualization != null) {
+				printResolverVisMap(corpusGraph);
+			}
+		}
 
-    String displayName = entry.getVis().name();
-    if (layerName != null) {
-      displayName = layerName.getName() + " (" + layerName.getNs() + ")";
-    }
-    entry.setDisplay(displayName);
-    if (layerName != null) {    
-      entry.setElement(ResolverEntry.Element.edge);
-      entry.setLayerName(layerName.getNs());
-    }
+	}
 
-    globalIdManager.getResolverEntryByDisplay().putIfAbsent(entry.getDisplay(), entry);
+	private void createSpanResolverEntry(String layer) {
+		String displayName = "grid";
+		if (layer != null) {
+			displayName = displayName + " (" + layer + ")";
+		}
 
-  }
-  
-  private void createMediaResolverEntries() {
-    
-    if(globalIdManager.isAudioFound()) {
-      ResolverEntry entry = new ResolverEntry();
-      entry.setDisplay("audio");
-      entry.setVis(Vis.audio);
-      entry.setVisibility(ResolverEntry.Visibility.preloaded);
-      globalIdManager.getResolverEntryByDisplay().putIfAbsent(entry.getDisplay(), entry);
-    }
-    
-    if(globalIdManager.isVideoFound()) {
-      ResolverEntry entry = new ResolverEntry();
-      entry.setDisplay("video");
-      entry.setVis(Vis.video);
-      entry.setVisibility(ResolverEntry.Visibility.preloaded);
-      globalIdManager.getResolverEntryByDisplay().putIfAbsent(entry.getDisplay(), entry);
-    }
-    
-    if(globalIdManager.isPDFFound()) {
-      ResolverEntry entry = new ResolverEntry();
-      entry.setDisplay("pdf");
-      entry.setVis(Vis.pdf);
-      entry.setVisibility(ResolverEntry.Visibility.preloaded);
-      globalIdManager.getResolverEntryByDisplay().putIfAbsent(entry.getDisplay(), entry);
-    }
-  }
-  
-  private void createVirtualTokenizationResolverEntries() {
-    
-    Set<QName> virtualAnnoNames = virtualTokenStatistics.getVirtualAnnoNames();
+		ResolverEntry entry = new ResolverEntry();
 
-    /* 
-    Display a "dialog" view containing the virtual anno names (which are the union
-    of all known segmentation names and text names that have been the source for
-    the virtual token generation).
-    This resolver entry is only created if we know at least one of the anno names
-    and if either a virtual tokenization was created or the original minimal tokenization
-    was only containing empty token.
-    */
-    if(!virtualAnnoNames.isEmpty()
-            && (globalIdManager.containsVirtualTokens() || !virtualTokenStatistics.getHasRealToken() )) {
-      // deactivate the original kwic view
-      ResolverEntry entryHideKWIC = new ResolverEntry();
-      entryHideKWIC.setDisplay("kwic");
-      entryHideKWIC.setVisibility(ResolverEntry.Visibility.removed);
-      entryHideKWIC.setVis(Vis.kwic);
-      globalIdManager.getResolverEntryByDisplay().putIfAbsent(
-              entryHideKWIC.getDisplay(), entryHideKWIC);
-      
-      // create a permanent grid which displays all order relations
-      ResolverEntry entryGrid = new ResolverEntry();
-      entryGrid.setDisplay("");
-      entryGrid.setVis(Vis.grid);
-      entryGrid.setElement(ResolverEntry.Element.node);
-      entryGrid.setVisibility(ResolverEntry.Visibility.permanent);
-      entryGrid.getMappings().put("hide_tok", "true");
-      
-      Set<String> escapedNames = new LinkedHashSet<>();
-      
-      for (QName origName : virtualAnnoNames) {
-        escapedNames.add(globalIdManager.getEscapedIdentifier(origName.getName()));
-      }
+		Set<QName> annosForLayer = spanStats.getNodeAnnotations(layer);
 
-      
-      entryGrid.getMappings().put("annos", Joiner.on(",").join(escapedNames));
-      globalIdManager.getResolverEntryByDisplay().putIfAbsent(entryGrid.getDisplay(), entryGrid);
-    }
-  }
+		Set<QName> virtualAnnoNames = virtualTokenStatistics.getVirtualAnnoNames();
+		if (!virtualAnnoNames.isEmpty()) {
+			// don't show the empty token but the virtual token annos instead
+			entry.getMappings().put("hide_tok", "true");
+			LinkedHashSet<String> annoNameFilter = new LinkedHashSet<>();
 
-  /**
-   * This method prints the resolver_vis_map.annis file
-   *
-   * @param corpusGraph the corpus graph
-   */
-  private void printResolverVisMap(SCorpusGraph corpusGraph) {
+			for (QName a : annosForLayer) {
+				String ns = a.getNs();
+				if (QName.NULL.equals(ns)) {
+					ns = SRelation2ANNISMapper.DEFAULT_NS;
+				}
+				annoNameFilter.add("/" + ns + "::" + a.getName() + "/");
+			}
+			for (QName virtualAnno : virtualAnnoNames) {
+				String ns = virtualAnno.hasNs() ? virtualAnno.getNs() : SRelation2ANNISMapper.DEFAULT_NS;
+				annoNameFilter.add("/" + ns + "::" + virtualAnno.getName() + "/");
+				// also add the new annotation name to the overall list in case
+				// there are
+				// duplicate annotation names in different namespaces
+				annosForLayer.add(virtualAnno);
+			}
 
-    Long transactionId = tw_visualization.beginTA();
+			entry.getMappings().put("annos", Joiner.on(",").join(annoNameFilter));
 
-    try {
+		}
 
-      String corpusName = "NULL";
-      String corpusVersion = "NULL";
-      // get the version of the corpus but initialise the default NULL
-      if (corpusGraph.getRoots() != null) {
-        if (corpusGraph.getRoots().size() > 0) {
-          SCorpus rootCorpus = (SCorpus) corpusGraph.getRoots().get(0);
-          // set corpus name
-          if(this.individualCorpusName != null) {
-            corpusName = this.individualCorpusName;
-          } else {
-            corpusName = rootCorpus.getName();
-          }
-          
-          // set corpus version
-          SMetaAnnotation version = rootCorpus.getMetaAnnotation("version");
-          if (version != null) {
-            if (version.getValue_STEXT() != null) {
-              corpusVersion = version.getValue_STEXT();
-            }
-          }
-        }
-      }
+		// check for entries that only differ in their namespace but have the
+		// same name
+		boolean showNamespace = false;
+		HashSet<String> annoNames = new HashSet<>();
+		for (QName n : annosForLayer) {
+			if (annoNames.contains(n.getName())) {
+				showNamespace = true;
+				break;
+			} else {
+				annoNames.add(n.getName());
+			}
+		}
 
-      List<ResolverEntry> entries = new ArrayList<>(
-              getGlobalIdManager().getResolverEntryByDisplay().values());
-      
-      // sort the entries
-      Collections.sort(entries, new ResolverComparator());
-      
-      int order = 1;
-      for (ResolverEntry e : entries) {
-        e.setOrder(order);
+		entry.setVis(Vis.grid);
 
-        List<String> resolverTuple = new ArrayList<>();
+		entry.setDisplay(displayName);
+		if (layer != null) {
+			entry.setElement(ResolverEntry.Element.node);
+			if (virtualAnnoNames.isEmpty()) {
+				entry.setLayerName(layer);
+			}
+		}
+		if (showNamespace) {
+			entry.getMappings().put("show_ns", "true");
+		}
 
-        resolverTuple.add(corpusName);
-        resolverTuple.add(corpusVersion);
-        resolverTuple.add(e.getLayerName() == null ? "NULL" : e.getLayerName());
-        resolverTuple.add(e.getElement().name());
-        resolverTuple.add(e.getVis().name());
-        resolverTuple.add(e.getDisplay());
-        resolverTuple.add(e.getVisibility().name());
-        resolverTuple.add("" + e.getOrder());
+		globalIdManager.getResolverEntryByDisplay().putIfAbsent(entry.getDisplay(), entry);
+	}
 
-        List<String> mappings = new LinkedList<>();
-        for (Map.Entry<String, String> m : e.getMappings().entrySet()) {
-          mappings.add(m.getKey() + ":" + m.getValue());
-        }
-        if (mappings.isEmpty()) {
-          resolverTuple.add("NULL");
-        } else {
-          resolverTuple.add(Joiner.on(";").join(mappings));
-        }
-        tw_visualization.addTuple(resolverTuple);
+	/**
+	 * Creates a resolver entry for the passed layer. The passed layer must be a
+	 * layer containing {@link SStructure} nodes. The visualizer is chosen
+	 * following this heuristic:
+	 * <table border="1">
+	 * <tr>
+	 * <td>rstdoc</td>
+	 * <td>layerName starts with 'rhet' or is equal to 'rst'</td>
+	 * </tr>
+	 * <tr>
+	 * <td>tree</td>
+	 * <td>otherwise</td>
+	 * </tr>
+	 * </table>
+	 *
+	 * @param layerName
+	 */
+	private void createDominanceResolverEntry(String layerName) {
 
-        order++;
-      }
-      tw_visualization.commitTA(transactionId);
-    } catch (FileNotFoundException e) {
-      tw_visualization.abortTA(transactionId);
-      throw new PepperModuleException(this, "Could not write to the file " + tw_visualization.getFile().getAbsolutePath() + ". Reason: " + e.getMessage(), e);
-    }
-  }
+		ResolverEntry entry = new ResolverEntry();
 
-  /**
-   * returns singleton object to manage ANNIS ids
-   *
-   *
-   * @return
-   */
-  public GlobalIdManager getGlobalIdManager() {
-    return this.globalIdManager;
-  }
-  
-  public static class ResolverComparator implements Comparator<ResolverEntry>{
+		if (layerName != null && (layerName.equalsIgnoreCase("rst") || layerName.startsWith("rhet"))) {
 
-    @Override
-    public int compare(ResolverEntry o1, ResolverEntry o2) {
-      int byVis = o1.getVis().compareTo(o2.getVis());
-      if(byVis != 0) {
-        return byVis;
-      }
-      
-      return o1.getDisplay().compareTo(o2.getDisplay());
-    }
-    
-  }
+			entry.setVis(Vis.rstdoc);
+			entry.setDisplay("rst (" + layerName + ")");
+			entry.setLayerName(layerName);
+			entry.setElement(ResolverEntry.Element.node);
+
+		} else {
+			String displayName = "tree";
+			if (layerName != null) {
+				displayName = displayName + " (" + layerName + ")";
+			}
+			entry.setDisplay(displayName);
+			if (layerName != null) {
+				entry.setElement(ResolverEntry.Element.node);
+				entry.setLayerName(layerName);
+			}
+			entry.setVis(Vis.tree);
+
+			Set<QName> terminalAnnos = domStats.getTerminalAnno().get(layerName);
+
+			if (terminalAnnos.size() >= 1) {
+				QName qname = terminalAnnos.iterator().next();
+				entry.getMappings().put("terminal_name", globalIdManager.getEscapedIdentifier(qname.getName()));
+				if (!QName.NULL.equals(qname.getNs())) {
+					entry.getMappings().put("terminal_ns", globalIdManager.getEscapedIdentifier(qname.getNs()));
+				}
+			}
+
+			SortedMap<Integer, QName> nodeAnnos = domStats.getNodeAnnoCounter().getBySize(layerName);
+
+			if (nodeAnnos.size() >= 1) {
+				QName qname = nodeAnnos.get(nodeAnnos.lastKey());
+				entry.getMappings().put("node_key", globalIdManager.getEscapedIdentifier(qname.getName()));
+
+				String nodeNS = qname.getNs();
+				if (nodeNS == null || QName.NULL.equals(nodeNS)) {
+					nodeNS = SRelation2ANNISMapper.DEFAULT_NS;
+				}
+				// always output the anno namespace if it is not the same as the
+				// layer
+				// this visualization is triggered with
+				if (!nodeNS.equals(layerName)) {
+					entry.getMappings().put("node_anno_ns", globalIdManager.getEscapedIdentifier(nodeNS));
+				}
+			}
+
+			Set<QName> edgeAnnos = domStats.getEdgeAnno().get(layerName);
+
+			if (edgeAnnos.size() >= 1) {
+				QName qname = edgeAnnos.iterator().next();
+				entry.getMappings().put("edge_key", globalIdManager.getEscapedIdentifier(qname.getName()));
+				if (!QName.NULL.equals(qname.getNs())) {
+					entry.getMappings().put("edge_anno_ns", globalIdManager.getEscapedIdentifier(qname.getNs()));
+				}
+			}
+
+			SortedMap<Integer, String> etypes = domStats.getEdgeTypeCounter().getBySize(layerName);
+			if (etypes.isEmpty()
+					|| (((ANNISExporterProperties) getProperties()).getExcludeSingleDomType() && etypes.size() <= 1)) {
+				entry.getMappings().put("edge_type", globalIdManager.getEscapedIdentifier("null"));
+			} else {
+				// the primary edge type always has the greatest number of
+				// entries
+				String primaryType = etypes.get(etypes.lastKey());
+				String secondaryType = etypes.size() >= 2 ? etypes.get(etypes.firstKey()) : null;
+
+				// check if the terminal nodes are reachable by the original
+				// types
+				// use the special "null" type if not
+				Set<String> terminalRelationTypes = domStats.getTerminalEdgeType().get(layerName);
+				if (secondaryType == null) {
+					if (!terminalRelationTypes.contains(primaryType)) {
+						primaryType = "null";
+					}
+				} else {
+					if (!terminalRelationTypes.contains(primaryType)
+							&& !terminalRelationTypes.contains(secondaryType)) {
+						primaryType = "null";
+					}
+				}
+
+				entry.getMappings().put("edge_type", globalIdManager.getEscapedIdentifier(primaryType));
+				if (secondaryType != null) {
+					entry.getMappings().put("secedge_type", globalIdManager.getEscapedIdentifier(secondaryType));
+				}
+			}
+		}
+		globalIdManager.getResolverEntryByDisplay().putIfAbsent(entry.getDisplay(), entry);
+
+	}
+
+	private void createPointingResolverEntry(QName layerName) {
+
+		ResolverEntry entry = new ResolverEntry();
+		Set<QName> terminalAnnos = pointingStats.getTerminalAnno().get(layerName);
+
+		if (terminalAnnos.size() <= 1) {
+			// use arch_dependency visualizer
+			entry.setVis(Vis.arch_dependency);
+
+			if (terminalAnnos.size() == 1) {
+				QName qname = terminalAnnos.iterator().next();
+				entry.getMappings().put("node_key", globalIdManager.getEscapedIdentifier(qname.getName()));
+			}
+		} else {
+
+			// use coref visualizer for "large" documents and discourse
+			// (fulltext) otherwise
+			if (pointingStats.getMaxNodeCount() <= MAX_NUM_OF_NODES_FOR_DISCOURSE) {
+				entry.setVis(Vis.discourse);
+			} else {
+				entry.setVis(Vis.coref);
+			}
+		}
+
+		String displayName = entry.getVis().name();
+		if (layerName != null) {
+			displayName = layerName.getName() + " (" + layerName.getNs() + ")";
+		}
+		entry.setDisplay(displayName);
+		if (layerName != null) {
+			entry.setElement(ResolverEntry.Element.edge);
+			entry.setLayerName(layerName.getNs());
+		}
+
+		globalIdManager.getResolverEntryByDisplay().putIfAbsent(entry.getDisplay(), entry);
+
+	}
+
+	private void createMediaResolverEntries() {
+
+		if (globalIdManager.isAudioFound()) {
+			ResolverEntry entry = new ResolverEntry();
+			entry.setDisplay("audio");
+			entry.setVis(Vis.audio);
+			entry.setVisibility(ResolverEntry.Visibility.preloaded);
+			globalIdManager.getResolverEntryByDisplay().putIfAbsent(entry.getDisplay(), entry);
+		}
+
+		if (globalIdManager.isVideoFound()) {
+			ResolverEntry entry = new ResolverEntry();
+			entry.setDisplay("video");
+			entry.setVis(Vis.video);
+			entry.setVisibility(ResolverEntry.Visibility.preloaded);
+			globalIdManager.getResolverEntryByDisplay().putIfAbsent(entry.getDisplay(), entry);
+		}
+
+		if (globalIdManager.isPDFFound()) {
+			ResolverEntry entry = new ResolverEntry();
+			entry.setDisplay("pdf");
+			entry.setVis(Vis.pdf);
+			entry.setVisibility(ResolverEntry.Visibility.preloaded);
+			globalIdManager.getResolverEntryByDisplay().putIfAbsent(entry.getDisplay(), entry);
+		}
+	}
+
+	private void createVirtualTokenizationResolverEntries() {
+
+		Set<QName> virtualAnnoNames = virtualTokenStatistics.getVirtualAnnoNames();
+
+		/*
+		 * Display a "dialog" view containing the virtual anno names (which are
+		 * the union of all known segmentation names and text names that have
+		 * been the source for the virtual token generation). This resolver
+		 * entry is only created if we know at least one of the anno names and
+		 * if either a virtual tokenization was created or the original minimal
+		 * tokenization was only containing empty token.
+		 */
+		if (!virtualAnnoNames.isEmpty()
+				&& (globalIdManager.containsVirtualTokens() || !virtualTokenStatistics.getHasRealToken())) {
+			// deactivate the original kwic view
+			ResolverEntry entryHideKWIC = new ResolverEntry();
+			entryHideKWIC.setDisplay("kwic");
+			entryHideKWIC.setVisibility(ResolverEntry.Visibility.removed);
+			entryHideKWIC.setVis(Vis.kwic);
+			globalIdManager.getResolverEntryByDisplay().putIfAbsent(entryHideKWIC.getDisplay(), entryHideKWIC);
+
+			// create a permanent grid which displays all order relations
+			ResolverEntry entryGrid = new ResolverEntry();
+			entryGrid.setDisplay("");
+			entryGrid.setVis(Vis.grid);
+			entryGrid.setElement(ResolverEntry.Element.node);
+			entryGrid.setVisibility(ResolverEntry.Visibility.permanent);
+			entryGrid.getMappings().put("hide_tok", "true");
+
+			Set<String> escapedNames = new LinkedHashSet<>();
+
+			for (QName origName : virtualAnnoNames) {
+				escapedNames.add(globalIdManager.getEscapedIdentifier(origName.getName()));
+			}
+
+			entryGrid.getMappings().put("annos", Joiner.on(",").join(escapedNames));
+			globalIdManager.getResolverEntryByDisplay().putIfAbsent(entryGrid.getDisplay(), entryGrid);
+		}
+	}
+
+	/**
+	 * This method prints the resolver_vis_map.annis file
+	 *
+	 * @param corpusGraph
+	 *            the corpus graph
+	 */
+	private void printResolverVisMap(SCorpusGraph corpusGraph) {
+
+		Long transactionId = tw_visualization.beginTA();
+
+		try {
+
+			String corpusName = "NULL";
+			String corpusVersion = "NULL";
+			// get the version of the corpus but initialise the default NULL
+			if (corpusGraph.getRoots() != null) {
+				if (corpusGraph.getRoots().size() > 0) {
+					SCorpus rootCorpus = (SCorpus) corpusGraph.getRoots().get(0);
+					// set corpus name
+					if (this.individualCorpusName != null) {
+						corpusName = this.individualCorpusName;
+					} else {
+						corpusName = rootCorpus.getName();
+					}
+
+					// set corpus version
+					SMetaAnnotation version = rootCorpus.getMetaAnnotation("version");
+					if (version != null) {
+						if (version.getValue_STEXT() != null) {
+							corpusVersion = version.getValue_STEXT();
+						}
+					}
+				}
+			}
+
+			List<ResolverEntry> entries = new ArrayList<>(getGlobalIdManager().getResolverEntryByDisplay().values());
+
+			// sort the entries
+			Collections.sort(entries, new ResolverComparator());
+
+			int order = 1;
+			for (ResolverEntry e : entries) {
+				e.setOrder(order);
+
+				List<String> resolverTuple = new ArrayList<>();
+
+				resolverTuple.add(corpusName);
+				resolverTuple.add(corpusVersion);
+				resolverTuple.add(e.getLayerName() == null ? "NULL" : e.getLayerName());
+				resolverTuple.add(e.getElement().name());
+				resolverTuple.add(e.getVis().name());
+				resolverTuple.add(e.getDisplay());
+				resolverTuple.add(e.getVisibility().name());
+				resolverTuple.add("" + e.getOrder());
+
+				List<String> mappings = new LinkedList<>();
+				for (Map.Entry<String, String> m : e.getMappings().entrySet()) {
+					mappings.add(m.getKey() + ":" + m.getValue());
+				}
+				if (mappings.isEmpty()) {
+					resolverTuple.add("NULL");
+				} else {
+					resolverTuple.add(Joiner.on(";").join(mappings));
+				}
+				tw_visualization.addTuple(resolverTuple);
+
+				order++;
+			}
+			tw_visualization.commitTA(transactionId);
+		} catch (FileNotFoundException e) {
+			tw_visualization.abortTA(transactionId);
+			throw new PepperModuleException(this, "Could not write to the file "
+					+ tw_visualization.getFile().getAbsolutePath() + ". Reason: " + e.getMessage(), e);
+		}
+	}
+
+	/**
+	 * returns singleton object to manage ANNIS ids
+	 *
+	 *
+	 * @return
+	 */
+	public GlobalIdManager getGlobalIdManager() {
+		return this.globalIdManager;
+	}
+
+	public static class ResolverComparator implements Comparator<ResolverEntry> {
+
+		@Override
+		public int compare(ResolverEntry o1, ResolverEntry o2) {
+			int byVis = o1.getVis().compareTo(o2.getVis());
+			if (byVis != 0) {
+				return byVis;
+			}
+
+			return o1.getDisplay().compareTo(o2.getDisplay());
+		}
+
+	}
 
 }
