@@ -409,7 +409,7 @@ public abstract class SRelation2ANNISMapper implements Runnable, GraphTraverseHa
     List<String> componentEntry = new ArrayList<>();
     componentEntry.add(currentComponentId.toString());
     componentEntry.add(currentComponentType);
-    componentEntry.add(currentComponentLayer);
+    componentEntry.add(idManager.getEscapedIdentifier(currentComponentLayer));
     componentEntry.add(idManager.getEscapedIdentifier(currentComponentName));
     // add the tuple
     addTuple(OutputTable.COMPONENT, componentEntry);

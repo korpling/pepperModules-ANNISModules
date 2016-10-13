@@ -121,7 +121,6 @@ public class SPointingRelation2ANNISMapper extends SRelation2ANNISMapper {
     
       lastEnteredNode = currNode;
 
-      GlobalIdManager globalIdManager = new GlobalIdManager();
       boolean escapeCharacters = ((ANNISExporterProperties) this.parentMapper.getProperties()).getEscapeCharacters();
 
       if (relation != null && relation instanceof SPointingRelation) {
@@ -133,14 +132,7 @@ public class SPointingRelation2ANNISMapper extends SRelation2ANNISMapper {
         }
         if (!relation.getLayers().isEmpty()){
           String layerName = ((SLayer) relation.getLayers().iterator().next()).getName();
-          // check if the name requires escaping
-          String escapedLayerName = globalIdManager.getEscapedIdentifier(layerName);
-          if (escapeCharacters || layerName.equals(escapedLayerName)){
-            this.currentComponentLayer = escapedLayerName;
-          }
-          else{ // name would require escaping, but user has turned off escaping
-            this.currentComponentLayer = this.DEFAULT_NS; // use default
-          }
+          this.currentComponentLayer = layerName;
          }
       }
     
