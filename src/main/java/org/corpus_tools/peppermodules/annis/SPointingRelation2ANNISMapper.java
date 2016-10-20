@@ -31,12 +31,14 @@ import org.corpus_tools.salt.common.SPointingRelation;
 import org.corpus_tools.salt.common.SToken;
 import org.corpus_tools.salt.core.SAnnotation;
 import org.corpus_tools.salt.core.SGraph.GRAPH_TRAVERSE_TYPE;
+import org.corpus_tools.salt.core.SLayer;
 import org.corpus_tools.salt.core.SNode;
 import org.corpus_tools.salt.core.SRelation;
 
 public class SPointingRelation2ANNISMapper extends SRelation2ANNISMapper {
 
   private SNode lastEnteredNode;
+  private final Salt2ANNISMapper parentMapper;
   
   public SPointingRelation2ANNISMapper(IdManager idManager,
           SDocumentGraph documentGraph, 
@@ -52,6 +54,8 @@ public class SPointingRelation2ANNISMapper extends SRelation2ANNISMapper {
             nodeTabWriter, nodeAnnoTabWriter,
             rankTabWriter, edgeAnnoTabWriter, componentTabWriter,
             parentMapper);
+
+        this.parentMapper = parentMapper;
 
   }
 
@@ -115,18 +119,26 @@ public class SPointingRelation2ANNISMapper extends SRelation2ANNISMapper {
     // this method behaves exactly as the one in the super class
     super.nodeReached(traversalType, traversalId, currNode, relation, fromNode, order);
     
-    lastEnteredNode = currNode;
+      lastEnteredNode = currNode;
 
-    if (relation != null && relation instanceof SPointingRelation) {
-	  if (relation.getType() != null && !relation.getType().isEmpty()) {
+      boolean escapeCharacters = ((ANNISExporterProperties) this.parentMapper.getProperties()).getEscapeCharacters();
+
+      if (relation != null && relation instanceof SPointingRelation) {
+        if (relation.getType() != null && !relation.getType().isEmpty()) {
           this.currentComponentName = relation.getType();
-      } else {
-        this.currentComponentName = "salt::NULL";
+        } 
+        else {
+          this.currentComponentName = "salt::NULL";
+        }
+        if (!relation.getLayers().isEmpty()){
+          String layerName = ((SLayer) relation.getLayers().iterator().next()).getName();
+          this.currentComponentLayer = layerName;
+         }
       }
-    }
-
-  }
-
+    
+   }
+  
+  
   @Override
   public void nodeLeft(GRAPH_TRAVERSE_TYPE traversalType, String traversalId,
           SNode currNode, SRelation relation, SNode fromNode, long order) {
