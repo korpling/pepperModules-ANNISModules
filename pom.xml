@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>org.corpus-tools</groupId>
 		<artifactId>pepper-parentModule</artifactId>
-		<version>3.0.0</version>
+		<version>3.1.0</version>
 	</parent>
 	<artifactId>pepperModules-ANNISModules</artifactId>
 	<name>${project.groupId}.${project.artifactId}</name>
@@ -21,7 +21,7 @@
 	</ciManagement>
 	<inceptionYear>2014</inceptionYear>
 	<organization>
-		<name>Humboldt-Universität zu Berlin</name>
+		<name>Humboldt-Universit&#228;t zu Berlin</name>
 	</organization>
 	<scm>
 		<connection>scm:git:git://github.com/korpling/pepperModules-ANNISModules.git</connection>
@@ -29,11 +29,4 @@
 		<url>https://github.com/korpling/pepperModules-ANNISModules</url>
     <tag>HEAD</tag>
   </scm>
-	<dependencies>
-		<dependency>
-			<groupId>com.google.guava</groupId>
-			<artifactId>guava</artifactId>
-			<version>18.0</version>
-		</dependency>
-	</dependencies>
 </project>
