@@ -101,12 +101,13 @@ public class SOrderRelation2ANNISMapper extends SRelation2ANNISMapper {
     //if (sRelation.getSTypes() != null){
     //if (sRelation.getSTypes().size() > 0){
     // set the segName, segIndex and segSpan
-    String name;
-    if (appendIndex) {
-      name = this.currentTraversionSType + segPathCounter;
-    } else {
-      name = this.currentTraversionSType;
+    String name = this.currentTraversionSType;
+    if(name == null) {
+      name = "default_seg";
     }
+    if (appendIndex) {
+      name = name + segPathCounter;
+    } 
     
     Long segIndex = this.seg_index;
     this.seg_index = this.seg_index + 1;
@@ -144,18 +145,25 @@ public class SOrderRelation2ANNISMapper extends SRelation2ANNISMapper {
   @Override
   public boolean checkConstraint(GRAPH_TRAVERSE_TYPE traversalType,
           String traversalId, SRelation relation, SNode currNode, long order) {
-    boolean returnVal = false;
-
+    
     // only traverse on, if the current relation is null (top rank) or instance of SOrderRelation
     if (relation == null) {
-      returnVal = true;
+      return true;
     } else {
       if (relation instanceof SOrderRelation) {
-        returnVal = true;
+        if(this.currentTraversionSType == null) {
+          return true;
+        } else {
+          // check the type of the edge es well since node might be connected 
+          // to different order relation chainss
+          if(this.currentTraversionSType.equals(relation.getType())) {
+            return true;
+          }
+        }
       }
     }
 
-    return returnVal;
+    return false;
   }
 
 }
