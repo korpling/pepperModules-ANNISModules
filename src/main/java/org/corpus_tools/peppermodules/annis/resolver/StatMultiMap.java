@@ -22,6 +22,7 @@ import java.util.Set;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import java.util.LinkedHashSet;
 
 /**
  * A wrapper for a multi-map implementation
@@ -60,10 +61,14 @@ public class StatMultiMap<LayerType, ValueType> {
    * @param other 
    */
   public void merge(StatMultiMap<LayerType, ? extends ValueType> other) {
+    final Set<LayerType> otherLayerTypes = new LinkedHashSet<>();
     synchronized (valuesByLayer) {
       valuesByLayer.putAll(other.valuesByLayer);
+      otherLayerTypes.addAll(valuesByLayer.keySet());
     } // end synchronized
-    for(LayerType l : valuesByLayer.keySet()) {
+    
+    // update know layer types
+    for(LayerType l : otherLayerTypes) {
       layers.add(l);
     }
   }
